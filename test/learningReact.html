@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<!--    
+    This file is part of OpenNotebook-Web
+
+    OpenNotebook-Web is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenNotebook-Web is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenNotebook-Web.  If not, see <http://www.gnu.org/licenses/>. 
+-->
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React!</title>
+    <script src="react/build/react.js"></script>
+    <script src="react/build/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script>
+  </head>
+  <body>
+    <div id="example"></div>
+    <div id="content"></div>
+    <script type="text/babel">
+
+    // tutorial1.js
+    var CommentBox = React.createClass({
+      render: function() {
+        return (
+          <div className="commentBox">
+          <h1>Comments</h1>
+          <CommentList data={this.props.data}/>
+          <CommentForm />
+          </div>
+        );
+      }
+    });
+
+    var data = [
+      {id: 1, author: "Pete Hunt", text: "This is one comment"},
+      {id: 2, author: "Jordan Walke", text: "This is *another* comment"}
+    ];
+    // tutorial2.js
+    var CommentList = React.createClass({
+      render: function() {
+        var commentNodes = this.props.data.map(function(comment) {
+            return (
+              <Comment author={comment.author} key={comment.id}>
+                {comment.text}
+              </Comment>
+            );
+        });
+        return (
+          <div className="commentList">
+            {commentNodes}
+          </div>
+        );
+      }
+    });
+
+    var CommentForm = React.createClass({
+      render: function() {
+        return (
+          <div className="commentForm">
+            <input type="text"/>
+            Hello, world! I am a CommentForm.
+          </div>
+        );
+      }
+    });
+    var Comment = React.createClass({
+      rawMarkup: function() {
+        // to prevent XSS, ask marked to sanitize the input text
+        var rawMarkup = marked(this.props.children.toString(), {sanitize: true});
+        return { __html: rawMarkup };
+      },
+
+      render: function() {
+        return (
+          <div className="comment">
+            <h2 className="commentAuthor">
+              {this.props.author}
+            </h2>
+            {/*
+            // This puts out escaped HTML tags, react defaults
+            // to trying to prevent XSS
+            marked(this.props.children.toString()) 
+            // this allows you to set the HTML, make sure to manually sanitize*/}
+            <span dangerouslySetInnerHTML={this.rawMarkup()} /> 
+          </div>
+        );
+      }
+    });
+
+    ReactDOM.render(
+      <CommentBox data={data}/>,
+      document.getElementById('content')
+    );
+    </script>
+  </body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--    
+    This file is part of OpenNotebook-Web
+
+    OpenNotebook-Web is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenNotebook-Web is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenNotebook-Web.  If not, see <http://www.gnu.org/licenses/>. 
+-->
+<html>
+<head>
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
+
+<meta name="viewport" content="width=624">
+<title>Open Notebook</title>
+
+<link rel="stylesheet" type="text/css" href="support/home.css">
+<link rel="stylesheet" type="text/css" href="../build/mathquill.css">
+</head>
+<body>
+<div id="body">
+<div class="menuBar">
+    <!-- img class="logo" src="logo.jpg"/ -->
+    <div class="nav"> 
+        <b>Open Notebook</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Open Assignment <input type="file" id="open-file-input" /> 
+        Grade Student Assignments <input type="file" id="open-student-submissions-input" />
+    </div>
+</div>
+
+<div id="assignment-container"> <!-- container for several problems, each with step-by-step work-->
+</div> <!-- end of assignment container -->
+<br/>
+<input type="submit" id="new-problem" name="new problem" value="new problem"/> </br>
+</div>
+<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="../blob_js.js"></script>
+<script type="text/javascript" src="../filesaver_js.js"></script>
+<script type="text/javascript" src="../build/mathquill-basic.js"></script>
+<script type="text/javascript" src="../Stuk-jszip-82ceacc/dist/jszip.js"></script>
+<script type="text/javascript" src="../platform_js/platform.js"></script>
+<script type="text/javascript" src="../jquery-dom-outline.js"></script>
+<script type="text/javascript" src="../underscore.js"></script>
+<script type="text/javascript" src="../kas.js"></script>
+<script type="text/javascript" src="../diff.js"></script>
+<script type="text/javascript" src="assignment.js"></script>
+<script type="text/javascript" src="problem.js"></script>
+<script type="text/javascript">
+
+function detectPlatform() {
+    // failing on chrome
+    //isMac = (platform.os.indexOf("OS X") > -1);
+    //return { isMac : isMac };
+}
+
+$(function() {
+    newAssignment();
+    newProblem(true);
+    //MathQuill.StaticMath($('.mathquill-static-math')[0]);
+    $('#new-problem').click(function() {
+        newProblem(true, true);
+    });
+    // TODO - change this so it doesn't try to do anything when the user hits cancel
+    $('#open-file-input').change(readSingleFile);
+    $('#open-student-submissions-input').change(studentSubmissionsZip);
+    // this is intentionally global
+    detectedBrowserAndOS = detectPlatform();
+  var answerSpan = document.getElementById('answer');
+  var answerMathField = MathQuill.MathField(answerSpan);
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "mathquill",
+  "version": "0.9.4",
+  "dependencies": {
+    "pjs": "3.x"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "uglify-js": "2.x",
+    "less": ">=1.5.1"
+  }
+}

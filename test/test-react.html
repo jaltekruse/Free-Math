@@ -1,0 +1,301 @@
+<html>
+<head>
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
+
+<!-- UI react-->
+<!-- <script src="react/build/react-with-addons.js"></script> -->
+<script src="react/build/react.js"></script>
+<script src="react/build/react-dom.js"></script>
+<script src="../babel.min.js"></script>
+<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="../redux.js"></script>
+<script type="text/javascript" src="../underscore.js"></script>
+
+<!-- Needed for static math rendering borrowed from Kahn Perseus project -->
+<script type="text/javascript" src="../katexA11.js"></script>
+<!-- for comparing expressions KAS (Khan algebra system) -->
+<script type="text/javascript" src="../kas.js"></script>
+
+<!-- Katex -->
+<link rel="stylesheet" href="../katex.min.css">
+<script src="../katex.min.js"></script>
+<script type="text/babel">
+
+// Copied from Khan's Perseus project
+
+let pendingScripts = [];
+let pendingCallbacks = [];
+let needsProcess = false;
+
+const process = (script, callback) => {
+    pendingScripts.push(script);
+    pendingCallbacks.push(callback);
+    if (!needsProcess) {
+        needsProcess = true;
+        setTimeout(doProcess, 0);
+    }
+};
+
+const loadMathJax = (callback) => {
+    if (typeof MathJax !== "undefined") {
+        callback();
+    } else if (typeof Khan !== "undefined" && Khan.mathJaxLoaded) {
+        Khan.mathJaxLoaded.then(callback);
+    } else {
+        throw new Error(
+            "MathJax wasn't loaded before it was needed by <TeX/>");
+    }
+};
+
+const doProcess = () => {
+    loadMathJax(() => {
+        MathJax.Hub.Queue(function() {
+            const oldElementScripts = MathJax.Hub.elementScripts;
+            MathJax.Hub.elementScripts = (element) => pendingScripts;
+
+            try {
+                return MathJax.Hub.Process(null, () => {
+                    // Trigger all of the pending callbacks before clearing them
+                    // out.
+                    for (const callback of pendingCallbacks) {
+                        callback();
+                    }
+
+                    pendingScripts = [];
+                    pendingCallbacks = [];
+                    needsProcess = false;
+                });
+            } catch (e) {
+                // IE8 requires `catch` in order to use `finally`
+                throw e;
+            } finally {
+                MathJax.Hub.elementScripts = oldElementScripts;
+            }
+        });
+    });
+};
+
+// Make content only visible to screen readers.
+// Both collegeboard.org and Bootstrap 3 use this exact implementation.
+const srOnly = {
+    border: 0,
+    clip: "rect(0,0,0,0)",
+    height: "1px",
+    margin: "-1px",
+    overflow: "hidden",
+    padding: 0,
+    position: "absolute",
+    width: "1px",
+};
+
+const TeX = React.createClass({
+    propTypes: {
+        children: React.PropTypes.node,
+        onClick: React.PropTypes.func,
+        onRender: React.PropTypes.func,
+        style: React.PropTypes.any,
+    },
+
+    //mixins: [PureRenderMixin],
+
+    getDefaultProps: function() {
+        return {
+            // Called after math is rendered or re-rendered
+            onRender: function() {},
+            onClick: null,
+        };
+    },
+
+    componentDidMount: function() {
+        this._root = ReactDOM.findDOMNode(this);
+
+        if (this.refs.katex.childElementCount > 0) {
+            // If we already rendered katex in the render function, we don't
+            // need to render anything here.
+            this.props.onRender(this._root);
+            return;
+        }
+
+        const text = this.props.children;
+
+        this.setScriptText(text);
+        process(this.script, () => this.props.onRender(this._root));
+    },
+
+    componentDidUpdate: function(prevProps, prevState) {
+        // If we already rendered katex in the render function, we don't
+        // need to render anything here.
+        if (this.refs.katex.childElementCount > 0) {
+            if (this.script) {
+                // If we successfully rendered KaTeX, check if there's
+                // lingering MathJax from the last render, and if so remove it.
+                loadMathJax(() => {
+                    const jax = MathJax.Hub.getJaxFor(this.script);
+                    if (jax) {
+                        jax.Remove();
+                    }
+                });
+            }
+
+            this.props.onRender();
+            return;
+        }
+
+        const newText = this.props.children;
+
+        if (this.script) {
+            loadMathJax(() => {
+                MathJax.Hub.Queue(() => {
+                    const jax = MathJax.Hub.getJaxFor(this.script);
+                    if (jax) {
+                        return jax.Text(newText, this.props.onRender);
+                    } else {
+                        this.setScriptText(newText);
+                        process(this.script, this.props.onRender);
+                    }
+                });
+            });
+        } else {
+            this.setScriptText(newText);
+            process(this.script, this.props.onRender);
+        }
+    },
+
+    componentWillUnmount: function() {
+        if (this.script) {
+            loadMathJax(() => {
+                const jax = MathJax.Hub.getJaxFor(this.script);
+                if (jax) {
+                    jax.Remove();
+                }
+            });
+        }
+    },
+
+    setScriptText: function(text) {
+        if (!this.script) {
+            this.script = document.createElement("script");
+            this.script.type = "math/tex";
+            ReactDOM.findDOMNode(this.refs.mathjax).appendChild(this.script);
+        }
+        if ("text" in this.script) {
+            // IE8, etc
+            this.script.text = text;
+        } else {
+            this.script.textContent = text;
+        }
+    },
+
+    shouldComponentUpdate(nextProps, nextState) {
+        console.log("old");
+        console.log(JSON.stringify(this.props.children));
+        console.log(typeof this.props.children);
+        console.log("new");
+        console.log(typeof nextProps.children);
+        console.log(this.props.children !== nextProps.children);
+        return this.props.children !== nextProps.children;
+    },
+
+    render: function() {
+        let katexHtml = null;
+        try {
+            katexHtml = {
+                __html: katex.renderToString(this.props.children),
+            };
+        } catch (e) {
+            /* jshint -W103 */
+            if (e.__proto__ !== katex.ParseError.prototype) {
+            /* jshint +W103 */
+                throw e;
+            }
+        }
+
+        let katexA11yHtml = null;
+        if (katexHtml) {
+            try {
+                katexA11yHtml = {
+                    __html: katexA11y.renderString(this.props.children),
+                };
+            } catch (e) {
+                // Nothing
+            }
+        }
+
+        return <span
+            style={this.props.style}
+            onClick={this.props.onClick}
+        >
+            <span ref="mathjax" />
+            <span
+                ref="katex"
+                dangerouslySetInnerHTML={katexHtml}
+                aria-hidden={!!katexHtml && !!katexA11yHtml}
+            />
+            <span
+                dangerouslySetInnerHTML={katexA11yHtml}
+                style={srOnly}
+            />
+        </span>;
+    },
+});
+
+// End static math render copied from Perseus
+
+
+var TestRoot = React.createClass({
+    render: function() {
+        console.log('render');
+        console.log(this.props);
+        console.log(this.props.value);
+        return ( <div><h1>Hello World!</h1>
+            <button onClick={function() { store.dispatch({ type : 'ADD_ITEM'}); }}>Add Item</button>
+            {this.props.value.map(function(item, index) {
+            return (<div key={index}><TeX>{item.num}</TeX><input type="text" value={item.text} key={index} onChange={
+                        function(evt) { store.dispatch({ type : 'EDIT_ITEM', index : index, 
+                                newContent : evt.target.value}) }}/></div>)
+            })}
+        </div>);
+    }
+});
+
+_.cloneDeep = function(oldObject) { return JSON.parse(JSON.stringify(oldObject)); };
+
+function rootReducer(state, action) {
+    console.log('reducer');
+    console.log(_.clone(state));
+    if (state === undefined) {
+        return [];
+    } else if (action.type === 'ADD_ITEM') {
+        state = _.cloneDeep(state);
+        return _.clone(state).concat({"text" : '', "num" : "1"});
+    } else if (action.type === 'EDIT_ITEM') {
+        state = _.cloneDeep(state);
+        return [
+                ...state.slice(0, action.index),
+                { "text" : action.newContent, "num" : "1"},
+                ...state.slice(action.index + 1)
+            ];
+    }
+}
+
+var createStore = Redux.createStore;
+var store = createStore(rootReducer);
+
+function render() {
+    ReactDOM.render(
+        <TestRoot value={store.getState()} />,
+        document.getElementById('root')
+    );
+}
+
+store.subscribe(render);
+$(function() {
+    render();
+});
+</script>
+</head>
+<body>
+</div>
+<div id="root"></div>
+</body>
+</html>

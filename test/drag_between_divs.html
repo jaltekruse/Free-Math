@@ -1,0 +1,78 @@
+<html>
+<!-- copied from  http://www.htmlgoodies.com/beyond/javascript/drag-drop-list-items-between-divs-using-jquery.html -->
+<head>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function () {
+  $('table#tblAttachAttributes').find('div.sortable').sortable({
+    connectWith: 'div.sortable'
+        });
+});
+$.fn.extend({ 
+  getMaxHeight: function() {  
+          var maxHeight = -1;
+          this.each(function() {     
+                  var height = $(this).height();
+                  maxHeight = maxHeight > height ? maxHeight : height;   
+                }); 
+                return maxHeight;
+  }
+});
+
+function setMenusDivHeight($attributeDivs) {
+        return $attributeDivs.css('min-height', $attributeDivs.getMaxHeight());
+}
+
+setMenusDivHeight($('table#tblAttachAttributes').find('div.sortable')).sortable({
+  connectWith: 'div.sortable',
+  start: function( event, ui ) {
+    setMenusDivHeight(ui.item.closest('table#tblAttachAttributes').find('div.sortable'))
+                  .css('box-shadow', '0 0 10px blue');
+  },
+  stop: function( event, ui ) {
+    setMenusDivHeight(ui.item.closest('table#tblAttachAttributes').find('div.sortable'))
+            .css('box-shadow', '');
+  }
+});
+
+</script>
+</head>
+<form name="post">
+  <div id="attribute_attachment_section" class="postbox">
+    <h2 align="center">
+      <span>Drag & Drop Demo</span>
+    </h2>
+    <div class="inside">
+      <table id="tblAttachAttributes" class="postbox">
+        <thead>
+          <tr>
+            <th>
+              Unassigned Attributes
+            </th>
+            <th style="border-left: #ccc 1px double;">
+              Assigned Attributes
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div id="unassigned_attributes" class="sortable">
+                <label name="attributes" id="1234">friendly</label>
+                <label name="attributes" id="666">energetic</label>
+              </div>
+            </td>
+            <td>
+              <div id="assigned_attributes" class="sortable">
+                <label name="attributes" id="2112">lovable</label>
+                <label name="attributes" id="5150">handsome</label>
+                <label name="attributes" id="1999">intellectual</label>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>

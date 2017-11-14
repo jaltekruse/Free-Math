@@ -1,0 +1,243 @@
+/*
+Copied from persus project
+*/
+.math-input-buttons {
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  margin-top: 5px;
+  padding: 2px;
+  width: 201px;
+}
+.math-input-buttons.absolute {
+  left: -2px;
+  position: absolute;
+  top: -3px;
+  z-index: 5;
+}
+.tex-button {
+  display: block;
+  float: left;
+  width: 35px;
+  height: 35px;
+  margin: 2px;
+  border: 1px solid #1c758a;
+  background-color: white;
+  border-radius: 5px;
+}
+.tex-button:hover {
+  cursor: pointer;
+  background-color: #f0f0f0;
+}
+.tex-button:focus {
+  border: 2px solid #1c758a;
+  outline: none;
+}
+.tex-button-row {
+  margin: 5px 0;
+}
+.tex-button-row:first-child {
+  margin-top: 0;
+}
+.tex-button-row:last-child {
+  margin-bottom: 0;
+}
+/*
+end of styles copied form perseus
+*/
+
+.menuBar{
+    padding: 10px 10px 10px 10px;
+    width:100%;
+    display:block;
+    position:fixed;
+    background-color: #212121;
+    color : #efefef;
+    top:0;
+    left:0;
+    z-index: 100;
+    }
+.logo{
+    float:left;
+    }
+.nav{
+    float:none;
+    margin-right:10px;}
+.nav ul li{
+    list-style:none;
+    float:left;
+    }
+
+html {
+  height: 100%;
+}
+body {
+  min-height: 100%;
+  font-family: Arial,sans-serif;
+  margin-top:70px;
+  color: black;
+  background-color: #e7effd;
+  margin-bottom: 0
+}
+#body {
+  padding: 1em;
+}
+h1 {
+  font-size: 2em;
+  margin: 0;
+}
+h1 small {
+  font-size: 60%;
+}
+code {
+  font: 90% monospace;
+  background: #DDD;
+  border-radius: .3em;
+  -moz-border-radius: .3em;
+  -webkit-border-radius: .3em;
+  padding: 0 .3em;
+}
+code:hover {
+  color: #DDD;
+  background: #222;
+}
+a {
+  color: mediumblue;
+  text-decoration: none;
+}
+a:hover {
+  color: black;
+  color: orange;
+}
+a:active {
+  color: #400;
+}
+ul {
+  padding-left: 1em;
+}
+
+/* OpenNotebook-Web styles */
+div.problem-summary-container {
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
+}
+
+div.answer-incorrect {
+    border-radius: 2px;
+    border:1px solid #dc8484;
+    background-color:#FFDEDE;
+}
+
+div.answer-complete {
+    border-radius: 2px;
+    border:1px solid #747474;
+    background-color:#DEDEDE;
+}
+
+.error-highlight{
+    background-color:#FF99CC;
+}
+
+.success-highlight{
+    background-color:#99FFBB;
+}
+
+div.answer-partially-correct {
+    border-radius: 2px;
+    border:1px solid #ece583;
+    background-color:#FFFDBF;
+}
+
+div.answer-correct {
+    border-radius: 2px;
+    border:1px solid #94b98e;
+    background-color:#D0FFC9;
+}
+
+div.show-correct-div {
+    border:1px solid black;
+    background-color:#D0FFC9;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.show-incorrect-div {
+    border:1px solid black;
+    background-color:#FFDEDE;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.show-partially-correct-div {
+    border:1px solid black;
+    background-color:#FFFDBF;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.show-complete-div {
+    border:1px solid black;
+    background-color:#DEDEDE;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.similar-assignment-filters {
+    border:1px solid black;
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
+    border:1px solid black;
+    background-color:#FFFDBF;
+}
+
+div.assignment-filters {
+    margin: 5px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.similar-student-answers {
+    /*
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
+    background-color:white;
+    border:1px solid #cfcfcf;
+    border-radius: 3px;
+    box-shadow: 0 10px 6px -6px #777;
+    */
+}
+
+div.student-work {
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
+    box-shadow: 0 10px 6px -6px #777;
+}
+
+div.problem-container {
+    border-radius: 3px;
+    border:1px solid #cfcfcf;
+    background-color:white;
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 130px 15px;
+    box-shadow: 0 5px 3px -3px #cfcfcf;
+    min-width: 50%;
+}
+
+span.solution-step {
+    margin: 5px 10px 10px 10px;
+    min-width: 50%;
+}
+
+#assignment-container {
+    min-width: 400px;
+    margin: 5px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
+}
