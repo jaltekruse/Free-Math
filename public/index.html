@@ -1,40 +1,129 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
-    <!--
-      manifest.json provides metadata used when your web app is added to the
-      homescreen on Android. See https://developers.google.com/web/fundamentals/engage-and-retain/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
+<!DOCTYPE html>
+<!--    
+    This file is part of Free Math 
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    Free Math is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+    Free Math is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
+    You should have received a copy of the GNU General Public License
+    along with Free Math.  If not, see <http://www.gnu.org/licenses/>. 
+
     -->
-  </body>
+<!--
+This project includes code from the Persus project from Khan Academy. These
+portions of the code are licensed under the MIT license.
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Khan Academy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<!--
+This project includes code from the MathQuill project. These
+portions of the code are licensed under the Mozilla Public License, v. 2.0.
+http://mozilla.org/MPL/2.0/
+
+-->
+<html>
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70441517-2');
+</script>
+
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
+
+<meta name="viewport" content="width=624">
+<title>Free Math</title>
+
+<link rel="stylesheet" type="text/css" href="build/mathquill.css">
+<!--link rel="stylesheet" type="text/css" href="../perseus.css"-->
+<link rel="stylesheet" type="text/css" href="support/home.css">
+<!-- testing -->
+<script src="expect.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js"></script>
+
+<!-- UI react-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.14.7/react-dom.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+<!-- input sanitiation --> 
+<!-- script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.2/marked.min.js"></script -->
+
+<!-- saving to local disk -->
+<script type="text/javascript" src="filesaver_js.js"></script>
+<!-- reading ZIP files -->
+<script type="text/javascript" src="jszip.min.js"></script>
+
+<!-- Only use this for MathQuill! --> 
+<!-- <script src="https://code.jquery.com/jquery-1.7.2.min.js"
+  integrity="sha256-R7aNzoy2gFrVs+pNJ6+SokH04ppcEqJ0yFLkNGoFALQ="
+  crossorigin="anonymous"></script> -->
+
+ <script src="lib/jquery.js"></script>
+  <script src="lib/underscore.js"></script>
+   <script src="lib/react-with-addons.js"></script>
+    <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script>
+     <script src="lib/mathquill/mathquill-basic.js"></script>
+      <script src="lib/kas.js"></script>
+       <script src="lib/i18n.js"></script>
+
+<!-- needed for KAS, as well as general utility functions -->
+<!-- for KAS, investivate impact of lodash vs underscore https://github.com/Khan/KAS/issues/9 -->
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
+<script src="lib/underscore.js" />
+
+<!-- <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script> -->
+<script src="lib/mathjax/2.1/MathJax.js" />
+
+<!-- Needed for static math rendering borrowed from Kahn Perseus project -->
+<script type="text/javascript" src="katexA11.js"></script>
+<!-- for comparing expressions KAS (Khan algebra system) -->
+<script type="text/javascript" src="kas.min.js"></script>
+<!-- for diffing JSON structures -->
+<script type="text/javascript" src="diff.js"></script>
+<!-- Katex -->
+<link rel="stylesheet" href="katex.min.css">
+<script src="katex.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="build/mathquill.css">
+<script type="text/javascript" src="build/mathquill.js"></script>
+<!-- App state management -->
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+</body>
 </html>
