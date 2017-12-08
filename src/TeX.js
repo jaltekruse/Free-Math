@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
-import MathJax from 'mathjax';
-import katex from 'katex';
-import katexA11y from 'react-components/katex-a11y.js';
+
+var Khan = window.Khan;
+var MathJax = window.MathJax;
+var katexA11y = window.katexA11y;
+var katex = window.katex;
 
 // Copied from Khan's Perseus project
 let pendingScripts = [];
@@ -18,7 +20,6 @@ const process = (script, callback) => {
     }
 };
 
-/*
 const loadMathJax = (callback) => {
     if (typeof MathJax !== "undefined") {
         callback();
@@ -29,11 +30,6 @@ const loadMathJax = (callback) => {
             "MathJax wasn't loaded before it was needed by <TeX/>");
     }
 };
-*/
-
-const loadMathJax = (callback) => {
-    return callback();
-}
 
 const doProcess = () => {
     loadMathJax(() => {
@@ -76,7 +72,7 @@ const srOnly = {
     width: "1px",
 };
 
-export default React.createClass({
+const TeX = React.createClass({
     propTypes: {
         children: React.PropTypes.node,
         onClick: React.PropTypes.func,
@@ -84,8 +80,12 @@ export default React.createClass({
         style: React.PropTypes.any,
     },
 
-    /* TODO - get re-enabled for perf boost */
-    /* mixins: [PureRenderMixin], */
+    //TODO - get re-enabled for perf boost
+    // mixins: [PureRenderMixin],
+
+    shouldComponentUpdate: function(oldProps, newProps) {
+        return oldProps.children !== this.props.children;
+    },
 
     getDefaultProps: function() {
         return {
@@ -182,9 +182,9 @@ export default React.createClass({
                 __html: katex.renderToString(this.props.children),
             };
         } catch (e) {
-            /* jshint -W103 */
+            // jshint -W103
             if (e.__proto__ !== katex.ParseError.prototype) {
-            /* jshint +W103 */
+            // jshint +W103
                 throw e;
             }
         }
@@ -200,10 +200,8 @@ export default React.createClass({
             }
         }
 
-        return <span
-            style={this.props.style}
-            onClick={this.props.onClick}
-        >
+        return <div onClick={this.props.onClick}>
+            <div style={{...this.props.style, display : "inline-block",padding: "3px 3px 3px 3px"}}>
             <span ref="mathjax" />
             <span
                 ref="katex"
@@ -214,8 +212,10 @@ export default React.createClass({
                 dangerouslySetInnerHTML={katexA11yHtml}
                 style={srOnly}
             />
-        </span>;
+            </div>
+        </div>;
     },
 });
 
+export default TeX;
 // End static math render copied from Perseus
