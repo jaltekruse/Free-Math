@@ -11,11 +11,11 @@ var _ = window._;
 var katexA11y = window.katexA11y;
 
 var JSZip = window.JSZip ;
-  var $ = window.$;
-  var KAS = window.KAS;
-  var JsDiff = window.JsDiff;
-  var Chart = window.Chart;
-  var saveAs = window.saveAs;
+var $ = window.$;
+var KAS = window.KAS;
+var JsDiff = window.JsDiff;
+var Chart = window.Chart;
+var saveAs = window.saveAs;
 /*
 
   	Unexpected use of 'location'  no-restricted-globals
@@ -706,8 +706,6 @@ function deepFreeze (o) {
   return o;
 };
 
-//Learning Redux
-
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 
 // Application state properties
@@ -899,7 +897,11 @@ function studentSubmissionsZip(evt) {
                     if (new_zip.file(file) == null) continue;
                     var fileContents = new_zip.file(file).asText();
                     // how is this behaviring differrntly than JSOn.parse()?!?!
-                    var assignmentData = $.parseJSON(fileContents);
+                    //var assignmentData = window.$.parseJSON(fileContents);
+					console.log("aaaa");
+					fileContents = fileContents.trim();
+					console.log(fileContents);
+                    var assignmentData = JSON.parse(fileContents);
                     assignmentData = convertToCurrentFormat(assignmentData);
                     allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
                 }
@@ -918,10 +920,10 @@ function studentSubmissionsZip(evt) {
 function gradeSingleProblem(problem, answerKey) {
     var automaticallyAssignedGrade;
     var problemKey = answerKey[problem[PROBLEM_NUMBER]];
-    $.each(problemKey[ANSWER_CLASSES], function(answerClassIndex, answerClass) {
+    window.$.each(problemKey[ANSWER_CLASSES], function(answerClassIndex, answerClass) {
         var exitEarly = false;
         if (answerClass[GRADE_STRATEGY] === ONE_ANSWER_REQUIRED) {
-            $.each(answerClass[ANSWERS], function(answerIndex, answer) {
+            window.$.each(answerClass[ANSWERS], function(answerIndex, answer) {
             var studentAnswer = _.last(problem[STEPS])[CONTENT];
             // TODO - better expression comparison
             // var expr1 = KAS.parse(answer).expr;
@@ -1102,7 +1104,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
             var studentAnswer = problem[STEPS][problem[LAST_SHOWN_STEP]][CONTENT];
             // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
             var automaticallyAssignedGrade = "";
-            if (!$.isEmptyObject(answerKey)) {
+            if (!window.$.isEmptyObject(answerKey)) {
                 // this problem did not appear in the answer key
                 if (!answerKey[problem[PROBLEM_NUMBER]]) {
                     // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
@@ -1161,7 +1163,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
             problemSummary[UNIQUE_ANSWERS] = uniqueAnswers;
             // this is currently redundant, but the next step to order all of the problems based
             // on which ones most students go wrong with rewrite the keys to numeric ones
-            if (!$.isEmptyObject(answerKey)) {
+            if (!window.$.isEmptyObject(answerKey)) {
                 problemSummary[POSSIBLE_POINTS] = answerKey[problem[PROBLEM_NUMBER]][POSSIBLE_POINTS];
             } else {
                 problemSummary[POSSIBLE_POINTS] = 6;
@@ -1974,8 +1976,8 @@ var Problem = React.createClass({
                             <MathInput key={stepIndex} buttonsVisible='focused' highlight={highlight}
                                        buttonSets={['trig', 'prealgebra', 'logarithms', 'calculus']} stepIndex={stepIndex}
                                        problemIndex={problemIndex} value={step[CONTENT]} onChange={
-                                           function(evt) {
-                                            window.store.dispatch({ type : EDIT_STEP, PROBLEM_INDEX : this.props.problemIndex, STEP_KEY : this.props.stepIndex, NEW_STEP_CONTENT : evt.value});
+                                           function(value) {
+                                            window.store.dispatch({ type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY : stepIndex, NEW_STEP_CONTENT : value});
                                            }
                                        }/>
                             </div>
