@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import logo from './logo.svg';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
-import convertToCurrentFormat from './TeacherInteractiveGrader.js';
+import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 
 var saveAs = window.saveAs;
 

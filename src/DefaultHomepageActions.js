@@ -5,8 +5,8 @@ import './App.css';
 import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import FreeMath from './FreeMath.js';
-import studentSubmissionsZip from './TeacherInteractiveGrader.js';
-import readSingleFile from './AssignmentEditorMenubar.js';
+import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
+import { readSingleFile } from './AssignmentEditorMenubar.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;
@@ -48,6 +48,15 @@ const DefaultHomepageActions = React.createClass({
             width:"1024"
         };
 
+        var openAssignments = function(evt){
+            // turn on confirmation dialog upon navigation away
+            window.onbeforeunload = function() {
+                    return true;
+            };
+            console.log(evt);
+            studentSubmissionsZip(evt);
+        };
+
         var recoverAutoSaveCallback = function(docName) {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = function() {
@@ -65,6 +74,7 @@ const DefaultHomepageActions = React.createClass({
             // addressing TODO below about component directly accessing localStorage
             render();
         };
+
         // TODO - this is ugly, a component shouldn't access localStorage, this should be read in at app startup
         // stored in the redux state tree and then kept in sync with what is actually stored through actions
         // use subscribers - https://stackoverflow.com/questions/35305661/where-to-write-to-localstorage-in-a-redux-app
@@ -120,15 +130,7 @@ const DefaultHomepageActions = React.createClass({
                         </div>
                         <div style={divStyle}>
                             <h3>Teachers</h3>
-                            Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={
-                                function(evt){
-                                    // turn on confirmation dialog upon navigation away
-                                    window.onbeforeunload = function() {
-                                            return true;
-                                    };
-                                    studentSubmissionsZip(evt);
-                                }
-                            }/>
+                            Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
                             { (recoveredTeacherDocs.length > 0) ?
 

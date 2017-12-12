@@ -149,7 +149,7 @@ function findSimilarStudentAssignments(allStudentWork) {
     return allSimilarityGroups;
 }
 
-export function calculateGradingOverview(allProblems) {
+function calculateGradingOverview(allProblems) {
     var totalPossiblePoints = 0;
     /*
         Structure:
@@ -193,7 +193,7 @@ export function calculateGradingOverview(allProblems) {
 //      "POSSIBLE_POINTS : 3,
 //      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
 //                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
-export function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
+function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
     // TODO - when reading in student files above make sure to uniquify names that overlap and give a warning
     // map indexed by student assignment filename
     var assignments = {};
@@ -305,7 +305,7 @@ function gradeSingleProblem(problem, answerKey) {
 //      "POSSIBLE_POINTS : 3,
 //      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
 //                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
-export function aggregateStudentWork(allStudentWork, answerKey = {}) {
+function aggregateStudentWork(allStudentWork, answerKey = {}) {
     var aggregatedWork = {};
     // used to simplify filling in a flag for missing work if a student does not do a problem
     // structure: { "1.1" : { "jason" :true, "taylor" : true }
@@ -446,7 +446,7 @@ function wrapSteps(studentSteps) {
     return wrappedSteps;
 }
 
-export function convertToCurrentFormat(possiblyOldDoc) {
+function convertToCurrentFormat(possiblyOldDoc) {
     if (!possiblyOldDoc.hasOwnProperty('problems')) {
         return possiblyOldDoc;
     }
@@ -466,8 +466,8 @@ export function convertToCurrentFormat(possiblyOldDoc) {
 }
 
 // open zip file full of student assignments for grading
-export function studentSubmissionsZip(evt) {
-
+function studentSubmissionsZip(evt) {
+    console.log("studentSubmissionsZip");
     // reset scroll location from previous view of student docs
     window.location.hash = '';
     var f = evt.target.files[0];
@@ -542,7 +542,7 @@ const TeacherInteractiveGrader = React.createClass({
 			largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
 			averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
 		});
-        var chart;
+        var chart = ReactDOM.findDOMNode(this.refs.chart);
         var onClickFunc = function(evt) {
             var activePoints = chart.getElementsAtEvent(evt);
             if (!activePoints || activePoints.length == 0) {
@@ -553,7 +553,7 @@ const TeacherInteractiveGrader = React.createClass({
             // for now make them scroll past the graph and similar assignments themselves
             //window.location.hash = "#grade_problem";
         };
-		chart = new Chart(this.chart.getContext('2d'), {
+		chart = new Chart(chart.getContext('2d'), {
 			type: 'bar',
 			data: {
 				labels: labels,
@@ -586,7 +586,7 @@ const TeacherInteractiveGrader = React.createClass({
         return (
             <div>
                 <span>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</span>
-            	<canvas ref={(input) => { this.chart = input }} width="400" height="50"></canvas>
+            	<canvas ref="chart" width="400" height="50"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 { (similarAssignments && similarAssignments.length > 0) ? (
                     <div className="similar-assignment-filters"><h3>Some students may have copied each others work.</h3>
@@ -673,4 +673,12 @@ const TeacherInteractiveGrader = React.createClass({
     }
 });
 
-export default TeacherInteractiveGrader;
+export { TeacherInteractiveGrader as default,
+    studentSubmissionsZip,
+    saveGradedStudentWork,
+    gradeSingleProblem,
+    aggregateStudentWork,
+    separateIndividualStudentAssignments,
+    calculateGradingOverview,
+    convertToCurrentFormat};
+

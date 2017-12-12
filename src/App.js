@@ -7,12 +7,12 @@ import TeX from './TeX.js';
 import FreeMath from './FreeMath.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import SolutionGrader from './SolutionGrader.js';
-import convertToCurrentFormat from './TeacherInteractiveGrader.js';
+import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 // TODO - move tests out of this file and remove these next 2 imports
-import aggregateStudentWork from './TeacherInteractiveGrader.js';
-import separateIndividualStudentAssignments from './GradingMenuBar.js';
-import gradeSingleProblem from './TeacherInteractiveGrader.js';
-import calculateGradingOverview from './TeacherInteractiveGrader.js';
+import { aggregateStudentWork } from './TeacherInteractiveGrader.js';
+import { separateIndividualStudentAssignments } from './TeacherInteractiveGrader.js';
+import { gradeSingleProblem } from './TeacherInteractiveGrader.js';
+import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;

@@ -3,8 +3,8 @@ import ReactDOM from 'react-dom';
 import logo from './logo.svg';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
-import saveGradedStudentWork from './TeacherInteractiveGrader.js';
-import studentSubmissionsZip from './TeacherInteractiveGrader.js';
+import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
+import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 
 var JSZip = window.JSZip;
 var _ = window._;
