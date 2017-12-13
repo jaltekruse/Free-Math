@@ -10,6 +10,7 @@ window.onload = function() {
 	const Redux = window.Redux;
     var MathQuill = window.MathQuill;
     window.MathQuill = MathQuill.getInterface(1);
+    window.KAS = window.KAS;
     window.store = Redux.createStore(rootReducer);
     window.store.subscribe(render);
 	render();

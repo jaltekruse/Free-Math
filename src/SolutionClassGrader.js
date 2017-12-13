@@ -5,7 +5,7 @@ import logo from './logo.svg';
 import './App.css';
 import MathInput from './MathInput.js';
 import TeX from './TeX.js';
-import SolutionGrader from 'SolutionGrader.js';
+import SolutionGrader from './SolutionGrader.js';
 
 // teacher grade page model properties
 var STUDENT_WORK = "STUDENT_WORK";

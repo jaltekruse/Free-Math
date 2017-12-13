@@ -512,10 +512,10 @@ function saveGradedStudentWork(gradedWork) {
 function gradeSingleProblem(problem, answerKey) {
     var automaticallyAssignedGrade;
     var problemKey = answerKey[problem[PROBLEM_NUMBER]];
-    window.$.each(problemKey[ANSWER_CLASSES], function(answerClassIndex, answerClass) {
+    problemKey[ANSWER_CLASSES].forEach(function(answerClass, answerClassIndex, array) {
         var exitEarly = false;
         if (answerClass[GRADE_STRATEGY] === ONE_ANSWER_REQUIRED) {
-            window.$.each(answerClass[ANSWERS], function(answerIndex, answer) {
+            answerClass[ANSWERS].forEach(function(answer, answerIndex, answerArray) {
             var studentAnswer = _.last(problem[STEPS])[CONTENT];
             // TODO - better expression comparison
             // var expr1 = KAS.parse(answer).expr;
@@ -579,7 +579,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
             var studentAnswer = problem[STEPS][problem[LAST_SHOWN_STEP]][CONTENT];
             // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
             var automaticallyAssignedGrade = "";
-            if (!window.$.isEmptyObject(answerKey)) {
+            if (!_.isEmpty(answerKey)) {
                 // this problem did not appear in the answer key
                 if (!answerKey[problem[PROBLEM_NUMBER]]) {
                     // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
@@ -638,7 +638,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
             problemSummary[UNIQUE_ANSWERS] = uniqueAnswers;
             // this is currently redundant, but the next step to order all of the problems based
             // on which ones most students go wrong with rewrite the keys to numeric ones
-            if (!window.$.isEmptyObject(answerKey)) {
+            if (!_.isEmpty(answerKey)) {
                 problemSummary[POSSIBLE_POINTS] = answerKey[problem[PROBLEM_NUMBER]][POSSIBLE_POINTS];
             } else {
                 problemSummary[POSSIBLE_POINTS] = 6;
