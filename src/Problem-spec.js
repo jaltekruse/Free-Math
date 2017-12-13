@@ -1,4 +1,5 @@
-function testAddProblem() {
+
+it('test adding a prboelm', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
@@ -19,8 +20,10 @@ function testAddProblem() {
     expect(
         assignment(initialAssignment, { type : ADD_PROBLEM })
     ).toEqual(expectedAssignment);
-}
+});
 
+
+/*
 function testRemoveProblem() {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
@@ -142,3 +145,4 @@ function testRedoStep() {
         problemReducer(initialProblem, { type : REDO_STEP})
     ).toEqual(expectedProblem);
 }
+*/

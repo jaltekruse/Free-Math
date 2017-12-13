@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'underscore';
 import logo from './logo.svg';
 import './App.css';
 import MathInput from './MathInput.js';
@@ -10,7 +11,6 @@ var MathQuill = window.MathQuill;
 var Khan = window.Khan;
 var MathJax = window.MathJax;
 var katex = window.katex;
-var _ = window._;
 var katexA11y = window.katexA11y;
 
 var JSZip = window.JSZip ;

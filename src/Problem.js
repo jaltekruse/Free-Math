@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'underscore';
 import logo from './logo.svg';
 import './App.css';
 import TeX from './TeX.js';
 import MathInput from './MathInput.js';
-
-var _ = window._;
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down

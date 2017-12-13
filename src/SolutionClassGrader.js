@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'underscore';
 import logo from './logo.svg';
 import './App.css';
 import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import SolutionGrader from 'SolutionGrader.js';
-
-var _ = window._;
 
 // teacher grade page model properties
 var STUDENT_WORK = "STUDENT_WORK";

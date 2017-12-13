@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'underscore';
 import logo from './logo.svg';
 import './App.css';
 import MathInput from './MathInput.js';
@@ -20,7 +21,6 @@ var MathQuill = window.MathQuill;
 var Khan = window.Khan;
 var MathJax = window.MathJax;
 var katex = window.katex;
-var _ = window._;
 var katexA11y = window.katexA11y;
 
 var JSZip = window.JSZip ;
@@ -31,7 +31,9 @@ var Chart = window.Chart;
 
 // TODO - THIS IS NOT THE RIGHT WAY TO DO THIS, INSTEAD FIND A VERSION OF LODASH COMPATIBLE WITH KAS
 
-_.cloneDeep = function(oldObject) { return JSON.parse(JSON.stringify(oldObject)); };
+_.cloneDeep = function(oldObject) {
+    return JSON.parse(JSON.stringify(oldObject));
+};
 
 // copied from here, didn't seem worth adding a dependency, I'm sure the JS people will cure me of that eventually...
 // https://github.com/substack/deep-freeze/blob/master/index.js

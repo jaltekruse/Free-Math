@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'underscore';
 import logo from './logo.svg';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -7,7 +8,6 @@ import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 
 var JSZip = window.JSZip;
-var _ = window._;
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 // the state resulting from above ttanstion action

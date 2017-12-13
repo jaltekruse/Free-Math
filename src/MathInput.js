@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'underscore';
 import TeX from './TeX.js';
 var MathQuill = window.MathQuill;
-var _ = window._;
 
 // TeX button from Persus
 var prettyBig = { fontSize: "150%" };
