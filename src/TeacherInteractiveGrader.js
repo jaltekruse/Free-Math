@@ -20,6 +20,27 @@ var JsDiff = window.JsDiff;
 var Chart = window.Chart;
 var saveAs = window.saveAs;
 
+// key used to refer to one step in a series of student work
+var STEP_KEY = 'STEP_KEY';
+var SOLUTION_INDEX = "SOLUTION_INDEX";
+var SOLUTION_CLASS_INDEX = "SOLUTION_CLASS_INDEX";
+
+var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
+var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
+var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
+var POSSIBLE_POINTS = "POSSIBLE_POINTS";
+// as the points already assigned for all work on a problem need to be scaled
+// wen the possible points changes, and the old a new values need to be
+// known at the time of the recalculation, user input is stored in this field
+// until the field is submitted (with a button, pressing enter key or focus loss)
+var POSSIBLE_POINTS_EDITED = "POSSIBLE_POINTS_EDITED";
+var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
+
+var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
+var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+// when grading, open the view where overall student grades are show
+var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
+
 var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
@@ -96,6 +117,249 @@ var ALL = "ALL";
 
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
 var HIGHLIGHT_TYPE = 'HIGHLIGHT_TYPE';
+
+function singleSolutionReducer(state, action) {
+    if (action.type === GRADE_SINGLE_SOLUTION) {
+        // currently no validation here
+        return { ...state,
+        SCORE : action[SCORE] };
+	} else if (action.type === HIGHLIGHT_STEP) {
+		var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
+		var newHighlight;
+		if (oldHighlight == undefined)
+			newHighlight = ERROR;
+		else if (oldHighlight == ERROR)
+			newHighlight = SUCCESS;
+		else if (oldHighlight == SUCCESS)
+			newHighlight = undefined;
+
+		var newState = { ...state,
+			STEPS : [
+				...state[STEPS].slice(0, action[STEP_KEY]),
+				{ ...state[STEPS][action[STEP_KEY]], HIGHLIGHT : newHighlight},
+				...state[STEPS].slice(action[STEP_KEY] + 1)
+			]
+		};
+		return newState;
+    } else if (action.type === SET_PROBLEM_FEEDBACK) {
+        return { ...state,
+        FEEDBACK : action[FEEDBACK] };
+    } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+        var newScore = Math.round( (Number(state[SCORE])/Number(action[OLD_POSSIBLE_POINTS])) * Number(action[POSSIBLE_POINTS]));
+        if (Number(state[SCORE]) > 0) {
+            return { ...state,
+                     SCORE : newScore };
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+}
+
+function solutionClassReducer(state, action) {
+    if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
+        action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+        var newState = { ...state };
+        var workInGivenSolutionClass = [ ...state[STUDENT_WORK] ];
+        if (action.type === GRADE_CLASS_OF_SOLUTIONS) {
+            action.type = GRADE_SINGLE_SOLUTION;
+        }
+        workInGivenSolutionClass.forEach(function(singleStudentsWork, index, arr) {
+            if (action[MODE] === JUST_UNGRADED && singleStudentsWork[SCORE] !== "") {
+                return;
+            }
+            workInGivenSolutionClass[index] = singleSolutionReducer(singleStudentsWork, action);
+        });
+        return {
+            ...state,
+            STUDENT_WORK : workInGivenSolutionClass
+        };
+    } else if (action.type === GRADE_SINGLE_SOLUTION ||
+               action.type === SET_PROBLEM_FEEDBACK ||
+			   action.type === HIGHLIGHT_STEP
+        ) {
+        return {
+            ...state,
+            STUDENT_WORK : [
+                ...state[STUDENT_WORK].slice(0, action[SOLUTION_INDEX]),
+                singleSolutionReducer(state[STUDENT_WORK][action[SOLUTION_INDEX]], action),
+                ...state[STUDENT_WORK].slice(action[SOLUTION_INDEX] + 1)
+            ]
+        };
+    } else {
+        return state;
+    }
+}
+
+function problemGraderReducer(state, action) {
+    if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
+        action.type === GRADE_SINGLE_SOLUTION ||
+		action.type === HIGHLIGHT_STEP ||
+        action.type === SET_PROBLEM_FEEDBACK ) {
+        return {
+            ...state,
+            UNIQUE_ANSWERS : [
+                ...state[UNIQUE_ANSWERS].slice(0, action[SOLUTION_CLASS_INDEX]),
+                solutionClassReducer(state[UNIQUE_ANSWERS][action[SOLUTION_CLASS_INDEX]], action),
+                ...state[UNIQUE_ANSWERS].slice(action[SOLUTION_CLASS_INDEX] + 1),
+            ]
+        };
+        return ret;
+    } else if (action.type === EDIT_POSSIBLE_POINTS) {
+        return { ...state, POSSIBLE_POINTS_EDITED : action[POSSIBLE_POINTS]};
+    } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+        // as the point values are stored at this level, must pass it down to
+        // recalculate points based on new value for total possible points
+        if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+            action[OLD_POSSIBLE_POINTS] = state[POSSIBLE_POINTS];
+            action[POSSIBLE_POINTS] = state[POSSIBLE_POINTS_EDITED];
+        }
+        var newState = { ...state };
+        var solutionClasses = [ ...state[UNIQUE_ANSWERS] ];
+        solutionClasses.forEach(function(singleSolutionClass, index, arr) {
+            solutionClasses[index] = solutionClassReducer(singleSolutionClass, action);
+        });
+        var ret = {
+            ...state,
+            UNIQUE_ANSWERS : solutionClasses
+        };
+        if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+            ret[POSSIBLE_POINTS] = action[POSSIBLE_POINTS];
+        }
+        return ret;
+    } else {
+        return state;
+    }
+}
+
+/*
+ * Compute a table to show the overall grades for each student
+ *
+ * parameters:
+ * allProblems - the structure used in the redux store during grading, with
+ *                     student work grouped by problem number and similar student answers
+ * returns:
+ *    {
+ *       STUDENT_GRADES : { "student_name_from_filename" : 6, "other_student_name" : 8 },
+ *       POSSIBLE_POINTS : 10,
+ *    }
+ */
+// PROBLEMS : { "1.a" : {
+//      "POSSIBLE_POINTS : 3,
+//      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
+//                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
+function calculateGrades(allProblems) {
+    var totalPossiblePoints = 0;
+    var overallGrades = {};
+
+    for (var problemNumber in allProblems) {
+        if (allProblems.hasOwnProperty(problemNumber)) {
+            var possiblePoints = allProblems[problemNumber][POSSIBLE_POINTS];
+            totalPossiblePoints += possiblePoints;
+            var uniqueAnswers = allProblems[problemNumber][UNIQUE_ANSWERS];
+            uniqueAnswers.forEach(function(allWorkWithForSingleSolution, index, arr) {
+                allWorkWithForSingleSolution[STUDENT_WORK].forEach(function(singleSolution, index, arr) {
+                    var studentAssignmentName = singleSolution[STUDENT_FILE];
+                    var runningScore = overallGrades[studentAssignmentName];
+                    runningScore = (typeof runningScore != 'undefined') ? runningScore : 0;
+                    // empty string is considered ungraded, which defaults to "complete" and full credit
+                    if (singleSolution[SCORE] == "") {
+                        runningScore += possiblePoints;
+                    } else {
+                        runningScore += Number(singleSolution[SCORE]);
+                    }
+                    overallGrades[studentAssignmentName] = runningScore;
+                });
+            });
+        }
+    }
+    return {
+        STUDENT_GRADES : overallGrades,
+        POSSIBLE_POINTS : totalPossiblePoints
+    };
+}
+
+// CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : 1, ANONYMOUS : true/false }
+// SIMILAR_ASSIGNMENT_SETS : [ [ "jason", "emma", "matt"], ["jim", "tim"] ],
+// PROBLEMS : { "1.a" : {
+//      "POSSIBLE_POINTS : 3,
+//      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
+//                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
+// reducer for teacher grading page
+function gradingReducer(state, action) {
+    if (state === undefined) {
+        return {
+            APP_MODE : GRADE_ASSIGNMENTS,
+            CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
+            SIMILAR_ASSIGNMENT_SETS : [ ],
+            PROBLEMS : { "1" : {
+                POSSIBLE_POINTS : 6,
+                UNIQUE_ANSWERS : [
+                { ANSWER : "x=2", FILTER : SHOW_ALL, STUDENT_WORK : [
+                    { STUDENT_FILE : "jake r.", AUTOMATICALLY_ASSIGNED_SCORE : 0,
+                      SCORE : 0, FEEDBACK : "",
+                      STEPS : [ { CONTENT : "5x=10"},{ CONTENT : "x=2"} ] },
+                    { STUDENT_FILE : "alica m.", AUTOMATICALLY_ASSIGNED_SCORE : 0,
+                      SCORE : 0, FEEDBACK : "",
+                      STEPS : [ { CONTENT : "5x=10"},{ CONTENT : "5x=10"},{ CONTENT : "x=2"} ] }] },
+                { ANSWER : "x=-2", FILTER : SHOW_ALL, STUDENT_WORK : [
+                    { STUDENT_FILE : "jon m.", AUTOMATICALLY_ASSIGNED_SCORE : 0,
+                      SCORE : 0, FEEDBACK : "",
+                      STEPS : [ { CONTENT : "5x=10"},{ CONTENT : "x=-2"} ] } ] } ]
+            } }
+        };
+        alert("Defualt state has not been defined for teacher grading experience");
+    } else if (action.type == VIEW_SIMILAR_ASSIGNMENTS) {
+        return {
+            ...state,
+            SIMILAR_ASSIGNMENT_GROUP_INDEX : action[SIMILAR_ASSIGNMENT_GROUP_INDEX]
+        }
+    } else if (action.type === SET_TO_VIEW_GRADES) {
+        // TODO - only allow this to be transitioned to from grading mode
+        // also disable or hide the button when student is working on an assignment
+        var grades = calculateGrades(state[PROBLEMS]);
+        // leave existing entries in the state, so users can navigate back to grading
+        return {
+            ...state,
+            GRADE_INFO : grades,
+            APP_MODE : VIEW_GRADES
+        };
+    } else if (action.type === NAV_BACK_TO_GRADING ) {
+        return {
+            ...state,
+            APP_MODE : GRADE_ASSIGNMENTS,
+        };
+    } else if (action.type === "SET_CURENT_PROBLEM") {
+        return {
+            ...state,
+            "CURRENT_PROBLEM" : action[PROBLEM_NUMBER]
+        };
+    } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS ||
+           action.type === EDIT_POSSIBLE_POINTS ||
+           action.type === GRADE_CLASS_OF_SOLUTIONS ||
+           action.type === GRADE_SINGLE_SOLUTION ||
+           action.type === HIGHLIGHT_STEP ||
+           action.type === SET_PROBLEM_FEEDBACK
+    ) {
+        // check if the value in the possible points input is a valid number
+        if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+            if (isNaN(state[PROBLEMS][action[PROBLEM_NUMBER]][POSSIBLE_POINTS_EDITED])) {
+                window.alert("Possible points must be a number");
+                return state;
+            }
+        }
+        return {
+            ...state,
+            PROBLEMS : {
+                ...state[PROBLEMS],
+                [action[PROBLEM_NUMBER]] : problemGraderReducer(state[PROBLEMS][action[PROBLEM_NUMBER]], action)
+            }
+        };
+    } else {
+        return state;
+    }
+}
 
 function findSimilarStudentAssignments(allStudentWork) {
     // 2d array of student names whose docs were similar
@@ -680,5 +944,7 @@ export { TeacherInteractiveGrader as default,
     aggregateStudentWork,
     separateIndividualStudentAssignments,
     calculateGradingOverview,
-    convertToCurrentFormat};
+    convertToCurrentFormat,
+    gradingReducer
+};
 
