@@ -5,6 +5,7 @@ import './App.css';
 import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import FreeMath from './FreeMath.js';
+import { autoSave } from './App.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 
@@ -23,6 +24,7 @@ var Chart = window.Chart;
 var saveAs = window.saveAs;
 
 export function render() {
+    autoSave();
     ReactDOM.render(
         <FreeMath value={window.store.getState()} />,
         document.getElementById('root')

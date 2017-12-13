@@ -5,6 +5,7 @@ import './App.css';
 import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import Problem from './Problem.js';
+import { problemReducer } from './Problem.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;
@@ -79,4 +80,4 @@ var Assignment = React.createClass({
     ,
 });
 
-export default Assignment;
+export { Assignment as default };

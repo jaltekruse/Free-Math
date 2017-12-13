@@ -5,12 +5,16 @@ import './App.css';
 import TeX from './TeX.js';
 import MathInput from './MathInput.js';
 
+var _ = window._;
+
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
 // when this is not at the end of the list and a new
 // step is added it moves to the end of the list as
 // the redo history in this case will be lost
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
+
+var STEP_KEY = 'STEP_KEY';
 
 // editing assignmnt mode actions
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
@@ -157,4 +161,93 @@ var Problem = React.createClass({
     }
 });
 
-export default Problem;
+// reducer for an individual problem
+function problemReducer(problem, action) {
+    if (problem === undefined) {
+        return { PROBLEM_NUMBER : "", STEPS : [{CONTENT : ""}], LAST_SHOWN_STEP : 0};
+        /*
+        return { PROBLEM_NUMBER : "1.1", SCORE : 3, POSSIBLE_POINTS : 3, FEEDBACK : "Nice work!", STEPS :
+                [{CONTENT : "5x-2x+5-3"}, {CONTENT : "3x+5-3", HIGHLIGHT : SUCCESS}, {CONTENT : "3x+8", HIGHLIGHT : ERROR}],
+                LAST_SHOWN_STEP : 2};
+        */
+    } else if (action.type === SET_PROBLEM_NUMBER) {
+        var newNamedProb = _.clone(problem)
+        newNamedProb[PROBLEM_NUMBER] = action[NEW_PROBLEM_NUMBER];
+        return newNamedProb;
+    } else if (action.type === EDIT_STEP) {
+        return {
+            ...problem,
+            STEPS : [
+                ...problem[STEPS].slice(0, action[STEP_KEY]),
+                { CONTENT : action.NEW_STEP_CONTENT },
+                ...problem[STEPS].slice(action[STEP_KEY] + 1)
+            ]
+        }
+    } else if (action.type === NEW_STEP) {
+        var editedProb = _.cloneDeep(problem);
+        var oldLastStep = editedProb[STEPS][problem[LAST_SHOWN_STEP]];
+        editedProb[STEPS] = editedProb[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1);
+        // TODO - had a bug with edit step because this was previously just
+        // adding another entry to the list with a reference to the same object
+        // is it considered good practice in Redux to defensively prevent bugs
+        // like this, or is it better to defer new object creation and be more thorough
+        // to make sure that incorect mutations never take place?
+        editedProb[STEPS].push({...oldLastStep});
+        editedProb[LAST_SHOWN_STEP]++;
+        return editedProb;
+    } else if (action.type === UNDO_STEP) {
+        if (problem[LAST_SHOWN_STEP] == 0) return problem;
+        else {
+            var editedProb = _.cloneDeep(problem);
+            editedProb[LAST_SHOWN_STEP]--;
+            return editedProb;
+        }
+    } else if (action.type === REDO_STEP) {
+        if (problem[LAST_SHOWN_STEP] == problem[STEPS].length - 1) return problem;
+        else {
+            var editedProb = _.cloneDeep(problem);
+            editedProb[LAST_SHOWN_STEP]++;
+            return editedProb;
+        }
+    } else {
+        return problem;
+    }
+}
+
+// reducer for the list of problems in an assignment
+function problemListReducer(probList, action) {
+    if (probList === undefined) {
+        return [ problemReducer(undefined, action) ];
+    }
+
+    if (action.type === ADD_PROBLEM) {
+        return _.clone(probList).concat(problemReducer(undefined, action));
+    } else if (action.type === REMOVE_PROBLEM) {
+        return [
+            ...probList.slice(0, action.PROBLEM_INDEX),
+            ...probList.slice(action.PROBLEM_INDEX + 1)
+        ];
+    } else if (action.type === CLONE_PROBLEM) {
+        var newProb = _.cloneDeep(probList[action.PROBLEM_INDEX]);
+        newProb[PROBLEM_NUMBER] += ' - copy';
+        return [
+            ...probList.slice(0, action.PROBLEM_INDEX + 1),
+            newProb,
+            ...probList.slice(action.PROBLEM_INDEX + 1)
+        ];
+    } else if (action.type === SET_PROBLEM_NUMBER ||
+               action.type === EDIT_STEP ||
+               action.type === UNDO_STEP ||
+               action.type === REDO_STEP ||
+               action.type === NEW_STEP) {
+        return [
+            ...probList.slice(0, action.PROBLEM_INDEX),
+            problemReducer(probList[action.PROBLEM_INDEX], action),
+            ...probList.slice(action.PROBLEM_INDEX + 1)
+        ];
+    } else {
+        return probList;
+    }
+}
+
+export { Problem as default, problemReducer, problemListReducer };

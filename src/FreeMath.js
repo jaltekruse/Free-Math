@@ -10,6 +10,16 @@ import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 
+// Application modes
+var APP_MODE = 'APP_MODE';
+var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+var MODE_CHOOSER = 'MODE_CHOOSER';
+
+var VIEW_GRADES = 'VIEW_GRADES';
+var GRADE_INFO = 'GRADE_INFO';
+var STUDENT_GRADES = 'STUDENT_GRADES';
+
 var FreeMath = React.createClass({
   render: function() {
     // TODO - figure out how to best switch between teacher and
@@ -83,14 +93,3 @@ var FreeMath = React.createClass({
 });
 
 export default FreeMath;
-
-// Application modes
-var APP_MODE = 'APP_MODE';
-var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
-var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
-var MODE_CHOOSER = 'MODE_CHOOSER';
-
-
-var VIEW_GRADES = 'VIEW_GRADES';
-var GRADE_INFO = 'GRADE_INFO';
-var STUDENT_GRADES = 'STUDENT_GRADES';

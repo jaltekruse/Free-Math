@@ -13,6 +13,8 @@ import { aggregateStudentWork } from './TeacherInteractiveGrader.js';
 import { separateIndividualStudentAssignments } from './TeacherInteractiveGrader.js';
 import { gradeSingleProblem } from './TeacherInteractiveGrader.js';
 import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
+import { problemListReducer } from './Problem.js';
+import { problemReducer } from './Problem.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;
@@ -373,101 +375,12 @@ function calculateGrades(allProblems) {
     };
 }
 
-// reducer for an individual problem
-function problem(problem, action) {
-    if (problem === undefined) {
-        return { PROBLEM_NUMBER : "", STEPS : [{CONTENT : ""}], LAST_SHOWN_STEP : 0};
-        /*
-        return { PROBLEM_NUMBER : "1.1", SCORE : 3, POSSIBLE_POINTS : 3, FEEDBACK : "Nice work!", STEPS :
-                [{CONTENT : "5x-2x+5-3"}, {CONTENT : "3x+5-3", HIGHLIGHT : SUCCESS}, {CONTENT : "3x+8", HIGHLIGHT : ERROR}],
-                LAST_SHOWN_STEP : 2};
-        */
-    } else if (action.type === SET_PROBLEM_NUMBER) {
-        var newNamedProb = _.clone(problem)
-        newNamedProb[PROBLEM_NUMBER] = action[NEW_PROBLEM_NUMBER];
-        return newNamedProb;
-    } else if (action.type === EDIT_STEP) {
-        return {
-            ...problem,
-            STEPS : [
-                ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : action.NEW_STEP_CONTENT },
-                ...problem[STEPS].slice(action[STEP_KEY] + 1)
-            ]
-        }
-    } else if (action.type === NEW_STEP) {
-        var editedProb = _.cloneDeep(problem);
-        var oldLastStep = editedProb[STEPS][problem[LAST_SHOWN_STEP]];
-        editedProb[STEPS] = editedProb[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1);
-        // TODO - had a bug with edit step because this was previously just
-        // adding another entry to the list with a reference to the same object
-        // is it considered good practice in Redux to defensively prevent bugs
-        // like this, or is it better to defer new object creation and be more thorough
-        // to make sure that incorect mutations never take place?
-        editedProb[STEPS].push({...oldLastStep});
-        editedProb[LAST_SHOWN_STEP]++;
-        return editedProb;
-    } else if (action.type === UNDO_STEP) {
-        if (problem[LAST_SHOWN_STEP] == 0) return problem;
-        else {
-            var editedProb = _.cloneDeep(problem);
-            editedProb[LAST_SHOWN_STEP]--;
-            return editedProb;
-        }
-    } else if (action.type === REDO_STEP) {
-        if (problem[LAST_SHOWN_STEP] == problem[STEPS].length - 1) return problem;
-        else {
-            var editedProb = _.cloneDeep(problem);
-            editedProb[LAST_SHOWN_STEP]++;
-            return editedProb;
-        }
-    } else {
-        return problem;
-    }
-}
-
-// reducer for the list of problems in an assignment
-function problems(probList, action) {
-    if (probList === undefined) {
-        return [ problem(undefined, action) ];
-    }
-
-    if (action.type === ADD_PROBLEM) {
-        return _.clone(probList).concat(problem(undefined, action));
-    } else if (action.type === REMOVE_PROBLEM) {
-        return [
-            ...probList.slice(0, action.PROBLEM_INDEX),
-            ...probList.slice(action.PROBLEM_INDEX + 1)
-        ];
-    } else if (action.type === CLONE_PROBLEM) {
-        var newProb = _.cloneDeep(probList[action.PROBLEM_INDEX]);
-        newProb[PROBLEM_NUMBER] += ' - copy';
-        return [
-            ...probList.slice(0, action.PROBLEM_INDEX + 1),
-            newProb,
-            ...probList.slice(action.PROBLEM_INDEX + 1)
-        ];
-    } else if (action.type === SET_PROBLEM_NUMBER ||
-               action.type === EDIT_STEP ||
-               action.type === UNDO_STEP ||
-               action.type === REDO_STEP ||
-               action.type === NEW_STEP) {
-        return [
-            ...probList.slice(0, action.PROBLEM_INDEX),
-            problem(probList[action.PROBLEM_INDEX], action),
-            ...probList.slice(action.PROBLEM_INDEX + 1)
-        ];
-    } else {
-        return probList;
-    }
-}
-
 // reducer for an overall assignment
 function assignment(state, action) {
     if (state === undefined) {
         return {
             ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-            PROBLEMS : problems(undefined, action)
+            PROBLEMS : problemListReducer(undefined, action)
             };
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         state = _.cloneDeep(state);
@@ -475,7 +388,7 @@ function assignment(state, action) {
         return state;
     } else {
         var new_state = _.clone(state);
-        new_state[PROBLEMS] = problems(new_state[PROBLEMS], action);
+        new_state[PROBLEMS] = problemListReducer(new_state[PROBLEMS], action);
         return new_state;
     }
 }
@@ -1007,7 +920,7 @@ function testUndoStep() {
     var expectedProblem = { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 };
     deepFreeze(initialProblem);
     expect(
-        problem(initialProblem, { type : UNDO_STEP})
+        problemReducer(initialProblem, { type : UNDO_STEP})
     ).toEqual(expectedProblem);
 }
 
@@ -1016,7 +929,7 @@ function testRedoStep() {
     var expectedProblem = { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 };
     deepFreeze(initialProblem);
     expect(
-        problem(initialProblem, { type : REDO_STEP})
+        problemReducer(initialProblem, { type : REDO_STEP})
     ).toEqual(expectedProblem);
 }
 
@@ -1041,4 +954,4 @@ testSeparateAssignments();
 console.log("All tests complete");
 */
 
-export default FreeMath;
+export { FreeMath as default, autoSave };
