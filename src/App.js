@@ -264,7 +264,7 @@ function updateAutoSave(docType, docName, appState) {
     // and presenting a better name to users
     // nvm will just store a key with spaces
     var dt = new Date();
-    var dateString = dt.getFullYear() + "-" + dt.getMonth() + "-" + dt.getDate() + " " + dt.getHours() +
+    var dateString = dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate() + " " + dt.getHours() +
                     ":" + dt.getMinutes() + ":" + dt.getSeconds() + "." + dt.getMilliseconds();
     var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
     window.localStorage.setItem(saveKey, doc);
