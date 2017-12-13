@@ -4,6 +4,8 @@ import _ from 'underscore';
 import TeX from './TeX.js';
 var MathQuill = window.MathQuill;
 
+var PT = React.PropTypes;
+
 // TeX button from Persus
 var prettyBig = { fontSize: "150%" };
 var slightlyBig = { fontSize: "120%" };
@@ -180,9 +182,6 @@ var TexButtons = React.createClass({
 // end TeX buttons from Perseus
 
 // Math editor copied from Khan Perseus project
-
-MathQuill = MathQuill.getInterface(1);
-var PT = React.PropTypes;
 
 // A WYSIWYG math input that calls `onChange(LaTeX-string)`
 const MathInput = React.createClass({

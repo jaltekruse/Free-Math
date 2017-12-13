@@ -14,9 +14,11 @@ import { aggregateStudentWork } from './TeacherInteractiveGrader.js';
 import { separateIndividualStudentAssignments } from './TeacherInteractiveGrader.js';
 import { gradeSingleProblem } from './TeacherInteractiveGrader.js';
 import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
-import { problemListReducer } from './Problem.js';
 import { problemReducer } from './Problem.js';
+import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
+import { deepFreeze } from './utils.js';
+
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;
 var MathJax = window.MathJax;
@@ -33,23 +35,6 @@ var Chart = window.Chart;
 
 _.cloneDeep = function(oldObject) {
     return JSON.parse(JSON.stringify(oldObject));
-};
-
-// copied from here, didn't seem worth adding a dependency, I'm sure the JS people will cure me of that eventually...
-// https://github.com/substack/deep-freeze/blob/master/index.js
-function deepFreeze (o) {
-  Object.freeze(o);
-
-  Object.getOwnPropertyNames(o).forEach(function (prop) {
-    if (o.hasOwnProperty(prop)
-    && o[prop] !== null
-    && (typeof o[prop] === "object" || typeof o[prop] === "function")
-    && !Object.isFrozen(o[prop])) {
-      deepFreeze(o[prop]);
-    }
-  });
-
-  return o;
 };
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
@@ -330,24 +315,6 @@ function testAggregateStudentWorkNoAnswerKey() {
     expect(aggregateStudentWork(allStudentWork)).toEqual(expectedOutput);
 }
 
-// reducer for an overall assignment
-function assignment(state, action) {
-    if (state === undefined) {
-        return {
-            ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-            PROBLEMS : problemListReducer(undefined, action)
-            };
-    } else if (action.type === SET_ASSIGNMENT_NAME) {
-        state = _.cloneDeep(state);
-        state.ASSIGNMENT_NAME = action.ASSIGNMENT_NAME;
-        return state;
-    } else {
-        var new_state = _.clone(state);
-        new_state[PROBLEMS] = problemListReducer(new_state[PROBLEMS], action);
-        return new_state;
-    }
-}
-
 export function rootReducer(state, action) {
     console.log(action);
     if (state === undefined || action.type == GO_TO_MODE_CHOOSER) {
@@ -356,7 +323,7 @@ export function rootReducer(state, action) {
         };
     } else if (action.type === "NEW_ASSIGNMENT") {
         return {
-            ...assignment(),
+            ...assignmentReducer(),
 	        "DOC_ID" : Math.floor(Math.random() * 200000000),
             APP_MODE : EDIT_ASSIGNMENT
         };
@@ -384,7 +351,7 @@ export function rootReducer(state, action) {
         };
     } else if (state[APP_MODE] == EDIT_ASSIGNMENT) {
         return {
-            ...assignment(state, action),
+            ...assignmentReducer(state, action),
             APP_MODE : EDIT_ASSIGNMENT
         }
     } else if (state[APP_MODE] == GRADE_ASSIGNMENTS) {
@@ -446,20 +413,6 @@ function autoSave() {
         return;
     }
 }
-
-// TODO FINISH SETTING TO GRADE ANAONYMOUSLY
-var TeacherGraderFilters = React.createClass({
-    render: function() {
-        return (
-        <div className="assignment-filters">
-            <h3>Grading Settings</h3>
-            <div><label><input type="checkbox" id="show-student-names" checked="checked"/>&nbsp;&nbsp;
-                    Show student names (or grade anonymously)</label>
-            </div>
-        </div>
-        );
-    }
-});
 
 // in the teacher grading experince, student work is grouped by similar final answer
 // these groups are called solution classes

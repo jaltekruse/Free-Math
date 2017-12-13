@@ -7,6 +7,7 @@ import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import Problem from './Problem.js';
 import { problemReducer } from './Problem.js';
+import { problemListReducer } from './Problem.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;
@@ -21,9 +22,31 @@ var JsDiff = window.JsDiff;
 var Chart = window.Chart;
 var saveAs = window.saveAs;
 
+// editing assignmnt mode actions
+var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
+const UNTITLED_ASSINGMENT = 'Untitled Assignment';
+
 var PROBLEMS = 'PROBLEMS';
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
+
+// reducer for an overall assignment
+function assignmentReducer(state, action) {
+    if (state === undefined) {
+        return {
+            ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+            PROBLEMS : problemListReducer(undefined, action)
+            };
+    } else if (action.type === SET_ASSIGNMENT_NAME) {
+        state = _.cloneDeep(state);
+        state.ASSIGNMENT_NAME = action.ASSIGNMENT_NAME;
+        return state;
+    } else {
+        var new_state = _.clone(state);
+        new_state[PROBLEMS] = problemListReducer(new_state[PROBLEMS], action);
+        return new_state;
+    }
+}
 
 var Assignment = React.createClass({
     render: function() {
@@ -80,4 +103,4 @@ var Assignment = React.createClass({
     ,
 });
 
-export { Assignment as default };
+export { Assignment as default, assignmentReducer };
