@@ -44,7 +44,8 @@ const DefaultHomepageActions = React.createClass({
         };
         var wrapperDivStyle = {
             padding:"30px 30px 0px 30px",
-            "backgroundColor":"#fafafa",
+            //"backgroundColor":"#fafafa",
+            "backgroundColor":"#ffffff",
             "margin-left":"auto",
             "margin-right": "auto",
             width:"1024"
@@ -123,7 +124,7 @@ const DefaultHomepageActions = React.createClass({
                                                 <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
                                                      <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
 
-                                                {docName.replace("auto save students ","")}</div>
+                                                {docName.replace("auto save students ","").replace(/:\d\d\..*/, "")}</div>
                                             );
                                         })
                                    : null
@@ -140,7 +141,7 @@ const DefaultHomepageActions = React.createClass({
                                         return (
                                             <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
                                                  <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
-                                            {docName.replace("auto save teachers ","")}</div>
+                                            {docName.replace("auto save teachers ","").replace(/:\d\d\..*/, "")}</div>
                                         );
                                     })
                                : null

@@ -20,6 +20,109 @@ var VIEW_GRADES = 'VIEW_GRADES';
 var GRADE_INFO = 'GRADE_INFO';
 var STUDENT_GRADES = 'STUDENT_GRADES';
 
+function updateAutoSave(docType, docName, appState) {
+    // TODO - validate this against actual saved data on startup
+    // or possibly just re-derive it each time?
+    var saveIndex = window.localStorage.getItem("save_index");
+    if (saveIndex) {
+        saveIndex = JSON.parse(saveIndex);
+    }
+    var oldDoc = undefined;
+    if (!saveIndex) {
+        saveIndex = { "TEACHERS" : {}, "STUDENTS" : {}};
+    }
+    if (saveIndex[docType][appState["DOC_ID"]]) {
+        var toDelete = saveIndex[docType][appState["DOC_ID"]];
+    }
+    var doc = JSON.stringify(appState);
+    // TODO - escape underscores (with double underscore?) in doc name, to allow splitting cleanly
+    // and presenting a better name to users
+    // nvm will just store a key with spaces
+    var dt = new Date();
+    var dateString = datetimeToStr(dt);
+    var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
+    window.localStorage.setItem(saveKey, doc);
+    saveIndex[docType][appState["DOC_ID"]] = saveKey;
+    window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
+    if (toDelete != undefined) {
+        window.localStorage.removeItem(toDelete);
+    }
+}
+
+function datetimeToStr(dt) {
+    return dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate() + " " + dt.getHours() +
+                    ":" + ("00" + dt.getMinutes()).slice(-2) + ":" + dt.getSeconds() + "." + dt.getMilliseconds();
+}
+
+function autoSave() {
+    var appState = window.store.getState();
+
+    if (appState[APP_MODE] == EDIT_ASSIGNMENT) {
+        var problems = appState[PROBLEMS];
+        // check for the initial state, do not save this
+        if (problems.length == 1) {
+            var steps = problems[0][STEPS];
+            if (steps.length == 1 && steps[0][CONTENT] == '') {
+                return;
+            }
+        }
+        updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
+    } else if (appState[APP_MODE] == GRADE_ASSIGNMENTS) {
+        // TODO - add input for assignment name to teacher page
+        updateAutoSave("TEACHERS", "", appState);
+    } else {
+        // current other states include mode chooser homepage and view grades "modal"
+        return;
+    }
+}
+
+export function rootReducer(state, action) {
+    console.log(action);
+    if (state === undefined || action.type == GO_TO_MODE_CHOOSER) {
+        return {
+            APP_MODE : MODE_CHOOSER
+        };
+    } else if (action.type === "NEW_ASSIGNMENT") {
+        return {
+            ...assignmentReducer(),
+	        "DOC_ID" : Math.floor(Math.random() * 200000000),
+            APP_MODE : EDIT_ASSIGNMENT
+        };
+    } else if (action.type === "SET_GLOBAL_STATE") {
+        return action.newState;
+    } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
+        // TODO - consolidate the defaults for filters
+        // TODO - get similar assignment list from comparing the assignments
+        // overview comes sorted by LARGEST_ANSWER_GROUPS_SIZE ascending (least number of common answers first)
+        var overview = calculateGradingOverview(action[NEW_STATE][PROBLEMS]);
+        return {
+            ...action[NEW_STATE],
+	        "DOC_ID" : Math.floor(Math.random() * 200000000),
+            "GRADING_OVERVIEW" : overview,
+            "CURRENT_PROBLEM" : overview[PROBLEMS][0][PROBLEM_NUMBER],
+            APP_MODE : GRADE_ASSIGNMENTS,
+        }
+    } else if (action.type === SET_ASSIGNMENT_CONTENT) {
+		// TODO - consider serializing DOC_ID and other future top level attributes into file
+		// for now this prevents all opened docs from clobbering other suto-saves
+        return {
+            APP_MODE : EDIT_ASSIGNMENT,
+            PROBLEMS : action.PROBLEMS,
+	        "DOC_ID" : Math.floor(Math.random() * 200000000)
+        };
+    } else if (state[APP_MODE] == EDIT_ASSIGNMENT) {
+        return {
+            ...assignmentReducer(state, action),
+            APP_MODE : EDIT_ASSIGNMENT
+        }
+    } else if (state[APP_MODE] == GRADE_ASSIGNMENTS) {
+       return {
+            ...gradingReducer(state, action),
+            APP_MODE : GRADE_ASSIGNMENTS
+        };
+    }
+}
+
 var FreeMath = React.createClass({
   render: function() {
     // TODO - figure out how to best switch between teacher and

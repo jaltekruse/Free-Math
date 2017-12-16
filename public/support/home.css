@@ -75,9 +75,10 @@ html {
 body {
   min-height: 100%;
   font-family: Arial,sans-serif;
-  margin-top:70px;
+  margin-top:65px;
   color: black;
-  background-color: #e7effd;
+  /* background-color: #e7effd; */
+  background-color: #92d1ff;
   margin-bottom: 0
 }
 #body {
