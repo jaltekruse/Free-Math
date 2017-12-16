@@ -6,7 +6,7 @@ import './App.css';
 import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import FreeMath from './FreeMath.js';
-import { autoSave } from './App.js';
+import { autoSave } from './FreeMath.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 

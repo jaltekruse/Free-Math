@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
-import { rootReducer } from './App';
+import { rootReducer } from './FreeMath';
 import { render } from './DefaultHomepageActions';
 import registerServiceWorker from './registerServiceWorker';
 

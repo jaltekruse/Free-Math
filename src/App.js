@@ -1,3 +1,5 @@
+
+/*
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
@@ -36,6 +38,7 @@ var Chart = window.Chart;
 _.cloneDeep = function(oldObject) {
     return JSON.parse(JSON.stringify(oldObject));
 };
+*/
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 
@@ -197,27 +200,3 @@ var SOFT_RED = '#FFDEDE';
 var RED = '#FF99CC';
 var GREEN = '#2cff72';
 var YELLOW = '#FFFDBF';
-
-
-/*
-// Run tests
-// TODO - seperate these from app code
-testAddProblem();
-testRemoveProblem();
-testCloneProblem();
-testRenameProblem();
-testEditStep();
-testNewStep();
-testUndoStep();
-testRedoStep();
-testGradeProblem();
-testAggregateStudentWork();
-// TODO - re-enable
-//testAggregateStudentWorkNoAnswerKey();
-testGradeSolutionClass();
-testGradeSingleSolution();
-testSeparateAssignments();
-console.log("All tests complete");
-*/
-
-export { FreeMath as default, autoSave };

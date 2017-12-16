@@ -9,6 +9,9 @@ import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
+import { assignmentReducer } from './Assignment.js';
+import { gradingReducer } from './TeacherInteractiveGrader.js';
+import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
 
 // Application modes
 var APP_MODE = 'APP_MODE';
@@ -19,6 +22,25 @@ var MODE_CHOOSER = 'MODE_CHOOSER';
 var VIEW_GRADES = 'VIEW_GRADES';
 var GRADE_INFO = 'GRADE_INFO';
 var STUDENT_GRADES = 'STUDENT_GRADES';
+
+// Actions to change modes
+var GO_TO_MODE_CHOOSER = 'GO_TO_MODE_CHOOSER';
+var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
+// action properties
+var NEW_STATE = 'NEW_STATE';
+
+// Assignment properties
+var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
+var PROBLEMS = 'PROBLEMS';
+
+// used to swap out the entire content of the document, for opening
+// a document from a file
+var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
+
+// Problem properties
+var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
+var STEPS = 'STEPS';
+var CONTENT = "CONTENT";
 
 function updateAutoSave(docType, docName, appState) {
     // TODO - validate this against actual saved data on startup
@@ -76,7 +98,7 @@ function autoSave() {
     }
 }
 
-export function rootReducer(state, action) {
+function rootReducer(state, action) {
     console.log(action);
     if (state === undefined || action.type == GO_TO_MODE_CHOOSER) {
         return {
@@ -195,4 +217,4 @@ var FreeMath = React.createClass({
   }
 });
 
-export default FreeMath;
+export {FreeMath as default, autoSave, rootReducer };
