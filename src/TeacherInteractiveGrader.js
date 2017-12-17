@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import { Chart } from 'chart.js';
 import _ from 'underscore';
 import logo from './logo.svg';
 import './App.css';
@@ -18,7 +19,6 @@ var JSZip = window.JSZip ;
 var $ = window.$;
 var KAS = window.KAS;
 var JsDiff = window.JsDiff;
-var Chart = window.Chart;
 var saveAs = window.saveAs;
 
 // key used to refer to one step in a series of student work
