@@ -3,10 +3,6 @@ import { deepFreeze } from './utils.js';
 import { assignmentReducer } from './Assignment.js';
 import { problemReducer } from './Problem.js';
 
-_.cloneDeep = function(oldObject) {
-    return JSON.parse(JSON.stringify(oldObject));
-};
-
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 

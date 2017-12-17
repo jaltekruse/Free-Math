@@ -183,30 +183,29 @@ function problemReducer(problem, action) {
             ]
         }
     } else if (action.type === NEW_STEP) {
-        var editedProb = _.cloneDeep(problem);
-        var oldLastStep = editedProb[STEPS][problem[LAST_SHOWN_STEP]];
-        editedProb[STEPS] = editedProb[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1);
-        // TODO - had a bug with edit step because this was previously just
-        // adding another entry to the list with a reference to the same object
-        // is it considered good practice in Redux to defensively prevent bugs
-        // like this, or is it better to defer new object creation and be more thorough
-        // to make sure that incorect mutations never take place?
-        editedProb[STEPS].push({...oldLastStep});
-        editedProb[LAST_SHOWN_STEP]++;
-        return editedProb;
+        var oldLastStep = problem[STEPS][problem[LAST_SHOWN_STEP]];
+        return {
+            ...problem,
+            STEPS : [ ...problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1),
+                      {...oldLastStep}
+            ],
+            LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
+        };
     } else if (action.type === UNDO_STEP) {
         if (problem[LAST_SHOWN_STEP] == 0) return problem;
         else {
-            var editedProb = _.cloneDeep(problem);
-            editedProb[LAST_SHOWN_STEP]--;
-            return editedProb;
+            var newLastStep = problem[LAST_SHOWN_STEP] - 1;
+            return { ...problem,
+                     LAST_SHOWN_STEP : newLastStep
+            };
         }
     } else if (action.type === REDO_STEP) {
         if (problem[LAST_SHOWN_STEP] == problem[STEPS].length - 1) return problem;
         else {
-            var editedProb = _.cloneDeep(problem);
-            editedProb[LAST_SHOWN_STEP]++;
-            return editedProb;
+            var newLastStep = problem[LAST_SHOWN_STEP] + 1;
+            return { ...problem,
+                     LAST_SHOWN_STEP : newLastStep
+            };
         }
     } else {
         return problem;
@@ -227,8 +226,8 @@ function problemListReducer(probList, action) {
             ...probList.slice(action.PROBLEM_INDEX + 1)
         ];
     } else if (action.type === CLONE_PROBLEM) {
-        var newProb = _.cloneDeep(probList[action.PROBLEM_INDEX]);
-        newProb[PROBLEM_NUMBER] += ' - copy';
+        var newProb = { ...probList[action.PROBLEM_INDEX],
+                        PROBLEM_NUMBER : probList[action.PROBLEM_INDEX][PROBLEM_NUMBER] + ' - copy' };
         return [
             ...probList.slice(0, action.PROBLEM_INDEX + 1),
             newProb,

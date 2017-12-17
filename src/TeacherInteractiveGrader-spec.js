@@ -7,10 +7,6 @@ import { gradeSingleProblem } from './TeacherInteractiveGrader.js';
 import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
 
-_.cloneDeep = function(oldObject) {
-    return JSON.parse(JSON.stringify(oldObject));
-};
-
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 

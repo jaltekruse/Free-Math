@@ -42,6 +42,12 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 
+// TODO - make this more efficient, or better yet replace uses with the spread operator
+// to avoid unneeded object creation
+function cloneDeep(oldObject) {
+    return JSON.parse(JSON.stringify(oldObject));
+};
+
 function updateAutoSave(docType, docName, appState) {
     // TODO - validate this against actual saved data on startup
     // or possibly just re-derive it each time?
@@ -217,4 +223,4 @@ var FreeMath = React.createClass({
   }
 });
 
-export {FreeMath as default, autoSave, rootReducer };
+export {FreeMath as default, autoSave, rootReducer, cloneDeep };

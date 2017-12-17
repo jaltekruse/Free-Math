@@ -35,9 +35,6 @@ var Chart = window.Chart;
 
 // TODO - THIS IS NOT THE RIGHT WAY TO DO THIS, INSTEAD FIND A VERSION OF LODASH COMPATIBLE WITH KAS
 
-_.cloneDeep = function(oldObject) {
-    return JSON.parse(JSON.stringify(oldObject));
-};
 */
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';

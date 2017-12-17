@@ -36,15 +36,15 @@ function assignmentReducer(state, action) {
         return {
             ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
             PROBLEMS : problemListReducer(undefined, action)
-            };
+        };
     } else if (action.type === SET_ASSIGNMENT_NAME) {
-        state = _.cloneDeep(state);
-        state.ASSIGNMENT_NAME = action.ASSIGNMENT_NAME;
-        return state;
+        return { ...state,
+                  ASSIGNMENT_NAME : action.ASSIGNMENT_NAME
+        }
     } else {
-        var new_state = _.clone(state);
-        new_state[PROBLEMS] = problemListReducer(new_state[PROBLEMS], action);
-        return new_state;
+        return { ...state,
+                 PROBLEMS : problemListReducer(state[PROBLEMS], action)
+        };
     }
 }
 

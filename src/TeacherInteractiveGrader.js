@@ -6,6 +6,7 @@ import './App.css';
 import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import ProblemGrader from './ProblemGrader.js';
+import { cloneDeep } from './FreeMath.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;
@@ -471,9 +472,11 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
                 allWorkWithForSingleSolution[STUDENT_WORK].forEach(function(singleSolution, index, arr) {
                     var studentAssignment = assignments[singleSolution[STUDENT_FILE]];
                     studentAssignment = (typeof studentAssignment != 'undefined') ? studentAssignment : {PROBLEMS : []};
-                    var singleSolutionCloned = _.cloneDeep(singleSolution);
-                    singleSolutionCloned[PROBLEM_NUMBER] = problemNumber;
-                    singleSolutionCloned[POSSIBLE_POINTS] = possiblePoints;
+                    var singleSolutionCloned = {
+                        ...singleSolution,
+                        PROBLEM_NUMBER : problemNumber,
+                        POSSIBLE_POINTS :possiblePoints
+                    }
                     delete singleSolutionCloned[STUDENT_FILE];
                     delete singleSolutionCloned[AUTOMATICALLY_ASSIGNED_SCORE];
                     // TODO - should it assert here that a score has been given?
@@ -679,7 +682,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
     // for the grading marks
     // Loop through the structure to remove all grading marks from the versions that will be used to compare the students
     // TODO - try to remove this deep clone of all docs, don't know if it is safe today to mutate the incoming data
-    allStudentWork = _.cloneDeep(allStudentWork);
+    allStudentWork = cloneDeep(allStudentWork);
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
             problem[FEEDBACK] = "";
@@ -781,8 +784,7 @@ function studentSubmissionsZip(evt) {
 
 const TeacherInteractiveGrader = React.createClass({
     componentDidMount() {
-		var gradingOverview = _.cloneDeep(window.store.getState()["GRADING_OVERVIEW"][PROBLEMS]);
-		gradingOverview.sort(function(a,b) { return a["LARGEST_ANSWER_GROUP_SIZE"] - b["LARGEST_ANSWER_GROUP_SIZE"];});
+		var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
 		var labels = [];
 		var numberUniqueAnswersData = {
 			label: "Number unique answers",
