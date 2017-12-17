@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { Chart } from 'chart.js';
 import _ from 'underscore';
+import JSZip from 'jszip';
+import { diffJson } from 'diff';
 import logo from './logo.svg';
 import './App.css';
 import MathInput from './MathInput.js';
@@ -15,11 +17,8 @@ var MathJax = window.MathJax;
 var katex = window.katex;
 var katexA11y = window.katexA11y;
 
-var JSZip = window.JSZip ;
 var $ = window.$;
 var KAS = window.KAS;
-var JsDiff = window.JsDiff;
-var saveAs = window.saveAs;
 
 // key used to refer to one step in a series of student work
 var STEP_KEY = 'STEP_KEY';
@@ -390,7 +389,7 @@ function findSimilarStudentAssignments(allStudentWork) {
     allStudentWork.forEach(function(assignment1, index, array) {
         allStudentWork.forEach(function(assignment2, index, array) {
             if (assignment1[STUDENT_FILE] == assignment2[STUDENT_FILE]) return;
-            var result = JsDiff.diffJson(assignment1, assignment2);
+            var result = diffJson(assignment1, assignment2);
             // currently a rough threshold of 30% unique work, will improve later
             // the -2 is to adjust for the filename difference in the structures
             if ((result.length - 2) / 2.0 < averageNumberOfQuestions * averageAnswerLength * 0.3) {

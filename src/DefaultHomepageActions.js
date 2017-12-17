@@ -16,12 +16,7 @@ var MathJax = window.MathJax;
 var katex = window.katex;
 var katexA11y = window.katexA11y;
 
-var JSZip = window.JSZip ;
-var $ = window.$;
 var KAS = window.KAS;
-var JsDiff = window.JsDiff;
-var Chart = window.Chart;
-var saveAs = window.saveAs;
 
 export function render() {
     autoSave();

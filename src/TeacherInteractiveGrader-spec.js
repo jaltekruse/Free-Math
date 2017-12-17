@@ -1,3 +1,4 @@
+import JSZip from 'jszip';
 import _ from 'underscore';
 import { deepFreeze } from './utils.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';

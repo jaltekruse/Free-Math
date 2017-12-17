@@ -7,8 +7,6 @@ import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 
-var JSZip = window.JSZip;
-
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 // the state resulting from above ttanstion action
 var VIEW_GRADES = 'VIEW_GRADES';

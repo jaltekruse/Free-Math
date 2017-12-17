@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import logo from './logo.svg';
+import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
-
-var saveAs = window.saveAs;
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
