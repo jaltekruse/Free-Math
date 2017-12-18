@@ -18,7 +18,7 @@ const GradingMenuBar = React.createClass({
             <div className="menuBar">
                 <div className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <div style={{"verticalAlign":"bottom"}}>
+                    <div style={{"verticalAlign":"top", lineHeight : 1}}>
                         Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={
                             function(evt){
                                 if (!window.confirm("Are you sure you want to leave your current work?")) {
@@ -55,7 +55,7 @@ export const ModalWhileGradingMenuBar = React.createClass({
             <div className="menuBar">
                 <div className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <div style={{"verticalAlign":"bottom"}}>
+                    <div style={{"verticalAlign":"top", lineHeight : 1}}>
                         <input type="submit" id="back-to-grading" value="Back to grading" onClick={
                             function() {window.store.dispatch({type : NAV_BACK_TO_GRADING})}
                         }/>

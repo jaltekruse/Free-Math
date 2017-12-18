@@ -6,7 +6,7 @@ import './App.css';
 const LogoHomeNav = React.createClass({
   render: function() {
         return (
-            <div style={{float:"left","margin":"0px 15px 0px 15px"}} onClick= {
+            <div style={{float:"left","margin":"0px 15px 0px 15px", lineHeight : 1}} onClick= {
                 function(evt) {
                     if (!window.confirm("Are you sure you want to leave your current work?")) {
                         return;
@@ -20,11 +20,11 @@ const LogoHomeNav = React.createClass({
             <h2 style={{"display":"inline","fontFamily":"serif"}}>
                 <b>Free Math</b>
             </h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <h3 style={{"color" : "#3abfc7","display":"inline","fontFamily":"serif"}}>
+            <h3 style={{"color" : "#3abfc7","display":"inline","fontFamily":"serif", lineHeight : 1}}>
                 <b>Beta</b>
             </h3>
             <br />
-            <span style={{"fontSize": 11}}>Free your mind, learn and discover faster.</span>
+            <span style={{"fontSize": 13, lineHeight : 1}}>Free your mind, learn and discover faster.</span>
             </div>
             );
   }

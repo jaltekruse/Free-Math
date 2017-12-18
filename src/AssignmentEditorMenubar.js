@@ -79,7 +79,7 @@ var AssignmentEditorMenubar = React.createClass({
                 <div className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                    <div style={{"verticalAlign":"bottom"}}>
+                    <div style={{"verticalAlign":"top", lineHeight : 1}}>
                         Assignment and Student Name &nbsp;&nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" name="assignment name" value={this.props.value[ASSIGNMENT_NAME]} onChange={
                             function(evt) {
