@@ -124,7 +124,7 @@ var buttonSets = {
         () => [<TeX key="pi" style={symbStyle}>\pi</TeX>, "\\pi"],
         () => [<TeX key="theta" style={symbStyle}>\theta</TeX>, "\\theta"],
         () => [<TeX key="plusminux" style={symbStyle}>\pm</TeX>, "\\pm"],
-        () => [<TeX key="abs" style={symbStyle}>\left|x\right|</TeX>, "\\left|x\\right|"],
+        /* () => [<TeX key="abs" style={symbStyle}>\left|x\right|</TeX>, "\\left|x\\right|"], */
         () => [<TeX key="inf" style={symbStyle}>\infty</TeX>, "\\infty"],
         () => [<TeX key="rightarrow" style={symbStyle}>\rightarrow</TeX>, "\\rightarrow"],
         () => [<TeX key="neq" style={symbStyle}>\neq</TeX>, "\\neq"],
@@ -359,7 +359,7 @@ const MathInput = React.createClass({
 
             // TODO - make xi accessible in, prevents typing "x in"
             // TODO - "in" as auto-symbol prevents typing int
-            autoCommands: 'subset superset union intersect forall therefore exists alpha beta gamma delta epsilon digamma zeta eta theta iota kappa lambda xikappa lambda mu nu omicron pi rho sigma tau upsilon phi chi omega sqrt sum int',
+            autoCommands: 'subset superset union intersect forall therefore exists alpha beta gamma delta epsilon digamma zeta eta theta iota kappa lambda xikappa lambda mu nu omicron pi rho sigma tau upsilon chi omega sqrt sum int',
             autoSubscriptNumerals: true,
             charsThatBreakOutOfSupSub: '+-*/=<>≠≤≥',
 
