@@ -128,6 +128,8 @@ var buttonSets = {
         () => [<TeX key="inf" style={symbStyle}>\infty</TeX>, "\\infty"],
         () => [<TeX key="rightarrow" style={symbStyle}>\rightarrow</TeX>, "\\rightarrow"],
         () => [<TeX key="neq" style={symbStyle}>\neq</TeX>, "\\neq"],
+        () => [<TeX key="degree" style={symbStyle}>\degree</TeX>, "\\degree"],
+        () => [<TeX key="angle" style={symbStyle}>\angle</TeX>, "\\angle"],
     ],
 };
 
@@ -359,7 +361,8 @@ const MathInput = React.createClass({
 
             // TODO - make xi accessible in, prevents typing "x in"
             // TODO - "in" as auto-symbol prevents typing int
-            autoCommands: 'subset superset union intersect forall therefore exists alpha beta gamma delta epsilon digamma zeta eta theta iota kappa lambda xikappa lambda mu nu omicron pi rho sigma tau upsilon chi omega sqrt sum int',
+            autoCommands: 'subset superset union intersect forall therefore exists alpha beta gamma Gamma delta epsilon digamma zeta eta theta iota kappa lambda xikappa lambda mu nu omicron pi Pi rho varrho sigma Sigma tau upsilon Upsilon chi omega sqrt sum int',
+
             autoSubscriptNumerals: true,
             charsThatBreakOutOfSupSub: '+-*/=<>≠≤≥',
 

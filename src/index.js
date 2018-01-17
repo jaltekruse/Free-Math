@@ -4,6 +4,7 @@ import { createStore } from 'redux';
 import './index.css';
 import { rootReducer } from './FreeMath';
 import { render } from './DefaultHomepageActions';
+import { autoSave } from './FreeMath.js';
 import registerServiceWorker from './registerServiceWorker';
 
 window.onload = function() {
@@ -14,6 +15,7 @@ window.onload = function() {
     // TODO - remove use of window global var
     window.store = createStore(rootReducer);
     window.store.subscribe(render);
+    window.store.subscribe(autoSave);
 	render();
 };
 registerServiceWorker();

@@ -183,8 +183,14 @@ var FreeMath = React.createClass({
         return (
         <div>
             <div className="menuBar">
-                <div className="nav">
+                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
+                    <div style={{float:"right", marginTop:"12px"}}>
+                    <a href="#about" style={{color:"white"}} >About</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#examples" style={{color:"white"}} >Examples</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
                 </div>
             </div>
             <DefaultHomepageActions />
