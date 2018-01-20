@@ -66,7 +66,7 @@ const DefaultHomepageActions = React.createClass({
     		border: "none"
 		};
         var wrapperDivStyle = {
-            padding:"0px 0px 0px 0px",
+            padding:"0px 30px 0px 30px",
             //"backgroundColor":"#fafafa",
             "backgroundColor":"#ffffff",
             "margin-left":"auto",
@@ -169,6 +169,7 @@ const DefaultHomepageActions = React.createClass({
                                         readSingleFile(evt, false /* don't warn about data loss */);
                                 }}/>
                                 <br />
+                                <br />
                                 <span style={{color:"red"}}>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
                                 { (recoveredStudentDocs.length > 0) ? (<h4>Recovered assignments:</h4>) : null }
                                 { (recoveredStudentDocs.length > 0) ?
@@ -189,6 +190,7 @@ const DefaultHomepageActions = React.createClass({
                             <h3>Teachers</h3>
                             Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
                                 <br />
+                            <p><a href="student_submissions.zip">Download Example Assignments To Test Grading</a></p>
                                 <span style={{color:"red"}}>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
                             { (recoveredTeacherDocs.length > 0) ?
@@ -203,7 +205,6 @@ const DefaultHomepageActions = React.createClass({
                                : null
                             }
                             { (recoveredTeacherDocs.length > 0) ? (<p>Recovered grading sessions stored temporarily in your browser, save to your device as soon as possible</p>) : null }
-                            <p><a href="student_submissions.zip">Download Example Assignments To Test Grading</a></p>
                         </div>
                     </div>
                 </div>

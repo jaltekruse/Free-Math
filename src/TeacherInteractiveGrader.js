@@ -849,7 +849,7 @@ const TeacherInteractiveGrader = React.createClass({
         var currentProblem = state["CURRENT_PROBLEM"];
 
         return (
-            <div>
+            <div style={{backgroundColor:"white", padding:"0px 30px 0px 30px"}}>
                 <br />
                 <span>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</span>
             	<canvas ref="chart" width="400" height="50"></canvas>

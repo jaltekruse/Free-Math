@@ -26,7 +26,11 @@ const GradingMenuBar = React.createClass({
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="submit" id="view-grades" value="View grades" onClick={
-                            function() {window.store.dispatch({type : SET_TO_VIEW_GRADES})}
+                            function() {
+								window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+								window.store.dispatch({type : SET_TO_VIEW_GRADES});
+							}
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={
                             function() {
