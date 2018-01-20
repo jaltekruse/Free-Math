@@ -49,6 +49,12 @@ var MathEditorHelpModal = React.createClass({
 			padding: 20
 		  };
 		};
+        /* TODO - mathquill not parsing these correctly, but it can put them in the editor and
+         *        produce latex for them
+				<tr><td>\N [enter]</td><td><span ref="exampleStaticMath8">\N</span></td></tr>
+				<tr><td>\Z [enter]</td><td><span ref="exampleStaticMath9">\Z</span></td></tr>
+				<tr><td>\Q [enter]</td><td><span ref="exampleStaticMath10">\Q</span></td></tr>
+        */
 
         return (
                 <span>
@@ -104,11 +110,8 @@ var MathEditorHelpModal = React.createClass({
 				<tr><td>\intersect [enter]</td><td><TeX>\cap</TeX></td></tr>
 				<tr><td>subset</td><td><TeX>\subset</TeX></td></tr>
 				<tr><td>\subseteq [enter]</td><td><TeX>\subseteq</TeX></td></tr>
-				<tr><td>superset</td><td><TeX>\supset</TeX></td></tr>
+				<tr><td>\superset [enter]</td><td><TeX>\supset</TeX></td></tr>
 				<tr><td>\superseteq [enter]</td><td><TeX>\supseteq</TeX></td></tr>
-				<tr><td>\N [enter]</td><td><span ref="exampleStaticMath8">\N</span></td></tr>
-				<tr><td>\Z [enter]</td><td><span ref="exampleStaticMath9">\Z</span></td></tr>
-				<tr><td>\Q [enter]</td><td><span ref="exampleStaticMath10">\Q</span></td></tr>
 				</tbody>
 			</table>
 			</div>
@@ -133,9 +136,9 @@ var MathEditorHelpModal = React.createClass({
 				<tr><td>iota</td><td><TeX>\iota</TeX></td></tr>
 				<tr><td>kappa</td><td><TeX>\kappa</TeX></td></tr>
 				<tr><td>lambda</td><td><TeX>\lambda</TeX></td></tr>
-				<tr><td>lambda</td><td><TeX>\Lambda</TeX></td></tr>
-				<tr><td>mu</td><td><TeX>\mu</TeX></td></tr>
-				<tr><td>nu</td><td><TeX>\nu</TeX></td></tr>
+				<tr><td>\Lambda [enter]</td><td><TeX>\Lambda</TeX></td></tr>
+				<tr><td>\mu [enter]</td><td><TeX>\mu</TeX></td></tr>
+				<tr><td>\nu [enter]</td><td><TeX>\nu</TeX></td></tr>
 				</tbody>
 			</table>
 			</div>
@@ -156,9 +159,9 @@ var MathEditorHelpModal = React.createClass({
                 <tr><td>tau</td><td><TeX>\tau</TeX></td></tr>
                 <tr><td>upsilon</td><td><TeX>\upsilon</TeX></td></tr>
                 <tr><td>\Upsilon [enter]</td><td><TeX>\Upsilon</TeX></td></tr>
-                <tr><td>phi</td><td><TeX>\phi</TeX></td></tr>
+                <tr><td>\phi [enter]</td><td><TeX>\phi</TeX></td></tr>
                 <tr><td>\Phi [enter]</td><td><TeX>\Phi</TeX></td></tr>
-                <tr><td>chi</td><td><TeX>\chi</TeX></td></tr>
+                <tr><td>\chi [enter]</td><td><TeX>\chi</TeX></td></tr>
                 <tr><td>\psi [enter]</td><td><TeX>\psi</TeX></td></tr>
                 <tr><td>\Psi [enter]</td><td><TeX>\Psi</TeX></td></tr>
                 <tr><td>omega</td><td><TeX>\omega</TeX></td></tr>

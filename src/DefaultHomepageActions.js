@@ -20,7 +20,7 @@ var katexA11y = window.katexA11y;
 var KAS = window.KAS;
 
 const physicsExample =
-{"PROBLEM_NUMBER":"","STEPS":[{"CONTENT":"\\text{A ball is thrown from 1 m above the ground.}"},{"CONTENT":"\\text{It is given an initial velocity of 20 m/s at an angle of 40 degrees above the horizontal}"},{"CONTENT":"\\text{Find the maximum height and velocity at the point it is reached}"},{"CONTENT":"x\\left(t\\right)=v\\cos\\left(\\theta\\right)t=20\\cos\\left(40\\right)t=15.3t"},{"CONTENT":"y\\left(t\\right)=y_0+v\\sin\\left(\\theta\\right)t-\\frac{9.8t^2}{2}"},{"CONTENT":"y\\left(t\\right)=1+20\\sin\\left(40\\right)t-4.9t^2"},{"CONTENT":"y\\left(t\\right)=1+12.9t-4.9t^2"},{"CONTENT":"v_y\\left(t\\right)=v\\sin\\left(\\theta\\right)-9.8t"},{"CONTENT":"v_y\\left(t\\right)=12.9-9.8t"},{"CONTENT":"\\max\\ height\\ at\\ v_y\\left(t\\right)=0"},{"CONTENT":"12.9-9.8t=0"},{"CONTENT":"-9.8t=-12.9"},{"CONTENT":"t=\\frac{-12.9}{-9.8}=1.3"},{"CONTENT":"y\\left(1.3\\right)=1+12.9\\left(1.3\\right)-4.9\\left(1.3\\right)^2"},{"CONTENT":"y\\left(1.3\\right)=9.5\\ m"},{"CONTENT":"y\\ component\\ of\\ velocity\\ is\\ 0\\ at\\ highest\\ pt"},{"CONTENT":"total\\ velocity\\ =v_x=15.3\\ \\frac{m}{s}"}],"LAST_SHOWN_STEP":19};
+{"PROBLEM_NUMBER":"","STEPS":[{"CONTENT":"\\text{A ball is thrown from 1 m above the ground.}"},{"CONTENT":"\\text{It is given an initial velocity of 20 m/s}"},{"CONTENT":"\\text{At an angle of 40 degrees above the horizontal}"}, {"CONTENT":"\\text{Find the maximum height reached}"}, {"CONTENT":"\\text{And velocity at that point}"}, {"CONTENT":"x\\left(t\\right)=v\\cos\\left(\\theta\\right)t=20\\cos\\left(40\\right)t=15.3t"},{"CONTENT":"y\\left(t\\right)=y_0+v\\sin\\left(\\theta\\right)t-\\frac{9.8t^2}{2}"},{"CONTENT":"y\\left(t\\right)=1+20\\sin\\left(40\\right)t-4.9t^2"},{"CONTENT":"y\\left(t\\right)=1+12.9t-4.9t^2"},{"CONTENT":"v_y\\left(t\\right)=v\\sin\\left(\\theta\\right)-9.8t"},{"CONTENT":"v_y\\left(t\\right)=12.9-9.8t"},{"CONTENT":"\\max\\ height\\ at\\ v_y\\left(t\\right)=0"},{"CONTENT":"12.9-9.8t=0"},{"CONTENT":"-9.8t=-12.9"},{"CONTENT":"t=\\frac{-12.9}{-9.8}=1.3"},{"CONTENT":"y\\left(1.3\\right)=1+12.9\\left(1.3\\right)-4.9\\left(1.3\\right)^2"},{"CONTENT":"y\\left(1.3\\right)=9.5\\ m"},{"CONTENT":"y\\ component\\ of\\ velocity\\ is\\ 0\\ at\\ highest\\ pt"},{"CONTENT":"total\\ velocity\\ =v_x=15.3\\ \\frac{m}{s}"}],"LAST_SHOWN_STEP":19};
 
 const algebraExample =
 {"SCORE":"","FEEDBACK":"","LAST_SHOWN_STEP":8,"STEPS":[{"CONTENT":"\\frac{1}{x-4}+\\frac{2}{x^2-16}=\\frac{3}{x+4}"},{"CONTENT":"\\frac{1}{x-4}+\\frac{2}{\\left(x-4\\right)\\left(x+4\\right)}=\\frac{3}{x+4}"},{"CONTENT":"\\frac{1}{x-4}\\cdot\\left(\\frac{x+4}{x+4}\\right)+\\frac{2}{\\left(x-4\\right)\\left(x+4\\right)}=\\frac{3}{x+4}\\cdot\\left(\\frac{x-4}{x-4}\\right)"},{"CONTENT":"\\frac{1\\left(x+4\\right)}{\\left(x-4\\right)\\left(x+4\\right)}+\\frac{2}{\\left(x-4\\right)\\left(x+4\\right)}=\\frac{3\\left(x-4\\right)}{\\left(x+4\\right)\\left(x-4\\right)}"},{"CONTENT":"1\\left(x+4\\right)+2=3\\left(x-4\\right)"},{"CONTENT":"x+6=3x-12"},{"CONTENT":"x+18=3x"},{"CONTENT":"18=2x"},{"CONTENT":"9=x"}]};
@@ -138,6 +138,8 @@ const DefaultHomepageActions = React.createClass({
                                         };
                                         readSingleFile(evt, false /* don't warn about data loss */);
                                 }}/>
+                                <br />
+                                <span style={{color:"red"}}>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
                                 { (recoveredStudentDocs.length > 0) ? (<h4>Recovered assignments:</h4>) : null }
                                 { (recoveredStudentDocs.length > 0) ?
 
@@ -156,6 +158,8 @@ const DefaultHomepageActions = React.createClass({
                         <div style={divStyle}>
                             <h3>Teachers</h3>
                             Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
+                                <br />
+                                <span style={{color:"red"}}>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
                             { (recoveredTeacherDocs.length > 0) ?
 
@@ -177,8 +181,8 @@ const DefaultHomepageActions = React.createClass({
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
                 <h1>Meet Your New Math Classroom</h1>
                 <p>Students digitally record step-by-step math work.</p>
-                <p>No account setup required, free for teachers and students. Work saves as files on your local device, share docs through your existing course management solution.</p>
                 <p>Teachers load all students docs for simultaneous grading, reviewing complete solutions grouped by similar final answer.</p>
+                <p>No account setup required, free for teachers and students. Work saves as files on your local device, share docs through your existing course management solution.</p>
                 <p>Provide targeted feedback before a test or quiz and improve daily communication with students.</p>
                 <p>The software is released under the terms of the Open Source GNU General Public License. <a href="https://github.com/jaltekruse/Free-Math">Source Code</a></p>
                 <div style={{position:"relative",height:"0","padding-bottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameborder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}} allowfullscreen></iframe></div>
@@ -186,12 +190,20 @@ const DefaultHomepageActions = React.createClass({
                 <span id="examples" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
                 <h2>Great for many areas of Math</h2>
-                <h3>Algebra</h3>
-                {renderExampleWork(algebraExample) }
-                <h3>Physics</h3>
-                {renderExampleWork(physicsExample) }
-                <h3>Calculus</h3>
-                {renderExampleWork(calculusExample) }
+                <div style={{float:"none", display:"inline-block"}}>
+                    <div style={{float:"left", margin:"5px"}}>
+                        <h3>Algebra</h3>
+                        {renderExampleWork(algebraExample) }
+                    </div>
+                    <div style={{float:"left",margin:"5px"}}>
+                        <h3>Calculus</h3>
+                        {renderExampleWork(calculusExample) }
+                    </div>
+                    <div style={{float:"left", margin:"5px"}}>
+                        <h3>Physics</h3>
+                        {renderExampleWork(physicsExample) }
+                    </div>
+                </div>
                 <span id="contact" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
                 <h2>Contact the Developer</h2>
