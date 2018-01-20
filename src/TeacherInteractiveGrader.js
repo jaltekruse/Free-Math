@@ -850,6 +850,7 @@ const TeacherInteractiveGrader = React.createClass({
 
         return (
             <div>
+                <br />
                 <span>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</span>
             	<canvas ref="chart" width="400" height="50"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}

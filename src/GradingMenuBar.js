@@ -18,17 +18,8 @@ const GradingMenuBar = React.createClass({
             <div className="menuBar">
                 <div className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <div style={{"verticalAlign":"top", lineHeight : 1}}>
-                        Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={
-                            function(evt){
-                                if (!window.confirm("Are you sure you want to leave your current work?")) {
-                                    evt.target.value = "";
-                                    return;
-                                }
-                                studentSubmissionsZip(evt);
-                                evt.target.value = "";
-                            }
-                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div style={{float:"left", verticalAlign:"top", marginTop:"5px", lineHeight : 1}}>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="submit" id="save-graded-assignments" value="Save graded" onClick={
                             function() {
                                 saveGradedStudentWork(window.store.getState());
@@ -55,7 +46,8 @@ export const ModalWhileGradingMenuBar = React.createClass({
             <div className="menuBar">
                 <div className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <div style={{"verticalAlign":"top", lineHeight : 1}}>
+                    <div style={{float:"left", verticalAlign:"top", marginTop:"5px", lineHeight : 1}}>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="submit" id="back-to-grading" value="Back to grading" onClick={
                             function() {window.store.dispatch({type : NAV_BACK_TO_GRADING})}
                         }/>

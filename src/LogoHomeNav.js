@@ -19,12 +19,10 @@ const LogoHomeNav = React.createClass({
             >
             <h2 style={{"display":"inline","fontFamily":"serif"}}>
                 <b>Free Math</b>
-            </h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <h3 style={{"color" : "#3abfc7","display":"inline","fontFamily":"serif", lineHeight : 1}}>
+            </h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <h3 style={{"color" : "#3abfc7","display":"inline","fontFamily":"serif"}}>
                 <b>Beta</b>
             </h3>
-            <br />
-            <span style={{"fontSize": 13, lineHeight : 1}}>Free your mind, learn and discover faster.</span>
             </div>
             );
   }

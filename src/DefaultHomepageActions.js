@@ -39,18 +39,34 @@ export function render() {
 }
 
 const DefaultHomepageActions = React.createClass({
+    componentDidMount: function() {
+        // React 15 doesn't support custom attributes in JSX
+        var element = ReactDOM.findDOMNode(this.refs.youtubeEmbed);
+        element.setAttribute("fs", "1");
+        element.setAttribute("allowfullscreen", "allowfullscreen");
+        element.setAttribute("mozallowfullscreen", "mozallowfullscreen");
+        element.setAttribute("msallowfullscreen", "msallowfullscreen");
+        element.setAttribute("oallowfullscreen", "oallowfullscreen");
+        element.setAttribute("webkitallowfullscreen", "webkitallowfullscreen");
+    },
     render: function() {
         var divStyle = {
-            width:"42%",
+            width:"45%",
             float: "left",
             borderRadius:"3px",
             border:"1px solid #cfcfcf",
             backgroundColor:"white",
-            margin:"0px 15px 15px 15px",
-            padding:"0px 15px 15px 15px"
+            margin:"0px 5px 0px 5px",
+            padding:"0px 15px 15px 15px",
+    		boxShadow: "0 5px 3px -3px #cfcfcf"
         };
+		var divStyleNoBorder = {
+			...divStyle,
+    		boxShadow: "none",
+    		border: "none"
+		};
         var wrapperDivStyle = {
-            padding:"30px 30px 0px 30px",
+            padding:"0px 0px 0px 0px",
             //"backgroundColor":"#fafafa",
             "backgroundColor":"#ffffff",
             "margin-left":"auto",
@@ -115,6 +131,20 @@ const DefaultHomepageActions = React.createClass({
         };
         return (
             <div style={wrapperDivStyle}>
+                <div style={{display:"block", overflow:"auto", padding:"20px 0px 20px 0px"}}>
+                <div style={divStyleNoBorder}>
+                <h2>Meet Your New Math Classroom</h2>
+                <p>Students digitally record step-by-step math work.</p>
+                <p>Teachers simultaneously review all assignments with complete solutions grouped by similar final answer.</p>
+                <p>Free for teachers and students.</p>
+                <p>No account setup required.  Work saves as files on your local device.</p>
+                <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under the the Open Source GNU General Public License.</p>
+                </div>
+                <div style={divStyleNoBorder}>
+                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "padding-bottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameborder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                </div>
+                </div>
+                <div style={{padding:"0px 0px 0px 0px"}}>
                 <div style={{display:"inline-block", width:"100%"}}>
                     <div>
                         <div style={divStyle}>
@@ -177,15 +207,6 @@ const DefaultHomepageActions = React.createClass({
                         </div>
                     </div>
                 </div>
-                <span id="about" />
-                <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-                <h1>Meet Your New Math Classroom</h1>
-                <p>Students digitally record step-by-step math work.</p>
-                <p>Teachers load all students docs for simultaneous grading, reviewing complete solutions grouped by similar final answer.</p>
-                <p>No account setup required, free for teachers and students. Work saves as files on your local device, share docs through your existing course management solution.</p>
-                <p>Provide targeted feedback before a test or quiz and improve daily communication with students.</p>
-                <p>The software is released under the terms of the Open Source GNU General Public License. <a href="https://github.com/jaltekruse/Free-Math">Source Code</a></p>
-                <div style={{position:"relative",height:"0","padding-bottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameborder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}} allowfullscreen></iframe></div>
                 <br />
                 <span id="examples" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
@@ -235,6 +256,7 @@ const DefaultHomepageActions = React.createClass({
                 You should have received a copy of the GNU General Public License
                 along with Free Math.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
                 </small>
+            </div>
             </div>
         );
     }

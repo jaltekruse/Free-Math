@@ -78,7 +78,7 @@ body {
   margin-top:65px;
   color: black;
   /* background-color: #e7effd; */
-  background-color: #92d1ff;
+  /* background-color: #92d1ff; */
   margin-bottom: 0;
   line-height: 1.5
 }
@@ -134,7 +134,7 @@ div.answer-incorrect {
 div.answer-complete {
     border-radius: 2px;
     border:1px solid #747474;
-    background-color:#DEDEDE;
+    background-color:#EEEEEE;
 }
 
 .error-highlight{

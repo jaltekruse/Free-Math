@@ -76,35 +76,19 @@ var AssignmentEditorMenubar = React.createClass({
   render: function() {
         return (
             <div className="menuBar">
-                <div className="nav">
+                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                    <div style={{"verticalAlign":"top", lineHeight : 1}}>
-                        Assignment and Student Name &nbsp;&nbsp;&nbsp;
-                        <input type="text" id="assignment-name-text" name="assignment name" value={this.props.value[ASSIGNMENT_NAME]} onChange={
+                    <div style={{float: "right", verticalAlign:"top", marginTop:"5px", lineHeight : 1}}>
+                        Filename &nbsp;&nbsp;
+                        <input type="text" id="assignment-name-text" size="35" name="assignment name" value={this.props.value[ASSIGNMENT_NAME]} onChange={
                             function(evt) {
                                 window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
                             }}
-                        />&nbsp;&nbsp;&nbsp;
+                        />&nbsp;&nbsp;
 
-                        <input type="submit" id="save-assignment" name="save assignment" value="save assignment" onClick={
+                        <input type="submit" id="save-assignment" name="save" value="save" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
-                            Open Assignment <input type="file"  ref={(input) => { this.fileInput = input; }} id="open-file-input" onChange={
-                            function(evt) {
-                                if (!window.confirm("Are you sure you want to leave your current work?")) {
-                                    evt.target.value = "";
-                                    return;
-                                }
-                                readSingleFile(evt, true /* warn about data loss */);
-                                evt.target.value = "";
-                            }}/>
-                        <input type="submit" id="new-assignment" name="New assignment" value="New assignment" onClick={
-                        function() {
-                            if (!window.confirm("Are you sure you want to leave your current work and start a new document?")) {
-                                return;
-                            }
-                            window.store.dispatch({type : "NEW_ASSIGNMENT"});
-                        }}/>
                     </div>
                 </div>
             </div>
