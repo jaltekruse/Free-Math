@@ -143,12 +143,13 @@ function rootReducer(state, action) {
             ...assignmentReducer(state, action),
             APP_MODE : EDIT_ASSIGNMENT
         }
-    } else if (state[APP_MODE] == GRADE_ASSIGNMENTS) {
+    } else if (state[APP_MODE] == GRADE_ASSIGNMENTS || state[APP_MODE] === VIEW_GRADES) {
        return {
-            ...gradingReducer(state, action),
-            APP_MODE : GRADE_ASSIGNMENTS
+            ...gradingReducer(state, action)
         };
-    }
+    } else {
+		return state;
+	}
 }
 
 var FreeMath = React.createClass({
@@ -156,13 +157,13 @@ var FreeMath = React.createClass({
     // TODO - figure out how to best switch between teacher and
     // student mode rendering
     var wrapperDivStyle = {
-        padding:"30px 30px 0px 30px",
-        "backgroundColor":"#fafafa",
+        padding:"0px 30px 0px 30px",
         "margin-left":"auto",
         "margin-right": "auto",
         width:"1024",
         height:"100%"
     };
+
     if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
         return (
             <div style={wrapperDivStyle}>
@@ -185,8 +186,7 @@ var FreeMath = React.createClass({
             <div className="menuBar">
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
-                    <div style={{float:"right", marginTop:"12px"}}>
-                    <a href="#about" style={{color:"white"}} >About</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div style={{float:"right"}}>
                     <a href="#examples" style={{color:"white"}} >Examples</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -201,6 +201,7 @@ var FreeMath = React.createClass({
         return (
             <div>
                 <ModalWhileGradingMenuBar />
+               	<div style={{margin:"60px 30px 30px 30px"}}>
                 <table>
                     <thead>
                     <tr><th>Student File</th><th>Score</th></tr>
@@ -221,6 +222,7 @@ var FreeMath = React.createClass({
                     }
                     </tbody>
                 </table>
+				</div>
             </div>
         );
     } else  {
