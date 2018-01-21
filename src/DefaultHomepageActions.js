@@ -51,13 +51,13 @@ const DefaultHomepageActions = React.createClass({
     },
     render: function() {
         var divStyle = {
-            width:"45%",
+            width:"46%",
             float: "left",
             borderRadius:"3px",
             border:"1px solid #cfcfcf",
             backgroundColor:"white",
-            margin:"0px 5px 0px 5px",
-            padding:"0px 15px 15px 15px",
+            margin:"5px",
+            padding:"10px",
     		boxShadow: "0 5px 3px -3px #cfcfcf"
         };
 		var divStyleNoBorder = {
@@ -140,7 +140,7 @@ const DefaultHomepageActions = React.createClass({
                 <p>No account setup required.  Work saves as files on your local device.</p>
                 <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under the the Open Source GNU General Public License.</p>
                 </div>
-                <div style={divStyleNoBorder}>
+                <div style={{...divStyleNoBorder, float: "right"}}>
                 <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "padding-bottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameborder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
                 </div>
                 </div>
@@ -170,7 +170,6 @@ const DefaultHomepageActions = React.createClass({
                                 }}/>
                                 <br />
                                 <br />
-                                <span style={{color:"red"}}>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
                                 { (recoveredStudentDocs.length > 0) ? (<h4>Recovered assignments:</h4>) : null }
                                 { (recoveredStudentDocs.length > 0) ?
 
@@ -186,12 +185,11 @@ const DefaultHomepageActions = React.createClass({
                                 }
                                 { (recoveredStudentDocs.length > 0) ? (<p>Recovered assignments stored temporarily in your browser, save to your device as soon as possible</p>) : null }
                         </div>
-                        <div style={divStyle}>
+                        <div style={{...divStyle, float: "right"}}>
                             <h3>Teachers</h3>
                             Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
                                 <br />
                             <p><a href="student_submissions.zip">Download Example Assignments To Test Grading</a></p>
-                                <span style={{color:"red"}}>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
                             { (recoveredTeacherDocs.length > 0) ?
 
@@ -208,6 +206,9 @@ const DefaultHomepageActions = React.createClass({
                         </div>
                     </div>
                 </div>
+					<div className="answer-incorrect" style={{display:"block", padding:"10px", margin: "10px"}}>
+					<span>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
+					</div>
                 <br />
                 <span id="examples" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
