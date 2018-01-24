@@ -53,7 +53,7 @@ var Assignment = React.createClass({
 
 		var defaultEqtn = "4-9\\left({2}\\over{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
 		return (
-        <div style={{backgroundColor:"white", padding:"0px 30px 0px 30px"}}>
+        <div style={{backgroundColor:"white", padding:"30px 30px 30px 30px"}}>
         <p>Free Math allows you to complete your math homework on your computer. The first problem has been created for you,
            use the box below to write an equation. When you want to modify it to solve your math problem click
            the "next step" button to copy your expression or equation and edit it on the next line to show your work.
