@@ -12,6 +12,7 @@ import { readSingleFile } from './AssignmentEditorMenubar.js';
 import Problem from './Problem.js';
 
 var MathQuill = window.MathQuill;
+window.MathQuill = MathQuill.getInterface(1);
 var Khan = window.Khan;
 var MathJax = window.MathJax;
 var katex = window.katex;
@@ -49,15 +50,20 @@ const DefaultHomepageActions = React.createClass({
         element.setAttribute("oallowfullscreen", "oallowfullscreen");
         element.setAttribute("webkitallowfullscreen", "webkitallowfullscreen");
     },
+	getInitialState: function() {
+		return {
+			emailString : ''
+		}
+	},
     render: function() {
         var divStyle = {
-            width:"46%",
+            width:"44%",
             float: "left",
             borderRadius:"3px",
             border:"1px solid #cfcfcf",
             backgroundColor:"white",
             margin:"5px",
-            padding:"10px",
+            padding:"20px",
     		boxShadow: "0 5px 3px -3px #cfcfcf"
         };
 		var divStyleNoBorder = {
@@ -69,9 +75,9 @@ const DefaultHomepageActions = React.createClass({
             padding:"0px 30px 0px 30px",
             //"backgroundColor":"#fafafa",
             "backgroundColor":"#ffffff",
-            "margin-left":"auto",
-            "margin-right": "auto",
-            width:"1024"
+            "marginLeft":"auto",
+            "marginRight": "auto",
+            width:"1024px"
         };
 
         var openAssignments = function(evt){
@@ -129,19 +135,36 @@ const DefaultHomepageActions = React.createClass({
                 </div>
             );
         };
+		const handleEmailFieldChange = function(evt) {this.state.emailString = evt.target.value};
         return (
             <div style={wrapperDivStyle}>
-                <div style={{display:"block", overflow:"auto", padding:"20px 0px 20px 0px"}}>
+                <div style={{display:"block", overflow:"auto"}}>
                 <div style={divStyleNoBorder}>
                 <h2>Meet Your New Math Classroom</h2>
                 <p>Students digitally record step-by-step math work.</p>
                 <p>Teachers simultaneously review all assignments with complete solutions grouped by similar final answer.</p>
                 <p>Free for teachers and students.</p>
                 <p>No account setup required.  Work saves as files on your local device.</p>
-                <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under the the Open Source GNU General Public License.</p>
+
+				<link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css" />
+				<div id="mc_embed_signup">
+				<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" className="validate" target="_blank" style={{paddingLeft:"0px"}} noValidate>
+<div id="mc_embed_signup_scroll">
+    <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true"><input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea" tabIndex="-1" value=""/></div>
+    <input style={{float:"right", margin:"5px"}} type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" className="button"/></div>
+	<div style={{overflow: "hidden"}}>
+    <label htmlFor="mce-EMAIL">Subscribe for updates &nbsp;&nbsp;</label>
+    <input type="email" value="" name="EMAIL" className="email" size="25" id="mce-EMAIL" placeholder="email address" value={this.state.emailString} onChange={function(evt) {
+				this.setState({emailString : evt.target.value});
+			}.bind(this)}/>
+	</div>
+				</form>
+				</div>
+
+                <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under Open Source License.</p>
                 </div>
                 <div style={{...divStyleNoBorder, float: "right"}}>
-                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "padding-bottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameborder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
                 </div>
                 </div>
                 <div style={{padding:"0px 0px 0px 0px"}}>

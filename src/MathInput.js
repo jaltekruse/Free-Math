@@ -317,6 +317,7 @@ const MathInput = React.createClass({
     },
 
     componentDidMount: function() {
+
         window.addEventListener("mousedown", this.handleMouseDown);
         window.addEventListener("mouseup", this.handleMouseUp);
 
