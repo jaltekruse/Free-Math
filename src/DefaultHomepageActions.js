@@ -252,8 +252,23 @@ const DefaultHomepageActions = React.createClass({
                 </div>
                 <span id="contact" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+                <h2>Using Free Math with an LMS</h2>
+				<p>LMS products come with features for collecting documents from students and managing them in bulk. These features are often used for grading files like papers or presentations. These types of files must be examined individually for grading. One great advantage of Free Math is that all documents are graded together, with optimized actions for grading similar work.</p>
+				<p>Here are some links to help for managing student files in specific LMS products. As Free Math natively opens and saves zip files, you can often avoid steps related to unzipping downloaded documents and manually creating a new zip of the graded documents when re-uploading. Keep this in mind as you follow these instructions.</p>
+				<a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle" target="_blank">Moodle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://imgur.com/a/0rskc" target="_blank">Google Classroom</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				Canvas (
+					<a href="https://community.canvaslms.com/docs/DOC-12813" target="_blank">Download</a>&nbsp;&nbsp;
+					<a href="https://community.canvaslms.com/docs/DOC-10003-415275096" target="_blank">Upload</a>
+				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online" target="_blank">Blackboard</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				D2L (
+					<a herf="https://oit.colorado.edu/tutorial/d2l-download-all-dropbox-folder-submissions">Download</a>&nbsp;&nbsp;
+					<a herf="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files" target="_blank">Upload</a>
+				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-" target="_blank">Schoology</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <h2>Contact the Developer</h2>
-                <p>I am currently looking for classes to pilot the software, if you would like to discuss how you could use Free Math in your classroom send me a message to this address. Bug reports, questions and press inquries can also be directed to this address.</p>
+                <p>If you would like to discuss how you could use Free Math in your classroom send me a message to this address. Bug reports, questions and press inquries can also be directed here as well.</p>
                 <p>developers@freemathapp.org</p>
                 <div>Follow the project <a href="https://www.facebook.com/freemathapp"><img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>
                     <a href="https://twitter.com/freemathapp"><img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>
