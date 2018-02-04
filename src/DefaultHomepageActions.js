@@ -263,8 +263,8 @@ const DefaultHomepageActions = React.createClass({
 				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online" target="_blank">Blackboard</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				D2L (
-					<a herf="https://oit.colorado.edu/tutorial/d2l-download-all-dropbox-folder-submissions">Download</a>&nbsp;&nbsp;
-					<a herf="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files" target="_blank">Upload</a>
+					<a href="https://oit.colorado.edu/tutorial/d2l-download-all-dropbox-folder-submissions" target="_blank">Download</a>&nbsp;&nbsp;
+					<a href="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files" target="_blank">Upload</a>
 				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-" target="_blank">Schoology</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <h2>Contact the Developer</h2>
