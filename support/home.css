@@ -74,11 +74,12 @@ html {
 }
 body {
   min-height: 100%;
-  font-family: Arial,sans-serif;
-  margin-top:70px;
+  font-family: 'HelveticaNeue-Light',Helvetica,Arial,sans-serif;
   color: black;
-  background-color: #e7effd;
-  margin-bottom: 0
+  /* background-color: #e7effd; */
+  background-color: #92d1ff; 
+  margin-bottom: 0;
+  line-height: 1.5
 }
 #body {
   padding: 1em;
@@ -132,7 +133,7 @@ div.answer-incorrect {
 div.answer-complete {
     border-radius: 2px;
     border:1px solid #747474;
-    background-color:#DEDEDE;
+    background-color:#EEEEEE;
 }
 
 .error-highlight{

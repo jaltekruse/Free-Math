@@ -328,6 +328,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    try {
 	      isDispatching = true;
+          console.log("action ASDASDFS");
+          console.log(action);
 	      currentState = currentReducer(currentState, action);
 	    } finally {
 	      isDispatching = false;
