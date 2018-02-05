@@ -644,6 +644,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
                 problemSummary[POSSIBLE_POINTS] = answerKey[problem[PROBLEM_NUMBER]][POSSIBLE_POINTS];
             } else {
                 problemSummary[POSSIBLE_POINTS] = 6;
+                problemSummary[POSSIBLE_POINTS_EDITED] = 6;
              }
             // this is necessary because this might be the first time this problem number was seen so we just created the list
             // if this wasn't the case, this wouldn't be necessary because objects including arrays are always passed by reference
@@ -802,7 +803,7 @@ const TeacherInteractiveGrader = React.createClass({
 		};
 		var graphData = [numberUniqueAnswersData, largestAnswerGroups, averageAnswerGroups];
 		gradingOverview.forEach(function(problemSummary, index, array) {
-			labels.push(problemSummary[PROBLEM_NUMBER]);
+			labels.push("Problem " + problemSummary[PROBLEM_NUMBER]);
 			numberUniqueAnswersData["data"].push(problemSummary["NUMBER_UNIQUE_ANSWERS"]);
 			largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
 			averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
@@ -813,7 +814,7 @@ const TeacherInteractiveGrader = React.createClass({
             if (!activePoints || activePoints.length == 0) {
                 return;
             }
-            window.store.dispatch({ type : "SET_CURENT_PROBLEM", PROBLEM_NUMBER : labels[activePoints[0]["_index"]]});
+            window.store.dispatch({ type : "SET_CURENT_PROBLEM", PROBLEM_NUMBER : labels[activePoints[0]["_index"]].replace("Problem ", "")});
             // TODO - not working correctly after making users grade single problem at a time
             // for now make them scroll past the graph and similar assignments themselves
             //window.location.hash = "#grade_problem";
@@ -851,7 +852,7 @@ const TeacherInteractiveGrader = React.createClass({
         return (
             <div style={{backgroundColor:"white", padding:"0px 30px 0px 30px"}}>
                 <br />
-                <span>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</span>
+                <h3>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</h3>
             	<canvas ref="chart" width="400" height="50"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 { (similarAssignments && similarAssignments.length > 0) ? (
@@ -925,7 +926,7 @@ const TeacherInteractiveGrader = React.createClass({
                     }()
                 }
                 </div>
-                <span>To grade other problems click on the bars corresponding to your desired problem in the bar graph at the top of the page.
+                <h3>To grade other problems click on the bars corresponding to your desired problem in the bar graph at the top of the page.
                 <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={
                             function() {
                                 window.location.hash = '';
@@ -933,7 +934,7 @@ const TeacherInteractiveGrader = React.createClass({
                 }/>
                 <br />
                 <br />
-                </span>
+                </h3>
             </div>
         );
     }
