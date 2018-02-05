@@ -51,7 +51,7 @@ function assignmentReducer(state, action) {
 var Assignment = React.createClass({
     render: function() {
 
-		var defaultEqtn = "4-9\\left({2}\\over{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
+		var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
 		return (
         <div style={{backgroundColor:"white", padding:"30px 30px 30px 30px"}}>
         <p>Free Math allows you to complete your math homework on your computer. The first problem has been created for you,
@@ -63,7 +63,7 @@ var Assignment = React.createClass({
         <p> For example, try typing to following expression and simplifying it, even if you can do
         parts of it in your head, use the tool to make sure you show your work.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </p>
-        <TeX>{defaultEqtn}</TeX>
+		<span ref={(input) => { this.exampleStaticMath = input; }}>{defaultEqtn}</span>
 
         <div>
         {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
@@ -75,6 +75,9 @@ var Assignment = React.createClass({
         <button onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }}>Add Problem</button>
         </div>
       )
+    },
+    componentDidMount: function() {
+        MathQuill.StaticMath(ReactDOM.findDOMNode(this.exampleStaticMath));
     }
 });
 
