@@ -79,7 +79,7 @@ function updateAutoSave(docType, docName, appState) {
 
 function datetimeToStr(dt) {
     return dt.getFullYear() + "-" + (dt.getMonth() + 1) + "-" + dt.getDate() + " " + dt.getHours() +
-                    ":" + ("00" + dt.getMinutes()).slice(-2) + ":" + dt.getSeconds() + "." + dt.getMilliseconds();
+                    ":" + ("00" + dt.getMinutes()).slice(-2) + ":" + ("00" + dt.getSeconds()).slice(-2) + "." + dt.getMilliseconds();
 }
 
 function autoSave() {
