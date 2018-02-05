@@ -250,7 +250,7 @@ const DefaultHomepageActions = React.createClass({
                         {renderExampleWork(physicsExample) }
                     </div>
                 </div>
-                <span id="contact" />
+                <span id="lms" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
                 <h2>Using Free Math with an LMS</h2>
 				<p>LMS products come with features for collecting documents from students and managing them in bulk. These features are often used for grading files like papers or presentations. These types of files must be examined individually for grading. One great advantage of Free Math is that all documents are graded together, with optimized actions for grading similar work.</p>
@@ -267,13 +267,30 @@ const DefaultHomepageActions = React.createClass({
 					<a href="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files" target="_blank">Upload</a>
 				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				<a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-" target="_blank">Schoology</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                <span id="contact" />
+                <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+				<br />
                 <h2>Contact the Developer</h2>
-                <p>If you would like to discuss how you could use Free Math in your classroom send me a message to this address. Bug reports, questions and press inquries can also be directed here as well.</p>
+                <p>If you would like to discuss how you could use Free Math in your classroom, send me a message to this address. Bug reports, questions and press inquries can be directed here as well.</p>
                 <p>developers@freemathapp.org</p>
                 <div>Follow the project <a href="https://www.facebook.com/freemathapp"><img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>
                     <a href="https://twitter.com/freemathapp"><img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>
     <a href="https://github.com/jaltekruse/Free-Math/issues">Report Bug or Request Feature</a>
     </div>
+				<br />
+
+                <span id="faq" />
+                <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+                <h2>FAQ</h2>
+				<p><b>Does Free Math solve math problems?</b></p>
+				<p>No, Free Math allows students to record their work, but does not solve problems automatically.</p>
+				<p><b>Where are the problems for Free Math?</b></p>
+				<p>Free Math is designed to work with any existing excercises from a book, worksheet or digital problem bank. Students copy problems into Free Math just as they would with a paper notebook.</p>
+				<p><b>Where is the answer key for grading?</b></p>
+				<p>There is no need to provide Free Math with an answer key. The grading page finds similar student answers on each problem, you only need to grade each final answer once and confirm that work was provided by each student to justify reaching their answer.</p>
+				<p><b>If students submit files for their assignments, how does the system prevent cheating?</b></p>
+				<p>In addition to comparing individual answers, Free Math also compares students overall documents for similarity. If two or more documents share a lot of work they will be flagged for you to review side by side.</p>
                 <h2>Supported Platforms</h2>
                 <p>
                 Modern browsers on Chromebooks, Windows, Mac and Linux. <br />

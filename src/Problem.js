@@ -5,7 +5,6 @@ import logo from './logo.svg';
 import './App.css';
 import TeX from './TeX.js';
 import MathInput from './MathInput.js';
-import MathEditorHelpModal  from './MathEditorHelpModal.js';
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -126,7 +125,7 @@ var Problem = React.createClass({
                             function() { window.store.dispatch({ type : REDO_STEP, PROBLEM_INDEX : problemIndex}) }}/>
                     </div>
                         <div style={{float:'left'}} className="equation-list">
-                        <p> Type math here <MathEditorHelpModal /></p>
+                        <p>Type math here</p>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
                             if (stepIndex > lastShownStep) return;

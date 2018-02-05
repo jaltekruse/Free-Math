@@ -8,6 +8,7 @@ import TeX from './TeX.js';
 import Problem from './Problem.js';
 import { problemReducer } from './Problem.js';
 import { problemListReducer } from './Problem.js';
+import { MathEditorHelp } from './MathEditorHelpModal.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;
@@ -49,6 +50,13 @@ function assignmentReducer(state, action) {
 }
 
 var Assignment = React.createClass({
+	getInitialState () {
+		return { showModal: false };
+	},
+
+    toggleModal() {
+        this.setState({ showModal: !this.state.showModal});
+    },
     render: function() {
 
 		var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
@@ -64,6 +72,7 @@ var Assignment = React.createClass({
         parts of it in your head, use the tool to make sure you show your work.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </p>
 		<span ref={(input) => { this.exampleStaticMath = input; }}>{defaultEqtn}</span>
+        <button onClick={this.toggleModal}>{this.state.showModal ? "Hide symbol list" : "Show available symbol list below" }</button>
 
         <div>
         {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
@@ -73,6 +82,11 @@ var Assignment = React.createClass({
         })}
         </div>
         <button onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }}>Add Problem</button>
+        <br />
+        <br />
+        <br />
+        <button onClick={this.toggleModal}>{this.state.showModal ? "Hide symbol list" : "Show available symbol list" }</button>
+        {this.state.showModal ? <MathEditorHelp /> : null }
         </div>
       )
     },
