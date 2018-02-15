@@ -29,6 +29,7 @@ var MathEditorHelp = React.createClass({
 				<tr><td>| (shift backslash)</td><td><span ref="exampleStaticMath7">{"|x|"}</span></td></tr>
 				<tr><td>&gt;=</td><td><TeX>\ge</TeX></td></tr>
 				<tr><td>&lt;=</td><td><TeX>\le</TeX></td></tr>
+				<tr><td>\approx <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\approx</TeX></td></tr>
 				<tr><td>_ (underscore)</td><td><span ref="exampleStaticMath">a_b</span>  (subscript)</td></tr>
 				<tr><td>^</td><td><span ref="exampleStaticMath2">a^b</span> (power)</td></tr>
 				<tr><td>\pm <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\pm</TeX></td></tr>
@@ -38,7 +39,6 @@ var MathEditorHelp = React.createClass({
 				<tr><td>\oint <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\oint</TeX></td></tr>
 				<tr><td>\partial <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\partial</TeX></td></tr>
 				<tr><td>sum</td><td><TeX>{"\\sum_{ }^{ }"}</TeX></td></tr>
-				<tr><td>\infinity <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\infty</TeX></td></tr>
 				</tbody>
 			</table>
 			</div>
@@ -48,6 +48,7 @@ var MathEditorHelp = React.createClass({
 				<tr><th style={{textAlign:"left"}}>Type this...</th><th style={{textAlign:"left"}}>For Symbol&nbsp;&nbsp;&nbsp;</th></tr>
 				</thead>
 				<tbody>
+				<tr><td>\infinity <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\infty</TeX></td></tr>
 				<tr><td>forall</td><td><TeX>\forall</TeX></td></tr>
 				<tr><td>therefore</td><td><TeX>\therefore</TeX></td></tr>
 				<tr><td>exists</td><td><TeX>\exists</TeX></td></tr>
@@ -123,7 +124,7 @@ var MathEditorHelp = React.createClass({
             </div>
         );
     },
-    componentDidUpdate: function() {
+    componentDidMount: function() {
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath));
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath2));
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath3));

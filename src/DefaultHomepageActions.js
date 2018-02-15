@@ -144,7 +144,7 @@ const DefaultHomepageActions = React.createClass({
                 <p>Students digitally record step-by-step math work.</p>
                 <p>Teachers simultaneously review all assignments with complete solutions grouped by similar final answer.</p>
                 <p>Free for teachers and students.</p>
-                <p>No account setup required.  Work saves as files on your local device.</p>
+                <p>No account setup required.  Student work and grading feedback both save as files that integrate seemlessly with stadard LMS tools.</p>
 
 				<link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css" />
 				<div id="mc_embed_signup">
@@ -210,7 +210,9 @@ const DefaultHomepageActions = React.createClass({
                         </div>
                         <div style={{...divStyle, float: "right"}}>
                             <h3>Teachers</h3>
-                            Grade Student Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
+                            Grade Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
+                                <br />
+						<small>Select a zip file full of student work, these are generated when dowloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
                                 <br />
                             <p><a href="student_submissions.zip">Download Example Assignments To Test Grading</a></p>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
