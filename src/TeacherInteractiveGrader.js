@@ -610,9 +610,29 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
             var indexInUniqueAnswersList;
             uniqueAnswers.forEach(function(aggregatedWorkForOneAnswer, index, arr) {
                 // TODO - add better comparison that will not have to match the latex exactly
-                var groupAnswer = KAS.parse(aggregatedWorkForOneAnswer[ANSWER]).expr;
-                var parsedStudentAnswer = KAS.parse(studentAnswer).expr;
-                if (KAS.compare(groupAnswer, parsedStudentAnswer).equal && groupAnswer.sameForm(parsedStudentAnswer)) {
+                var matches = false;
+                // first try simple string comparison of Latex
+                if (studentAnswer == aggregatedWorkForOneAnswer[ANSWER]) {
+                    matches = true;
+                }
+                // if this comparison fails, try to parse the expressions and compare
+                // them mathematically using KAS
+                if (!matches) {
+                    try {
+                        var groupAnswer = KAS.parse(aggregatedWorkForOneAnswer[ANSWER]).expr;
+                        var parsedStudentAnswer = KAS.parse(studentAnswer).expr;
+                        matches = ( KAS.compare(groupAnswer, parsedStudentAnswer).equal
+                                    && groupAnswer.sameForm(parsedStudentAnswer));
+                    } catch (e) {
+                        // if parsing or comparison fails, do nothing, assume they are not similar
+                        // "matches" is already set to false above
+                        console.log("failed to compare 2 expressions");
+                        console.log(studentAnswer);
+                        console.log(aggregatedWorkForOneAnswer[ANSWER]);
+                        console.log(e);
+                    }
+                }
+                if (matches) {
                     workList = aggregatedWorkForOneAnswer;
                     indexInUniqueAnswersList = index;
                     return false;
@@ -758,17 +778,23 @@ function studentSubmissionsZip(evt) {
                     // TODO - check for other things to filter out from zip
                     // files created on other platforms
                     if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                    // check the extension is .math
+                    // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+                    if (file.indexOf(".math", file.length - ".math".length) == -1) continue;
                     // filter out directories which are part of this list
                     if (new_zip.file(file) == null) continue;
-                    var fileContents = new_zip.file(file).asText();
-                    // how is this behaviring differrntly than JSOn.parse()?!?!
-                    //var assignmentData = window.$.parseJSON(fileContents);
-					console.log("aaaa");
-					fileContents = fileContents.trim();
-					console.log(fileContents);
-                    var assignmentData = JSON.parse(fileContents);
-                    assignmentData = convertToCurrentFormat(assignmentData);
-                    allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                    try {
+                        var fileContents = new_zip.file(file).asText();
+                        // how is this behaviring differrntly than JSOn.parse()?!?!
+                        //var assignmentData = window.$.parseJSON(fileContents);
+                        fileContents = fileContents.trim();
+                        var assignmentData = JSON.parse(fileContents);
+                        assignmentData = convertToCurrentFormat(assignmentData);
+                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                    } catch (e) {
+                        console.log("failed to parse file: " + file);
+                        console.log(e);
+                    }
                 }
             }
             // TODO - add back answer key

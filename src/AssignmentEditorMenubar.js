@@ -61,10 +61,14 @@ export function readSingleFile(evt, discardDataWarning) {
     var f = evt.target.files[0];
 
     if (f) {
-        var r = new FileReader();
-        r.onload = function(e) {
-            var contents = e.target.result;
-            openAssignment(contents, f.name, discardDataWarning);
+            var r = new FileReader();
+            r.onload = function(e) {
+                try {
+                    var contents = e.target.result;
+                    openAssignment(contents, f.name, discardDataWarning);
+                } catch (e) {
+                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
+                }
         }
         r.readAsText(f);
     } else {

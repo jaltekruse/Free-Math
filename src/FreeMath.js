@@ -7,6 +7,7 @@ import LogoHomeNav from './LogoHomeNav.js';
 import Assignment from './Assignment.js';
 import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';
+import ExprComparisonTests from './ExprComparisonTests.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
@@ -163,6 +164,16 @@ var FreeMath = React.createClass({
         width:"1024",
         height:"100%"
     };
+    /*
+    return (
+            <div style={wrapperDivStyle}>
+                <AssignmentEditorMenubar value={this.props.value}/>
+                <div style={{display:"inline-block", width:"100%"}}>
+                    <ExprComparisonTests />
+                </div>
+            </div>
+            );
+    */
 
     if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
         return (
