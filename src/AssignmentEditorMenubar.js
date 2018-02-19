@@ -9,6 +9,7 @@ import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
+var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
 // when this is not at the end of the list and a new
@@ -23,6 +24,21 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 function saveAssignment() {
+    var atLeastOneProblemNumberNotSet = false;
+	window.store.getState()[PROBLEMS].forEach(function(problem, index, array) {
+        if (problem[PROBLEM_NUMBER].trim() === "") {
+            atLeastOneProblemNumberNotSet = true;
+        }
+    });
+    if (atLeastOneProblemNumberNotSet) {
+        if (! window.confirm("At least one problem is missing a problem number. "
+                            + "These are needed for your teacher to grade your "
+                            + "assignment effectively. It is reccomended you "
+                            + "cancel the save and fill them in.")) {
+            return;
+        }
+    }
+
     var blob = new Blob([JSON.stringify({ PROBLEMS : window.store.getState()[PROBLEMS]})], {type: "text/plain;charset=utf-8"});
     saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
 }

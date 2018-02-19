@@ -92,7 +92,7 @@ var Problem = React.createClass({
 		else if (score != undefined)
 			scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
-            <div className="problem-container" style={{float:'none',overflow: 'hidden'}}>
+            <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
                     {   score != undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
 										   : null
