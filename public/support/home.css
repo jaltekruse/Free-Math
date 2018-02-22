@@ -120,8 +120,8 @@ ul {
 
 /* OpenNotebook-Web styles */
 div.problem-summary-container {
-    margin: 15px 15px 15px 15px;
-    padding: 15px 15px 15px 15px;
+    margin: 5px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
 }
 
 div.answer-incorrect {
@@ -217,7 +217,7 @@ div.similar-student-answers {
 }
 
 div.student-work {
-    margin: 15px 15px 15px 15px;
+    margin: 10px 5px 10px 5px;
     padding: 15px 15px 15px 15px;
     box-shadow: 0 10px 6px -6px #777;
 }
@@ -226,8 +226,8 @@ div.problem-container {
     border-radius: 3px;
     border:1px solid #cfcfcf;
     background-color:white;
-    margin: 15px 15px 15px 15px;
-    padding: 15px 15px 130px 15px;
+    /*margin: 15px 15px 15px 15px;
+    padding: 15px 15px 130px 15px; */
     box-shadow: 0 5px 3px -3px #cfcfcf;
     min-width: 50%;
 }

@@ -876,7 +876,7 @@ const TeacherInteractiveGrader = React.createClass({
         var currentProblem = state["CURRENT_PROBLEM"];
 
         return (
-            <div style={{backgroundColor:"white", padding:"0px 30px 0px 30px"}}>
+            <div style={{backgroundColor:"white", padding:"0px 20px 0px 20px"}}>
                 <br />
                 <h3>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</h3>
             	<canvas ref="chart" width="400" height="50"></canvas>
@@ -952,7 +952,7 @@ const TeacherInteractiveGrader = React.createClass({
                     }()
                 }
                 </div>
-                <h3>To grade other problems click on the bars corresponding to your desired problem in the bar graph at the top of the page.
+                <h3>To grade other problems click on the bars corresponding to your desired problem in the bar graph at the top of the page. &nbsp;&nbsp;
                 <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={
                             function() {
                                 window.location.hash = '';

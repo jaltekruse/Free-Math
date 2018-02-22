@@ -129,8 +129,10 @@ const SolutionGrader = React.createClass({
         var classes = "student-work " + correctness;
         return (
             <div className={classes} style={{float:"left"}}> {/*<!-- container for nav an equation list --> */}
-                { data[SCORE] === "" ? (<div><span style={{color:"#545454"}}>Complete - Full Credit</span></div>) : null }
-                <p className="student-name-label"> {showStudentName ? data[STUDENT_FILE] : "" }</p>
+                <div style={{visibility: (data[SCORE] === "") ? "visible" : "hidden"}}>
+                    <small><span style={{color:"#545454"}}>Complete - Full Credit</span><br /></small>
+                </div>
+                <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
                 {/* TODO - I need teachers to be able to edit the score, including deleting down to empty string, so they
                            can write a new score. If I add validation when setting the value in the reducer the field won't be editable.
                            Look up react best pratices for this, right now I'll assume I should attach another event here to ensure
@@ -138,19 +140,22 @@ const SolutionGrader = React.createClass({
                 */}
                 <p>Score <input type="text" className="problem-grade-input" value={data[SCORE]} onChange={this.setScore}
                           /> out of {possiblePoints}
+                        <br />
                         <input type="submit" value="Full points" onClick={this.fullPoints}/>
                         <input type="submit" name="apply score to all" value="Apply to ungraded" onClick={this.applyScoreToUngraded}/>
                         <input type="submit" name="apply score to all" value="Apply to all" onClick={this.applyScoreToAll}/>
                 </p>
                 <p>Feedback &nbsp; &nbsp;
+                <br />
                 <input type="submit" value="Show work" onClick={function() {this.setQuickFeedback("Show your complete work.");}.bind(this)}/>
                 <input type="submit" value="Simple mistake" onClick={function() {this.setQuickFeedback("Review your work for a simple mistake.")}.bind(this)}/>
+                <br />
                 <input type="submit" value="Let's talk" onClick={function() {this.setQuickFeedback("Let's chat about this next class.");}.bind(this)}/>
                 <input type="submit" value="Not simplified" onClick={function() {this.setQuickFeedback("Be sure to simplify completely.");}.bind(this)}/>
                 <input type="submit" value="Sig figs" onClick={function() {this.setQuickFeedback("Incorrect significant figures.");}.bind(this)}/>
                 </p>
 
-                <div><textarea width="30" height="8" onChange={this.setFeedback} value={feedback}></textarea>
+                <div><textarea placeholder="Click a button for quick feedback or type custom feedback here." cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>
                 </div>
                 <div style={{float:"left"}} className="equation-list">
                     <br/>
@@ -161,13 +166,13 @@ const SolutionGrader = React.createClass({
 						else if (step[HIGHLIGHT] == SUCCESS) stepStyle = {backgroundColor : GREEN}
 
                         return (
-                            <div key={stepIndex + ' ' + step[HIGHLIGHT]}>
+                            <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
                                 <TeX style={stepStyle} onClick={function() {
 									window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
 													SOLUTION_CLASS_INDEX : solutionClassIndex,
 													SOLUTION_INDEX : studentSolutionIndex,
 													STEP_KEY : stepIndex});
-        							}}>{step[CONTENT]}</TeX> <br/><br/>
+                                    }}>{step[CONTENT]}</TeX>
                             </div>
                         );
                     })}
