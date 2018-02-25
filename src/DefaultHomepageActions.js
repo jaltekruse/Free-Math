@@ -214,7 +214,7 @@ const DefaultHomepageActions = React.createClass({
                                 <br />
 						<small>Select a zip file full of student work, these are generated when dowloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
                                 <br />
-                            <p><a href="http://freemathapp.org/student_submissions.zip">Download Example Assignments To Test Grading</a></p>
+                            <p><a href="https://drive.google.com/uc?export=download&id=1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67">Download Example Assignments To Test Grading</a></p>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
                             { (recoveredTeacherDocs.length > 0) ?
 
