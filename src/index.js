@@ -12,6 +12,7 @@ window.onload = function() {
     if (location.hostname != "localhost" && location.protocol != 'https:')
     {
          location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+         return;
     }
 	const Redux = window.Redux;
     window.KAS = window.KAS;
