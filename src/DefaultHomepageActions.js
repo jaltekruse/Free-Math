@@ -144,7 +144,7 @@ const DefaultHomepageActions = React.createClass({
                 <p>Students digitally record step-by-step math work.</p>
                 <p>Teachers simultaneously review all assignments with complete solutions grouped by similar final answer.</p>
                 <p>Free for teachers and students.</p>
-                <p>No account setup required.  Student work and grading feedback both save as files that integrate seemlessly with stadard LMS tools.</p>
+                <p>No account setup required.  Student work and grading feedback both save as files that integrate seamlessly with standard LMS tools.</p>
 
 				<link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css" />
 				<div id="mc_embed_signup">
@@ -212,7 +212,7 @@ const DefaultHomepageActions = React.createClass({
                             <h3>Teachers</h3>
                             Grade Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
                                 <br />
-						<small>Select a zip file full of student work, these are generated when dowloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
+						<small>Select a zip file full of student work, these are generated when downloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
                                 <br />
                             <p><a href="https://drive.google.com/uc?export=download&id=1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67">Download Example Assignments To Test Grading</a></p>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
@@ -232,7 +232,7 @@ const DefaultHomepageActions = React.createClass({
                     </div>
                 </div>
 					<div className="answer-incorrect" style={{display:"block", padding:"10px", margin: "10px"}}>
-					<span>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is reccomended to save your files on a USB drive, LMS (Canvas, Moddle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
+					<span>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is recommended to save your files on a USB drive, LMS (Canvas, Moodle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
 					</div>
                 <br />
                 <span id="examples" />
@@ -274,7 +274,7 @@ const DefaultHomepageActions = React.createClass({
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
 				<br />
                 <h2>Contact the Developer</h2>
-                <p>If you would like to discuss how you could use Free Math in your classroom, send me a message to this address. Bug reports, questions and press inquries can be directed here as well.</p>
+                <p>If you would like to discuss how you could use Free Math in your classroom, send a message to this address. Bug reports, questions and press inquiries can be directed here as well.</p>
                 <p>developers@freemathapp.org</p>
                 <div>Follow the project <a href="https://www.facebook.com/freemathapp"><img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>
                     <a href="https://twitter.com/freemathapp"><img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>
@@ -288,11 +288,11 @@ const DefaultHomepageActions = React.createClass({
 				<p><b>Does Free Math solve math problems?</b></p>
 				<p>No, Free Math allows students to record their work, but does not solve problems automatically.</p>
 				<p><b>Where are the problems for Free Math?</b></p>
-				<p>Free Math is designed to work with any existing excercises from a book, worksheet or digital problem bank. Students copy problems into Free Math just as they would with a paper notebook.</p>
+				<p>Free Math is designed to work with any existing exercises from a book, worksheet or digital problem bank. Students copy problems into Free Math just as they would with a paper notebook.</p>
 				<p><b>Where is the answer key for grading?</b></p>
 				<p>There is no need to provide Free Math with an answer key. The grading page finds similar student answers on each problem, you only need to grade each final answer once and confirm that work was provided by each student to justify reaching their answer.</p>
 				<p><b>If students submit files for their assignments, how does the system prevent cheating?</b></p>
-				<p>In addition to comparing individual answers, Free Math also compares students overall documents for similarity. If two or more documents share a lot of work they will be flagged for you to review side by side.</p>
+				<p>In addition to comparing individual answers, Free Math also compares students' overall documents for similarity. If two or more documents share a lot of work, they will be flagged for you to review side by side.</p>
                 <h2>Supported Platforms</h2>
                 <p>
                 Modern browsers on Chromebooks, Windows, Mac and Linux. <br />
