@@ -164,7 +164,7 @@ const DefaultHomepageActions = React.createClass({
                 <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under Open Source License.</p>
                 </div>
                 <div style={{...divStyleNoBorder, float: "right"}}>
-                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
                 </div>
                 </div>
                 <div style={{padding:"0px 0px 0px 0px"}}>
