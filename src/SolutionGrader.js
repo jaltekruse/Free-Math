@@ -172,7 +172,7 @@ const SolutionGrader = React.createClass({
 													SOLUTION_CLASS_INDEX : solutionClassIndex,
 													SOLUTION_INDEX : studentSolutionIndex,
 													STEP_KEY : stepIndex});
-                                    }}>{step[CONTENT]}</TeX>
+                                    }}>{typeof(step[CONTENT]) === 'string' ? step[CONTENT] : "\\text{corruption occured}"}</TeX>
                             </div>
                         );
                     })}

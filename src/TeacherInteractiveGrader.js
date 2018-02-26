@@ -7,7 +7,6 @@ import { diffJson } from 'diff';
 import logo from './logo.svg';
 import './App.css';
 import MathInput from './MathInput.js';
-import TeX from './TeX.js';
 import ProblemGrader from './ProblemGrader.js';
 import { cloneDeep } from './FreeMath.js';
 

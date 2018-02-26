@@ -47,7 +47,7 @@ var SolutionClassGrader = React.createClass({
                 {/*<input type="submit" className="show-all-common-answers" name="show all" value="show all"/>*/}
                 {/*<input type="submit" className="hide-all-common-answers" name="hide all" value="hide all"/>*/}
                 <p> {studentCount}{message}</p>
-                <TeX>{studentFinalAnswer}</TeX>
+                <TeX>{typeof(studentFinalAnswer) === 'string' ? studentFinalAnswer : "\\text{corruption occured}"}</TeX>
                 {
                     data[STUDENT_WORK].map(function(studentSolution, studentSolutionIndex) {
                         if (studentsToView == undefined || !studentsToView || studentsToView.includes(studentSolution[STUDENT_FILE])) {
