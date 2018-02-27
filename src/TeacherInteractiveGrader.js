@@ -505,7 +505,7 @@ function saveGradedStudentWork(gradedWork) {
     }
     var content = zip.generate();
 
-    window.location.href="data:application/zip;base64," + content;
+    window.location.href="data:application/zip;download:testing;base64," + content;
     setTimeout(function() { window.onbeforeunload = function() { return true; }}, 500);
 }
 

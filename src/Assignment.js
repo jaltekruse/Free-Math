@@ -38,10 +38,6 @@ function assignmentReducer(state, action) {
             ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
             PROBLEMS : problemListReducer(undefined, action)
         };
-    } else if (action.type === SET_ASSIGNMENT_NAME) {
-        return { ...state,
-                  ASSIGNMENT_NAME : action.ASSIGNMENT_NAME
-        }
     } else {
         return { ...state,
                  PROBLEMS : problemListReducer(state[PROBLEMS], action)

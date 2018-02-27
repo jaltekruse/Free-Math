@@ -32,6 +32,7 @@ var NEW_STATE = 'NEW_STATE';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
+var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 
 // used to swap out the entire content of the document, for opening
@@ -98,7 +99,7 @@ function autoSave() {
         updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
     } else if (appState[APP_MODE] == GRADE_ASSIGNMENTS) {
         // TODO - add input for assignment name to teacher page
-        updateAutoSave("TEACHERS", "", appState);
+        updateAutoSave("TEACHERS", appState["ASSIGNMENT_NAME"], appState);
     } else {
         // current other states include mode chooser homepage and view grades "modal"
         return;
@@ -119,6 +120,10 @@ function rootReducer(state, action) {
         };
     } else if (action.type === "SET_GLOBAL_STATE") {
         return action.newState;
+    } else if (action.type === SET_ASSIGNMENT_NAME) {
+        return { ...state,
+                 ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
+        }
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
         // TODO - get similar assignment list from comparing the assignments
@@ -187,7 +192,7 @@ var FreeMath = React.createClass({
     } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
         return (
             <div style={{...wrapperDivStyle, width : "95%" }}>
-                <GradingMenuBar />
+                <GradingMenuBar value={this.props.value} />
                 <TeacherInteractiveGrader value={this.props.value}/>
             </div>
         );
