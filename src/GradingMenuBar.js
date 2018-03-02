@@ -1,15 +1,9 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import _ from 'underscore';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
-import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
-// the state resulting from above ttanstion action
-var VIEW_GRADES = 'VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -18,7 +12,7 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 const GradingMenuBar = React.createClass({
     render: function() {
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
-        if (typeof(assignmentName) === "undefied" || assignmentName == null) {
+        if (typeof(assignmentName) === "undefined" || assignmentName == null) {
             assignmentName = "";
         }
         return (

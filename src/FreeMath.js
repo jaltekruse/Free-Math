@@ -1,13 +1,9 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
 import GradingMenuBar from './GradingMenuBar.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import Assignment from './Assignment.js';
 import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';
-import ExprComparisonTests from './ExprComparisonTests.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
@@ -57,7 +53,6 @@ function updateAutoSave(docType, docName, appState) {
     if (saveIndex) {
         saveIndex = JSON.parse(saveIndex);
     }
-    var oldDoc = undefined;
     if (!saveIndex) {
         saveIndex = { "TEACHERS" : {}, "STUDENTS" : {}};
     }
@@ -74,7 +69,7 @@ function updateAutoSave(docType, docName, appState) {
     window.localStorage.setItem(saveKey, doc);
     saveIndex[docType][appState["DOC_ID"]] = saveKey;
     window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
-    if (toDelete != undefined) {
+    if (toDelete !== undefined) {
         window.localStorage.removeItem(toDelete);
     }
 }
@@ -87,17 +82,17 @@ function datetimeToStr(dt) {
 function autoSave() {
     var appState = window.store.getState();
 
-    if (appState[APP_MODE] == EDIT_ASSIGNMENT) {
+    if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
         var problems = appState[PROBLEMS];
         // check for the initial state, do not save this
-        if (problems.length == 1) {
+        if (problems.length === 1) {
             var steps = problems[0][STEPS];
-            if (steps.length == 1 && steps[0][CONTENT] == '') {
+            if (steps.length === 1 && steps[0][CONTENT] === '') {
                 return;
             }
         }
         updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
-    } else if (appState[APP_MODE] == GRADE_ASSIGNMENTS) {
+    } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
         // TODO - add input for assignment name to teacher page
         updateAutoSave("TEACHERS", appState["ASSIGNMENT_NAME"], appState);
     } else {
@@ -108,7 +103,7 @@ function autoSave() {
 
 function rootReducer(state, action) {
     console.log(action);
-    if (state === undefined || action.type == GO_TO_MODE_CHOOSER) {
+    if (state === undefined || action.type === GO_TO_MODE_CHOOSER) {
         return {
             APP_MODE : MODE_CHOOSER
         };
@@ -144,12 +139,12 @@ function rootReducer(state, action) {
             PROBLEMS : action.PROBLEMS,
 	        "DOC_ID" : Math.floor(Math.random() * 200000000)
         };
-    } else if (state[APP_MODE] == EDIT_ASSIGNMENT) {
+    } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
             ...assignmentReducer(state, action),
             APP_MODE : EDIT_ASSIGNMENT
         }
-    } else if (state[APP_MODE] == GRADE_ASSIGNMENTS || state[APP_MODE] === VIEW_GRADES) {
+    } else if (state[APP_MODE] === GRADE_ASSIGNMENTS || state[APP_MODE] === VIEW_GRADES) {
        return {
             ...gradingReducer(state, action)
         };

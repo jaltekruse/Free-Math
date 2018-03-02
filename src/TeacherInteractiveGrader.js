@@ -1,22 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { Chart } from 'chart.js';
 import _ from 'underscore';
 import JSZip from 'jszip';
 import { diffJson } from 'diff';
-import logo from './logo.svg';
 import './App.css';
-import MathInput from './MathInput.js';
 import ProblemGrader from './ProblemGrader.js';
 import { cloneDeep } from './FreeMath.js';
 
-var MathQuill = window.MathQuill;
-var Khan = window.Khan;
-var MathJax = window.MathJax;
-var katex = window.katex;
-var katexA11y = window.katexA11y;
-
-var $ = window.$;
 var KAS = window.KAS;
 
 // key used to refer to one step in a series of student work
@@ -43,7 +34,6 @@ var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
-var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 
 var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
@@ -57,40 +47,21 @@ var STEPS = 'STEPS';
 var VIEW_GRADES = 'VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 
-// properties of the state when showing grade view
-// just a wrapper for the grades and total possible points for now
-var GRADE_INFO = 'GRADE_INFO';
-var STUDENT_GRADES = 'STUDENT_GRADES';
-// Also uses POSSIBLE_POINTS from below
-
 // Object model for teacher grading experience, see return value in the aggreateStudentWork() method
 var STUDENT_FILE = 'STUDENT_FILE';
 var ASSIGNMENT = 'ASSIGNMENT';
-var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
 var AUTOMATICALLY_ASSIGNED_SCORE = 'AUTOMATICALLY_ASSIGNED_SCORE';
-var PROBLEM_SCORE = 'PROBLEM_SCORE';
 var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
 
 // answer key properties
 var GRADE_STRATEGY = "GRADE_STRATEGY";
-var ALL_ANSWERS_REQUIRED = "ALL_ANSWERS_REQUIRED";
 var ONE_ANSWER_REQUIRED = "ONE_ANSWER_REQUIRED";
-var SUBSET_OF_ANSWERS_REQUIRED = "SUBSET_OF_ANSWERS_REQUIRED";
-var NUMBER_OF_MATCHING_ANSWERS_REQUIRED = "NUMBER_OF_MATCHING_ANSWERS_REQUIRED";
-var POSSIBLE_POINTS = "POSSIBLE_POINTS";
-// as the points already assigned for all work on a problem need to be scaled
-// wen the possible points changes, and the old a new values need to be
-// known at the time of the recalculation, user input is stored in this field
-// until the field is submitted (with a button, pressing enter key or focus loss)
-var POSSIBLE_POINTS_EDITED = "POSSIBLE_POINTS_EDITED";
 var ANSWER_CLASSES = "ANSWER_CLASSES";
 var ANSWERS = "ANSWERS";
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
-var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
-var SIMILAR_ASSIGNMENT_SETS = "SIMILAR_ASSIGNMENT_SETS";
 
 // teacher grade page model properties
 var STUDENT_WORK = "STUDENT_WORK";
@@ -98,10 +69,6 @@ var ANSWER = "ANSWER";
 var CONTENT = "CONTENT";
 
 var SHOW_ALL = "SHOW_ALL";
-
-// teacher grading actions
-var VIEW_SIMILAR_ASSIGNMENTS = "VIEW_SIMILAR_ASSIGNMENTS";
-// action property declared above: SIMILAR_ASSIGNMENT_GROUP_INDEX
 
 // action properties
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
@@ -112,10 +79,8 @@ var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 // action properties: MODE (JUST_UNGRADED | ALL)
 var MODE = "MODE";
 var JUST_UNGRADED = "JUST_UNGRADED"
-var ALL = "ALL";
 
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
-var HIGHLIGHT_TYPE = 'HIGHLIGHT_TYPE';
 
 function singleSolutionReducer(state, action) {
     if (action.type === GRADE_SINGLE_SOLUTION) {
@@ -125,11 +90,11 @@ function singleSolutionReducer(state, action) {
 	} else if (action.type === HIGHLIGHT_STEP) {
 		var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
 		var newHighlight;
-		if (oldHighlight == undefined)
+		if (oldHighlight === undefined)
 			newHighlight = ERROR;
-		else if (oldHighlight == ERROR)
+		else if (oldHighlight === ERROR)
 			newHighlight = SUCCESS;
-		else if (oldHighlight == SUCCESS)
+		else if (oldHighlight === SUCCESS)
 			newHighlight = undefined;
 
 		var newState = { ...state,
@@ -159,7 +124,6 @@ function singleSolutionReducer(state, action) {
 function solutionClassReducer(state, action) {
     if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
         action.type === SET_PROBLEM_POSSIBLE_POINTS) {
-        var newState = { ...state };
         var workInGivenSolutionClass = [ ...state[STUDENT_WORK] ];
         if (action.type === GRADE_CLASS_OF_SOLUTIONS) {
             action.type = GRADE_SINGLE_SOLUTION;
@@ -204,7 +168,6 @@ function problemGraderReducer(state, action) {
                 ...state[UNIQUE_ANSWERS].slice(action[SOLUTION_CLASS_INDEX] + 1),
             ]
         };
-        return ret;
     } else if (action.type === EDIT_POSSIBLE_POINTS) {
         return { ...state, POSSIBLE_POINTS_EDITED : action[POSSIBLE_POINTS]};
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
@@ -214,7 +177,6 @@ function problemGraderReducer(state, action) {
             action[OLD_POSSIBLE_POINTS] = state[POSSIBLE_POINTS];
             action[POSSIBLE_POINTS] = state[POSSIBLE_POINTS_EDITED];
         }
-        var newState = { ...state };
         var solutionClasses = [ ...state[UNIQUE_ANSWERS] ];
         solutionClasses.forEach(function(singleSolutionClass, index, arr) {
             solutionClasses[index] = solutionClassReducer(singleSolutionClass, action);
@@ -261,9 +223,9 @@ function calculateGrades(allProblems) {
                 allWorkWithForSingleSolution[STUDENT_WORK].forEach(function(singleSolution, index, arr) {
                     var studentAssignmentName = singleSolution[STUDENT_FILE];
                     var runningScore = overallGrades[studentAssignmentName];
-                    runningScore = (typeof runningScore != 'undefined') ? runningScore : 0;
+                    runningScore = (typeof runningScore !== 'undefined') ? runningScore : 0;
                     // empty string is considered ungraded, which defaults to "complete" and full credit
-                    if (singleSolution[SCORE] == "") {
+                    if (singleSolution[SCORE] === "") {
                         runningScore += possiblePoints;
                     } else {
                         runningScore += Number(singleSolution[SCORE]);
@@ -308,8 +270,7 @@ function gradingReducer(state, action) {
                       STEPS : [ { CONTENT : "5x=10"},{ CONTENT : "x=-2"} ] } ] } ]
             } }
         };
-        alert("Defualt state has not been defined for teacher grading experience");
-    } else if (action.type == VIEW_SIMILAR_ASSIGNMENTS) {
+    } else if (action.type === VIEW_SIMILAR_ASSIGNMENTS) {
         return {
             ...state,
             SIMILAR_ASSIGNMENT_GROUP_INDEX : action[SIMILAR_ASSIGNMENT_GROUP_INDEX]
@@ -387,7 +348,7 @@ function findSimilarStudentAssignments(allStudentWork) {
 
     allStudentWork.forEach(function(assignment1, index, array) {
         allStudentWork.forEach(function(assignment2, index, array) {
-            if (assignment1[STUDENT_FILE] == assignment2[STUDENT_FILE]) return;
+            if (assignment1[STUDENT_FILE] === assignment2[STUDENT_FILE]) return;
             var result = diffJson(assignment1, assignment2);
             // currently a rough threshold of 30% unique work, will improve later
             // the -2 is to adjust for the filename difference in the structures
@@ -418,7 +379,8 @@ function calculateGradingOverview(allProblems) {
         Structure:
         {
             PROBLEMS : [
-            { PROBLEM_NUMBER : "1.1", NUMBER_UNIQUE_ANSWERS : 5, LARGEST_ANSWER_GROUP_SIZE : 10,
+            { PROBLEM_NUMBER : "1.1", NUMBER_UNIQUE_ANSWERS : 5,
+              LARGEST_ANSWER_GROUP_SIZE : 10,
               AVG_ANSWER_GROUP_SIZE : 5.6, POSSIBLE_POINTS : 3
             ]
         }
@@ -469,7 +431,7 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
             uniqueAnswers.forEach(function(allWorkWithForSingleSolution, index, arr) {
                 allWorkWithForSingleSolution[STUDENT_WORK].forEach(function(singleSolution, index, arr) {
                     var studentAssignment = assignments[singleSolution[STUDENT_FILE]];
-                    studentAssignment = (typeof studentAssignment != 'undefined') ? studentAssignment : {PROBLEMS : []};
+                    studentAssignment = (typeof studentAssignment !== 'undefined') ? studentAssignment : {PROBLEMS : []};
                     var singleSolutionCloned = {
                         ...singleSolution,
                         PROBLEM_NUMBER : problemNumber,
@@ -522,7 +484,7 @@ function gradeSingleProblem(problem, answerKey) {
             // var expr1 = KAS.parse(answer).expr;
             // var expr2 = KAS.parse(studentAnswer).expr;
             // if (KAS.compare(expr1, expr2).equal) {
-            if (answer == studentAnswer) {
+            if (answer === studentAnswer) {
                 // TODO - good rounding
                 automaticallyAssignedGrade = answerKey[problem[PROBLEM_NUMBER]][POSSIBLE_POINTS] * answerClass[SCORE];
                 exitEarly = true;
@@ -593,15 +555,15 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
             // write into the abreviated list of problems completed, used below to fill in placeholder for
             // completely absent work
             var allStudentsWhoDidThisProblem = studentWorkFound[problem[PROBLEM_NUMBER]];
-            allStudentsWhoDidThisProblem = (typeof allStudentsWhoDidThisProblem != 'undefined') ? allStudentsWhoDidThisProblem : {};
+            allStudentsWhoDidThisProblem = (typeof allStudentsWhoDidThisProblem !== 'undefined') ? allStudentsWhoDidThisProblem : {};
             allStudentsWhoDidThisProblem[assignInfo[STUDENT_FILE]] = true;
             studentWorkFound[problem[PROBLEM_NUMBER]] = allStudentsWhoDidThisProblem;
 
             var problemSummary = aggregatedWork[problem[PROBLEM_NUMBER]];
-            problemSummary = (typeof problemSummary != 'undefined') ? problemSummary : {};
+            problemSummary = (typeof problemSummary !== 'undefined') ? problemSummary : {};
 
             var uniqueAnswers = problemSummary[UNIQUE_ANSWERS];
-            uniqueAnswers = ( typeof uniqueAnswers != 'undefined') ? uniqueAnswers : [];
+            uniqueAnswers = ( typeof uniqueAnswers !== 'undefined') ? uniqueAnswers : [];
 
             // see notes for comment about how to organize problems once final answers are compared in
             // a fuzzy fashion
@@ -611,7 +573,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
                 // TODO - add better comparison that will not have to match the latex exactly
                 var matches = false;
                 // first try simple string comparison of Latex
-                if (studentAnswer == aggregatedWorkForOneAnswer[ANSWER]) {
+                if (studentAnswer === aggregatedWorkForOneAnswer[ANSWER]) {
                     matches = true;
                 }
                 // if this comparison fails, try to parse the expressions and compare
@@ -688,7 +650,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
         $.each(studentWorkFound, function(problemNumber, studentsFound) {
             if (!studentsFound[assignInfo.filename]) {
                 var missingWork = aggregatedWork[problemNumber]['uniqueAnswers']['unanswered'];
-                missingWork = (typeof missingWork != 'undefined') ? missingWork : [];
+                missingWork = (typeof missingWork !== 'undefined') ? missingWork : [];
                 missingWork.push(
                         {studentFile : assignInfo.filename, autoGradeStatus: 'incorrect', steps : ['unanswered']});
                 aggregatedWork[problemNumber]['uniqueAnswers']['unanswered'] = missingWork;
@@ -779,9 +741,9 @@ function studentSubmissionsZip(evt) {
                     if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
                     // check the extension is .math
                     // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
-                    if (file.indexOf(".math", file.length - ".math".length) == -1) continue;
+                    if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
                     // filter out directories which are part of this list
-                    if (new_zip.file(file) == null) continue;
+                    if (new_zip.file(file) === null) continue;
                     try {
                         var fileContents = new_zip.file(file).asText();
                         // how is this behaviring differrntly than JSOn.parse()?!?!
@@ -836,7 +798,7 @@ const TeacherInteractiveGrader = React.createClass({
         var chart = ReactDOM.findDOMNode(this.refs.chart);
         var onClickFunc = function(evt) {
             var activePoints = chart.getElementsAtEvent(evt);
-            if (!activePoints || activePoints.length == 0) {
+            if (!activePoints || activePoints.length === 0) {
                 return;
             }
             window.store.dispatch({ type : "SET_CURENT_PROBLEM", PROBLEM_NUMBER : labels[activePoints[0]["_index"]].replace("Problem ", "")});
@@ -882,7 +844,7 @@ const TeacherInteractiveGrader = React.createClass({
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 { (similarAssignments && similarAssignments.length > 0) ? (
                     <div className="similar-assignment-filters"><h3>Some students may have copied each others work.</h3>
-                    {   (typeof(currentSimilarityGroupIndex) != "undefined" && currentSimilarityGroupIndex != null) ?
+                    {   (typeof(currentSimilarityGroupIndex) !== "undefined" && currentSimilarityGroupIndex !== null) ?
                             (<p> Currently viewing a group of similar assignments, back to grading full class: <input type="submit" value="View All" onClick={
                                 function(evt) {
                                     window.store.dispatch({type : VIEW_SIMILAR_ASSIGNMENTS, SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined});
@@ -897,7 +859,7 @@ const TeacherInteractiveGrader = React.createClass({
                                 similarityGroups.push(
                                     (
                                         <p key={index}>
-                                        { (index == currentSimilarityGroupIndex) ?
+                                        { (index === currentSimilarityGroupIndex) ?
                                             (<b>A group of  {similarityGroup.length} students submitted similar assignments &nbsp;</b>)
                                            : (<span>A group of  {similarityGroup.length} students submitted similar assignments &nbsp;</span>)
                                         }
@@ -929,9 +891,9 @@ const TeacherInteractiveGrader = React.createClass({
                             if (problems.hasOwnProperty(property)) {
                                 // when viewing similar assignments show all problems, otherwise only show
                                 // one problem at a time
-                                if (property == currentProblem
-                                        || (typeof(currentSimilarityGroupIndex) != "undefined"
-                                        && currentSimilarityGroupIndex != null)) {
+                                if (property === currentProblem
+                                        || (typeof(currentSimilarityGroupIndex) !== "undefined"
+                                        && currentSimilarityGroupIndex !== null)) {
                                     // problem number is stored as keys in the map, add to each object
                                     // so the list can be sorted by problem number
                                     problems[property][PROBLEM_NUMBER] = property;

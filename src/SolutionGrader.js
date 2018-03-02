@@ -1,24 +1,14 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
 import TeX from './TeX.js';
 
-var STUDENT_WORK = "STUDENT_WORK";
 var STUDENT_FILE = 'STUDENT_FILE';
 
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
-var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
-var SIMILAR_ASSIGNMENT_SETS = "SIMILAR_ASSIGNMENT_SETS";
 
 // teacher grade page model properties
-var ANSWER = "ANSWER";
 var CONTENT = "CONTENT";
-
-// teacher grading actions
-var VIEW_SIMILAR_ASSIGNMENTS = "VIEW_SIMILAR_ASSIGNMENTS";
-// action property declared above: SIMILAR_ASSIGNMENT_GROUP_INDEX
 
 // action properties
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
@@ -27,12 +17,10 @@ var GRADE_SINGLE_SOLUTION = "GRADE_SINGLE_SOLUTION";
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE
 var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 // action properties: MODE (JUST_UNGRADED | ALL)
-var MODE = "MODE";
 var JUST_UNGRADED = "JUST_UNGRADED"
 var ALL = "ALL";
 
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
-var HIGHLIGHT_TYPE = 'HIGHLIGHT_TYPE';
 
 var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
 var STEPS = 'STEPS';
@@ -41,10 +29,8 @@ var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
 
 // CSS constants
-var SOFT_RED = '#FFDEDE';
 var RED = '#FF99CC';
 var GREEN = '#2cff72';
-var YELLOW = '#FFFDBF';
 
 const SolutionGrader = React.createClass({
     setScore: function(evt) {
@@ -119,7 +105,7 @@ const SolutionGrader = React.createClass({
         // TODO - consider if empty string is the best way to convey "not yet scored"/complete
         if (data[SCORE] === "") {
             correctness = "answer-complete";
-        } else if (score == 0) {
+        } else if (score === 0) {
             correctness = "answer-incorrect";
         } else if (score >= possiblePointsNum) {
             correctness = "answer-correct";
@@ -162,8 +148,8 @@ const SolutionGrader = React.createClass({
                     {
                         data[STEPS].map(function(step, stepIndex) {
         				var stepStyle = {};
-						if (step[HIGHLIGHT] == ERROR) stepStyle = {backgroundColor : RED}
-						else if (step[HIGHLIGHT] == SUCCESS) stepStyle = {backgroundColor : GREEN}
+						if (step[HIGHLIGHT] === ERROR) stepStyle = {backgroundColor : RED}
+						else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
 
                         return (
                             <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>

@@ -1,9 +1,6 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
+import React from 'react';
 import _ from 'underscore';
-import logo from './logo.svg';
 import './App.css';
-import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import SolutionGrader from './SolutionGrader.js';
 
@@ -35,8 +32,8 @@ var SolutionClassGrader = React.createClass({
         // due to filtering there may be no answers showing in this group, in this case render nothing
         // not even the header
         var anyAnswersShowing = false;
-        data[STUDENT_WORK].map(function(studentSolution, studentSolutionIndex) {
-            if (studentsToView == undefined || !studentsToView || studentsToView.includes(studentSolution[STUDENT_FILE])) {
+        data[STUDENT_WORK].forEach(function(studentSolution, studentSolutionIndex, array) {
+            if (studentsToView === undefined || !studentsToView || studentsToView.includes(studentSolution[STUDENT_FILE])) {
                 anyAnswersShowing = true;
             }
         });
@@ -50,7 +47,7 @@ var SolutionClassGrader = React.createClass({
                 <TeX>{typeof(studentFinalAnswer) === 'string' ? studentFinalAnswer : "\\text{corruption occured}"}</TeX>
                 {
                     data[STUDENT_WORK].map(function(studentSolution, studentSolutionIndex) {
-                        if (studentsToView == undefined || !studentsToView || studentsToView.includes(studentSolution[STUDENT_FILE])) {
+                        if (studentsToView === undefined || !studentsToView || studentsToView.includes(studentSolution[STUDENT_FILE])) {
                             return (<SolutionGrader solutionGradeInfo={studentSolution} problemNumber={problemNumber} possiblePoints={possiblePoints}
                                                 key={studentSolutionIndex} id={studentSolutionIndex} solutionClassIndex={solutionClassIndex}/>)
                         } else {
