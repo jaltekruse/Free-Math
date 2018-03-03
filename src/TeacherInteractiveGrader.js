@@ -214,25 +214,32 @@ function calculateGrades(allProblems) {
     var totalPossiblePoints = 0;
     var overallGrades = {};
 
+    var handleSingleSolution =
+        function(singleSolution, index, arr) {
+            var studentAssignmentName = singleSolution[STUDENT_FILE];
+            var runningScore = overallGrades[studentAssignmentName];
+            runningScore = (typeof runningScore !== 'undefined') ? runningScore : 0;
+            // empty string is considered ungraded, which defaults to "complete" and full credit
+            if (singleSolution[SCORE] === "") {
+                runningScore += possiblePoints;
+            } else {
+                runningScore += Number(singleSolution[SCORE]);
+            }
+            overallGrades[studentAssignmentName] = runningScore;
+        };
+
+    var handleSingleUnqiueAnswer =
+        function(allWorkWithForSingleSolution, index, arr) {
+            allWorkWithForSingleSolution[STUDENT_WORK].forEach(
+                    handleSingleSolution)
+        };
+
     for (var problemNumber in allProblems) {
         if (allProblems.hasOwnProperty(problemNumber)) {
             var possiblePoints = allProblems[problemNumber][POSSIBLE_POINTS];
             totalPossiblePoints += possiblePoints;
             var uniqueAnswers = allProblems[problemNumber][UNIQUE_ANSWERS];
-            uniqueAnswers.forEach(function(allWorkWithForSingleSolution, index, arr) {
-                allWorkWithForSingleSolution[STUDENT_WORK].forEach(function(singleSolution, index, arr) {
-                    var studentAssignmentName = singleSolution[STUDENT_FILE];
-                    var runningScore = overallGrades[studentAssignmentName];
-                    runningScore = (typeof runningScore !== 'undefined') ? runningScore : 0;
-                    // empty string is considered ungraded, which defaults to "complete" and full credit
-                    if (singleSolution[SCORE] === "") {
-                        runningScore += possiblePoints;
-                    } else {
-                        runningScore += Number(singleSolution[SCORE]);
-                    }
-                    overallGrades[studentAssignmentName] = runningScore;
-                });
-            });
+            uniqueAnswers.forEach(handleSingleUnqiueAnswer);
         }
     }
     return {
@@ -374,7 +381,6 @@ function findSimilarStudentAssignments(allStudentWork) {
 }
 
 function calculateGradingOverview(allProblems) {
-    var totalPossiblePoints = 0;
     /*
         Structure:
         {
@@ -387,24 +393,29 @@ function calculateGradingOverview(allProblems) {
     */
     var gradeOverview = {};
     gradeOverview["PROBLEMS"] = [];
+
+    var handleSingleSolution =
+        function(allWorkWithForSingleSolution, index, arr) {
+            if (allWorkWithForSingleSolution[STUDENT_WORK].length > largestAnswerGroupSize) {
+                largestAnswerGroupSize = allWorkWithForSingleSolution[STUDENT_WORK].length;
+            }
+            totalAnswersSubmitted += allWorkWithForSingleSolution[STUDENT_WORK].length;
+            //allWorkWithForSingleSolution[STUDENT_WORK].forEach(
+                //function(singleSolution, index, arr) {
+                // TODO - don't think I want to do anythings for
+                // individual solutions, but think about this
+            //});
+    };
+
     for (var problemNumber in allProblems) {
         if (allProblems.hasOwnProperty(problemNumber)) {
             var possiblePoints = allProblems[problemNumber][POSSIBLE_POINTS];
-            totalPossiblePoints += possiblePoints;
             var uniqueAnswers = allProblems[problemNumber][UNIQUE_ANSWERS];
             var currentProblemOverview = { "PROBLEM_NUMBER" : problemNumber, "POSSIBLE_POINTS" : possiblePoints,
                                            "NUMBER_UNIQUE_ANSWERS" : uniqueAnswers.length};
             var largestAnswerGroupSize = 0;
             var totalAnswersSubmitted = 0;
-            uniqueAnswers.forEach(function(allWorkWithForSingleSolution, index, arr) {
-                if (allWorkWithForSingleSolution[STUDENT_WORK].length > largestAnswerGroupSize) {
-                    largestAnswerGroupSize = allWorkWithForSingleSolution[STUDENT_WORK].length;
-                }
-                totalAnswersSubmitted += allWorkWithForSingleSolution[STUDENT_WORK].length;
-                //allWorkWithForSingleSolution[STUDENT_WORK].forEach(function(singleSolution, index, arr) {
-                    // TODO - don't think I want to do anythings for individual solutions, but think about this
-                //});
-            });
+            uniqueAnswers.forEach(handleSingleSolution);
             currentProblemOverview["LARGEST_ANSWER_GROUP_SIZE"] = largestAnswerGroupSize;
             currentProblemOverview["AVG_ANSWER_GROUP_SIZE"] = totalAnswersSubmitted / uniqueAnswers.length;
             gradeOverview["PROBLEMS"].push(currentProblemOverview);
@@ -419,33 +430,44 @@ function calculateGradingOverview(allProblems) {
 //      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
 //                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
 function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
-    // TODO - when reading in student files above make sure to uniquify names that overlap and give a warning
+    // TODO - when reading in student files above make sure to uniquify
+    // names that overlap and give a warning
     // map indexed by student assignment filename
     var assignments = {};
     var allProblems = aggregatedAndGradedWork[PROBLEMS];
+
+    const handleSingleSolution =
+        function(singleSolution, index, arr) {
+            var studentAssignment = assignments[singleSolution[STUDENT_FILE]];
+
+            studentAssignment = (typeof studentAssignment !== 'undefined')
+                ? studentAssignment
+                : {PROBLEMS : []};
+
+            var singleSolutionCloned = {
+                ...singleSolution,
+                PROBLEM_NUMBER : problemNumber,
+                POSSIBLE_POINTS :possiblePoints
+            }
+            delete singleSolutionCloned[STUDENT_FILE];
+            delete singleSolutionCloned[AUTOMATICALLY_ASSIGNED_SCORE];
+            // TODO - should it assert here that a score has been given?
+            // The app fills in a score of 0 for everything right now when
+            // student assignments are opened
+            studentAssignment[PROBLEMS].push(singleSolutionCloned);
+            assignments[singleSolution[STUDENT_FILE]] = studentAssignment;
+    };
+
+    const handleAllWorkForSingleSolution =
+        function(allWorkWithForSingleSolution, index, arr) {
+                        allWorkWithForSingleSolution[STUDENT_WORK].forEach(handleSingleSolution);
+        };
 
     for (var problemNumber in allProblems) {
         if (allProblems.hasOwnProperty(problemNumber)) {
             var possiblePoints = allProblems[problemNumber][POSSIBLE_POINTS];
             var uniqueAnswers = allProblems[problemNumber][UNIQUE_ANSWERS];
-            uniqueAnswers.forEach(function(allWorkWithForSingleSolution, index, arr) {
-                allWorkWithForSingleSolution[STUDENT_WORK].forEach(function(singleSolution, index, arr) {
-                    var studentAssignment = assignments[singleSolution[STUDENT_FILE]];
-                    studentAssignment = (typeof studentAssignment !== 'undefined') ? studentAssignment : {PROBLEMS : []};
-                    var singleSolutionCloned = {
-                        ...singleSolution,
-                        PROBLEM_NUMBER : problemNumber,
-                        POSSIBLE_POINTS :possiblePoints
-                    }
-                    delete singleSolutionCloned[STUDENT_FILE];
-                    delete singleSolutionCloned[AUTOMATICALLY_ASSIGNED_SCORE];
-                    // TODO - should it assert here that a score has been given?
-                    // The app fills in a score of 0 for everything right now when
-                    // student assignments are opened
-                    studentAssignment[PROBLEMS].push(singleSolutionCloned);
-                    assignments[singleSolution[STUDENT_FILE]] = studentAssignment;
-                });
-            });
+            uniqueAnswers.forEach(handleAllWorkForSingleSolution);
         }
     }
     return assignments;
