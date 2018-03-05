@@ -103,7 +103,9 @@ it('test aggregate student work', () => {
             }
         }
     };
-    var output = aggregateStudentWork(allStudentWork, answerKey);
+    // TODO - figure out how to include depedencies like KAS in webpack so I can test them, currently included
+    // in the app using global script tags in index.html
+    var output = aggregateStudentWork(allStudentWork, answerKey, function(expr1, expr2) {return expr1 === expr2;});
     expect(output).toEqual(expectedOutput);
 });
 
@@ -216,12 +218,13 @@ it('test aggregate student work no answer key', () => {
         PROBLEMS : {
             "1" : {
                 POSSIBLE_POINTS : 6,
+                POSSIBLE_POINTS_EDITED : 6,
                 UNIQUE_ANSWERS : [
                     { ANSWER : "x=2", FILTER : SHOW_ALL,
                       STUDENT_WORK : [
                         { STUDENT_FILE : "jake r.",
-                          AUTOMATICALLY_ASSIGNED_SCORE : 0,
-                          SCORE : 0, FEEDBACK : "", LAST_SHOWN_STEP: 1,
+                          AUTOMATICALLY_ASSIGNED_SCORE : "",
+                          SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
                           STEPS : [
                             { CONTENT : "5x=10"},
                             { CONTENT : "x=2"}
@@ -232,8 +235,8 @@ it('test aggregate student work no answer key', () => {
                     { ANSWER : "x=-2", FILTER : SHOW_ALL,
                       STUDENT_WORK : [
                         { STUDENT_FILE : "jon m.",
-                          AUTOMATICALLY_ASSIGNED_SCORE : 0,
-                          SCORE : 0, FEEDBACK : "", LAST_SHOWN_STEP: 1,
+                          AUTOMATICALLY_ASSIGNED_SCORE : "",
+                          SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
                           STEPS : [
                             { CONTENT : "5x=10"},
                             { CONTENT : "x=-2"}
@@ -245,5 +248,8 @@ it('test aggregate student work no answer key', () => {
             }
         }
     };
-    expect(aggregateStudentWork(allStudentWork)).toEqual(expectedOutput);
+
+    // TODO - figure out how to include depedencies like KAS in webpack so I can test them, currently included
+    // in the app using global script tags in index.html
+    expect(aggregateStudentWork(allStudentWork, {}, function(expr1, expr2) {return expr1 === expr2;})).toEqual(expectedOutput);
 });

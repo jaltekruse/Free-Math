@@ -522,6 +522,33 @@ function gradeSingleProblem(problem, answerKey) {
     return automaticallyAssignedGrade;
 }
 
+// TODO(issues/33) - test associativity and commutativity of KAS comparison
+function areExpressionsSimilar(expression1, expression2) {
+    var matches = false;
+    // first try simple string comparison of Latex
+    if (expression1 === expression2) {
+        matches = true;
+    }
+    // if this comparison fails, try to parse the expressions and compare
+    // them mathematically using KAS
+    if (!matches) {
+        try {
+            var groupAnswer = KAS.parse(expression2).expr;
+            var parsedStudentAnswer = KAS.parse(expression1).expr;
+            matches = ( KAS.compare(groupAnswer, parsedStudentAnswer).equal
+                        && groupAnswer.sameForm(parsedStudentAnswer));
+        } catch (e) {
+            // if parsing or comparison fails, do nothing, assume they are not similar
+            // "matches" is already set to false above
+            console.log("failed to compare 2 expressions");
+            console.log(expression1);
+            console.log(expression2);
+            console.log(e);
+        }
+    }
+    return matches;
+}
+
 // Transforms a list of student assignments into a structure where all work for one problem
 // is stored together, separated by different final answers reached by groups of students.
 //
@@ -555,7 +582,7 @@ function gradeSingleProblem(problem, answerKey) {
 //      "POSSIBLE_POINTS : 3,
 //      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
 //                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
-function aggregateStudentWork(allStudentWork, answerKey = {}) {
+function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparator = areExpressionsSimilar) {
     var aggregatedWork = {};
     // used to simplify filling in a flag for missing work if a student does not do a problem
     // structure: { "1.1" : { "jason" :true, "taylor" : true }
@@ -593,29 +620,8 @@ function aggregateStudentWork(allStudentWork, answerKey = {}) {
             var workList;
             var indexInUniqueAnswersList;
             uniqueAnswers.forEach(function(aggregatedWorkForOneAnswer, index, arr) {
-                // TODO - add better comparison that will not have to match the latex exactly
-                var matches = false;
-                // first try simple string comparison of Latex
-                if (studentAnswer === aggregatedWorkForOneAnswer[ANSWER]) {
-                    matches = true;
-                }
-                // if this comparison fails, try to parse the expressions and compare
-                // them mathematically using KAS
-                if (!matches) {
-                    try {
-                        var groupAnswer = KAS.parse(aggregatedWorkForOneAnswer[ANSWER]).expr;
-                        var parsedStudentAnswer = KAS.parse(studentAnswer).expr;
-                        matches = ( KAS.compare(groupAnswer, parsedStudentAnswer).equal
-                                    && groupAnswer.sameForm(parsedStudentAnswer));
-                    } catch (e) {
-                        // if parsing or comparison fails, do nothing, assume they are not similar
-                        // "matches" is already set to false above
-                        console.log("failed to compare 2 expressions");
-                        console.log(studentAnswer);
-                        console.log(aggregatedWorkForOneAnswer[ANSWER]);
-                        console.log(e);
-                    }
-                }
+                var matches = expressionComparator(
+                        studentAnswer, aggregatedWorkForOneAnswer[ANSWER]);
                 if (matches) {
                     workList = aggregatedWorkForOneAnswer;
                     indexInUniqueAnswersList = index;
