@@ -1,13 +1,9 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
-import TeX from './TeX.js';
 import SolutionClassGrader from './SolutionClassGrader.js';
 
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
-var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 // as the points already assigned for all work on a problem need to be scaled
 // wen the possible points changes, and the old a new values need to be
@@ -24,9 +20,7 @@ var ProblemGrader = React.createClass({
         var problemNumber = this.props.problemNumber;
         var studentsToView = this.props.studentsToView;
         var problemInfo = this.props.problemInfo;
-        var possiblePoints = problemInfo[POSSIBLE_POINTS];
-        var totalIncorrect = "TODO";
-        var possiblePoints = problemInfo[POSSIBLE_POINTS_EDITED] != undefined ? problemInfo[POSSIBLE_POINTS_EDITED] : problemInfo[POSSIBLE_POINTS];
+        var possiblePoints = problemInfo[POSSIBLE_POINTS_EDITED] !== undefined ? problemInfo[POSSIBLE_POINTS_EDITED] : problemInfo[POSSIBLE_POINTS];
         var oldPossiblePoints = problemInfo[POSSIBLE_POINTS];
         return (
             <div className="problem-summary-container" style={{float:"none",overflow:"hidden"}}>

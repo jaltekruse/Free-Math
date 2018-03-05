@@ -1,6 +1,4 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import logo from './logo.svg';
+import React from 'react';
 import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -10,12 +8,6 @@ import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
-// to implement undo/redo and index for the last step
-// to show is tracked and moved up and down
-// when this is not at the end of the list and a new
-// step is added it moves to the end of the list as
-// the redo history in this case will be lost
-var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 
 // editing assignmnt mode actions
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
@@ -45,7 +37,10 @@ function saveAssignment() {
 
 function removeExtension(filename) {
     // remove preceding directory (for when filename comes out of the ZIP directory)
-    filename = filename.replace(/[^\/]*\//, "");
+    // inside of character class slash is not a special character,
+    // this is highlighted incorrectly in some editors, but the escaping this slash
+    // fires the no-useless-escape es-lint rule
+    filename = filename.replace(/[^/]*\//, "");
     // actually remove extension
     filename = filename.replace(/\.[^/.]+$/, "");
     return filename;
@@ -65,7 +60,7 @@ export function openAssignment(serializedDoc, filename, discardDataWarning) {
     var newDoc = JSON.parse(serializedDoc);
     // compatibility for old files, need to convert the old proerty names as
     // well as add the LAST_SHOWN_STEP
-    var newDoc = convertToCurrentFormat(newDoc);
+    newDoc = convertToCurrentFormat(newDoc);
     window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS]});
     window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
 }

@@ -1,9 +1,5 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import _ from 'underscore';
-import logo from './logo.svg';
+import React from 'react';
 import './App.css';
-import TeX from './TeX.js';
 import MathInput from './MathInput.js';
 
 // to implement undo/redo and index for the last step
@@ -11,15 +7,8 @@ import MathInput from './MathInput.js';
 // when this is not at the end of the list and a new
 // step is added it moves to the end of the list as
 // the redo history in this case will be lost
-var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 
 var STEP_KEY = 'STEP_KEY';
-
-// editing assignmnt mode actions
-var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
-// used to swap out the entire content of the document, for opening
-// a document from a file
-var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
@@ -32,7 +21,6 @@ var CLONE_PROBLEM = 'CLONE_PROBLEM';
 // PROBLEM_INDEX - for which problem to change
 // NEW_PROBLEM_NUMBER - string with problem number, not a numberic
 //                    type because the problem might be 1.a, etc.
-var PROBLEM_INDEX = 'PROBLEM_INDEX';
 var NEW_PROBLEM_NUMBER = 'NEW_PROBLEM_NUMBER';
 var SET_PROBLEM_NUMBER = 'SET_PROBLEM_NUMBER';
 var CONTENT = "CONTENT";
@@ -41,6 +29,7 @@ var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
 var STEPS = 'STEPS';
+var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
 
@@ -60,9 +49,7 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 
 // CSS constants
 var SOFT_RED = '#FFDEDE';
-var RED = '#FF99CC';
 var GREEN = '#2cff72';
-var YELLOW = '#FFFDBF';
 
 var Problem = React.createClass({
 
@@ -78,9 +65,9 @@ var Problem = React.createClass({
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
         if (score === '') {
             scoreClass = 'show-complete-div';
-        } else if (score == possiblePoints) {
+        } else if (score === possiblePoints) {
             scoreClass = 'show-correct-div';
-        } else if (score == 0) {
+        } else if (score === 0) {
             scoreClass = 'show-incorrect-div';
         } else {
             scoreClass = 'show-partially-correct-div';
@@ -89,15 +76,15 @@ var Problem = React.createClass({
 		var scoreMessage = null;
 		if (score === '')
 			scoreMessage = 'Complete';
-		else if (score != undefined)
+		else if (score !== undefined)
 			scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
             <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
-                    {   score != undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
+                    {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
 										   : null
                     }
-                    {   this.props.value[FEEDBACK] != undefined
+                    {   this.props.value[FEEDBACK] !== undefined
                             ? (<div>
                                     Feedback:<br /> {this.props.value[FEEDBACK]}
                                </div>) : null
@@ -128,7 +115,7 @@ var Problem = React.createClass({
                         <p>Type math here</p>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
-                            if (stepIndex > lastShownStep) return;
+                            if (stepIndex > lastShownStep) return false;
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
             					styles = {backgroundColor : GREEN };
@@ -170,9 +157,10 @@ function problemReducer(problem, action) {
                 LAST_SHOWN_STEP : 2};
         */
     } else if (action.type === SET_PROBLEM_NUMBER) {
-        var newNamedProb = _.clone(problem)
-        newNamedProb[PROBLEM_NUMBER] = action[NEW_PROBLEM_NUMBER];
-        return newNamedProb;
+        return {
+            ...problem,
+            PROBLEM_NUMBER : action[NEW_PROBLEM_NUMBER]
+        };
     } else if (action.type === EDIT_STEP) {
         return {
             ...problem,
@@ -192,19 +180,17 @@ function problemReducer(problem, action) {
             LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
         };
     } else if (action.type === UNDO_STEP) {
-        if (problem[LAST_SHOWN_STEP] == 0) return problem;
+        if (problem[LAST_SHOWN_STEP] === 0) return problem;
         else {
-            var newLastStep = problem[LAST_SHOWN_STEP] - 1;
             return { ...problem,
-                     LAST_SHOWN_STEP : newLastStep
+                     LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
             };
         }
     } else if (action.type === REDO_STEP) {
-        if (problem[LAST_SHOWN_STEP] == problem[STEPS].length - 1) return problem;
+        if (problem[LAST_SHOWN_STEP] === problem[STEPS].length - 1) return problem;
         else {
-            var newLastStep = problem[LAST_SHOWN_STEP] + 1;
             return { ...problem,
-                     LAST_SHOWN_STEP : newLastStep
+                     LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
             };
         }
     } else {
@@ -219,7 +205,10 @@ function problemListReducer(probList, action) {
     }
 
     if (action.type === ADD_PROBLEM) {
-        return _.clone(probList).concat(problemReducer(undefined, action));
+        return [
+            ...probList,
+            problemReducer(undefined, action)
+        ];
     } else if (action.type === REMOVE_PROBLEM) {
         return [
             ...probList.slice(0, action.PROBLEM_INDEX),

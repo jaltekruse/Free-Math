@@ -1,24 +1,13 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import _ from 'underscore';
-import logo from './logo.svg';
 import './App.css';
-import MathInput from './MathInput.js';
 import TeX from './TeX.js';
 import FreeMath from './FreeMath.js';
-import { autoSave } from './FreeMath.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
-import Problem from './Problem.js';
 
 var MathQuill = window.MathQuill;
 window.MathQuill = MathQuill.getInterface(1);
-var Khan = window.Khan;
-var MathJax = window.MathJax;
-var katex = window.katex;
-var katexA11y = window.katexA11y;
-
-var KAS = window.KAS;
 
 const physicsExample =
 {"PROBLEM_NUMBER":"","STEPS":[{"CONTENT":"\\text{A ball is thrown from 1 m above the ground.}"},{"CONTENT":"\\text{It is given an initial velocity of 20 m/s}"},{"CONTENT":"\\text{At an angle of 40 degrees above the horizontal}"}, {"CONTENT":"\\text{Find the maximum height reached}"}, {"CONTENT":"\\text{And velocity at that point}"}, {"CONTENT":"x\\left(t\\right)=v\\cos\\left(\\theta\\right)t=20\\cos\\left(40\\right)t=15.3t"},{"CONTENT":"y\\left(t\\right)=y_0+v\\sin\\left(\\theta\\right)t-\\frac{9.8t^2}{2}"},{"CONTENT":"y\\left(t\\right)=1+20\\sin\\left(40\\right)t-4.9t^2"},{"CONTENT":"y\\left(t\\right)=1+12.9t-4.9t^2"},{"CONTENT":"v_y\\left(t\\right)=v\\sin\\left(\\theta\\right)-9.8t"},{"CONTENT":"v_y\\left(t\\right)=12.9-9.8t"},{"CONTENT":"\\max\\ height\\ at\\ v_y\\left(t\\right)=0"},{"CONTENT":"12.9-9.8t=0"},{"CONTENT":"-9.8t=-12.9"},{"CONTENT":"t=\\frac{-12.9}{-9.8}=1.3"},{"CONTENT":"y\\left(1.3\\right)=1+12.9\\left(1.3\\right)-4.9\\left(1.3\\right)^2"},{"CONTENT":"y\\left(1.3\\right)=9.5\\ m"},{"CONTENT":"y\\ component\\ of\\ velocity\\ is\\ 0\\ at\\ highest\\ pt"},{"CONTENT":"total\\ velocity\\ =v_x=15.3\\ \\frac{m}{s}"}],"LAST_SHOWN_STEP":19};
@@ -135,7 +124,6 @@ const DefaultHomepageActions = React.createClass({
                 </div>
             );
         };
-		const handleEmailFieldChange = function(evt) {this.state.emailString = evt.target.value};
         return (
             <div style={wrapperDivStyle}>
                 <div style={{display:"block", overflow:"auto"}}>
@@ -154,7 +142,7 @@ const DefaultHomepageActions = React.createClass({
     <input style={{float:"right", margin:"5px"}} type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" className="button"/></div>
 	<div style={{overflow: "hidden"}}>
     <label htmlFor="mce-EMAIL">Subscribe for updates &nbsp;&nbsp;</label>
-    <input type="email" value="" name="EMAIL" className="email" size="25" id="mce-EMAIL" placeholder="email address" value={this.state.emailString} onChange={function(evt) {
+    <input type="email" name="EMAIL" className="email" size="25" id="mce-EMAIL" placeholder="email address" value={this.state.emailString} onChange={function(evt) {
 				this.setState({emailString : evt.target.value});
 			}.bind(this)}/>
 	</div>
@@ -164,7 +152,7 @@ const DefaultHomepageActions = React.createClass({
                 <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under Open Source License.</p>
                 </div>
                 <div style={{...divStyleNoBorder, float: "right"}}>
-                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Video" src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
                 </div>
                 </div>
                 <div style={{padding:"0px 0px 0px 0px"}}>
@@ -257,18 +245,18 @@ const DefaultHomepageActions = React.createClass({
                 <h2>Using Free Math with an LMS</h2>
 				<p>LMS products come with features for collecting documents from students and managing them in bulk. These features are often used for grading files like papers or presentations. These types of files must be examined individually for grading. One great advantage of Free Math is that all documents are graded together, with optimized actions for grading similar work.</p>
 				<p>Here are some links to help for managing student files in specific LMS products. As Free Math natively opens and saves zip files, you can often avoid steps related to unzipping downloaded documents and manually creating a new zip of the graded documents when re-uploading. Keep this in mind as you follow these instructions.</p>
-				<a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle" target="_blank">Moodle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="https://imgur.com/a/0rskc" target="_blank">Google Classroom</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle" target="_blank" rel="noopener noreferrer">Moodle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://imgur.com/a/0rskc" target="_blank" rel="noopener noreferrer">Google Classroom</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				Canvas (
-					<a href="https://community.canvaslms.com/docs/DOC-12813" target="_blank">Download</a>&nbsp;&nbsp;
-					<a href="https://community.canvaslms.com/docs/DOC-10003-415275096" target="_blank">Upload</a>
+					<a href="https://community.canvaslms.com/docs/DOC-12813" target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+					<a href="https://community.canvaslms.com/docs/DOC-10003-415275096" target="_blank" rel="noopener noreferrer">Upload</a>
 				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online" target="_blank">Blackboard</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online" target="_blank" rel="noopener noreferrer">Blackboard</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				D2L (
-					<a href="https://oit.colorado.edu/tutorial/d2l-download-all-dropbox-folder-submissions" target="_blank">Download</a>&nbsp;&nbsp;
-					<a href="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files" target="_blank">Upload</a>
+					<a href="https://oit.colorado.edu/tutorial/d2l-download-all-dropbox-folder-submissions" target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+					<a href="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files" target="_blank" rel="noopener noreferrer">Upload</a>
 				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-" target="_blank">Schoology</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-" target="_blank" rel="noopener noreferrer">Schoology</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                 <span id="contact" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
