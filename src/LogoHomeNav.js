@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
-import ReactDOM from 'react-dom';
-import logo from './logo.svg';
+import React from 'react';
+import createReactClass from 'create-react-class';
 import './App.css';
 
-const LogoHomeNav = React.createClass({
+const LogoHomeNav = createReactClass({
   render: function() {
         return (
             <div style={{float:"left","margin":"0px 15px 0px 15px", lineHeight : 1}} onClick= {

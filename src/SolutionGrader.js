@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import './App.css';
 import TeX from './TeX.js';
 
@@ -32,7 +33,7 @@ var HIGHLIGHT = 'HIGHLIGHT';
 var RED = '#FF99CC';
 var GREEN = '#2cff72';
 
-const SolutionGrader = React.createClass({
+const SolutionGrader = createReactClass({
     setScore: function(evt) {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './App.css';
 import TeX from './TeX.js';
 import FreeMath from './FreeMath.js';
+import createReactClass from 'create-react-class';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 
@@ -28,7 +29,7 @@ export function render() {
     );
 }
 
-const DefaultHomepageActions = React.createClass({
+const DefaultHomepageActions = createReactClass({
     componentDidMount: function() {
         // React 15 doesn't support custom attributes in JSX
         var element = ReactDOM.findDOMNode(this.refs.youtubeEmbed);

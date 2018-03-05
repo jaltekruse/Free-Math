@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import './App.css';
 import SolutionClassGrader from './SolutionClassGrader.js';
 
@@ -15,7 +16,7 @@ var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
 // A problem grader encompasses all of the student work in response
 // to a single problem. The work is grouped by similar final answer,
 // the groups are called "answer classes".
-var ProblemGrader = React.createClass({
+var ProblemGrader = createReactClass({
     render: function() {
         var problemNumber = this.props.problemNumber;
         var studentsToView = this.props.studentsToView;

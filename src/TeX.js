@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 
 var Khan = window.Khan;
@@ -72,12 +74,12 @@ const srOnly = {
     width: "1px",
 };
 
-const TeX = React.createClass({
+const TeX = createReactClass({
     propTypes: {
-        children: React.PropTypes.node,
-        onClick: React.PropTypes.func,
-        onRender: React.PropTypes.func,
-        style: React.PropTypes.any,
+        children: PropTypes.node,
+        onClick: PropTypes.func,
+        onRender: PropTypes.func,
+        style: PropTypes.any,
     },
 
     //TODO - get re-enabled for perf boost

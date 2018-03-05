@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
 
@@ -51,7 +52,7 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var SOFT_RED = '#FFDEDE';
 var GREEN = '#2cff72';
 
-var Problem = React.createClass({
+var Problem = createReactClass({
 
     handleStepChange: function(event) {
       this.setState({value: event.target.value});

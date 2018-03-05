@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import { Chart } from 'chart.js';
 import _ from 'underscore';
@@ -791,7 +792,7 @@ function studentSubmissionsZip(evt) {
     }
 }
 
-const TeacherInteractiveGrader = React.createClass({
+const TeacherInteractiveGrader = createReactClass({
     componentDidMount() {
 		var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
 		var labels = [];

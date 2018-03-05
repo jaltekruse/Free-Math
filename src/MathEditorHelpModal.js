@@ -1,11 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
+import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import { Modal } from 'react-overlays';
 import TeX from './TeX.js';
 
 var MathQuill = window.MathQuill;
 
-var MathEditorHelp = React.createClass({
+var MathEditorHelp = createReactClass({
     render() {
         /* TODO - mathquill not parsing these correctly, but it can put them in the editor and
          *        produce latex for them
@@ -120,7 +121,7 @@ var MathEditorHelp = React.createClass({
 			</div>
 			</div>
             <br/>
-            Many other symbols from Latex are available as well with a backslash prefix, see here for more symbol codes: <a href="https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols" target="_blank">Latex symbols</a>
+            Many other symbols from Latex are available as well with a backslash prefix, see here for more symbol codes: <a href="https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols" target="_blank" rel="noopener noreferrer">Latex symbols</a>
             </div>
         );
     },
@@ -138,7 +139,7 @@ var MathEditorHelp = React.createClass({
     }
 });
 
-var MathEditorHelpModal = React.createClass({
+var MathEditorHelpModal = createReactClass({
 	getInitialState () {
 		return { showModal: false };
 	},

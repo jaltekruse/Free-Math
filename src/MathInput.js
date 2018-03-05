@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
+import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
 import TeX from './TeX.js';
 var MathQuill = window.MathQuill;
-
-var PT = React.PropTypes;
 
 // TeX button from Persus
 var prettyBig = { fontSize: "150%" };
@@ -133,14 +133,14 @@ var buttonSets = {
     ],
 };
 
-var buttonSetsType = React.PropTypes.arrayOf(
-        React.PropTypes.oneOf(_.keys(buttonSets))
+var buttonSetsType = PropTypes.arrayOf(
+        PropTypes.oneOf(_.keys(buttonSets))
     );
 
-var TexButtons = React.createClass({
+var TexButtons = createReactClass({
     propTypes: {
         sets: buttonSetsType.isRequired,
-        onInsert: React.PropTypes.func.isRequired
+        onInsert: PropTypes.func.isRequired
     },
 
     render: function() {
@@ -186,17 +186,17 @@ var TexButtons = React.createClass({
 // Math editor copied from Khan Perseus project
 
 // A WYSIWYG math input that calls `onChange(LaTeX-string)`
-const MathInput = React.createClass({
+const MathInput = createReactClass({
     propTypes: {
-        value: PT.string,
-        convertDotToTimes: PT.bool,
-        buttonsVisible: PT.oneOf(['always', 'never', 'focused']),
-        labelText: React.PropTypes.string,
-        onFocus: PT.func,
-        onBlur: PT.func,
-        onChange: PT.func,
-        onSubmit: PT.func,
-        styles: PT.object
+        value: PropTypes.string,
+        convertDotToTimes: PropTypes.bool,
+        buttonsVisible: PropTypes.oneOf(['always', 'never', 'focused']),
+        labelText: PropTypes.string,
+        onFocus: PropTypes.func,
+        onBlur: PropTypes.func,
+        onChange: PropTypes.func,
+        onSubmit: PropTypes.func,
+        styles: PropTypes.object
     },
 
     render: function() {

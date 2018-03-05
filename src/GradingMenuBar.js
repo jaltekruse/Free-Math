@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
@@ -9,7 +10,7 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 
-const GradingMenuBar = React.createClass({
+const GradingMenuBar = createReactClass({
     render: function() {
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
@@ -51,7 +52,7 @@ const GradingMenuBar = React.createClass({
     }
 });
 
-export const ModalWhileGradingMenuBar = React.createClass({
+export const ModalWhileGradingMenuBar = createReactClass({
     render: function() {
         return (
             <div className="menuBar">

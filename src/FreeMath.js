@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import GradingMenuBar from './GradingMenuBar.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import Assignment from './Assignment.js';
@@ -153,7 +154,7 @@ function rootReducer(state, action) {
 	}
 }
 
-var FreeMath = React.createClass({
+var FreeMath = createReactClass({
   render: function() {
     // TODO - figure out how to best switch between teacher and
     // student mode rendering

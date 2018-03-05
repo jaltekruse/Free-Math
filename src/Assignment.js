@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import './App.css';
 import Problem from './Problem.js';
@@ -29,7 +30,7 @@ function assignmentReducer(state, action) {
     }
 }
 
-var Assignment = React.createClass({
+var Assignment = createReactClass({
 	getInitialState () {
 		return { showModal: false };
 	},

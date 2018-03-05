@@ -1,4 +1,5 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -87,7 +88,7 @@ export function readSingleFile(evt, discardDataWarning) {
     }
 }
 
-var AssignmentEditorMenubar = React.createClass({
+var AssignmentEditorMenubar = createReactClass({
   render: function() {
         return (
             <div className="menuBar">
