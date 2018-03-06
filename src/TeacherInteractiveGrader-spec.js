@@ -7,6 +7,7 @@ import { separateIndividualStudentAssignments } from './TeacherInteractiveGrader
 import { gradeSingleProblem } from './TeacherInteractiveGrader.js';
 import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
+import { singleSolutionReducer } from './TeacherInteractiveGrader.js';
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
@@ -24,6 +25,21 @@ var SHOW_ALL = "SHOW_ALL";
 var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
+var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
+var STEPS = 'STEPS';
+var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
+var FEEDBACK = 'FEEDBACK';
+
+var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
+var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
+var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
+var POSSIBLE_POINTS = "POSSIBLE_POINTS";
+// as the points already assigned for all work on a problem need to be scaled
+// wen the possible points changes, and the old a new values need to be
+// known at the time of the recalculation, user input is stored in this field
+// until the field is submitted (with a button, pressing enter key or focus loss)
+var POSSIBLE_POINTS_EDITED = "POSSIBLE_POINTS_EDITED";
+var SCORE = "SCORE";
 
 //      [ { "PROBLEM_NUMBER" : "1", POSSIBLE_POINTS : 3, "ANSWER_CLASSES" : [ { SCORE : 1, ANSWERS : ["x=5", "5=x"]}, { "SCORE" : 0.5, ANSWERS : ["x=-5","-5=x"] ],
 //          "GRADE_STRATEGY" : "ALL_ANSWERS_REQUIRED" | "ONE_ANSWER_REQUIRED" | "SUBSET_OF_ANSWERS_REQUIRED", "NUMBER_OF_MATCHING_ANSWERS_REQUIRED" : 2 } ]
@@ -37,8 +53,11 @@ it('test grading a problem', () => {
                     { SCORE : 0.5,
                       ANSWERS : ["x=-5", "-5=x"],
                       GRADE_STRATEGY : ONE_ANSWER_REQUIRED }] } };
+    deepFreeze(answerKey);
     var studentAnswer1 = { PROBLEM_NUMBER : 1, STEPS : [ {CONTENT : "2x=10"}, {CONTENT : "x=5"}]};
     var studentAnswer2 = { PROBLEM_NUMBER : 1, STEPS : [ {CONTENT : "2x=10"}, {CONTENT : "x=-5"}]};
+    deepFreeze(studentAnswer1);
+    deepFreeze(studentAnswer2);
     expect(gradeSingleProblem(studentAnswer1, answerKey)).toEqual(3);
     expect(gradeSingleProblem(studentAnswer2, answerKey)).toEqual(1.5);
 });
@@ -62,12 +81,14 @@ it('test aggregate student work', () => {
             ]
         }
     ];
+    deepFreeze(allStudentWork);
     var answerKey = { "1" : {
             POSSIBLE_POINTS : 3,
             ANSWER_CLASSES : [
                 { SCORE : 1, ANSWERS : ["x=2", "2=x"], GRADE_STRATEGY : ONE_ANSWER_REQUIRED},
                 { SCORE : 0.5, ANSWERS : ["x=-2","-2=x"], GRADE_STRATEGY : ONE_ANSWER_REQUIRED } ],
             } };
+    deepFreeze(answerKey);
     var expectedOutput = {
         CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
         SIMILAR_ASSIGNMENT_SETS : [ ],
@@ -144,6 +165,8 @@ it('test separate assignments', () => {
         }
     };
 
+    deepFreeze(input);
+
     // test separating the student work back out into individual assignments
     var separatedAssignments = separateIndividualStudentAssignments(input);
 
@@ -212,6 +235,8 @@ it('test aggregate student work no answer key', () => {
           ]
         }
     ];
+
+    deepFreeze(allStudentWork);
     var expectedOutput = {
         CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
         SIMILAR_ASSIGNMENT_SETS : [ ],
@@ -252,4 +277,102 @@ it('test aggregate student work no answer key', () => {
     // TODO - figure out how to include depedencies like KAS in webpack so I can test them, currently included
     // in the app using global script tags in index.html
     expect(aggregateStudentWork(allStudentWork, {}, function(expr1, expr2) {return expr1 === expr2;})).toEqual(expectedOutput);
+});
+
+it('test set highlight', () => {
+    var input =
+        { STUDENT_FILE : "jake r.",
+          AUTOMATICALLY_ASSIGNED_SCORE : "",
+          SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
+          STEPS : [
+            { CONTENT : "5x=10"},
+            { CONTENT : "x=2"}
+          ]
+        };
+    var action = {type : HIGHLIGHT_STEP, STEP_KEY : 1 };
+    var expectedOutput =
+        { STUDENT_FILE : "jake r.",
+          AUTOMATICALLY_ASSIGNED_SCORE : "",
+          SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
+          STEPS : [
+            { CONTENT : "5x=10"},
+            { CONTENT : "x=2", HIGHLIGHT : ERROR }
+          ]
+        };
+
+    var output = singleSolutionReducer(input, action);
+    expect(output).toEqual(expectedOutput);
+    expectedOutput[STEPS][1][HIGHLIGHT] = SUCCESS;
+    var output2 = singleSolutionReducer(output, action);
+    expect(output2).toEqual(expectedOutput);
+    var output3 = singleSolutionReducer(output2, action);
+    expect(output3).toEqual(input);
+});
+
+
+it('test set feedback', () => {
+    var input =
+        { STUDENT_FILE : "jake r.",
+          AUTOMATICALLY_ASSIGNED_SCORE : "",
+          SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
+          STEPS : [
+            { CONTENT : "5x=10"},
+            { CONTENT : "x=2"}
+          ]
+        };
+    var action = {type :  SET_PROBLEM_FEEDBACK , FEEDBACK : "test feedback" };
+    var expectedOutput =
+        { STUDENT_FILE : "jake r.",
+          AUTOMATICALLY_ASSIGNED_SCORE : "",
+          SCORE : "", FEEDBACK : "test feedback", LAST_SHOWN_STEP: 1,
+          STEPS : [
+            { CONTENT : "5x=10"},
+            { CONTENT : "x=2"}
+          ]
+        };
+
+    var output = singleSolutionReducer(input, action);
+    expect(output).toEqual(expectedOutput);
+    // test clearing feeback
+    action[FEEDBACK] = "";
+    expectedOutput[FEEDBACK] = "";
+    var output2 = singleSolutionReducer(output, action);
+    expect(output2).toEqual(expectedOutput);
+});
+
+it('test set possible points, individual solution', () => {
+    var input =
+        { STUDENT_FILE : "jake r.",
+          AUTOMATICALLY_ASSIGNED_SCORE : "",
+          SCORE : 4, FEEDBACK : "", LAST_SHOWN_STEP: 1,
+          STEPS : [
+            { CONTENT : "5x=10"},
+            { CONTENT : "x=2"}
+          ]
+        };
+    var action = { type :  SET_PROBLEM_POSSIBLE_POINTS,
+                   OLD_POSSIBLE_POINTS : 8, POSSIBLE_POINTS : "6" };
+    var expectedOutput =
+        { STUDENT_FILE : "jake r.",
+          AUTOMATICALLY_ASSIGNED_SCORE : "",
+          SCORE : 3, FEEDBACK : "", LAST_SHOWN_STEP: 1,
+          STEPS : [
+            { CONTENT : "5x=10"},
+            { CONTENT : "x=2"}
+          ]
+        };
+
+    var output = singleSolutionReducer(input, action);
+    expect(output).toEqual(expectedOutput);
+    // if possible points cannot be parsed, don't apply
+    action[POSSIBLE_POINTS] = '';
+    // not clear that unparsible new total points should make
+    // the score go to zero, but I'm pretty sure this is guarded against
+    // in a higher level reducer
+    expectedOutput[SCORE] = 0;
+    var output = singleSolutionReducer(input, action);
+    expect(output).toEqual(expectedOutput);
+});
+
+it('test set possible points, solution class', () => {
 });

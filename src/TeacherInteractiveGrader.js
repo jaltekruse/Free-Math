@@ -110,8 +110,8 @@ function singleSolutionReducer(state, action) {
         return { ...state,
         FEEDBACK : action[FEEDBACK] };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
-        var newScore = Math.round( (Number(state[SCORE])/Number(action[OLD_POSSIBLE_POINTS])) * Number(action[POSSIBLE_POINTS]));
         if (Number(state[SCORE]) > 0) {
+            var newScore = Math.round( (Number(state[SCORE])/Number(action[OLD_POSSIBLE_POINTS])) * Number(action[POSSIBLE_POINTS]));
             return { ...state,
                      SCORE : newScore };
         } else {
@@ -170,6 +170,7 @@ function problemGraderReducer(state, action) {
             ]
         };
     } else if (action.type === EDIT_POSSIBLE_POINTS) {
+        // TODO - add parsing/validation of new value here?
         return { ...state, POSSIBLE_POINTS_EDITED : action[POSSIBLE_POINTS]};
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
         // as the point values are stored at this level, must pass it down to
@@ -958,6 +959,7 @@ const TeacherInteractiveGrader = createReactClass({
 
 export { TeacherInteractiveGrader as default,
     studentSubmissionsZip,
+    singleSolutionReducer,
     saveGradedStudentWork,
     gradeSingleProblem,
     aggregateStudentWork,

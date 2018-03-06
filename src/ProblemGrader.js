@@ -34,7 +34,16 @@ var ProblemGrader = createReactClass({
                                     }) }}
                                 />
                     <input type="submit" name="apply new possible score" value="Apply" onClick={
-                        function() { window.store.dispatch({ type : SET_PROBLEM_POSSIBLE_POINTS, PROBLEM_NUMBER : problemNumber}) }}/> <br/>
+                        function() {
+                            if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
+                                alert("Possible points must be a number");
+                            } else {
+                                window.store.dispatch(
+                                    { type : SET_PROBLEM_POSSIBLE_POINTS,
+                                      PROBLEM_NUMBER : problemNumber});
+                            }
+                        }.bind(this)
+                    }/> <br/>
                             </p>
                 {
                     problemInfo[UNIQUE_ANSWERS].map(function(solutionClassInfo, solutionClassIndex) {
