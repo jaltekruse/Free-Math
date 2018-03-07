@@ -1,7 +1,9 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
-import SolutionClassGrader from './SolutionClassGrader.js';
+import SolutionClassGrader, { solutionClassReducer } from './SolutionClassGrader.js';
+
+var SOLUTION_CLASS_INDEX = "SOLUTION_CLASS_INDEX";
 
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
@@ -12,6 +14,57 @@ var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 // until the field is submitted (with a button, pressing enter key or focus loss)
 var POSSIBLE_POINTS_EDITED = "POSSIBLE_POINTS_EDITED";
 var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
+
+// action properties
+// PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
+var GRADE_SINGLE_SOLUTION = "GRADE_SINGLE_SOLUTION";
+// action properties
+// PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE
+var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
+
+var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
+var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
+var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
+
+function problemGraderReducer(state, action) {
+    if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
+        action.type === GRADE_SINGLE_SOLUTION ||
+		action.type === HIGHLIGHT_STEP ||
+        action.type === SET_PROBLEM_FEEDBACK ) {
+        return {
+            ...state,
+            UNIQUE_ANSWERS : [
+                ...state[UNIQUE_ANSWERS].slice(0, action[SOLUTION_CLASS_INDEX]),
+                solutionClassReducer(state[UNIQUE_ANSWERS][action[SOLUTION_CLASS_INDEX]], action),
+                ...state[UNIQUE_ANSWERS].slice(action[SOLUTION_CLASS_INDEX] + 1),
+            ]
+        };
+    } else if (action.type === EDIT_POSSIBLE_POINTS) {
+        // TODO - add parsing/validation of new value here?
+        return { ...state, POSSIBLE_POINTS_EDITED : action[POSSIBLE_POINTS]};
+    } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+        // as the point values are stored at this level, must pass it down to
+        // recalculate points based on new value for total possible points
+        if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+            action[OLD_POSSIBLE_POINTS] = state[POSSIBLE_POINTS];
+            action[POSSIBLE_POINTS] = state[POSSIBLE_POINTS_EDITED];
+        }
+        var solutionClasses = [ ...state[UNIQUE_ANSWERS] ];
+        solutionClasses.forEach(function(singleSolutionClass, index, arr) {
+            solutionClasses[index] = solutionClassReducer(singleSolutionClass, action);
+        });
+        var ret = {
+            ...state,
+            UNIQUE_ANSWERS : solutionClasses
+        };
+        if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+            ret[POSSIBLE_POINTS] = action[POSSIBLE_POINTS];
+        }
+        return ret;
+    } else {
+        return state;
+    }
+}
 
 // A problem grader encompasses all of the student work in response
 // to a single problem. The work is grouped by similar final answer,
@@ -59,4 +112,4 @@ var ProblemGrader = createReactClass({
     }
 });
 
-export default ProblemGrader;
+export { ProblemGrader as default, problemGraderReducer };

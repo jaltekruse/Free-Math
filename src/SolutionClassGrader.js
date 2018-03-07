@@ -3,12 +3,64 @@ import createReactClass from 'create-react-class';
 import _ from 'underscore';
 import './App.css';
 import TeX from './TeX.js';
-import SolutionGrader from './SolutionGrader.js';
+import SolutionGrader, { singleSolutionReducer } from './SolutionGrader.js';
+
+var SOLUTION_INDEX = "SOLUTION_INDEX";
+
+var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
+
+// action properties
+// PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
+var GRADE_SINGLE_SOLUTION = "GRADE_SINGLE_SOLUTION";
+// action properties
+// PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE
+var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
+// action properties: MODE (JUST_UNGRADED | ALL)
+var MODE = "MODE";
+var JUST_UNGRADED = "JUST_UNGRADED"
 
 // teacher grade page model properties
 var STUDENT_WORK = "STUDENT_WORK";
 var STUDENT_FILE = 'STUDENT_FILE';
 var ANSWER = "ANSWER";
+
+var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
+var SCORE = "SCORE";
+var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
+
+function solutionClassReducer(state, action) {
+    if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
+        action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+        var workInGivenSolutionClass = [ ...state[STUDENT_WORK] ];
+        if (action.type === GRADE_CLASS_OF_SOLUTIONS) {
+            action.type = GRADE_SINGLE_SOLUTION;
+        }
+        workInGivenSolutionClass.forEach(function(singleStudentsWork, index, arr) {
+            if (action[MODE] === JUST_UNGRADED && singleStudentsWork[SCORE] !== "") {
+                return;
+            }
+            workInGivenSolutionClass[index] = singleSolutionReducer(singleStudentsWork, action);
+        });
+        return {
+            ...state,
+            STUDENT_WORK : workInGivenSolutionClass
+        };
+    } else if (action.type === GRADE_SINGLE_SOLUTION ||
+               action.type === SET_PROBLEM_FEEDBACK ||
+			   action.type === HIGHLIGHT_STEP
+        ) {
+        return {
+            ...state,
+            STUDENT_WORK : [
+                ...state[STUDENT_WORK].slice(0, action[SOLUTION_INDEX]),
+                singleSolutionReducer(state[STUDENT_WORK][action[SOLUTION_INDEX]], action),
+                ...state[STUDENT_WORK].slice(action[SOLUTION_INDEX] + 1)
+            ]
+        };
+    } else {
+        return state;
+    }
+}
 
 var SolutionClassGrader = createReactClass({
     render: function() {
@@ -63,4 +115,4 @@ var SolutionClassGrader = createReactClass({
     }
 });
 
-export default SolutionClassGrader;
+export { SolutionClassGrader as default, solutionClassReducer };

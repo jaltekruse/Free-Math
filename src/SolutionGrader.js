@@ -25,6 +25,7 @@ var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
 
 var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
 var STEPS = 'STEPS';
+var STEP_KEY = 'STEP_KEY';
 var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
@@ -32,6 +33,50 @@ var HIGHLIGHT = 'HIGHLIGHT';
 // CSS constants
 var RED = '#FF99CC';
 var GREEN = '#2cff72';
+
+var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
+var POSSIBLE_POINTS = "POSSIBLE_POINTS";
+
+var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
+
+function singleSolutionReducer(state, action) {
+    if (action.type === GRADE_SINGLE_SOLUTION) {
+        // currently no validation here
+        return { ...state,
+        SCORE : action[SCORE] };
+	} else if (action.type === HIGHLIGHT_STEP) {
+		var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
+		var newHighlight;
+		if (oldHighlight === undefined)
+			newHighlight = ERROR;
+		else if (oldHighlight === ERROR)
+			newHighlight = SUCCESS;
+		else if (oldHighlight === SUCCESS)
+			newHighlight = undefined;
+
+		var newState = { ...state,
+			STEPS : [
+				...state[STEPS].slice(0, action[STEP_KEY]),
+				{ ...state[STEPS][action[STEP_KEY]], HIGHLIGHT : newHighlight},
+				...state[STEPS].slice(action[STEP_KEY] + 1)
+			]
+		};
+		return newState;
+    } else if (action.type === SET_PROBLEM_FEEDBACK) {
+        return { ...state,
+        FEEDBACK : action[FEEDBACK] };
+    } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
+        if (Number(state[SCORE]) > 0) {
+            var newScore = Math.round( (Number(state[SCORE])/Number(action[OLD_POSSIBLE_POINTS])) * Number(action[POSSIBLE_POINTS]));
+            return { ...state,
+                     SCORE : newScore };
+        } else {
+            return state;
+        }
+    } else {
+        return state;
+    }
+}
 
 const SolutionGrader = createReactClass({
     setScore: function(evt) {
@@ -169,4 +214,4 @@ const SolutionGrader = createReactClass({
     }
 });
 
-export default SolutionGrader;
+export { SolutionGrader as default, singleSolutionReducer};

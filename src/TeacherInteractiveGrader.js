@@ -6,19 +6,13 @@ import _ from 'underscore';
 import JSZip from 'jszip';
 import { diffJson } from 'diff';
 import './App.css';
-import ProblemGrader from './ProblemGrader.js';
+import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep } from './FreeMath.js';
 
 var KAS = window.KAS;
 
-// key used to refer to one step in a series of student work
-var STEP_KEY = 'STEP_KEY';
-var SOLUTION_INDEX = "SOLUTION_INDEX";
-var SOLUTION_CLASS_INDEX = "SOLUTION_CLASS_INDEX";
-
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
-var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 // as the points already assigned for all work on a problem need to be scaled
 // wen the possible points changes, and the old a new values need to be
@@ -52,8 +46,6 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 var STUDENT_FILE = 'STUDENT_FILE';
 var ASSIGNMENT = 'ASSIGNMENT';
 var AUTOMATICALLY_ASSIGNED_SCORE = 'AUTOMATICALLY_ASSIGNED_SCORE';
-var SUCCESS = 'SUCCESS';
-var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
 
 // answer key properties
@@ -78,123 +70,8 @@ var GRADE_SINGLE_SOLUTION = "GRADE_SINGLE_SOLUTION";
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE
 var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 // action properties: MODE (JUST_UNGRADED | ALL)
-var MODE = "MODE";
-var JUST_UNGRADED = "JUST_UNGRADED"
 
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
-
-function singleSolutionReducer(state, action) {
-    if (action.type === GRADE_SINGLE_SOLUTION) {
-        // currently no validation here
-        return { ...state,
-        SCORE : action[SCORE] };
-	} else if (action.type === HIGHLIGHT_STEP) {
-		var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
-		var newHighlight;
-		if (oldHighlight === undefined)
-			newHighlight = ERROR;
-		else if (oldHighlight === ERROR)
-			newHighlight = SUCCESS;
-		else if (oldHighlight === SUCCESS)
-			newHighlight = undefined;
-
-		var newState = { ...state,
-			STEPS : [
-				...state[STEPS].slice(0, action[STEP_KEY]),
-				{ ...state[STEPS][action[STEP_KEY]], HIGHLIGHT : newHighlight},
-				...state[STEPS].slice(action[STEP_KEY] + 1)
-			]
-		};
-		return newState;
-    } else if (action.type === SET_PROBLEM_FEEDBACK) {
-        return { ...state,
-        FEEDBACK : action[FEEDBACK] };
-    } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
-        if (Number(state[SCORE]) > 0) {
-            var newScore = Math.round( (Number(state[SCORE])/Number(action[OLD_POSSIBLE_POINTS])) * Number(action[POSSIBLE_POINTS]));
-            return { ...state,
-                     SCORE : newScore };
-        } else {
-            return state;
-        }
-    } else {
-        return state;
-    }
-}
-
-function solutionClassReducer(state, action) {
-    if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
-        action.type === SET_PROBLEM_POSSIBLE_POINTS) {
-        var workInGivenSolutionClass = [ ...state[STUDENT_WORK] ];
-        if (action.type === GRADE_CLASS_OF_SOLUTIONS) {
-            action.type = GRADE_SINGLE_SOLUTION;
-        }
-        workInGivenSolutionClass.forEach(function(singleStudentsWork, index, arr) {
-            if (action[MODE] === JUST_UNGRADED && singleStudentsWork[SCORE] !== "") {
-                return;
-            }
-            workInGivenSolutionClass[index] = singleSolutionReducer(singleStudentsWork, action);
-        });
-        return {
-            ...state,
-            STUDENT_WORK : workInGivenSolutionClass
-        };
-    } else if (action.type === GRADE_SINGLE_SOLUTION ||
-               action.type === SET_PROBLEM_FEEDBACK ||
-			   action.type === HIGHLIGHT_STEP
-        ) {
-        return {
-            ...state,
-            STUDENT_WORK : [
-                ...state[STUDENT_WORK].slice(0, action[SOLUTION_INDEX]),
-                singleSolutionReducer(state[STUDENT_WORK][action[SOLUTION_INDEX]], action),
-                ...state[STUDENT_WORK].slice(action[SOLUTION_INDEX] + 1)
-            ]
-        };
-    } else {
-        return state;
-    }
-}
-
-function problemGraderReducer(state, action) {
-    if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
-        action.type === GRADE_SINGLE_SOLUTION ||
-		action.type === HIGHLIGHT_STEP ||
-        action.type === SET_PROBLEM_FEEDBACK ) {
-        return {
-            ...state,
-            UNIQUE_ANSWERS : [
-                ...state[UNIQUE_ANSWERS].slice(0, action[SOLUTION_CLASS_INDEX]),
-                solutionClassReducer(state[UNIQUE_ANSWERS][action[SOLUTION_CLASS_INDEX]], action),
-                ...state[UNIQUE_ANSWERS].slice(action[SOLUTION_CLASS_INDEX] + 1),
-            ]
-        };
-    } else if (action.type === EDIT_POSSIBLE_POINTS) {
-        // TODO - add parsing/validation of new value here?
-        return { ...state, POSSIBLE_POINTS_EDITED : action[POSSIBLE_POINTS]};
-    } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
-        // as the point values are stored at this level, must pass it down to
-        // recalculate points based on new value for total possible points
-        if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
-            action[OLD_POSSIBLE_POINTS] = state[POSSIBLE_POINTS];
-            action[POSSIBLE_POINTS] = state[POSSIBLE_POINTS_EDITED];
-        }
-        var solutionClasses = [ ...state[UNIQUE_ANSWERS] ];
-        solutionClasses.forEach(function(singleSolutionClass, index, arr) {
-            solutionClasses[index] = solutionClassReducer(singleSolutionClass, action);
-        });
-        var ret = {
-            ...state,
-            UNIQUE_ANSWERS : solutionClasses
-        };
-        if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
-            ret[POSSIBLE_POINTS] = action[POSSIBLE_POINTS];
-        }
-        return ret;
-    } else {
-        return state;
-    }
-}
 
 /*
  * Compute a table to show the overall grades for each student
@@ -959,7 +836,6 @@ const TeacherInteractiveGrader = createReactClass({
 
 export { TeacherInteractiveGrader as default,
     studentSubmissionsZip,
-    singleSolutionReducer,
     saveGradedStudentWork,
     gradeSingleProblem,
     aggregateStudentWork,
