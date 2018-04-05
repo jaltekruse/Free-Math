@@ -36,11 +36,16 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
         aria.alert(ch);
       }
       else {
+<<<<<<< HEAD
         var cmd = this.parent.renderCommand(cursor);
         // TODO needs tests
         aria.queue(cmd.mathspeak({ createdLeftOf: cursor }));
-        if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
         else aria.alert();
+=======
+        this.parent.renderCommand(cursor);
+        if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
+>>>>>>> trunk/master
       }
     };
     this.ends[L].keystroke = function(key, e, ctrlr) {

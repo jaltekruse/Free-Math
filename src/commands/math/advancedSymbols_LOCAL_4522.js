@@ -303,7 +303,7 @@ LatexCmds.nexists = LatexCmds.nexist =
       bind(VanillaSymbol, '\\nexists ', '&#8708;', 'there is no');
 
 LatexCmds.and = LatexCmds.land = LatexCmds.wedge =
-  bind(BinaryOperator,'\\wedge ','&and;', 'and');
+  bind(VanillaSymbol,'\\wedge ','&and;', 'and');
 
 LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(VanillaSymbol,'\\vee ','&or;', 'or');
 

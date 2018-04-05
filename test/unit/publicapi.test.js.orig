@@ -158,6 +158,7 @@ suite('Public API', function() {
       assert.equal(mq.__controller.cursor[R], 0);
     });
 
+<<<<<<< HEAD
     test('ARIA labels', function() {
       mq.setAriaLabel('ARIA label');
       mq.setAriaPostLabel('ARIA post-label');
@@ -192,12 +193,12 @@ suite('Public API', function() {
 
       mq.latex('\\left| x \\right| + \\left( y \\right|');
       assertMathSpeakEqual(mq.mathspeak(), 'StartAbsoluteValue "x" EndAbsoluteValue plus left parenthesis "y" right pipe');
-    });
-
+=======
     test('.empty()', function() {
       mq.latex('xyz');
       mq.empty();
       assert.equal(mq.latex(), '');
+>>>>>>> trunk/master
     });
   });
 

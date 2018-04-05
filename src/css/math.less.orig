@@ -352,10 +352,11 @@
 
   .mq-overarc {
     border-top: 1px solid black;
-    /* changes in desmos fork */
-    /* border-radius: 50% 50% 0 0; */
-    /* padding: 0.35em 0.25em 0 0.1em; */
-    /* margin-top: 0.1em; */
+<<<<<<< HEAD
+    border-radius: 50% 50% 0 0;
+    padding: 0.35em 0.25em 0 0.1em;
+    margin-top: 0.1em;
+=======
     -webkit-border-top-right-radius: 50% .3em;
     -moz-border-radius-topright: 50% .3em;
     border-top-right-radius: 50% .3em;
@@ -364,6 +365,7 @@
     border-top-left-radius: 50% .3em;
     margin-top: 1px;
     padding-top: 0.15em;
+>>>>>>> trunk/master
   }
 
   .mq-overarrow {
@@ -371,9 +373,11 @@
     border-top: 1px solid black;
     margin-top: 1px;
     padding-top: 0.2em;
-    /* desmos fork */
-    /* position: relative; */
+<<<<<<< HEAD
+    position: relative;
+=======
     text-align: center;
+>>>>>>> trunk/master
 
     &:after {
       position: absolute;

@@ -65,8 +65,11 @@ var TextBlock = P(Node, function(_, super_) {
   _.latex = function() {
     var contents = this.textContents();
     if (contents.length === 0) return '';
-    //return this.ctrlSeq + '{' + contents + '}';
-    return this.ctrlSeq + '{' + contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') + '}';
+<<<<<<< HEAD
+    return this.ctrlSeq + '{' + contents + '}';
+=======
+    return '\\text{' + contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') + '}';
+>>>>>>> trunk/master
   };
   _.html = function() {
     return (
