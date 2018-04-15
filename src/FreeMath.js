@@ -200,6 +200,7 @@ var FreeMath = createReactClass({
                     <LogoHomeNav />
                     <div style={{float:"right"}}>
                     <a href="#examples" style={{color:"white"}} >Examples</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#lms" style={{color:"white"}} >LMS Integration</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#faq" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;

@@ -153,7 +153,7 @@ const DefaultHomepageActions = createReactClass({
                 <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under Open Source License.</p>
                 </div>
                 <div style={{...divStyleNoBorder, float: "right"}}>
-                <div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Video" src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <div title="Free Math Demo" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Video" src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
                 </div>
                 </div>
                 <div style={{padding:"0px 0px 0px 0px"}}>
@@ -226,6 +226,7 @@ const DefaultHomepageActions = createReactClass({
                 <br />
                 <span id="examples" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+		<br />
                 <h2>Great for many areas of Math</h2>
                 <div style={{float:"none", display:"inline-block"}}>
                     <div style={{float:"left", margin:"5px"}}>
@@ -241,9 +242,29 @@ const DefaultHomepageActions = createReactClass({
                         {renderExampleWork(physicsExample) }
                     </div>
                 </div>
+                <br />
+                <span id="gettingStarted" />
+                <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+		<br />
+                <h2>Getting Started</h2>
+		<p>Free Math is suprisingly easy to set up, all you need is any standard LMS that can collect files. Below is the complete workflow for assigning and grading. Nothing needs to be set up by you IT department, there is no need to transcribe problems from your materials into the system or even create a digital answer key before you begin.</p>
+		<ol>
+                        <li>Assign problems from your textbook or a worksheet.</li>
+                        <li>Students complete digital work, save it as a file and submit it through your LMS.</li>
+                        <li>You download the files in bulk from your LMS as a zip file.</li>
+                        <li>Load the zip file into Free Math for grading, the app will show you where students struggled the most. Anything you don’t have time to grade gets completion points.</li>
+                        <li>Save the grading feedback, which generates a zip file filled with individual graded documents for each student.</li>
+                        <li>Upload the zip file full of documents into your LMS, it will provide the individual graded documents to each student.</li>
+                        <li>Record the overall grades into your grade book.</li>
+		</ol>
+
+		<div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <br />
+                <br />
                 <span id="lms" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-                <h2>Using Free Math with an LMS</h2>
+		<br />
+                <h2>Instructions for Specific LMS Tools</h2>
 				<p>LMS products come with features for collecting documents from students and managing them in bulk. These features are often used for grading files like papers or presentations. These types of files must be examined individually for grading. One great advantage of Free Math is that all documents are graded together, with optimized actions for grading similar work.</p>
 				<p>Here are some links to help for managing student files in specific LMS products. As Free Math natively opens and saves zip files, you can often avoid steps related to unzipping downloaded documents and manually creating a new zip of the graded documents when re-uploading. Keep this in mind as you follow these instructions.</p>
 				<a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle" target="_blank" rel="noopener noreferrer">Moodle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -261,7 +282,7 @@ const DefaultHomepageActions = createReactClass({
 
                 <span id="contact" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-				<br />
+		<br />
                 <h2>Contact the Developer</h2>
                 <p>If you would like to discuss how you could use Free Math in your classroom, send a message to this address. Bug reports, questions and press inquiries can be directed here as well.</p>
                 <p>developers@freemathapp.org</p>
@@ -273,6 +294,7 @@ const DefaultHomepageActions = createReactClass({
 
                 <span id="faq" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+		<br />
                 <h2>FAQ</h2>
 				<p><b>Does Free Math solve math problems?</b></p>
 				<p>No, Free Math allows students to record their work, but does not solve problems automatically.</p>
@@ -289,6 +311,7 @@ const DefaultHomepageActions = createReactClass({
                 </p>
                 <span id="license" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+		<br />
                 <h3>Legal</h3>
                 <small>
                 Free Math is free software: you can redistribute it and/or modify
