@@ -153,7 +153,7 @@ const DefaultHomepageActions = createReactClass({
                 <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under Open Source License.</p>
                 </div>
                 <div style={{...divStyleNoBorder, float: "right"}}>
-                <div title="Free Math Demo" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Video" src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <div style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Video" src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
                 </div>
                 </div>
                 <div style={{padding:"0px 0px 0px 0px"}}>
@@ -247,7 +247,7 @@ const DefaultHomepageActions = createReactClass({
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
 		<br />
                 <h2>Getting Started</h2>
-		<p>Free Math is suprisingly easy to set up, all you need is any standard LMS that can collect files. Below is the complete workflow for assigning and grading. Nothing needs to be set up by you IT department, there is no need to transcribe problems from your materials into the system or even create a digital answer key before you begin.</p>
+		<p>Free Math is easy to set up, all you need is a standard LMS that can collect files. Below is the complete workflow for assigning and grading. Nothing needs to be set up by your IT department, there is no need to transcribe problems from your materials into the system or even create a digital answer key before you begin.</p>
 		<ol>
                         <li>Assign problems from your textbook or a worksheet.</li>
                         <li>Students complete digital work, save it as a file and submit it through your LMS.</li>
@@ -258,7 +258,7 @@ const DefaultHomepageActions = createReactClass({
                         <li>Record the overall grades into your grade book.</li>
 		</ol>
 
-		<div ref="youtubeEmbed" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+		<div ref="youtubeEmbed" title="Youtube Getting Started" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Demo" src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
                 <br />
                 <br />
                 <span id="lms" />
@@ -286,8 +286,10 @@ const DefaultHomepageActions = createReactClass({
                 <h2>Contact the Developer</h2>
                 <p>If you would like to discuss how you could use Free Math in your classroom, send a message to this address. Bug reports, questions and press inquiries can be directed here as well.</p>
                 <p>developers@freemathapp.org</p>
-                <div>Follow the project <a href="https://www.facebook.com/freemathapp"><img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>
-                    <a href="https://twitter.com/freemathapp"><img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>
+                <div>Follow the project &nbsp;&nbsp;
+			<a href="https://www.facebook.com/freemathapp"><img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>&nbsp;
+                   	<a href="https://twitter.com/freemathapp"><img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>&nbsp;
+			<a href="https://www.reddit.com/r/freemath"><img alt="facebook" src="/images/snoo.png" style={{height:"35px"}}></img></a>&nbsp;&nbsp;
     <a href="https://github.com/jaltekruse/Free-Math/issues">Report Bug or Request Feature</a>
     </div>
 				<br />
