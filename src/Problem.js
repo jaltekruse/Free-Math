@@ -92,28 +92,25 @@ var Problem = createReactClass({
                     }
                 </div>
                 <div>
-                    <div>
-                        Problem number <input type="text" value={probNumber} className="problem-number" onChange={
+			Problem number &nbsp;<input type="text" value={probNumber} size="3" className="problem-number" onChange={
                         function(evt) { window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
-                                        NEW_PROBLEM_NUMBER : evt.target.value}) }}/> &nbsp;&nbsp;&nbsp;
-                        <input type="submit" value="Clone Problem"
-                                        title="Make a copy of this work, useful if you need to reference it while trying another solution path." onClick={
-                        function() { window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>&nbsp;&nbsp;&nbsp;
-                        <input type="submit" value="x" title="Delete problem" onClick={
-                        function() { if (!window.confirm("Delete problem?")) { return; }
-                                     window.store.dispatch({ type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
-                    </div>
+                                        NEW_PROBLEM_NUMBER : evt.target.value}) }}/> <br/><br/>
                     <div style={{float:'left'}}>
-                        <p> Actions </p>
                         <input type="submit" name="next step" value="Next step (Enter)" onClick={
                             function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
                         <input type="submit" name="undo step" value="Undo step" onClick={
                             function() { window.store.dispatch({ type : UNDO_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
                         <input type="submit" name="redo step" value="Redo step" onClick={
-                            function() { window.store.dispatch({ type : REDO_STEP, PROBLEM_INDEX : problemIndex}) }}/>
+                            function() { window.store.dispatch({ type : REDO_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/> <br/>
+                        <input type="submit" value="Delete problem" title="Delete problem" onClick={
+                        function() { if (!window.confirm("Delete problem?")) { return; }
+                                     window.store.dispatch({ type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/> <br/>
+                        <input type="submit" value="Clone Problem"
+                                        title="Make a copy of this work, useful if you need to reference it while trying another solution path." onClick={
+                        function() { window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/> <br/>
                     </div>
-                        <div style={{float:'left'}} className="equation-list">
-                        <p>Type math here</p>
+                    <div style={{float:'left', marginLeft : "30px"}} className="equation-list">
+                        Type math here<br />
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
                             if (stepIndex > lastShownStep) return false;

@@ -118,7 +118,7 @@ ul {
   padding-left: 1em;
 }
 
-/* OpenNotebook-Web styles */
+/* Free Math styles */
 div.problem-summary-container {
     margin: 5px 5px 5px 5px;
     padding: 5px 5px 5px 5px;
@@ -226,7 +226,7 @@ div.problem-container {
     border-radius: 3px;
     border:1px solid #cfcfcf;
     background-color:white;
-    margin: 15px 15px 15px 15px;
+    margin: 15px 0px 15px 0px;
     padding: 15px 15px 130px 15px;
     box-shadow: 0 5px 3px -3px #cfcfcf;
     min-width: 50%;
