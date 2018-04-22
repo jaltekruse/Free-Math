@@ -28,6 +28,7 @@ const GradingMenuBar = createReactClass({
                                 window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
                             }}
                         />&nbsp;&nbsp;
+			<div style={{display:"inline-block"}}>
                         <input type="submit" id="save-graded-assignments" value="Save graded" onClick={
                             function() {
                                 saveGradedStudentWork(window.store.getState());
@@ -45,6 +46,7 @@ const GradingMenuBar = createReactClass({
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;}
                         }/>
+			</div>
                     </div>
                 </div>
             </div>

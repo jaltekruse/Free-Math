@@ -96,16 +96,16 @@ var Problem = createReactClass({
                         function(evt) { window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
                                         NEW_PROBLEM_NUMBER : evt.target.value}) }}/> <br/><br/>
                     <div style={{float:'left'}}>
-                        <input type="submit" name="next step" value="Next step (Enter)" onClick={
+                        <input className="btn btn-primary" type="button" name="next step" value="Next step (Enter)" onClick={
                             function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <input type="submit" name="undo step" value="Undo step" onClick={
+                        <input className="btn btn-primary" type="button" name="undo step" value="Undo step" onClick={
                             function() { window.store.dispatch({ type : UNDO_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <input type="submit" name="redo step" value="Redo step" onClick={
+                        <input className="btn btn-primary" type="button" name="redo step" value="Redo step" onClick={
                             function() { window.store.dispatch({ type : REDO_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/> <br/>
-                        <input type="submit" value="Delete problem" title="Delete problem" onClick={
+                        <input className="btn btn-primary" type="button" value="Delete problem" title="Delete problem" onClick={
                         function() { if (!window.confirm("Delete problem?")) { return; }
                                      window.store.dispatch({ type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <input type="submit" value="Clone Problem"
+                        <input className="btn btn-primary" type="button" value="Clone Problem"
                                         title="Make a copy of this work, useful if you need to reference it while trying another solution path." onClick={
                         function() { window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/> <br/>
                     </div>

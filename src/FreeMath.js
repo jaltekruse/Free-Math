@@ -159,10 +159,10 @@ var FreeMath = createReactClass({
     // TODO - figure out how to best switch between teacher and
     // student mode rendering
     var wrapperDivStyle = {
-        padding:"0px 30px 0px 30px",
+        //padding:"0px 30px 0px 30px",
         "margin-left":"auto",
         "margin-right": "auto",
-        width:"1024",
+        width:"100%",
         height:"100%"
     };
     /*
@@ -180,7 +180,7 @@ var FreeMath = createReactClass({
         return (
             <div style={wrapperDivStyle}>
                 <AssignmentEditorMenubar value={this.props.value}/>
-                <div style={{display:"inline-block", width:"100%"}}>
+                <div style={{display:"inline-block", maxWidth:"1024px", width:"100%"}}>
                     <Assignment value={this.props.value}/>
                 </div>
             </div>
@@ -196,7 +196,7 @@ var FreeMath = createReactClass({
         return (
         <div>
             <div className="menuBar">
-                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{width:"100%",maxWidth:"1024px",marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
                     <div style={{float:"right"}}>
                     <a href="#examples" style={{color:"white"}} >Examples</a>&nbsp;&nbsp;&nbsp;&nbsp;

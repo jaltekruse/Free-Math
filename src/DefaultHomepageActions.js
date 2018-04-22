@@ -56,18 +56,17 @@ const DefaultHomepageActions = createReactClass({
             padding:"20px",
     		boxShadow: "0 5px 3px -3px #cfcfcf"
         };
-		var divStyleNoBorder = {
-			...divStyle,
-    		boxShadow: "none",
-    		border: "none"
-		};
+        var divStyleNoBorder = {
+	    ...divStyle,
+            boxShadow: "none",
+            border: "none"
+        };
         var wrapperDivStyle = {
-            padding:"0px 30px 0px 30px",
             //"backgroundColor":"#fafafa",
             "backgroundColor":"#ffffff",
             "marginLeft":"auto",
             "marginRight": "auto",
-            width:"1024px"
+            width:"100%",maxWidth:"1024px"
         };
 
         var openAssignments = function(evt){
@@ -127,6 +126,7 @@ const DefaultHomepageActions = createReactClass({
         };
         return (
             <div style={wrapperDivStyle}>
+            <div style={{padding:"0px 30px 0px 30px",}}>
                 <div style={{display:"block", overflow:"auto"}}>
                 <div style={divStyleNoBorder}>
                 <h2>Meet Your New Math Classroom</h2>
@@ -162,7 +162,7 @@ const DefaultHomepageActions = createReactClass({
                         <div style={divStyle}>
                             <h3>Students</h3>
                                 New Assignment &nbsp;&nbsp;&nbsp;
-                                <input type="submit" id="new-assignment" name="New assignment" value="Create" onClick={
+                                <input type="submit" className="btn btn-primary" id="new-assignment" name="New assignment" value="Create" onClick={
                                     function() {
                                         // turn on confirmation dialog upon navigation away
                                         window.onbeforeunload = function() {
@@ -187,8 +187,8 @@ const DefaultHomepageActions = createReactClass({
 
                                         recoveredStudentDocs.map(function(docName, docIndex) {
                                             return (
-                                                <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                     <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
+                                                <div key={docName}><input className="btn btn-primary" type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                                     <input className="btn btn-primary" type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
 
                                                 {docName.replace("auto save students ","").replace(/:\d\d\..*/, "")}</div>
                                             );
@@ -209,8 +209,8 @@ const DefaultHomepageActions = createReactClass({
 
                                     recoveredTeacherDocs.map(function(docName, docIndex) {
                                         return (
-                                            <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                 <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
+                                            <div key={docName}><input className="btn btn-primary" type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                                 <input className="btn btn-primary" type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
                                             {docName.replace("auto save teachers ","").replace(/:\d\d\..*/, "")}</div>
                                         );
                                     })
@@ -331,6 +331,7 @@ const DefaultHomepageActions = createReactClass({
                 </small>
             </div>
             </div>
+	    </div>
         );
     }
 });

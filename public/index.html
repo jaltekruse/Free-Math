@@ -60,9 +60,6 @@ http://mozilla.org/MPL/2.0/
 
   gtag('config', 'UA-70441517-2');
 </script>
-
-<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
-
 <meta name="viewport" content="width=624">
 <meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
 <title>Free Math - Homework software that is easy to use and powerful</title>
@@ -72,20 +69,8 @@ http://mozilla.org/MPL/2.0/
 <!-- testing -->
 <script src="expect.min.js"></script>
 
-<!-- UI react-->
-
-<!-- saving to local disk -->
-<!-- <script type="text/javascript" src="filesaver_js.js"></script> -->
-<!-- reading ZIP files -->
-<!-- <script type="text/javascript" src="jszip.min.js"></script> -->
-
 <!-- Only use this for MathQuill! --> 
-<!-- <script src="https://code.jquery.com/jquery-1.7.2.min.js"
-  integrity="sha256-R7aNzoy2gFrVs+pNJ6+SokH04ppcEqJ0yFLkNGoFALQ="
-  crossorigin="anonymous"></script> -->
-
 <script src="lib/jquery.js"></script>
-<!-- <script src="redux.js"></script> -->
 <!-- TODO CLEANUP - this is currently included at the npm level as well to make it available for unit tests -->
 <!-- May cause problems -->
 <script src="lib/underscore.js"></script>
@@ -97,23 +82,20 @@ http://mozilla.org/MPL/2.0/
 <!-- for KAS, investivate impact of lodash vs underscore https://github.com/Khan/KAS/issues/9 -->
 <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
 
-<!-- <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script> -->
 <script src="lib/mathjax/2.1/MathJax.js" />
 
 <!-- Needed for static math rendering borrowed from Kahn Perseus project -->
 <script type="text/javascript" src="katexA11.js"></script>
 <!-- for comparing expressions KAS (Khan algebra system) -->
 <script type="text/javascript" src="kas.min.js"></script>
-<!-- for diffing JSON structures -->
-<!-- <script type="text/javascript" src="diff.js"></script> -->
 <!-- Katex -->
 <link rel="stylesheet" href="katex.min.css">
 <script src="katex.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="build/mathquill.css">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 <script type="text/javascript" src="build/mathquill.js"></script>
 <!-- App state management -->
-<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script> -->
 </head>
 <body style="margin-top:40px">
 <div id="root"></div>

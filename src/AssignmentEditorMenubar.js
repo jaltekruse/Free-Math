@@ -92,7 +92,7 @@ var AssignmentEditorMenubar = createReactClass({
   render: function() {
         return (
             <div className="menuBar">
-                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{width:"100%",maxWidth:"1024px",marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <div style={{float: "right", verticalAlign:"top", marginTop:"5px", lineHeight : 1}}>
