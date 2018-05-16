@@ -35,6 +35,7 @@ var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
 
 var NEW_STEP = 'NEW_STEP';
+var NEW_BLANK_STEP = 'NEW_BLANK_STEP';
 // this action expects an index for which problem to change
 var UNDO_STEP = 'UNDO_STEP';
 // this action expects an index for which problem to change
@@ -107,6 +108,8 @@ var Problem = createReactClass({
                         <p> Actions </p>
                         <input type="submit" name="next step" value="Next step (Enter)" onClick={
                             function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
+                        <input type="submit" name="blank step" value="New blank step" onClick={
+                            function() { window.store.dispatch({ type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
                         <input type="submit" name="undo step" value="Undo step" onClick={
                             function() { window.store.dispatch({ type : UNDO_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
                         <input type="submit" name="redo step" value="Redo step" onClick={
@@ -171,8 +174,13 @@ function problemReducer(problem, action) {
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
         }
-    } else if (action.type === NEW_STEP) {
-        var oldLastStep = problem[STEPS][problem[LAST_SHOWN_STEP]];
+    } else if (action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
+		var oldLastStep;
+		if (action.type === NEW_STEP) {
+				oldLastStep = problem[STEPS][problem[LAST_SHOWN_STEP]];
+		} else { // new blank step
+				oldLastStep = {CONTENT : ""};
+		}
         return {
             ...problem,
             STEPS : [ ...problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1),
@@ -227,6 +235,7 @@ function problemListReducer(probList, action) {
                action.type === EDIT_STEP ||
                action.type === UNDO_STEP ||
                action.type === REDO_STEP ||
+               action.type === NEW_BLANK_STEP ||
                action.type === NEW_STEP) {
         return [
             ...probList.slice(0, action.PROBLEM_INDEX),
