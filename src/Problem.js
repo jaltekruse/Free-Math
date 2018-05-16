@@ -40,6 +40,7 @@ var NEW_BLANK_STEP = 'NEW_BLANK_STEP';
 var UNDO_STEP = 'UNDO_STEP';
 // this action expects an index for which problem to change
 var REDO_STEP = 'REDO_STEP';
+var DELETE_STEP = 'DELETE_STEP';
 
 // this action expects:
 // PROBLEM_INDEX - for which problem to change
@@ -127,10 +128,13 @@ var Problem = createReactClass({
             					styles = {backgroundColor : SOFT_RED};
                             }
                             return (
-                            <div>
-                            {/*step[CONTENT]}
-                            <TeX>{step[CONTENT]}</TeX> */}
-                            <MathInput key={stepIndex} buttonsVisible='focused' styles={styles}
+                            <div key={step[CONTENT] + stepIndex}>
+						    <input type='submit' value='x' onClick={
+										function(value) {
+												window.store.dispatch({ type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+																		STEP_KEY : stepIndex});
+                                           }}/>
+                            <MathInput buttonsVisible='focused' styles={styles}
                                        buttonSets={['trig', 'prealgebra', 'logarithms', 'calculus']} stepIndex={stepIndex}
                                        problemIndex={problemIndex} value={step[CONTENT]} onChange={
                                            function(value) {
@@ -173,6 +177,15 @@ function problemReducer(problem, action) {
                 { CONTENT : action.NEW_STEP_CONTENT },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
+        }
+	} else if (action.type === DELETE_STEP) {
+        return {
+            ...problem,
+            STEPS : [
+                ...problem[STEPS].slice(0, action[STEP_KEY]),
+                ...problem[STEPS].slice(action[STEP_KEY] + 1)
+            ],
+            LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
         }
     } else if (action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
 		var oldLastStep;
@@ -235,6 +248,7 @@ function problemListReducer(probList, action) {
                action.type === EDIT_STEP ||
                action.type === UNDO_STEP ||
                action.type === REDO_STEP ||
+               action.type === DELETE_STEP ||
                action.type === NEW_BLANK_STEP ||
                action.type === NEW_STEP) {
         return [
