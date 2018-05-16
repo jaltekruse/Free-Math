@@ -9,7 +9,10 @@ import MathInput from './MathInput.js';
 // step is added it moves to the end of the list as
 // the redo history in this case will be lost
 
+// index in list
 var STEP_KEY = 'STEP_KEY';
+// long random identifier for a step, used as key for react list of steps
+var STEP_ID = 'STEP_ID';
 
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
@@ -129,13 +132,13 @@ var Problem = createReactClass({
             					styles = {backgroundColor : SOFT_RED};
                             }
                             return (
-                            <div key={step[CONTENT] + stepIndex}>
-						    <input type='submit' value='x' onClick={
+                            <div key={step[STEP_ID]}>
+						    <input type='submit' value='x' title='Delete step' onClick={
 										function(value) {
 												window.store.dispatch({ type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
 																		STEP_KEY : stepIndex});
                                            }}/>
-						    <input type='submit' value='Insert above' onClick={
+						    <input type='submit' value='+ ^' title='Insert step above' onClick={
 										function(value) {
 												window.store.dispatch({ type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
 																		STEP_KEY : stepIndex});
@@ -164,7 +167,7 @@ var Problem = createReactClass({
 // reducer for an individual problem
 function problemReducer(problem, action) {
     if (problem === undefined) {
-        return { PROBLEM_NUMBER : "", STEPS : [{CONTENT : ""}], LAST_SHOWN_STEP : 0};
+        return { PROBLEM_NUMBER : "", STEPS : [{STEP_ID : Math.floor(Math.random() * 200000000), CONTENT : ""}], LAST_SHOWN_STEP : 0};
         /*
         return { PROBLEM_NUMBER : "1.1", SCORE : 3, POSSIBLE_POINTS : 3, FEEDBACK : "Nice work!", STEPS :
                 [{CONTENT : "5x-2x+5-3"}, {CONTENT : "3x+5-3", HIGHLIGHT : SUCCESS}, {CONTENT : "3x+8", HIGHLIGHT : ERROR}],
@@ -213,7 +216,7 @@ function problemReducer(problem, action) {
         return {
             ...problem,
             STEPS : [ ...problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1),
-                      {...oldLastStep}
+                      {...oldLastStep, STEP_ID : Math.floor(Math.random() * 200000000)}
             ],
             LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
         };

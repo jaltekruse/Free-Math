@@ -217,7 +217,7 @@ const MathInput = createReactClass({
                 onInsert={this.insert} />;
         }
 
-        return <div>
+        return <div style={{display: 'inline-block'}}>
             <div style={{...this.props.styles, display: 'inline-block'}}>
                 <span className={className}
                       ref="mathinput"
