@@ -144,6 +144,7 @@ var TexButtons = createReactClass({
     },
 
     render: function() {
+        //MathQuill = MathQuill.getInterface(1);
         // Always show buttonSets in the same order. Note: Technically it's ok
         // for _.keys() to return the keys in an arbitrary order, but in
         // practice, they will be ordered as listed above.
@@ -303,7 +304,8 @@ const MathInput = createReactClass({
         input.focus();
     },
 
-    mathField: function(options) {
+    mathField: function(options) { 
+        MathQuill = window.MathQuill
         // MathQuill.MathField takes a DOM node, MathQuill-ifies it if it's
         // seeing that node for the first time, then returns the associated
         // MathQuill object for that node. It is stable - will always return
@@ -431,12 +433,19 @@ const MathInput = createReactClass({
         initialized = true;
     },
 
-    componentDidUpdate: function() {
+    shouldComponentUpdate: function(oldProps, newProps) {
+        return oldProps.styles !== newProps.styles || oldProps.value !== newProps.value;
+    },
+
+	/*
+    componentDidUpdate: function() { 
+        // I think this check is expensive, how can I make it cheaper?
         if (!_.isEqual(this.mathField().latex(), this.props.value)) {
             //console.log(this.props);
             this.mathField().latex(this.props.value);
         }
     },
+    */
 
     focus: function() {
         this.mathField().focus();
