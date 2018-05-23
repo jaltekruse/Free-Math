@@ -138,7 +138,7 @@ var Problem = createReactClass({
 												window.store.dispatch({ type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
 																		STEP_KEY : stepIndex});
                                            }}/>
-						    <input type='submit' value='+ ^' title='Insert step above' onClick={
+						    <input type='submit' value='+ &#8593;' title='Insert step above' onClick={
 										function(value) {
 												window.store.dispatch({ type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
 																		STEP_KEY : stepIndex});
