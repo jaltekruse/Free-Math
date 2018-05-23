@@ -80,16 +80,16 @@ var Problem = createReactClass({
             scoreClass = 'show-partially-correct-div';
         }
 
-		var scoreMessage = null;
-		if (score === '')
-			scoreMessage = 'Complete';
-		else if (score !== undefined)
-			scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
+        var scoreMessage = null;
+        if (score === '')
+            scoreMessage = 'Complete';
+        else if (score !== undefined)
+            scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
             <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
-										   : null
+                                           : null
                     }
                     {   this.props.value[FEEDBACK] !== undefined
                             ? (<div>
@@ -127,21 +127,21 @@ var Problem = createReactClass({
                             if (stepIndex > lastShownStep) return false;
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
-            					styles = {backgroundColor : GREEN };
+                                styles = {backgroundColor : GREEN };
                             } else if (step[HIGHLIGHT] === ERROR) {
-            					styles = {backgroundColor : SOFT_RED};
+                                styles = {backgroundColor : SOFT_RED};
                             }
                             return (
                             <div key={step[STEP_ID]}>
-						    <input type='submit' value='x' title='Delete step' onClick={
-										function(value) {
-												window.store.dispatch({ type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
-																		STEP_KEY : stepIndex});
+                            <input type='submit' value='x' title='Delete step' onClick={
+                                        function(value) {
+                                                window.store.dispatch({ type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+                                                                        STEP_KEY : stepIndex});
                                            }}/>
-						    <input type='submit' value='+ &#8593;' title='Insert step above' onClick={
-										function(value) {
-												window.store.dispatch({ type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
-																		STEP_KEY : stepIndex});
+                            <input type='submit' value='+ &#8593;' title='Insert step above' onClick={
+                                        function(value) {
+                                                window.store.dispatch({ type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
+                                                                        STEP_KEY : stepIndex});
                                            }}/>
                             <MathInput buttonsVisible='focused' styles={styles}
                                        buttonSets={['trig', 'prealgebra', 'logarithms', 'calculus']} stepIndex={stepIndex}
@@ -149,10 +149,10 @@ var Problem = createReactClass({
                                            function(value) {
                                             window.store.dispatch({ type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY : stepIndex, NEW_STEP_CONTENT : value});
                                            }}
-										   onSubmit={function() {
-                    							window.store.dispatch(
-													{ type : NEW_STEP, PROBLEM_INDEX : problemIndex});
-											}}
+                                           onSubmit={function() {
+                                                window.store.dispatch(
+                                                    { type : NEW_STEP, PROBLEM_INDEX : problemIndex});
+                                            }}
                                        />
                             </div>
                             );
@@ -164,6 +164,60 @@ var Problem = createReactClass({
     }
 });
 
+/*
+ * Designing more complex undo/redo, now that individual steps can be deleted or added in the middle
+ * Probably want to get rid of "last shown step" property entirely
+ * create serializable commands that can mutate in either direction (can I use the existing redux actions?)
+ *
+ * Some workflows:
+ * edit the first blank line
+ *     - add an undo event that sets the field blank
+ *
+ * add new step
+ *     - add undo event for delete step
+ *
+ * user clicks undo button
+ *  - pop off the delete step action
+ *  - save a new undo even that will add a step and set it's contents
+ *  - perform popped delete action
+ *
+ * new step button again, then edits the new 2nd step shorter
+ *  - put on an undo event that will return the contents to it's original form copied from step 1
+ *  - part of me thinks this should happen as soon as a step is copied, but that would make an undo event do nothing
+ *    or unneccessarily add another step
+ *      - this should immediately add a "delete step" action as noted above, maybe knowing what to put on the stack
+ *        requires inspecting what is currently at the top, if it's realted to the same step it may combine two undo events
+ *
+ * user inserts step above
+ *     - add event to delete the step to undo stack
+ *
+ * user edits a random step in the middle of the series
+ *     - add event to change it back to the original contents
+ *     - if they edit the same step again, don't add a new event
+ *     - previously when doing this excercise I had played around with a basic text field and the undo/redo there
+ *         - trying this again
+ *         - typing into box, ctrl-z -> box goes back to blank
+ *         - type into box, stop, type again, -> still clears full box
+ *         - type, click elsewhere in box, no edit at new cursor position, click back to end and edit again
+ *             - first undo goes back to what was typed originally, second clears the rest of the way
+ *         - type, delete some text
+ *             - first undo restores longest text
+ *             - second clears
+ *         - more complex
+ *             - type aaaaaaaaaaaaaaaaaa
+ *             - delete to aaaaaa
+ *             - add b's   aaaaaabbbbbbbbb
+ *             - delete b's back to aaaaaaa
+ *             - add c's    aaaaaaacccccccc
+ *             - undo then does:
+ *             - aaaaaabbbbbbb
+ *             - aaaaaaaaaaaaa
+ *             - blank
+ *             - analysis, appears recording a past deletion isn't considered important
+ *                 - it never re-produced the shorter version, assumes useful things to cover longer typed this, not truncation
+ *                 - something to keep in mind, some of the keywords are likely longer right before they are converted into symbols
+ *                 
+ */
 // reducer for an individual problem
 function problemReducer(problem, action) {
     if (problem === undefined) {
@@ -187,7 +241,7 @@ function problemReducer(problem, action) {
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
         }
-	} else if (action.type === DELETE_STEP) {
+    } else if (action.type === DELETE_STEP) {
         return {
             ...problem,
             STEPS : [
@@ -196,7 +250,7 @@ function problemReducer(problem, action) {
             ],
             LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
         }
-	} else if (action.type === INSERT_STEP_ABOVE) {
+    } else if (action.type === INSERT_STEP_ABOVE) {
         return {
             ...problem,
             STEPS : [
@@ -207,12 +261,12 @@ function problemReducer(problem, action) {
             LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
         }
     } else if (action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
-		var oldLastStep;
-		if (action.type === NEW_STEP) {
-				oldLastStep = problem[STEPS][problem[LAST_SHOWN_STEP]];
-		} else { // new blank step
-				oldLastStep = {CONTENT : ""};
-		}
+        var oldLastStep;
+        if (action.type === NEW_STEP) {
+                oldLastStep = problem[STEPS][problem[LAST_SHOWN_STEP]];
+        } else { // new blank step
+                oldLastStep = {CONTENT : ""};
+        }
         return {
             ...problem,
             STEPS : [ ...problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1),

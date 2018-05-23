@@ -199,12 +199,18 @@ var FreeMath = createReactClass({
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
                     <div style={{float:"right"}}>
-                    <a href="#examples" style={{color:"white"}} >Examples</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#lms" style={{color:"white"}} >LMS Integration</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#faq" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#examples" style={{color:"white"}} >Examples</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#lms" style={{color:"white"}} >LMS Integration</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#contact" style={{color:"white"}} >Contact</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#faq" style={{color:"white"}} >FAQ</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#license" style={{color:"white"}} >License</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
             </div>
@@ -229,7 +235,10 @@ var FreeMath = createReactClass({
                             for (var studentFileName in grades) {
                                 if (grades.hasOwnProperty(studentFileName)) {
                                     tableRows.push(
-                                    (<tr><td>{studentFileName}</td><td>{grades[studentFileName]}</td></tr> ));
+                                    (<tr>
+                                        <td>{studentFileName}</td>
+                                        <td>{grades[studentFileName]}</td>
+                                    </tr> ));
                                 }
                             }
                             return tableRows;

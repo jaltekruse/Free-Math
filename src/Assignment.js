@@ -31,17 +31,17 @@ function assignmentReducer(state, action) {
 }
 
 var Assignment = createReactClass({
-	getInitialState () {
-		return { showModal: false };
-	},
+        getInitialState () {
+                return { showModal: false };
+        },
 
     toggleModal() {
         this.setState({ showModal: !this.state.showModal});
     },
     render: function() {
 
-		var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
-		return (
+        var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
+        return (
         <div style={{backgroundColor:"white", padding:"30px 30px 30px 30px"}}>
         <p>Free Math allows you to complete your math homework on your computer. The first problem has been created for you,
            use the box below to write an equation. When you want to modify it to solve your math problem click
@@ -50,9 +50,9 @@ var Assignment = createReactClass({
            of your thinking without a bunch of manual copying.</p>
 
         <p> For example, try typing to following expression and simplifying it, even if you can do
-        parts of it in your head, use the tool to make sure you show your work.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        parts of it in your head, use the tool to make sure you show your work.
         </p>
-		<span ref={(input) => { this.exampleStaticMath = input; }}>{defaultEqtn}</span>
+            <span ref={(input) => { this.exampleStaticMath = input; }}>{defaultEqtn}</span>
         <button onClick={this.toggleModal}>{this.state.showModal ? "Hide symbol list" : "Show available symbol list below" }</button>
 
         <div>

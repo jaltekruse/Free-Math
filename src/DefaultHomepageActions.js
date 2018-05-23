@@ -32,6 +32,8 @@ export function render() {
 const DefaultHomepageActions = createReactClass({
     componentDidMount: function() {
         // React 15 doesn't support custom attributes in JSX
+        // TODO - this doesn't appear to be working, still can't make
+        // the youtube video full screen
         var element = ReactDOM.findDOMNode(this.refs.youtubeEmbed);
         element.setAttribute("fs", "1");
         element.setAttribute("allowfullscreen", "allowfullscreen");
@@ -40,11 +42,9 @@ const DefaultHomepageActions = createReactClass({
         element.setAttribute("oallowfullscreen", "oallowfullscreen");
         element.setAttribute("webkitallowfullscreen", "webkitallowfullscreen");
     },
-	getInitialState: function() {
-		return {
-			emailString : ''
-		}
-	},
+    getInitialState: function() {
+        return { emailString : ''}
+    },
     render: function() {
         var divStyle = {
             width:"44%",
@@ -54,13 +54,13 @@ const DefaultHomepageActions = createReactClass({
             backgroundColor:"white",
             margin:"5px",
             padding:"20px",
-    		boxShadow: "0 5px 3px -3px #cfcfcf"
+                boxShadow: "0 5px 3px -3px #cfcfcf"
         };
-		var divStyleNoBorder = {
-			...divStyle,
-    		boxShadow: "none",
-    		border: "none"
-		};
+                var divStyleNoBorder = {
+                        ...divStyle,
+                boxShadow: "none",
+                border: "none"
+                };
         var wrapperDivStyle = {
             padding:"0px 30px 0px 30px",
             //"backgroundColor":"#fafafa",
@@ -92,14 +92,17 @@ const DefaultHomepageActions = createReactClass({
                 return;
             }
             window.localStorage.removeItem(docName);
-            // TODO - fix this hack, should not explicitly call render, this should be fixed while
-            // addressing TODO below about component directly accessing localStorage
+            // TODO - fix this hack, should not explicitly call render,
+            // this should be fixed while addressing TODO below about
+            // component directly accessing localStorage
             render();
         };
 
-        // TODO - this is ugly, a component shouldn't access localStorage, this should be read in at app startup
-        // stored in the redux state tree and then kept in sync with what is actually stored through actions
-        // use subscribers - https://stackoverflow.com/questions/35305661/where-to-write-to-localstorage-in-a-redux-app
+        // TODO - this is ugly, a component shouldn't access localStorage,
+        // this should be read in at app startup stored in the redux state
+        // tree and then kept in sync with what is actually stored through
+        // actions use subscribers
+        //https://stackoverflow.com/questions/35305661/where-to-write-to-localstorage-in-a-redux-app
         var recoveredStudentDocs = [];
         var recoveredTeacherDocs = [];
         // recovered autoSaved docs
@@ -131,29 +134,53 @@ const DefaultHomepageActions = createReactClass({
                 <div style={divStyleNoBorder}>
                 <h2>Meet Your New Math Classroom</h2>
                 <p>Students digitally record step-by-step math work.</p>
-                <p>Teachers simultaneously review all assignments with complete solutions grouped by similar final answer.</p>
+                <p>Teachers simultaneously review all assignments with complete
+                   solutions grouped by similar final answer.</p>
                 <p>Free for teachers and students.</p>
-                <p>No account setup required.  Student work and grading feedback both save as files that integrate seamlessly with standard LMS tools.</p>
+                <p>No account setup required. Student work and grading feedback
+                   both save as files that integrate seamlessly with standard LMS tools.</p>
+                <link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css"
+                      rel="stylesheet" type="text/css" />
+                <div id="mc_embed_signup">
+                <form action={"https://freemathapp.us17.list-manage.com" +
+                              "/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"}
+                      method="post" id="mc-embedded-subscribe-form"
+                      name="mc-embedded-subscribe-form" className="validate"
+                      target="_blank" style={{paddingLeft:"0px"}} noValidate>
+                    <div id="mc_embed_signup_scroll">
+                        <div style={{position: "absolute", left: "-5000px"}}
+                             aria-hidden="true">
+                                <input type="text" tabIndex="-1" value=""
+                                       name="b_14d49781dec57b609b6a58f1a_b843990eea" />
+                        </div>
+                        <input style={{float:"right", margin:"5px"}} type="submit"
+                               value="Subscribe" name="subscribe"
+                               id="mc-embedded-subscribe" className="button"/>
+                    </div>
+                    <div style={{overflow: "hidden"}}>
+                        <label htmlFor="mce-EMAIL">Subscribe for updates &nbsp;&nbsp;</label>
+                        <input type="email" name="EMAIL" className="email"
+                               size="25" id="mce-EMAIL" placeholder="email address"
+                               value={this.state.emailString} onChange={function(evt) {
+                                    this.setState({emailString : evt.target.value});
+                               }.bind(this)}/>
+                    </div>
+                </form>
+                </div>
 
-				<link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css" />
-				<div id="mc_embed_signup">
-				<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" className="validate" target="_blank" style={{paddingLeft:"0px"}} noValidate>
-<div id="mc_embed_signup_scroll">
-    <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true"><input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea" tabIndex="-1" value=""/></div>
-    <input style={{float:"right", margin:"5px"}} type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" className="button"/></div>
-	<div style={{overflow: "hidden"}}>
-    <label htmlFor="mce-EMAIL">Subscribe for updates &nbsp;&nbsp;</label>
-    <input type="email" name="EMAIL" className="email" size="25" id="mce-EMAIL" placeholder="email address" value={this.state.emailString} onChange={function(evt) {
-				this.setState({emailString : evt.target.value});
-			}.bind(this)}/>
-	</div>
-				</form>
-				</div>
-
-                <p><a href="https://github.com/jaltekruse/Free-Math">Source Code</a> released under Open Source License.</p>
+                <p><a href="https://github.com/jaltekruse/Free-Math">
+                    Source Code
+                   </a> released under Open Source License.</p>
                 </div>
                 <div style={{...divStyleNoBorder, float: "right"}}>
-                <div style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Video" src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <div style={{
+                    position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"
+                }}>
+                    <iframe title="Free Math Video" width="640" height="360" frameBorder="0"
+                            src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2" 
+                            style={{position:"absolute",width:"100%",height:"100%",left:0}}>
+                            gesture="media"
+                    </iframe></div>
                 </div>
                 </div>
                 <div style={{padding:"0px 0px 0px 0px"}}>
@@ -162,14 +189,16 @@ const DefaultHomepageActions = createReactClass({
                         <div style={divStyle}>
                             <h3>Students</h3>
                                 New Assignment &nbsp;&nbsp;&nbsp;
-                                <input type="submit" id="new-assignment" name="New assignment" value="Create" onClick={
+                                <input type="submit" id="new-assignment" name="New assignment"
+                                       value="Create" onClick={
                                     function() {
                                         // turn on confirmation dialog upon navigation away
                                         window.onbeforeunload = function() {
                                                 return true;
                                         };
                                         window.store.dispatch({type : "NEW_ASSIGNMENT"});
-                                }}/><br />
+                                    }}
+                                /><br />
 
                                 Open Assignment &nbsp;&nbsp;&nbsp;
                                 <input type="file" id="open-file-input" onChange={
@@ -178,55 +207,84 @@ const DefaultHomepageActions = createReactClass({
                                         window.onbeforeunload = function() {
                                                 return true;
                                         };
-                                        readSingleFile(evt, false /* don't warn about data loss */);
+                                        readSingleFile(evt, false /*don't warn about data loss*/);
                                 }}/>
                                 <br />
                                 <br />
-                                { (recoveredStudentDocs.length > 0) ? (<h4>Recovered assignments:</h4>) : null }
                                 { (recoveredStudentDocs.length > 0) ?
-
-                                        recoveredStudentDocs.map(function(docName, docIndex) {
-                                            return (
-                                                <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                     <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
-
-                                                {docName.replace("auto save students ","").replace(/:\d\d\..*/, "")}</div>
+                                    (<h4>Recovered assignments:</h4>) : null }
+                                { (recoveredStudentDocs.length > 0) ?
+                                    recoveredStudentDocs.map(function(docName, docIndex) {
+                                        return (
+                                            <div key={docName}><input type="submit" value="open"
+                                                 onClick={
+                                                     function() {recoverAutoSaveCallback(docName)}}
+                                            />
+                                            <input type="submit" value="delete" onClick={
+                                                function() {deleteAutoSaveCallback(docName)}}
+                                            />
+                                                {docName.replace("auto save students ","")
+                                                    .replace(/:\d\d\..*/, "")}</div>
                                             );
                                         })
                                    : null
                                 }
-                                { (recoveredStudentDocs.length > 0) ? (<p>Recovered assignments stored temporarily in your browser, save to your device as soon as possible</p>) : null }
+                                { (recoveredStudentDocs.length > 0) ?
+                                    (<p>Recovered assignments stored temporarily in your
+                                        browser, save to your device as soon as 
+                                        possible</p>) : null}
                         </div>
                         <div style={{...divStyle, float: "right"}}>
                             <h3>Teachers</h3>
-                            Grade Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
+                            Grade Assignments <input type="file" onChange={openAssignments}/>
+                            <br />
+                            <small> Select a zip file full of student work, these are generated
+                                    when downloading files from your LMS in bulk.
+                                <a href="https://www.wikihow.com/Make-a-Zip-File">
+                                    Click here for info on zip files
+                                </a>
+                            </small>
                                 <br />
-						<small>Select a zip file full of student work, these are generated when downloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
-                                <br />
-                            <p><a href="https://drive.google.com/uc?export=download&id=1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67">Download Example Assignments To Test Grading</a></p>
-                            { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
+                            <p><a href={"https://drive.google.com/uc?export=download&id=" + 
+                                        "1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67"}>
+                                Download Example Assignments To Test Grading
+                            </a></p>
                             { (recoveredTeacherDocs.length > 0) ?
-
-                                    recoveredTeacherDocs.map(function(docName, docIndex) {
-                                        return (
-                                            <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                 <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
-                                            {docName.replace("auto save teachers ","").replace(/:\d\d\..*/, "")}</div>
+                                (<h4>Recovered grading sessions:</h4>) : null }
+                            { (recoveredTeacherDocs.length > 0) ?
+                                recoveredTeacherDocs.map(function(docName, docIndex) {
+                                    return (
+                                    <div key={docName}>
+                                        <input type="submit" value="open" onClick={
+                                            function() {recoverAutoSaveCallback(docName)}} />
+                                        <input type="submit" value="delete" onClick={
+                                            function() {deleteAutoSaveCallback(docName)}}
+                                        />
+                                        {docName.replace("auto save teachers ","")
+                                            .replace(/:\d\d\..*/, "")}</div>
                                         );
                                     })
                                : null
                             }
-                            { (recoveredTeacherDocs.length > 0) ? (<p>Recovered grading sessions stored temporarily in your browser, save to your device as soon as possible</p>) : null }
+                            { (recoveredTeacherDocs.length > 0) ?
+                                    (<p>Recovered grading sessions stored temporarily in
+                                        your browser, save to your device as soon as 
+                                        possible</p>) : null }
                         </div>
                     </div>
                 </div>
-					<div className="answer-incorrect" style={{display:"block", padding:"10px", margin: "10px"}}>
-					<span>DATA LOSS WARNING: School districts may clear your downloads folder when logging off. It is recommended to save your files on a USB drive, LMS (Canvas, Moodle, Blackboard) or your institution's preferred cloud storage provider like Google Drive, Dropbox, etc.</span>
-					</div>
+                <div className="answer-incorrect"
+                     style={{display:"block", padding:"10px", margin: "10px"}}>
+                    <span>DATA LOSS WARNING: School districts may clear your 
+                          downloads folder when logging off. It is recommended 
+                          to save your files on a USB drive, LMS (Canvas, Moodle,
+                          Blackboard) or your institution's preferred cloud
+                          storage provider like Google Drive, Dropbox, etc.</span>
+                </div>
                 <br />
                 <span id="examples" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-		<br />
+                <br />
                 <h2>Great for many areas of Math</h2>
                 <div style={{float:"none", display:"inline-block"}}>
                     <div style={{float:"left", margin:"5px"}}>
@@ -245,67 +303,134 @@ const DefaultHomepageActions = createReactClass({
                 <br />
                 <span id="gettingStarted" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-		<br />
+                <br />
                 <h2>Getting Started</h2>
-		<p>Free Math is easy to set up, all you need is a standard LMS that can collect files. Below is the complete workflow for assigning and grading. Nothing needs to be set up by your IT department, there is no need to transcribe problems from your materials into the system or even create a digital answer key before you begin.</p>
-		<ol>
+                <p>Free Math is easy to set up, all you need is a standard
+                   LMS that can collect files. Below is the complete workflow
+                   for assigning and grading. Nothing needs to be set up by
+                   your IT department, there is no need to transcribe problems
+                   from your materials into the system or even create a digital
+                   answer key before you begin.</p>
+                <ol>
                         <li>Assign problems from your textbook or a worksheet.</li>
-                        <li>Students complete digital work, save it as a file and submit it through your LMS.</li>
+                        <li>Students complete digital work, save it as a file and
+                            submit it through your LMS.</li>
                         <li>You download the files in bulk from your LMS as a zip file.</li>
-                        <li>Load the zip file into Free Math for grading, the app will show you where students struggled the most. Anything you don’t have time to grade gets completion points.</li>
-                        <li>Save the grading feedback, which generates a zip file filled with individual graded documents for each student.</li>
-                        <li>Upload the zip file full of documents into your LMS, it will provide the individual graded documents to each student.</li>
+                        <li>Load the zip file into Free Math for grading, the app will
+                            show you where students struggled the most. Anything you 
+                            don’t have time to grade gets completion points.</li>
+                        <li>Save the grading feedback, which generates a zip file filled
+                            with individual graded documents for each student.</li>
+                        <li>Upload the zip file full of documents into your LMS, it will
+                            provide the individual graded documents to each student.</li>
                         <li>Record the overall grades into your grade book.</li>
-		</ol>
+                </ol>
 
-		<div ref="youtubeEmbed" title="Youtube Getting Started" style={{position:"relative",height:"0",paddingTop:"30px", "paddingBottom":"56.25%"}}><iframe title="Free Math Demo" src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2" width="640" height="360" frameBorder="0" gesture="media" style={{position:"absolute",width:"100%",height:"100%",left:0}}></iframe></div>
+                <div ref="youtubeEmbed" title="Youtube Getting Started"
+                     style={{position:"relative",
+                             height:"0",paddingTop:"30px",
+                             "paddingBottom":"56.25%"}}>
+                    <iframe title="Free Math Demo"
+                            src="https://www.youtube.com/embed/vB7KCDeBYpI?ecver=2"
+                            width="640" height="360" frameBorder="0" gesture="media"
+                            style={{position:"absolute",width:"100%",height:"100%",left:0}}>
+                    </iframe>
+                </div>
                 <br />
                 <br />
                 <span id="lms" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-		<br />
+                <br />
                 <h2>Instructions for Specific LMS Tools</h2>
-				<p>LMS products come with features for collecting documents from students and managing them in bulk. These features are often used for grading files like papers or presentations. These types of files must be examined individually for grading. One great advantage of Free Math is that all documents are graded together, with optimized actions for grading similar work.</p>
-				<p>Here are some links to help for managing student files in specific LMS products. As Free Math natively opens and saves zip files, you can often avoid steps related to unzipping downloaded documents and manually creating a new zip of the graded documents when re-uploading. Keep this in mind as you follow these instructions.</p>
-				<a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle" target="_blank" rel="noopener noreferrer">Moodle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="https://imgur.com/a/0rskc" target="_blank" rel="noopener noreferrer">Google Classroom</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				Canvas (
-					<a href="https://community.canvaslms.com/docs/DOC-12813" target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
-					<a href="https://community.canvaslms.com/docs/DOC-10003-415275096" target="_blank" rel="noopener noreferrer">Upload</a>
-				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online" target="_blank" rel="noopener noreferrer">Blackboard</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				D2L (
-					<a href="https://oit.colorado.edu/tutorial/d2l-download-all-dropbox-folder-submissions" target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
-					<a href="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files" target="_blank" rel="noopener noreferrer">Upload</a>
-				)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-				<a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-" target="_blank" rel="noopener noreferrer">Schoology</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <p> LMS products come with features for collecting documents
+                    from students and managing them in bulk. These features
+                    are often used for grading files like papers or presentations.
+                    These types of files must be examined individually for
+                    grading. One great advantage of Free Math is that all
+                    documents are graded together, with optimized actions for
+                    grading similar work.</p>
+                    <p> Here are some links to help for managing student files
+                        in specific LMS products. As Free Math natively opens
+                        and saves zip files, you can often avoid steps related
+                        to unzipping downloaded documents and manually creating
+                        a new zip of the graded documents when re-uploading.
+                        Keep this in mind as you follow these instructions.
+                    </p>
+                    <a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle"
+                       target="_blank" rel="noopener noreferrer">Moodle</a>
+                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="https://imgur.com/a/0rskc"
+                       target="_blank" rel="noopener noreferrer">Google Classroom</a>
+                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    Canvas (
+                        <a href="https://community.canvaslms.com/docs/DOC-12813"
+                           target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+                        <a href="https://community.canvaslms.com/docs/DOC-10003-415275096"
+                           target="_blank" rel="noopener noreferrer">Upload</a>
+                    )&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href={"https://telhelp.shu.ac.uk/batch-upload-feedback-file" +
+                             "-attachments-grade-centre-assignments-submitted-online"}
+                       target="_blank" rel="noopener noreferrer">Blackboard</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    D2L (
+                    <a href={"https://oit.colorado.edu/tutorial/" +
+                             "d2l-download-all-dropbox-folder-submissions"}
+                       target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+                        <a href="https://oit.colorado.edu/tutorial/d2l-upload-feedback-files"
+                           target="_blank" rel="noopener noreferrer">Upload</a>
+                    )&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href={"https://support.schoology.com/hc/en-us/" +
+                             "articles/201001503-How-do-teachers-use-Assignment-Submissions-"}
+                       target="_blank" rel="noopener noreferrer">Schoology</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                 <span id="contact" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-		<br />
+                <br />
                 <h2>Contact the Developer</h2>
-                <p>If you would like to discuss how you could use Free Math in your classroom, send a message to this address. Bug reports, questions and press inquiries can be directed here as well.</p>
+                <p> If you would like to discuss how you could use Free Math
+                    in your classroom, send a message to this address. Bug
+                    reports, questions and press inquiries can be directed
+                    here as well.</p>
                 <p>developers@freemathapp.org</p>
                 <div>Follow the project &nbsp;&nbsp;
-			<a href="https://www.facebook.com/freemathapp"><img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>&nbsp;
-                   	<a href="https://twitter.com/freemathapp"><img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>&nbsp;
-			<a href="https://www.reddit.com/r/freemath"><img alt="facebook" src="/images/snoo.png" style={{height:"35px"}}></img></a>&nbsp;&nbsp;
-    <a href="https://github.com/jaltekruse/Free-Math/issues">Report Bug or Request Feature</a>
-    </div>
-				<br />
+                    <a href="https://www.facebook.com/freemathapp">
+                        <img alt="facebook" src="/images/facebook.png"
+                             style={{height:"35px"}}></img>
+                    </a>&nbsp;
+                    <a href="https://twitter.com/freemathapp">
+                        <img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img>
+                    </a>&nbsp;
+                    <a href="https://www.reddit.com/r/freemath">
+                        <img alt="facebook" src="/images/snoo.png" style={{height:"35px"}}></img>
+                    </a>&nbsp;&nbsp;
+                    <a href="https://github.com/jaltekruse/Free-Math/issues">
+                        Report Bug or Request Feature</a>
+                </div>
+                <br />
 
                 <span id="faq" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-		<br />
+                <br />
                 <h2>FAQ</h2>
-				<p><b>Does Free Math solve math problems?</b></p>
-				<p>No, Free Math allows students to record their work, but does not solve problems automatically.</p>
-				<p><b>Where are the problems for Free Math?</b></p>
-				<p>Free Math is designed to work with any existing exercises from a book, worksheet or digital problem bank. Students copy problems into Free Math just as they would with a paper notebook.</p>
-				<p><b>Where is the answer key for grading?</b></p>
-				<p>There is no need to provide Free Math with an answer key. The grading page finds similar student answers on each problem, you only need to grade each final answer once and confirm that work was provided by each student to justify reaching their answer.</p>
-				<p><b>If students submit files for their assignments, how does the system prevent cheating?</b></p>
-				<p>In addition to comparing individual answers, Free Math also compares students' overall documents for similarity. If two or more documents share a lot of work, they will be flagged for you to review side by side.</p>
+                    <p><b>Does Free Math solve math problems?</b></p>
+                    <p> No, Free Math allows students to record their work, but does not
+                        solve problems automatically.</p>
+                    <p><b>Where are the problems for Free Math?</b></p>
+                    <p> Free Math is designed to work with any existing exercises from a
+                        book, worksheet or digital problem bank. Students copy problems
+                        into Free Math just as they would with a paper notebook.</p>
+                    <p><b>Where is the answer key for grading?</b></p>
+                    <p> There is no need to provide Free Math with an answer key. The
+                        grading page finds similar student answers on each problem,
+                        you only need to grade each final answer once and confirm that
+                        work was provided by each student to justify reaching their answer.</p>
+                    <p><b>  If students submit files for their assignments, how does the
+                            system prevent cheating?</b></p>
+                    <p> In addition to comparing individual answers, Free Math also
+                        compares students' overall documents for similarity. If two
+                        or more documents share a lot of work, they will be flagged
+                        for you to review side by side.</p>
                 <h2>Supported Platforms</h2>
                 <p>
                 Modern browsers on Chromebooks, Windows, Mac and Linux. <br />
@@ -313,7 +438,7 @@ const DefaultHomepageActions = createReactClass({
                 </p>
                 <span id="license" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-		<br />
+                <br />
                 <h3>Legal</h3>
                 <small>
                 Free Math is free software: you can redistribute it and/or modify
