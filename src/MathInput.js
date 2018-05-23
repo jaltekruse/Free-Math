@@ -433,11 +433,12 @@ const MathInput = createReactClass({
         initialized = true;
     },
 
+    /*
     shouldComponentUpdate: function(oldProps, newProps) {
         return oldProps.styles !== newProps.styles || oldProps.value !== newProps.value;
     },
+    */
 
-	/*
     componentDidUpdate: function() { 
         // I think this check is expensive, how can I make it cheaper?
         if (!_.isEqual(this.mathField().latex(), this.props.value)) {
@@ -445,7 +446,6 @@ const MathInput = createReactClass({
             this.mathField().latex(this.props.value);
         }
     },
-    */
 
     focus: function() {
         this.mathField().focus();
