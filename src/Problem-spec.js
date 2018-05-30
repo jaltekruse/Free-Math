@@ -62,16 +62,21 @@ it('test adding a problem', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 },
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 0 }
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 },
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 0 }
         ]
     }
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 },
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 0 },
-                     { PROBLEM_NUMBER : "", STEPS : [{CONTENT : ""}], LAST_SHOWN_STEP : 0 }
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 },
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 0 },
+                     { PROBLEM_NUMBER : "",
+                       STEPS : [{CONTENT : ""}], LAST_SHOWN_STEP : 0 }
         ]
 
     }
@@ -86,14 +91,17 @@ it('test removing a problem', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
     }
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1} ]
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1} ]
     }
     deepFreeze(initialAssignment);
     expect(
@@ -106,16 +114,21 @@ function testCloneProblem() {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
     }
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
-                     { PROBLEM_NUMBER : "1 - copy", STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                     { PROBLEM_NUMBER : "1 - copy",
+                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
     }
     deepFreeze(initialAssignment);
@@ -128,20 +141,26 @@ it('test renaming a problem', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
     }
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
-                     { PROBLEM_NUMBER : "1.a", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                     { PROBLEM_NUMBER : "1.a",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
     }
     deepFreeze(initialAssignment);
     expect(
-        assignmentReducer(initialAssignment, { type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : 1, NEW_PROBLEM_NUMBER : "1.a"})
+        assignmentReducer(
+            initialAssignment,
+            { type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : 1, NEW_PROBLEM_NUMBER : "1.a"})
     ).toEqual(expectedAssignment);
 });
 
@@ -149,20 +168,26 @@ it('test editing a step', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1 }
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1 }
         ]
     }
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "5"}], LAST_SHOWN_STEP : 1 }
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "5"}], LAST_SHOWN_STEP : 1 }
         ]
     }
     deepFreeze(initialAssignment);
     expect(
-        assignmentReducer(initialAssignment, { type : EDIT_STEP, PROBLEM_INDEX : 1, STEP_KEY : 1, NEW_STEP_CONTENT : "5"})
+        assignmentReducer(
+            initialAssignment,
+            { type : EDIT_STEP, PROBLEM_INDEX : 1, STEP_KEY : 1, NEW_STEP_CONTENT : "5"})
     ).toEqual(expectedAssignment);
 });
 
@@ -170,15 +195,20 @@ it('test adding a step', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1 }
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1 }
         ]
     }
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
-                     { PROBLEM_NUMBER : "2", STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 2 }
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 },
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : "2"}],
+                       LAST_SHOWN_STEP : 2 }
         ]
     }
     deepFreeze(initialAssignment);
@@ -188,8 +218,10 @@ it('test adding a step', () => {
 });
 
 it('test undo a step', () => {
-    var initialProblem = { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 };
-    var expectedProblem = { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 };
+    var initialProblem = { PROBLEM_NUMBER : "1",
+                           STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 };
+    var expectedProblem = { PROBLEM_NUMBER : "1",
+                            STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 };
     deepFreeze(initialProblem);
     expect(
         problemReducer(initialProblem, { type : UNDO_STEP})
@@ -197,8 +229,10 @@ it('test undo a step', () => {
 });
 
 it('test redo a step', () => {
-    var initialProblem = { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 };
-    var expectedProblem = { PROBLEM_NUMBER : "1", STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 };
+    var initialProblem = { PROBLEM_NUMBER : "1",
+                           STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 };
+    var expectedProblem = { PROBLEM_NUMBER : "1",
+                            STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 1 };
     deepFreeze(initialProblem);
     expect(
         problemReducer(initialProblem, { type : REDO_STEP})
