@@ -45,6 +45,15 @@ var UNDO_STEP = 'UNDO_STEP';
 // this action expects an index for which problem to change
 var REDO_STEP = 'REDO_STEP';
 var DELETE_STEP = 'DELETE_STEP';
+// array of problem editing actions
+// TODO - these actions usually have data to specify which problem
+// they apply to, but I'm planning on having an undo stack per problem
+// I won't be adding these values in the actions as I only expect them 
+// to be consumed by ths sub-reducers, but this may have an impact
+// if I switch to more type-safe action constructors in the future
+var UNDO_STACK = 'UNDO_STACK';
+var REDO_STACK = 'REDO_STACK';
+var INVERSE_ACTION = 'INVERSE_ACTION';
 
 // this action expects:
 // PROBLEM_INDEX - for which problem to change
@@ -131,12 +140,12 @@ var Problem = createReactClass({
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
                             }}/> <br/>
-                        <input type="submit" name="undo step" value="Undo step" onClick={
+                        <input type="submit" name="undo" value="Undo" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : UNDO_STEP, PROBLEM_INDEX : problemIndex})
                             }}/> <br/>
-                        <input type="submit" name="redo step" value="Redo step" onClick={
+                        <input type="submit" name="redo" value="Redo" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : REDO_STEP, PROBLEM_INDEX : problemIndex})
@@ -146,7 +155,7 @@ var Problem = createReactClass({
                         <p>Type math here</p>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
-                            if (stepIndex > lastShownStep) return false;
+                            //if (stepIndex > lastShownStep) return false;
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
                                 styles = {backgroundColor : GREEN };
@@ -255,17 +264,35 @@ var Problem = createReactClass({
 // reducer for an individual problem
 function problemReducer(problem, action) {
     if (problem === undefined) {
+        // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
                  STEPS : [{STEP_ID : Math.floor(Math.random() * 200000000), CONTENT : ""}],
-                 LAST_SHOWN_STEP : 0};
+                 LAST_SHOWN_STEP : 0, UNDO_STACK : [], REDO_STACK : []};
     } else if (action.type === SET_PROBLEM_NUMBER) {
         return {
             ...problem,
             PROBLEM_NUMBER : action[NEW_PROBLEM_NUMBER]
         };
     } else if (action.type === EDIT_STEP) {
+        console.log("edit step");
+        console.log(problem);
+        console.log(action);
+        var inverseAction = {
+            ...action,
+            INVERSE_ACTION : {
+                type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
+                NEW_STEP_CONTENT : problem[STEPS][action[STEP_KEY]][CONTENT],
+                INVERSE_ACTION : {...action}
+            }
+        };
+        var undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
+            UNDO_STACK : [
+                undoAction,
+                ...problem[UNDO_STACK]
+            ],
+            REDO_STACK : [],
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
                 { CONTENT : action.NEW_STEP_CONTENT },
@@ -273,52 +300,136 @@ function problemReducer(problem, action) {
             ]
         }
     } else if (action.type === DELETE_STEP) {
+        var inverseAction = {
+            ...action,
+            INVERSE_ACTION : {
+                type : INSERT_STEP_ABOVE, STEP_KEY: action[STEP_KEY],
+                CONTENT : problem[STEPS][action[STEP_KEY]][CONTENT],
+                INVERSE_ACTION : {...action}
+            }
+        };
+        var undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ],
-            LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
+            UNDO_STACK : [
+                undoAction,
+                ...problem[UNDO_STACK]
+            ],
+            REDO_STACK : []
+            //LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
+        var newContent;
+        if (CONTENT in action) {
+           newContent = action[CONTENT] 
+        } else {
+            newContent = ""
+        }
+        var inverseAction = {
+            ...action,
+            INVERSE_ACTION : {
+                type : DELETE_STEP, STEP_KEY: action[STEP_KEY],
+                INVERSE_ACTION : {...action}
+            }
+        };
+        var undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : "" },
+                { CONTENT : newContent },
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
-            LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
+            UNDO_STACK : [
+                undoAction,
+                ...problem[UNDO_STACK]
+            ],
+            REDO_STACK : []
+            //LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
         }
-    } else if (action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
+    } else if(action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
         var oldLastStep;
         if (action.type === NEW_STEP) {
-                oldLastStep = problem[STEPS][problem[LAST_SHOWN_STEP]];
+                oldLastStep = problem[STEPS][problem[STEPS].length - 1];
         } else { // new blank step
                 oldLastStep = {CONTENT : ""};
         }
+        console.log(oldLastStep);
+        var inverseAction = {
+            ...action,
+            INVERSE_ACTION : {
+                type : DELETE_STEP, STEP_KEY: problem[STEPS].length,
+                INVERSE_ACTION : {...action}
+            }
+        };
+        var undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
-            STEPS : [ ...problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1),
+            STEPS : [ ...problem[STEPS],
                       {...oldLastStep, STEP_ID : Math.floor(Math.random() * 200000000)}
             ],
-            LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
+            UNDO_STACK : [
+                undoAction,
+                ...problem[UNDO_STACK]
+            ],
+            REDO_STACK : []
+            //LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
         };
     } else if (action.type === UNDO_STEP) {
+        if (problem[UNDO_STACK].length === 0) return problem;
+        console.log("undo step");
+        console.log(problem);
+        let undoAction = problem[UNDO_STACK][0];
+        let inverseAction = {...undoAction[INVERSE_ACTION], INVERSE_ACTION : undoAction};
+        console.log(undoAction);
+        let ret = problemReducer(problem, undoAction)
+        console.log(ret);
+        return {...ret,
+                UNDO_STACK : problem[UNDO_STACK].slice(1, problem[UNDO_STACK].length),
+                REDO_STACK : [
+                    inverseAction,
+                    ...problem[REDO_STACK]
+                ],
+        }
+        /*
         if (problem[LAST_SHOWN_STEP] === 0) return problem;
         else {
             return { ...problem,
                      LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
             };
         }
+        */
     } else if (action.type === REDO_STEP) {
+        if (problem[REDO_STACK].length === 0) return problem;
+        let redoAction = problem[REDO_STACK][0];
+        // this ret has its redo-actions set incorrectly now, because the actions are re-used
+        // in a normal mutation any edit should clear the redo stack (because you are back
+        // in history and making a new edit, you need to start tracking this branch in time)
+        // For redo actions, the stack should be maintained, this is restored below.
+        let ret = problemReducer(problem, redoAction)
+        let inverseAction = {...redoAction[INVERSE_ACTION], INVERSE_ACTION : redoAction};
+        console.log("redo");
+        console.log(redoAction);
+        console.log(ret);
+        return {...ret,
+                REDO_STACK : problem[REDO_STACK].slice(1, problem[REDO_STACK].length),
+                UNDO_STACK : [
+                    inverseAction,
+                    ...problem[UNDO_STACK]
+                ],
+        }
+        /*
         if (problem[LAST_SHOWN_STEP] === problem[STEPS].length - 1) return problem;
         else {
             return { ...problem,
                      LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
             };
         }
+        */
     } else {
         return problem;
     }
