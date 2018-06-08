@@ -33,6 +33,8 @@ var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
 var STEPS = 'STEPS';
+// TODO - write conversion to upgrade old docs with the legacy undo/redo implementation
+// based on this property
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
@@ -60,6 +62,7 @@ var INVERSE_ACTION = 'INVERSE_ACTION';
 // STEP_KEY - index into the work steps for the given problem
 // NEW_STEP_CONTENT - string for the new expression to write in this step
 var EDIT_STEP = 'EDIT_STEP';
+var NEW_STEP_CONTENT = 'NEW_STEP_CONTENT';
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 
@@ -75,7 +78,6 @@ var Problem = createReactClass({
     render: function() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
         var problemIndex = this.props.id;
-        var lastShownStep = this.props.value[LAST_SHOWN_STEP];
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
@@ -128,7 +130,7 @@ var Problem = createReactClass({
                                 { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex})
                         }}/>
                     </div>
-                    <div style={{float:'left'}}>
+                    <div style={{float:'left', marginRight:'5px'}}>
                         <p> Actions </p>
                         <input type="submit" name="next step" value="Next step (Enter)" onClick={
                             function() {
@@ -155,7 +157,6 @@ var Problem = createReactClass({
                         <p>Type math here</p>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
-                            //if (stepIndex > lastShownStep) return false;
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
                                 styles = {backgroundColor : GREEN };
@@ -169,13 +170,13 @@ var Problem = createReactClass({
                                     window.store.dispatch(
                                         { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
                                           STEP_KEY : stepIndex});
-                                }}/>
+                                }}/> &nbsp;
                             <input type='submit' value='+ &#8593;' title='Insert step above'
                                 onClick={function(value) {
                                     window.store.dispatch(
                                         { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                           STEP_KEY : stepIndex});
-                                }}/>
+                                }}/> &nbsp;
                             <MathInput buttonsVisible='focused' styles={styles}
                                        buttonSets={['trig', 'prealgebra', 'logarithms', 'calculus']}                                       stepIndex={stepIndex}
                                        problemIndex={problemIndex} value={step[CONTENT]}
@@ -267,7 +268,7 @@ function problemReducer(problem, action) {
         // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
                  STEPS : [{STEP_ID : Math.floor(Math.random() * 200000000), CONTENT : ""}],
-                 LAST_SHOWN_STEP : 0, UNDO_STACK : [], REDO_STACK : []};
+                 UNDO_STACK : [], REDO_STACK : []};
     } else if (action.type === SET_PROBLEM_NUMBER) {
         return {
             ...problem,
@@ -281,21 +282,40 @@ function problemReducer(problem, action) {
             ...action,
             INVERSE_ACTION : {
                 type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
-                NEW_STEP_CONTENT : problem[STEPS][action[STEP_KEY]][CONTENT],
                 INVERSE_ACTION : {...action}
             }
         };
-        var undoAction = {...inverseAction[INVERSE_ACTION]};
-        return {
-            ...problem,
-            UNDO_STACK : [
+        var newUndoStack;
+        // if the last action was an edit of this step, don't add an undo
+        // event for each character typed, collapse them together. Only create
+        // a new undo event if the edit made the text shorter.
+        var latestUndo = problem[UNDO_STACK].length > 0 ? problem[UNDO_STACK][0] : false;
+        if (problem[UNDO_STACK].length > 0 && latestUndo.type === EDIT_STEP && latestUndo[STEP_KEY] == action[STEP_KEY]
+                && latestUndo[NEW_STEP_CONTENT].length < action[NEW_STEP_CONTENT].length
+                && action[NEW_STEP_CONTENT].startsWith(problem[STEPS][action[STEP_KEY]][CONTENT])) {
+            console.log("override undo");
+            inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = latestUndo[NEW_STEP_CONTENT];
+            var undoAction = {...inverseAction[INVERSE_ACTION]};
+            newUndoStack = [
+                undoAction,
+                ...problem[UNDO_STACK].slice(1)
+            ];
+        } else {
+            console.log("old undo");
+            inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = problem[STEPS][action[STEP_KEY]][CONTENT];
+            var undoAction = {...inverseAction[INVERSE_ACTION]};
+            newUndoStack = [
                 undoAction,
                 ...problem[UNDO_STACK]
-            ],
+            ];
+        }
+        return {
+            ...problem,
+            UNDO_STACK : newUndoStack,
             REDO_STACK : [],
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : action.NEW_STEP_CONTENT },
+                { CONTENT : action[NEW_STEP_CONTENT] },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
         }
@@ -320,7 +340,6 @@ function problemReducer(problem, action) {
                 ...problem[UNDO_STACK]
             ],
             REDO_STACK : []
-            //LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
         var newContent;
@@ -349,7 +368,6 @@ function problemReducer(problem, action) {
                 ...problem[UNDO_STACK]
             ],
             REDO_STACK : []
-            //LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
         }
     } else if(action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
         var oldLastStep;
@@ -377,7 +395,6 @@ function problemReducer(problem, action) {
                 ...problem[UNDO_STACK]
             ],
             REDO_STACK : []
-            //LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
         };
     } else if (action.type === UNDO_STEP) {
         if (problem[UNDO_STACK].length === 0) return problem;
@@ -395,14 +412,6 @@ function problemReducer(problem, action) {
                     ...problem[REDO_STACK]
                 ],
         }
-        /*
-        if (problem[LAST_SHOWN_STEP] === 0) return problem;
-        else {
-            return { ...problem,
-                     LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] - 1
-            };
-        }
-        */
     } else if (action.type === REDO_STEP) {
         if (problem[REDO_STACK].length === 0) return problem;
         let redoAction = problem[REDO_STACK][0];
@@ -422,14 +431,6 @@ function problemReducer(problem, action) {
                     ...problem[UNDO_STACK]
                 ],
         }
-        /*
-        if (problem[LAST_SHOWN_STEP] === problem[STEPS].length - 1) return problem;
-        else {
-            return { ...problem,
-                     LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP] + 1
-            };
-        }
-        */
     } else {
         return problem;
     }
