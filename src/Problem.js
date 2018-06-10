@@ -298,7 +298,7 @@ function problemReducer(problem, action) {
         // type of edit is currently being done, and checking if it should be combined with the last undo event on the stack.
         //
         // Check if this is a single character edit. If it is find its location, and detemine if it is an insertion or deletion
-        if (Math.abs(currContent.length - newContent.length) == 1) {
+        if (Math.abs(currContent.length - newContent.length) === 1) {
             // find the first mismatching character
             var i = 0;
             for (; i < currContent.length && i < newContent.length; i++) {
@@ -337,7 +337,7 @@ function problemReducer(problem, action) {
             updateLastUndoAction = false;
         }
 
-        var inverseAction = {
+        let inverseAction = {
             ...action,
             INVERSE_ACTION : {
                 type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
@@ -351,14 +351,14 @@ function problemReducer(problem, action) {
         var newUndoStack;
         if (updateLastUndoAction) {
             inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = latestUndo[NEW_STEP_CONTENT];
-            var undoAction = {...inverseAction[INVERSE_ACTION]};
+            let undoAction = {...inverseAction[INVERSE_ACTION]};
             newUndoStack = [
                 undoAction,
                 ...problem[UNDO_STACK].slice(1)
             ];
         } else {
             inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = problem[STEPS][action[STEP_KEY]][CONTENT];
-            var undoAction = {...inverseAction[INVERSE_ACTION]};
+            let undoAction = {...inverseAction[INVERSE_ACTION]};
             newUndoStack = [
                 undoAction,
                 ...problem[UNDO_STACK]
@@ -375,7 +375,7 @@ function problemReducer(problem, action) {
             ]
         }
     } else if (action.type === DELETE_STEP) {
-        var inverseAction = {
+        let inverseAction = {
             ...action,
             INVERSE_ACTION : {
                 type : INSERT_STEP_ABOVE, STEP_KEY: action[STEP_KEY],
@@ -383,7 +383,7 @@ function problemReducer(problem, action) {
                 INVERSE_ACTION : {...action}
             }
         };
-        var undoAction = {...inverseAction[INVERSE_ACTION]};
+        let undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
             STEPS : [
@@ -405,14 +405,14 @@ function problemReducer(problem, action) {
             // this is the default produced by the button on the UI
             newContent = ""
         }
-        var inverseAction = {
+        let inverseAction = {
             ...action,
             INVERSE_ACTION : {
                 type : DELETE_STEP, STEP_KEY: action[STEP_KEY],
                 INVERSE_ACTION : {...action}
             }
         };
-        var undoAction = {...inverseAction[INVERSE_ACTION]};
+        let undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
             STEPS : [
@@ -433,14 +433,14 @@ function problemReducer(problem, action) {
         } else { // new blank step
                 oldLastStep = {CONTENT : ""};
         }
-        var inverseAction = {
+        let inverseAction = {
             ...action,
             INVERSE_ACTION : {
                 type : DELETE_STEP, STEP_KEY: problem[STEPS].length,
                 INVERSE_ACTION : {...action}
             }
         };
-        var undoAction = {...inverseAction[INVERSE_ACTION]};
+        let undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
             STEPS : [ ...problem[STEPS],
