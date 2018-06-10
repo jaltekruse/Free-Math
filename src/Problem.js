@@ -50,12 +50,18 @@ var DELETE_STEP = 'DELETE_STEP';
 // array of problem editing actions
 // TODO - these actions usually have data to specify which problem
 // they apply to, but I'm planning on having an undo stack per problem
-// I won't be adding these values in the actions as I only expect them 
+// I won't be adding these values in the actions as I only expect them
 // to be consumed by ths sub-reducers, but this may have an impact
 // if I switch to more type-safe action constructors in the future
 var UNDO_STACK = 'UNDO_STACK';
 var REDO_STACK = 'REDO_STACK';
 var INVERSE_ACTION = 'INVERSE_ACTION';
+// properties for implementing intuitive undo/redo for mathquill editors, so they act (mostly) like
+// the regular text boxes in raw HTML
+var ADD = 'ADD';
+var DELETE = 'DELETE';
+var EDIT_TYPE = 'EDIT_TYPE';
+var POS = 'POS';
 
 // this action expects:
 // PROBLEM_INDEX - for which problem to change
@@ -203,7 +209,7 @@ var Problem = createReactClass({
 /*
  * Designing more complex undo/redo, now that individual steps can be deleted or added in the middle
  * Probably want to get rid of "last shown step" property entirely
- * create serializable commands that can mutate in either direction 
+ * create serializable commands that can mutate in either direction
  * (can I use the existing redux actions?)
  *
  * Some workflows:
@@ -220,7 +226,7 @@ var Problem = createReactClass({
  *
  * new step button again, then edits the new 2nd step shorter
  *  - put on an undo event that will return the contents to it's original form copied from step 1
- *  - part of me thinks this should happen as soon as a step is copied, but that would make 
+ *  - part of me thinks this should happen as soon as a step is copied, but that would make
  *    an undo event do nothing
  *    or unneccessarily add another step
  *      - this should immediately add a "delete step" action as noted above, maybe knowing
@@ -233,7 +239,7 @@ var Problem = createReactClass({
  * user edits a random step in the middle of the series
  *     - add event to change it back to the original contents
  *     - if they edit the same step again, don't add a new event
- *     - previously when doing this excercise I had played around with a basic text field 
+ *     - previously when doing this excercise I had played around with a basic text field
  *       and the undo/redo there
  *         - trying this again
  *         - typing into box, ctrl-z -> box goes back to blank
@@ -260,7 +266,7 @@ var Problem = createReactClass({
  *                   longer typed this, not truncation
  *                 - something to keep in mind, some of the keywords are likely longer right
  *                   before they are converted into symbols
- *                 
+ *
  */
 // reducer for an individual problem
 function problemReducer(problem, action) {
@@ -275,25 +281,75 @@ function problemReducer(problem, action) {
             PROBLEM_NUMBER : action[NEW_PROBLEM_NUMBER]
         };
     } else if (action.type === EDIT_STEP) {
-        console.log("edit step");
-        console.log(problem);
-        console.log(action);
-        var inverseAction = {
-            ...action,
-            INVERSE_ACTION : {
-                type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
-                INVERSE_ACTION : {...action}
-            }
-        };
-        var newUndoStack;
         // if the last action was an edit of this step, don't add an undo
         // event for each character typed, collapse them together. Only create
         // a new undo event if the edit made the text shorter.
         var latestUndo = problem[UNDO_STACK].length > 0 ? problem[UNDO_STACK][0] : false;
-        if (problem[UNDO_STACK].length > 0 && latestUndo.type === EDIT_STEP && latestUndo[STEP_KEY] == action[STEP_KEY]
-                && latestUndo[NEW_STEP_CONTENT].length < action[NEW_STEP_CONTENT].length
-                && action[NEW_STEP_CONTENT].startsWith(problem[STEPS][action[STEP_KEY]][CONTENT])) {
-            console.log("override undo");
+        const currContent = problem[STEPS][action[STEP_KEY]][CONTENT];
+        const newContent = action[NEW_STEP_CONTENT];
+
+        // "ADD" or "DELETE"
+        var editType;
+        // position of the add or delete
+        var pos;
+        var updateLastUndoAction = false;
+        // when users type into a textbox, they expect an undo/redo function to remove/add series of characters that were typed/deleted
+        // not an individual undo/redo action for each 1 character edit. This functionality is implemented by looking at the
+        // type of edit is currently being done, and checking if it should be combined with the last undo event on the stack.
+        //
+        // Check if this is a single character edit. If it is find its location, and detemine if it is an insertion or deletion
+        if (Math.abs(currContent.length - newContent.length) == 1) {
+            // find the first mismatching character
+            var i = 0;
+            for (; i < currContent.length && i < newContent.length; i++) {
+                if (newContent.charAt(i) === currContent.charAt(i)) continue;
+                else break;
+            }
+
+            // inspect the rest of the inputs to determine if this was a single chracter add or delete
+            //
+            // tricky case to check, highlight multiple characters and paste in the number of chracters that was highlighted
+            // this might cause some weird behavior if the strings overlap, but if data is replaced by mostly the same
+            // values there really isn't info lost if it acts somewhat like typing the text out in series
+
+            if (newContent.length > currContent.length) {
+                // one character addition
+                if (i === newContent.length - 1 || newContent.substring(i+1) === currContent.substring(i)) {
+                    pos = i;
+                    editType = ADD;
+                    if (latestUndo && latestUndo[INVERSE_ACTION][EDIT_TYPE] === editType
+                            && latestUndo[INVERSE_ACTION][POS] === pos - 1) {
+                        updateLastUndoAction = true;
+                    }
+                }
+            } else {
+                // one character deletion
+                if (i === currContent.length - 1 || currContent.substring(i+1) === newContent.substring(i)) {
+                    pos = i;
+                    editType = DELETE;
+                    if (latestUndo && latestUndo[INVERSE_ACTION][EDIT_TYPE] === editType
+                            && latestUndo[INVERSE_ACTION][POS] === pos + 1) {
+                        updateLastUndoAction = true;
+                    }
+                }
+            }
+        } else {
+            updateLastUndoAction = false;
+        }
+
+        var inverseAction = {
+            ...action,
+            INVERSE_ACTION : {
+                type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
+                INVERSE_ACTION : {
+                    ...action,
+                    EDIT_TYPE : editType,
+                    POS : pos,
+                }
+            }
+        };
+        var newUndoStack;
+        if (updateLastUndoAction) {
             inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = latestUndo[NEW_STEP_CONTENT];
             var undoAction = {...inverseAction[INVERSE_ACTION]};
             newUndoStack = [
@@ -301,7 +357,6 @@ function problemReducer(problem, action) {
                 ...problem[UNDO_STACK].slice(1)
             ];
         } else {
-            console.log("old undo");
             inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = problem[STEPS][action[STEP_KEY]][CONTENT];
             var undoAction = {...inverseAction[INVERSE_ACTION]};
             newUndoStack = [
@@ -343,9 +398,11 @@ function problemReducer(problem, action) {
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
         var newContent;
+        // non-blank inserations in the middle of work currently only used for undo/redo
         if (CONTENT in action) {
-           newContent = action[CONTENT] 
+           newContent = action[CONTENT]
         } else {
+            // this is the default produced by the button on the UI
             newContent = ""
         }
         var inverseAction = {
@@ -376,7 +433,6 @@ function problemReducer(problem, action) {
         } else { // new blank step
                 oldLastStep = {CONTENT : ""};
         }
-        console.log(oldLastStep);
         var inverseAction = {
             ...action,
             INVERSE_ACTION : {
@@ -398,13 +454,9 @@ function problemReducer(problem, action) {
         };
     } else if (action.type === UNDO_STEP) {
         if (problem[UNDO_STACK].length === 0) return problem;
-        console.log("undo step");
-        console.log(problem);
         let undoAction = problem[UNDO_STACK][0];
         let inverseAction = {...undoAction[INVERSE_ACTION], INVERSE_ACTION : undoAction};
-        console.log(undoAction);
         let ret = problemReducer(problem, undoAction)
-        console.log(ret);
         return {...ret,
                 UNDO_STACK : problem[UNDO_STACK].slice(1, problem[UNDO_STACK].length),
                 REDO_STACK : [
@@ -421,9 +473,6 @@ function problemReducer(problem, action) {
         // For redo actions, the stack should be maintained, this is restored below.
         let ret = problemReducer(problem, redoAction)
         let inverseAction = {...redoAction[INVERSE_ACTION], INVERSE_ACTION : redoAction};
-        console.log("redo");
-        console.log(redoAction);
-        console.log(ret);
         return {...ret,
                 REDO_STACK : problem[REDO_STACK].slice(1, problem[REDO_STACK].length),
                 UNDO_STACK : [
