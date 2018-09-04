@@ -3,6 +3,7 @@ import createReactClass from 'create-react-class';
 import GradingMenuBar from './GradingMenuBar.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import Assignment from './Assignment.js';
+import ImageUploader from './ImageUploader.js';
 import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
@@ -176,6 +177,14 @@ var FreeMath = createReactClass({
             );
     */
 
+    return (
+            <div style={wrapperDivStyle}>
+                <AssignmentEditorMenubar value={this.props.value}/>
+                <div style={{display:"inline-block", width:"100%"}}>
+                    <ImageUploader/>
+                </div>
+            </div>
+            );
     if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
         return (
             <div style={wrapperDivStyle}>
