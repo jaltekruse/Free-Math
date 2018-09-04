@@ -5,6 +5,7 @@ import MathInput from './MathInput.js';
 import Button from './Button.js';
 import { HtmlButton, CloseButton } from './Button.js';
 import { genID } from './FreeMath.js';
+import ImageUploader from './ImageUploader.js';
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -83,6 +84,7 @@ var GREEN = '#2cff72';
 
 var ScoreBox = createReactClass({
     render: function() {
+        var probNumber = this.props.value[PROBLEM_NUMBER];
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
@@ -176,7 +178,8 @@ var Problem = createReactClass({
                         />
                     </div>
                         <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
-                        Type math here<br />
+                        Type math here or 
+                        <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
                             var styles = {};
@@ -334,6 +337,8 @@ var Problem = createReactClass({
  */
 // reducer for an individual problem
 function problemReducer(problem, action) {
+    console.log("problem reducer");
+    console.log(action);
     if (problem === undefined) {
         // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
@@ -343,6 +348,14 @@ function problemReducer(problem, action) {
         return {
             ...problem,
             PROBLEM_NUMBER : action[NEW_PROBLEM_NUMBER]
+        };
+    } else if (action.type === "SET_PROBLEM_IMG") {
+        // TODO - undo/redo support for this action
+        console.log("image!");
+        console.log(action["NEW_IMG"]);
+        return {
+            ...problem,
+            IMG : action["NEW_IMG"],
         };
     } else if (action.type === EDIT_STEP) {
         // if the last action was an edit of this step, don't add an undo
@@ -560,12 +573,15 @@ function problemReducer(problem, action) {
                 ],
         }
     } else {
+        alert("no matching action handling");
         return problem;
     }
 }
 
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
+    console.log("problem list reducer");
+    console.log(action);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }
@@ -603,6 +619,7 @@ function problemListReducer(probList, action) {
             ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else if (action.type === SET_PROBLEM_NUMBER ||
+               action.type === "SET_PROBLEM_IMG" || 
                action.type === EDIT_STEP ||
                action.type === UNDO ||
                action.type === REDO ||

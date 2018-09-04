@@ -30,6 +30,8 @@ var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
+    console.log("assignment reducer");
+    console.log(action);
     if (state === undefined) {
         return {
             ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
