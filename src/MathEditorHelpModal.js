@@ -19,6 +19,7 @@ var MathEditorHelp = createReactClass({
         */
         return (
         <div>
+            <p>The backslash key {"\"\\\""} is needed for some of the symbols, it is found above the enter key.</p>
             <div style={{display:"inline-block"}}>
                 <div style={{float:"left"}}>
                     <table>
@@ -32,6 +33,9 @@ var MathEditorHelp = createReactClass({
                             <td><span ref="exampleStaticMath3">
                                     {"\\frac{a}{b}"}</span> (fraction)
                             </td></tr>
+                        <tr><td>\div <input type="submit" disabled="disabled" value="Enter"/>
+                            </td>
+                            <td><TeX>\div</TeX></td></tr>
                         <tr><td>pi</td><td><TeX>{"\\pi"}</TeX></td></tr>
                         <tr><td>sqrt</td><td><span ref="exampleStaticMath6">
                                     {"\\sqrt{x}"}</span></td></tr>

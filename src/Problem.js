@@ -377,6 +377,9 @@ function problemReducer(problem, action) {
             ]
         }
     } else if (action.type === DELETE_STEP) {
+        if (problem[STEPS].length == 1) {
+            return problem;
+        }
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
@@ -419,7 +422,7 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : newContent },
+                { CONTENT : newContent, STEP_ID : Math.floor(Math.random() * 200000000)},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
             UNDO_STACK : [
