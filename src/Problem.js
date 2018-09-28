@@ -184,7 +184,8 @@ var Problem = createReactClass({
                                           STEP_KEY : stepIndex});
                                 }}/> &nbsp;
                             <MathInput buttonsVisible='focused' styles={styles}
-                                       buttonSets={['trig', 'prealgebra', 'logarithms', 'calculus']}                                       stepIndex={stepIndex}
+                                       buttonSets={['trig', 'prealgebra', 'logarithms', 'calculus']}
+                                       stepIndex={stepIndex}
                                        problemIndex={problemIndex} value={step[CONTENT]}
                                        onChange={function(value) {
                                             window.store.dispatch(
@@ -370,7 +371,8 @@ function problemReducer(problem, action) {
             REDO_STACK : [],
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : action[NEW_STEP_CONTENT] },
+                // copy properties of the old step, to get the STEP_ID, then override the content
+                { ...problem[STEPS][action[STEP_KEY]], CONTENT : action[NEW_STEP_CONTENT] },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
         }
