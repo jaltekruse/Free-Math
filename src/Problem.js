@@ -2,6 +2,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
+import { genID } from './FreeMath.js';
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -208,6 +209,27 @@ var Problem = createReactClass({
 });
 
 /*
+function convertToCurrentFormat(possiblyOldDoc) {
+    if (!possiblyOldDoc.hasOwnProperty('problems')) {
+        return possiblyOldDoc;
+    }
+
+    possiblyOldDoc.problems.forEach(function (problem) {
+        if (problem.problemNumber !== undefined) {
+            problem[STEPS] = wrapSteps(problem.steps);
+            problem[LAST_SHOWN_STEP] = problem[STEPS].length - 1;
+            problem[PROBLEM_NUMBER] = problem.problemNumber;
+            delete problem.steps;
+            delete problem.problemNumber;
+        }
+    });
+    possiblyOldDoc[PROBLEMS] = possiblyOldDoc.problems;
+    delete possiblyOldDoc.problems;
+    return possiblyOldDoc;
+}
+*/
+
+/*
  * Designing more complex undo/redo, now that individual steps can be deleted or added in the middle
  * Probably want to get rid of "last shown step" property entirely
  * create serializable commands that can mutate in either direction
@@ -274,7 +296,7 @@ function problemReducer(problem, action) {
     if (problem === undefined) {
         // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
-                 STEPS : [{STEP_ID : Math.floor(Math.random() * 200000000), CONTENT : ""}],
+                 STEPS : [{STEP_ID : genID(), CONTENT : ""}],
                  UNDO_STACK : [], REDO_STACK : []};
     } else if (action.type === SET_PROBLEM_NUMBER) {
         return {
@@ -422,7 +444,7 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : newContent, STEP_ID : Math.floor(Math.random() * 200000000)},
+                { CONTENT : newContent, STEP_ID : genID()},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
             UNDO_STACK : [
@@ -449,7 +471,7 @@ function problemReducer(problem, action) {
         return {
             ...problem,
             STEPS : [ ...problem[STEPS],
-                      {...oldLastStep, STEP_ID : Math.floor(Math.random() * 200000000)}
+                      {...oldLastStep, STEP_ID : genID()}
             ],
             UNDO_STACK : [
                 undoAction,

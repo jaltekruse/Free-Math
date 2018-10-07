@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { deepFreeze } from './utils.js';
 import { assignmentReducer } from './Assignment.js';
+import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { problemReducer } from './Problem.js';
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
@@ -58,6 +59,19 @@ var EDIT_STEP = 'EDIT_STEP';
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 
+// test converting old problem format to new one
+it('test problem format conversion', () => {
+    var initialAssignment = {
+        APP_MODE : EDIT_ASSIGNMENT,
+        ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 },
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 0 }
+        ]
+    }
+})
+
 it('test adding a problem', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
@@ -69,20 +83,19 @@ it('test adding a problem', () => {
         ]
     }
     var expectedAssignment = {
-        APP_MODE : EDIT_ASSIGNMENT,
-        ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
-        PROBLEMS : [ { PROBLEM_NUMBER : "1",
-                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], LAST_SHOWN_STEP : 0 },
-                     { PROBLEM_NUMBER : "2",
-                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 0 },
-                     { PROBLEM_NUMBER : "",
-                       STEPS : [{CONTENT : ""}], LAST_SHOWN_STEP : 0 }
-        ]
-
-    }
+        "APP_MODE": "EDIT_ASSIGNMENT",
+        "ASSIGNMENT_NAME": "Untitled Assignment", 
+        "PROBLEMS": [
+            {"LAST_SHOWN_STEP": 0, "PROBLEM_NUMBER": "1",
+                "STEPS": [{"CONTENT": "1+2"}, {"CONTENT": "3"}]},
+            {"LAST_SHOWN_STEP": 0, "PROBLEM_NUMBER": "2",
+                "STEPS": [{"CONTENT": "4-2"}, {"CONTENT": "2"}]},
+            {"PROBLEM_NUMBER": "", "REDO_STACK": [], 
+                "STEPS": [{"CONTENT": "", "STEP_ID": 137783185}], "UNDO_STACK": []}]
+    };
     deepFreeze(initialAssignment);
     expect(
-        assignmentReducer(initialAssignment, { type : ADD_PROBLEM })
+        assignmentReducer(convertToCurrentFormat(initialAssignment), { type : ADD_PROBLEM })
     ).toEqual(expectedAssignment);
 });
 

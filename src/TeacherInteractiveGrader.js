@@ -7,7 +7,7 @@ import JSZip from 'jszip';
 import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
-import { cloneDeep } from './FreeMath.js';
+import { cloneDeep, genID } from './FreeMath.js';
 
 var KAS = window.KAS;
 
@@ -38,6 +38,9 @@ var VIEW_SIMILAR_ASSIGNMENTS = "VIEW_SIMILAR_ASSIGNMENTS";
 // Problem properties
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var STEPS = 'STEPS';
+var UNDO_STACK = 'UNDO_STACK';
+var REDO_STACK = 'REDO_STACK';
+var STEP_ID = 'STEP_ID';
 
 var VIEW_GRADES = 'VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
@@ -608,9 +611,14 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
+    return convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+}
+
+function convertToCurrentFormatFromAlpha(possiblyOldDoc) {
     if (!possiblyOldDoc.hasOwnProperty('problems')) {
         return possiblyOldDoc;
     }
+    possiblyOldDoc = cloneDeep(possiblyOldDoc);
 
     possiblyOldDoc.problems.forEach(function (problem) {
         if (problem.problemNumber !== undefined) {
@@ -624,6 +632,34 @@ function convertToCurrentFormat(possiblyOldDoc) {
     possiblyOldDoc[PROBLEMS] = possiblyOldDoc.problems;
     delete possiblyOldDoc.problems;
     return possiblyOldDoc;
+}
+
+// Covert old problem format to new one
+// TODO: add versioning number to make upgrades easier and more reliable in the future
+function convertToCurrentFormat2(possiblyOldDoc) {
+    console.log(possiblyOldDoc);
+    console.log(possiblyOldDoc.hasOwnProperty(PROBLEMS));
+    console.log(possiblyOldDoc[PROBLEMS].length > 0);
+    console.log(possiblyOldDoc[PROBLEMS][0]);
+    console.log(possiblyOldDoc[PROBLEMS][0].hasOwnProperty(LAST_SHOWN_STEP));
+    if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
+        && possiblyOldDoc[PROBLEMS].length > 0
+        && possiblyOldDoc[PROBLEMS][0].hasOwnProperty(LAST_SHOWN_STEP)) {
+        
+        possiblyOldDoc = cloneDeep(possiblyOldDoc);
+        possiblyOldDoc[PROBLEMS].forEach(function (problem) {
+            problem[STEPS] = problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1);
+            problem[STEPS].forEach(function(step, index, arr) {
+                step[STEP_ID] = genID();
+            });
+            delete problem.LAST_SHOWN_STEP;
+            problem[UNDO_STACK] = [];
+            problem[REDO_STACK] = [];
+        });
+        return possiblyOldDoc;
+    } else {
+        return possiblyOldDoc;
+    }
 }
 
 // open zip file full of student assignments for grading
