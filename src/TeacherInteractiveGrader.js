@@ -637,15 +637,12 @@ function convertToCurrentFormatFromAlpha(possiblyOldDoc) {
 // Covert old problem format to new one
 // TODO: add versioning number to make upgrades easier and more reliable in the future
 function convertToCurrentFormat2(possiblyOldDoc) {
-    console.log(possiblyOldDoc);
-    console.log(possiblyOldDoc.hasOwnProperty(PROBLEMS));
-    console.log(possiblyOldDoc[PROBLEMS].length > 0);
-    console.log(possiblyOldDoc[PROBLEMS][0]);
-    console.log(possiblyOldDoc[PROBLEMS][0].hasOwnProperty(LAST_SHOWN_STEP));
     if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
         && possiblyOldDoc[PROBLEMS].length > 0
         && possiblyOldDoc[PROBLEMS][0].hasOwnProperty(LAST_SHOWN_STEP)) {
-        
+
+        // TODO - consider getting rid of this deep clone, but not much object creation
+        // to avoid if I want to keep this function pure
         possiblyOldDoc = cloneDeep(possiblyOldDoc);
         possiblyOldDoc[PROBLEMS].forEach(function (problem) {
             problem[STEPS] = problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1);

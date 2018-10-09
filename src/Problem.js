@@ -44,9 +44,9 @@ var INSERT_STEP_ABOVE = 'INSERT_STEP_ABOVE';
 var NEW_STEP = 'NEW_STEP';
 var NEW_BLANK_STEP = 'NEW_BLANK_STEP';
 // this action expects an index for which problem to change
-var UNDO_STEP = 'UNDO_STEP';
+var UNDO = 'UNDO';
 // this action expects an index for which problem to change
-var REDO_STEP = 'REDO_STEP';
+var REDO = 'REDO';
 var DELETE_STEP = 'DELETE_STEP';
 // array of problem editing actions
 // TODO - these actions usually have data to specify which problem
@@ -152,12 +152,12 @@ var Problem = createReactClass({
                         <input type="submit" name="undo" value="Undo" onClick={
                             function() {
                                 window.store.dispatch(
-                                    { type : UNDO_STEP, PROBLEM_INDEX : problemIndex})
+                                    { type : UNDO, PROBLEM_INDEX : problemIndex})
                             }}/> <br/>
                         <input type="submit" name="redo" value="Redo" onClick={
                             function() {
                                 window.store.dispatch(
-                                    { type : REDO_STEP, PROBLEM_INDEX : problemIndex})
+                                    { type : REDO, PROBLEM_INDEX : problemIndex})
                             }}/>
                     </div>
                         <div style={{float:'left'}} className="equation-list">
@@ -479,7 +479,7 @@ function problemReducer(problem, action) {
             ],
             REDO_STACK : []
         };
-    } else if (action.type === UNDO_STEP) {
+    } else if (action.type === UNDO) {
         if (problem[UNDO_STACK].length === 0) return problem;
         let undoAction = problem[UNDO_STACK][0];
         let inverseAction = {...undoAction[INVERSE_ACTION], INVERSE_ACTION : undoAction};
@@ -491,7 +491,7 @@ function problemReducer(problem, action) {
                     ...problem[REDO_STACK]
                 ],
         }
-    } else if (action.type === REDO_STEP) {
+    } else if (action.type === REDO) {
         if (problem[REDO_STACK].length === 0) return problem;
         let redoAction = problem[REDO_STACK][0];
         // this ret has its redo-actions set incorrectly now, because the actions are re-used
@@ -540,8 +540,8 @@ function problemListReducer(probList, action) {
         ];
     } else if (action.type === SET_PROBLEM_NUMBER ||
                action.type === EDIT_STEP ||
-               action.type === UNDO_STEP ||
-               action.type === REDO_STEP ||
+               action.type === UNDO ||
+               action.type === REDO ||
                action.type === DELETE_STEP ||
                action.type === NEW_BLANK_STEP ||
                action.type === INSERT_STEP_ABOVE ||
