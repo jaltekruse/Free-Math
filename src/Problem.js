@@ -8,6 +8,11 @@ var Graphie = require("components/graphie.jsx");
 var Grapher = require("./widgets/grapher.jsx");
 var grapherEditor = require("./widgets/grapher-editor.jsx");
 var Util = require("util.js");
+const {
+    containerSizeClass,
+    getInteractiveBoxFromSizeClass,
+} = require("util/sizing-utils.js");
+
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -257,9 +262,14 @@ var Problem = createReactClass({
                             range={options.range}
                             options={options}
                             setup={setupGraphie}
-                            onChange={function(newProps){console.log(newProps)}}
+                            plot={this.props.value.GRID_PROPS}
+                            onChange={function(newProps){window.store.dispatch(
+                                { type: "SET_GRAPH", GRID_PROPS : newProps, PROBLEM_INDEX : problemIndex}
+                                );}}
                             trackInteraction={function(newProps){console.log(newProps)}}
                             apiOptions={{setDrawingAreaAvailable: function() {} }}
+                            containerSizeClass={containerSizeClass.SMALL}
+                            availableTypes={["linear", "quadratic"]}
                         />
                     </div>
                 </div>
@@ -567,6 +577,11 @@ function problemReducer(problem, action) {
                     ...problem[UNDO_STACK]
                 ],
         }
+    } else if (action.type === "SET_GRAPH") {
+        return {
+            ...problem,
+            GRID_PROPS : action["GRID_PROPS"]["plot"]
+        }
     } else {
         return problem;
     }
@@ -605,6 +620,7 @@ function problemListReducer(probList, action) {
                action.type === DELETE_STEP ||
                action.type === NEW_BLANK_STEP ||
                action.type === INSERT_STEP_ABOVE ||
+               action.type === "SET_GRAPH" ||
                action.type === NEW_STEP) {
         return [
             ...probList.slice(0, action.PROBLEM_INDEX),
