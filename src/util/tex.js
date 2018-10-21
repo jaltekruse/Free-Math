@@ -79,7 +79,7 @@ module.exports = {
             // Store the formula that we're using
             $elem.attr("data-math-formula", text);
 
-            if (Exercises.useKatex) {
+            if (true) {
                 // Try to process the nodes with KaTeX first
                 try {
                     katex.render(text, $katexHolder[0]);

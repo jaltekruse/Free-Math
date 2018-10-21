@@ -1,10 +1,13 @@
 import React from 'react';
+import _ from 'underscore';
 import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
 import { genID } from './FreeMath.js';
+var Graphie = require("components/graphie.jsx");
 var grapher = require("./widgets/grapher.jsx");
 var grapherEditor = require("./widgets/grapher-editor.jsx");
+var Util = require("util.js");
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -100,6 +103,47 @@ var Problem = createReactClass({
             scoreClass = 'show-partially-correct-div';
         }
 
+        var options = {
+                box: [400, 400],
+                labels: ["x", "y"],
+                range: [[-10, 10], [-10, 10]],
+                step: [1, 1],
+                gridStep: [1, 1],
+                valid: true,
+                backgroundImage: null,
+                markings: "grid",
+                showProtractor: false,
+        };
+
+        var _getGridConfig = function(options) {
+                return _.map(options.step, function(step, i) {
+                    return Util.gridDimensionConfig(
+                        step,
+                        options.range[i],
+                        options.box[i],
+                        options.gridStep[i]
+                    );
+                });
+        };
+
+
+        var setupGraphie = function(graphie, options) {
+            var gridConfig = _getGridConfig(options);
+            graphie.graphInit({
+            range: options.range,
+            scale: _.pluck(gridConfig, "scale"),
+            axisArrows: "<->",
+            labelFormat: function(s) {
+                return "\\small{" + s + "}";
+            },
+            gridStep: options.gridStep,
+            tickStep: _.pluck(gridConfig, "tickStep"),
+            labelStep: 1,
+            unityLabels: _.pluck(gridConfig, "unityLabel"),
+            });
+            graphie.label([0, options.range[1][1]], options.labels[1], "above");
+        };
+
         var scoreMessage = null;
         if (score === '')
             scoreMessage = 'Complete';
@@ -107,6 +151,7 @@ var Problem = createReactClass({
             scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
             <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
+
                 <div style={{width:"200", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
                                            : null
@@ -203,6 +248,19 @@ var Problem = createReactClass({
                             </div>
                             );
                         })}
+                    </div>
+                    
+                    <div style={{float:'left', margin: "5px"}}>
+                        <Graphie
+                            ref="graphie"
+                            box={options.box}
+                            range={options.range}
+                            options={options}
+                            setup={setupGraphie}
+                            setDrawingAreaAvailable={
+                                function() {} /* this.props.apiOptions.setDrawingAreaAvailable */
+                            }
+                        />
                     </div>
                 </div>
             </div>

@@ -179,7 +179,7 @@ var FreeMath = createReactClass({
             </div>
             );
     */
-
+ 
     if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
         return (
             <div style={wrapperDivStyle}>
