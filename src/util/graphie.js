@@ -5,12 +5,14 @@
 const kpoint = require("kmath").point;
 const kvector = require("kmath").vector;
 const _ = require("underscore");
+const $ = window.$;
 
 // Minify Raphael ourselves because IE8 has a problem with the 1.5.2 minified
 // release
 // http://groups.google.com/group/raphaeljs/browse_thread/thread/c34c75ad8d431544
 /* globals Raphael:false */
-require("../../lib/raphael.js");
+//require("../lib/raphael.js");
+const Raphael = window.Raphael;
 
 const KhanMath = require("./math.js");
 const processMath = require("./tex.js").processMath;
@@ -1068,7 +1070,8 @@ GraphUtils.createGraphie = function(el) {
             yScale = scale[1];
 
             if (options.range == null) {
-                return Khan.error("range should be specified in graph init");
+                window.alert("range should be specified in graph init");
+                //return Khan.error("range should be specified in graph init");
             }
 
             xRange = options.range[0];

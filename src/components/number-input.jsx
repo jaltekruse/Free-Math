@@ -4,6 +4,7 @@ const classNames = require("classnames");
 const React = require("react");
 const ReactDOM = require("react-dom");
 const _ = require("underscore");
+const $ = window.$;
 
 const firstNumericalParse = require("../util.js").firstNumericalParse;
 const captureScratchpadTouchStart = require("../util.js")

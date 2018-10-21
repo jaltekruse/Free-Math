@@ -4,6 +4,7 @@ const _ = require("underscore");
 
 const GraphieClasses = require("./graphie-classes.jsx");
 const Movables = require("./graphie-movables.jsx");
+const $ = window.$;
 
 const GraphieMovable = GraphieClasses.GraphieMovable;
 

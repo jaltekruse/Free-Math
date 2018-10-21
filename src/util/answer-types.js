@@ -4,10 +4,12 @@
 
 /* global i18n:false */
 
-const $ = require("jquery");
+const $ = window.$; //require("jquery");
 const _ = require("underscore");
 
 const KhanMath = require("./math.js");
+
+const KAS = window.KAS;
 
 const MAXERROR_EPSILON = Math.pow(2, -42);
 

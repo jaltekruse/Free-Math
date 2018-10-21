@@ -10,8 +10,9 @@
 // TODO(emily): This file breaks our line length limits like nobody's business.
 // Figure out how to fix that.
 const _ = require("underscore");
+const $ = window.$;
 
-require("../../lib/jquery.mobile.vmouse.js");
+//require("../lib/jquery.mobile.vmouse.js");
 
 /* global Raphael:false */
 const GraphUtils = require("./graphie.js");

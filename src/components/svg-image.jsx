@@ -1,7 +1,8 @@
 /* globals KA */
 const classNames = require("classnames");
 const React = require("react");
-const $ = require("jquery");
+//const $ = require("jquery");
+const $ = window.$;
 const _ = require("underscore");
 
 const FixedToResponsive = require("../components/fixed-to-responsive.jsx");

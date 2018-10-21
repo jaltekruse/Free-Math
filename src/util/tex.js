@@ -1,6 +1,7 @@
 /* globals katex:false, MathJax:false, Exercises:false */
 
 const KhanMath = require("./math.js");
+const $ = window.$;
 
 function findChildOrAdd(elem, className) {
     const $child = $(elem).find("." + className);
@@ -143,9 +144,10 @@ module.exports = {
                     $mathjaxHolder[0],
                 ]);
                 MathJax.Hub.Queue(function() {
-                    KhanUtil.debugLog(
-                        "MathJax done typesetting (" + text + ")"
-                    );
+                    // TODO (JASON Free Math) - fix me
+                    //KhanUtil.debugLog(
+                        console.log("MathJax done typesetting (" + text + ")");
+                    //);
                 });
                 if (callback) {
                     MathJax.Hub.Queue(function() {
@@ -170,7 +172,8 @@ module.exports = {
                 text = $this.text();
                 $this.empty();
             }
-            KhanUtil.processMath(this, text, force);
+            // TODO(Jason FreeMath) - fixme
+            //KhanUtil.processMath(this, text, force);
         });
     },
 

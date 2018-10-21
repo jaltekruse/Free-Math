@@ -1,5 +1,6 @@
 const _ = require("underscore");
 const knumber = require("kmath").number;
+const $ = window.$;
 
 const KhanMath = {
     // Simplify formulas before display

@@ -8,7 +8,7 @@ var _ = require("underscore");
 var Interactive2 = require("../interactive2.js");
 var SvgImage = require("../components/svg-image.jsx");
 var Util = require("../util.js");
-var ButtonGroup = require("react-components/button-group.jsx");
+var ButtonGroup = require("../react-components/button-group.jsx");
 
 /* Graphie and relevant components. */
 var Graphie = require("../components/graphie.jsx");
@@ -16,9 +16,9 @@ var MovablePoint = Graphie.MovablePoint;
 var MovableLine = Graphie.MovableLine;
 const WrappedLine = require("../interactive2/wrapped-line.js");
 
-var knumber = require("kmath").number;
-var kvector = require("kmath").vector;
-var kpoint = require("kmath").point;
+var knumber = require("../kmath/index.js").number;
+var kvector = require("../kmath/index.js").vector;
+var kpoint = require("../kmath/index.js").point;
 const KhanColors = require("../util/colors.js");
 const {containerSizeClassPropType} = require("../util/sizing-utils.js");
 const {interactiveSizes} = require("../styles/constants.js");
@@ -569,7 +569,7 @@ var Grapher = React.createClass({
         return this.props.plot;
     },
 
-    focus: $.noop,
+    focus: function() {},
 });
 
 var propTransform = editorProps => {
