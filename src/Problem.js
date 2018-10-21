@@ -5,7 +5,7 @@ import './App.css';
 import MathInput from './MathInput.js';
 import { genID } from './FreeMath.js';
 var Graphie = require("components/graphie.jsx");
-var grapher = require("./widgets/grapher.jsx");
+var Grapher = require("./widgets/grapher.jsx");
 var grapherEditor = require("./widgets/grapher-editor.jsx");
 var Util = require("util.js");
 
@@ -251,15 +251,15 @@ var Problem = createReactClass({
                     </div>
                     
                     <div style={{float:'left', margin: "5px"}}>
-                        <Graphie
+                        <Grapher.widget
                             ref="graphie"
                             box={options.box}
                             range={options.range}
                             options={options}
                             setup={setupGraphie}
-                            setDrawingAreaAvailable={
-                                function() {} /* this.props.apiOptions.setDrawingAreaAvailable */
-                            }
+                            onChange={function(newProps){console.log(newProps)}}
+                            trackInteraction={function(newProps){console.log(newProps)}}
+                            apiOptions={{setDrawingAreaAvailable: function() {} }}
                         />
                     </div>
                 </div>
