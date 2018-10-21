@@ -3,6 +3,8 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
 import { genID } from './FreeMath.js';
+var grapher = require("./widgets/grapher.jsx");
+var grapherEditor = require("./widgets/grapher-editor.jsx");
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down

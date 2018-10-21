@@ -35,6 +35,7 @@
     "katex": "^0.8.2",
     "mathjax": "^2.7.2-rc",
     "object-assign": "4.1.1",
+    "perseus" : "file:../perseus",
     "postcss-flexbugs-fixes": "3.2.0",
     "postcss-loader": "2.0.6",
     "promise": "8.0.1",
