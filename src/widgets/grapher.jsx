@@ -343,6 +343,7 @@ var Grapher = React.createClass({
 
     render: function() {
         var type = this.props.plot.type;
+        console.log(type);
         var coords = this.props.plot.coords;
         var asymptote = this.props.plot.asymptote;
 

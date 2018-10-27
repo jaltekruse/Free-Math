@@ -111,12 +111,12 @@ var Problem = createReactClass({
         var options = {
                 box: [400, 400],
                 labels: ["x", "y"],
-                range: [[-10, 10], [-10, 10]],
-                step: [1, 1],
-                gridStep: [1, 1],
+                range: [[-10, 20], [-10, 10]],
+                step: [2, 2],
+                gridStep: [2, 2],
                 valid: true,
-                backgroundImage: null,
-                markings: "grid",
+                backgroundImage: {url: null},
+                markings: "graph",
                 showProtractor: false,
         };
 
@@ -259,14 +259,15 @@ var Problem = createReactClass({
                         <Grapher.widget
                             ref="graphie"
                             box={options.box}
+                            static={false}
                             range={options.range}
-                            options={options}
+                            graph={options}
                             setup={setupGraphie}
                             plot={this.props.value.GRID_PROPS}
                             onChange={function(newProps){window.store.dispatch(
                                 { type: "SET_GRAPH", GRID_PROPS : newProps, PROBLEM_INDEX : problemIndex}
                                 );}}
-                            trackInteraction={function(newProps){console.log(newProps)}}
+                            trackInteraction={function(newProps){console.log("interactions");console.log(newProps)}}
                             apiOptions={{setDrawingAreaAvailable: function() {} }}
                             containerSizeClass={containerSizeClass.SMALL}
                             availableTypes={["linear", "quadratic"]}
