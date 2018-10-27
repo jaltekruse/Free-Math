@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)http://bradfrost.com/demo/mobile-first/ -->
+<html class=" js no-touch geolocation cssanimations csstransforms csstransforms3d csstransitions queryselectorall"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Mobile-First Responsive Web Design</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="HandheldFriendly" content="true">
+	<link rel="stylesheet" type="text/css" href="./Mobile-First Responsive Web Design_files/style.css" media="screen, handheld">
+	<link rel="stylesheet" type="text/css" href="./Mobile-First Responsive Web Design_files/enhanced.css" media="screen  and (min-width: 40.5em)">
+	<!--[if (lt IE 9)&(!IEMobile)]>
+	<link rel="stylesheet" type="text/css" href="enhanced.css" />
+	<![endif]-->
+	<script type="text/javascript" async="" src="./Mobile-First Responsive Web Design_files/ga.js"></script><script type="text/javascript" src="./Mobile-First Responsive Web Design_files/modernizr.js"></script>
+</head>
+<body id="page" class="comments-ready">
+	<header role="banner">
+    	<div>
+            <h1 class="logo"><a href="http://bradfrost.com/demo/mobile-first/#"><img src="./Mobile-First Responsive Web Design_files/logo_new.png" alt="Ffly"></a></h1>
+            <ul id="nav-anchors" class="nav-anchors">
+            	<li><a href="http://bradfrost.com/demo/mobile-first/#nav" id="menu-anchor">Menu</a></li>
+            	<li><a href="http://bradfrost.com/demo/mobile-first/#search" id="search-anchor">Search</a></li>
+            </ul>
+            <form id="search" action="http://bradfrost.com/demo/mobile-first/#" method="post" class="search reveal" style="display: none;">
+                <fieldset>
+                    <legend>Search the Site</legend>
+                    <label for="search-site">Search the site</label>
+                    <input type="search" id="search-site" placeholder="Search Store">
+                    <input type="submit" value="Search">
+                </fieldset>
+            </form>
+            <nav id="nav" class="nav reveal" style="display: none;">
+                <ul role="navigation">
+                    <li><a href="http://bradfrost.com/demo/mobile-first/#">T-shirts</a></li>
+                    <li><a href="http://bradfrost.com/demo/mobile-first/#">Hoodies</a></li>
+                    <li><a href="http://bradfrost.com/demo/mobile-first/#">Pants</a></li>
+                </ul>
+            </nav>
+        </div>
+	</header><!--end .header-->
+	<div class="content product-info" role="main">
+		<section class="product-main">
+        	<header>
+				<h1 class="product-name">Super Ffly T-shirt</h1>
+                <div class="product-overview">
+                	<strong class="price">$23</strong>
+                	<ol class="star">
+                    	<li class="on">★</li>
+                        <li class="on">★</li>
+                        <li class="on">★</li>
+                        <li class="on">★</li>
+                        <li>☆</li>
+                    </ol>
+                    <a href="http://bradfrost.com/demo/mobile-first/#reviews" class="review-count">8 Reviews</a>
+                </div>
+                
+			</header>
+			<div id="product-img" class="product-img">
+                <figure class="img-container" id="img-container"><div id="img-list" class="loading"><ul><li data-imgsrc="images/product_img_1.jpg" style="display: list-item;"><img src="./Mobile-First Responsive Web Design_files/product_img_1.jpg"></li><li data-imgsrc="images/product_img_2.jpg" style="display: none;"></li><li data-imgsrc="images/product_img_3.png" style="display: none;"></li></ul></div></figure>
+				<nav>
+					<ul>
+						<li class="active"><a href="./Mobile-First Responsive Web Design_files/product_img_1.jpg"><img src="./Mobile-First Responsive Web Design_files/product_img_1_thumb.jpg" alt="Super Ffly Men&#39;s Shirt"></a></li>
+						<li><a href="http://bradfrost.com/demo/mobile-first/images/product_img_2.jpg"><img src="./Mobile-First Responsive Web Design_files/product_img_2_thumb.jpg" alt="Super Ffly Women&#39;s Shirt"></a></li>
+						<li><a href="http://bradfrost.com/demo/mobile-first/images/product_img_3.png"><img src="./Mobile-First Responsive Web Design_files/product_img_3_thumb.jpg" alt="Ffly Logo"></a></li>
+					</ul>
+				</nav>
+			</div><!--end .product-img-->
+            <form method="post" action="http://bradfrost.com/demo/mobile-first/#" id="product-form" class="product-form">
+                <fieldset>
+                    <legend>Add to Cart</legend>
+                    <div class="field qty-field">
+                        <label for="qty">Qty</label>
+                        <input name="qty" id="qty" class="qty" type="number" pattern="[0-9]*" value="1" min="1" max="999">
+                    </div>
+                    <div class="field size-field">
+                        <label for="size">Size</label>
+                        <select id="size" name="size">
+                            <option value="S">S</option>
+                            <option value="S">M</option>
+                            <option value="S">L</option>
+                            <option value="S">XL</option>
+                        </select>
+                    </div>
+                    <div class="submit-form">
+                        <input type="submit" class="btn" value="Add to Cart">
+                    </div>
+                </fieldset>
+            </form><!--end #product-form-->
+            <div class="product-utils">
+            	<a href="http://bradfrost.com/demo/mobile-first/#" class="share-btn">Share</a>
+            	<a href="http://bradfrost.com/demo/mobile-first/#" class="find-nearby">Find Nearby</a>
+            </div>
+            <div class="product-description"> 
+                <div id="p-desc">
+                	<p>Behold, your new favorite shirt! This built-to-last tee adapts to your size and capabilities, starting off XS then stretches and scales to keep you comfortable as you grow taller and wider. The future is here, so look sharp.</p>
+                </div>
+            </div><!--end .product-description-->
+		</section><!--end .product-main-->
+        <section class="aux related-products loaded" id="related-products">
+			<header id="tab-related">
+            	<a href="http://bradfrost.com/demo/mobile-first/related.html" class="disabled open">
+                	<h2>Similar T-shirts</h2>
+                </a>
+            </header>
+		<div role="tabpanel"><div class="related-list" id="related-list">
+                    <ul>
+                        <li><a href="http://bradfrost.com/demo/mobile-first/#"><img src="./Mobile-First Responsive Web Design_files/related_1.jpg" alt="Product Name"></a></li>
+                        <li><a href="http://bradfrost.com/demo/mobile-first/#"><img src="./Mobile-First Responsive Web Design_files/related_2.jpg" alt="Product Name"></a></li>
+                        <li><a href="http://bradfrost.com/demo/mobile-first/#"><img src="./Mobile-First Responsive Web Design_files/related_3.jpg" alt="Product Name"></a></li>
+                        <li><a href="http://bradfrost.com/demo/mobile-first/#"><img src="./Mobile-First Responsive Web Design_files/related_4.jpg" alt="Product Name"></a></li>
+                        <li><a href="http://bradfrost.com/demo/mobile-first/#"><img src="./Mobile-First Responsive Web Design_files/related_5.jpg" alt="Product Name"></a></li>
+                        <li><a href="http://bradfrost.com/demo/mobile-first/#"><img src="./Mobile-First Responsive Web Design_files/related_6.jpg" alt="Product Name"></a></li>
+                    </ul>
+                </div></div></section><!--end .related-products-->
+        <section class="aux reviews loaded" id="reviews">
+        	<header id="tab-reviews">
+            	<a href="http://bradfrost.com/demo/mobile-first/reviews.html" class="disabled open">
+                    <h2>8 Reviews</h2>
+                    <ol class="star">
+                        <li class="on">★</li>
+                        <li class="on">★</li>
+                        <li class="on">★</li>
+                        <li class="on">★</li>
+                        <li>☆</li>
+                    </ol>
+                </a>
+            </header>
+        <div role="tabpanel"><div id="p-reviews" aria-labeledby="tab-reviews">
+                        <ol class="reviews-list">
+                            <li>
+                                <img src="./Mobile-First Responsive Web Design_files/avatar.png" alt="Commenter Name">
+                                <div class="review-meta">
+	                                <ol class="star">
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li>☆</li>
+	                                </ol>
+	                                <h3>Awesome shirt!</h3>
+	                                <a href="http://bradfrost.com/demo/mobile-first/#"><time datetime="2010-01-20" pubdate="">11/12/2011</time></a> By Bruce Bosco
+                                </div>
+                                <div class="review-content">
+                                	<p>This shirt looks awesome and is really comfortable to wear. It did shrink quite a lot when washed, but that could have just been how I ran it. All in all, it's my favourite shirt, and I love wearing it.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <img src="./Mobile-First Responsive Web Design_files/avatar.png" alt="Commenter Name">
+                                <div class="review-meta">
+	                                <ol class="star">
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li>☆</li>
+	                                </ol>
+	                                <h3>Nice shirt</h3>
+	                                <a href="http://bradfrost.com/demo/mobile-first/#"><time datetime="2010-01-20" pubdate="">11/12/2011</time></a> By Nick McKinsey
+                                </div>
+                                <div class="review-content">
+                                	<p>This shirt is a great addition to any simple wardrobe. Can be worn by itself or complimented with accessories. Nice and soft to the touch!</p>
+                                </div>
+                            </li>
+                            <li>
+                                <img src="./Mobile-First Responsive Web Design_files/avatar.png" alt="Commenter Name">
+                                <div class="review-meta">
+	                                <ol class="star">
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li>☆</li>
+	                                </ol>
+	                                <h3>I love these tees</h3>
+	                                <a href="http://bradfrost.com/demo/mobile-first/#"><time datetime="2010-01-20" pubdate="">11/12/2011</time></a> By Rowdy Randy
+                                </div>
+                                <div class="review-content">
+                                	<p>Fits, looks, and feels great. Got 4 of these in medium (140lbs, 5'9) and they fit well. My favorite is the grey one!</p>
+                                </div>
+                            </li>
+                            <li>
+                                <img src="./Mobile-First Responsive Web Design_files/avatar.png" alt="Commenter Name">
+                                <div class="review-meta">
+	                                <ol class="star">
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li>☆</li>
+	                                    <li>☆</li>
+	                                </ol>
+	                                <h3>Runs a little small</h3>
+	                                <a href="http://bradfrost.com/demo/mobile-first/#"><time datetime="2010-01-20" pubdate="">11/12/2011</time></a> By Nathan Hey
+                                </div>
+                                <div class="review-content">
+                                	<p>I got 2 of these shirts (black and green) on small size and I really loved it!</p>
+									<p>Regular shirts usually fits tight on my neck. I can't wait to get the red, blue and white one, since I'm from Brazil, and I'm going back home on mid-January. I hope these colors get available on my size before this.</p>
+                                </div>
+                            </li>
+                            <li>
+                                <img src="./Mobile-First Responsive Web Design_files/avatar.png" alt="Commenter Name">
+                                <div class="review-meta">
+	                                <ol class="star">
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li class="on">★</li>
+	                                    <li>☆</li>
+	                                </ol>
+	                                <h3>Best Shirt I Own</h3>
+	                                <a href="http://bradfrost.com/demo/mobile-first/#"><time datetime="2010-01-20" pubdate="">11/12/2011</time></a> By Chack Tuylor
+                                </div>
+                                <div class="review-content">
+                                	<p>This is comfortable, soft, and the right fit for any sort of guy who wants to dress up or dress down. Over all im very satisfied with this product.</p>
+                                </div>
+                            </li>
+                        </ol>
+                        <a href="http://bradfrost.com/demo/mobile-first/#" class="btn">Read All Reviews</a>
+                    </div></div></section><!--end .reviews-->
+	</div><!--end .content-->
+	<footer class="footer">
+		<div>
+            <nav class="nav" role="navigation">
+                <ul class="footer-nav">
+                    <li><a href="http://bradfrost.com/demo/mobile-first/#">T-shirts</a></li>
+                    <li><a href="http://bradfrost.com/demo/mobile-first/#">Hoodies</a></li>
+                    <li><a href="http://bradfrost.com/demo/mobile-first/#">Pants</a></li>
+                </ul>
+            </nav>
+            <ul class="service-links">
+                <li class="tel"><a href="tel:+1-800-275-2273" title="Call our customer Service">Call 800-888-8888</a></li>
+                <li><a href="http://bradfrost.com/demo/mobile-first/#">About</a></li>
+                <li><a href="http://bradfrost.com/demo/mobile-first/#page" class="top">Back to Top</a></li>
+            </ul>
+        </div>
+	</footer><!--end .footer-->
+	<script type="text/javascript" src="./Mobile-First Responsive Web Design_files/jquery.js"></script>
+	<script type="text/javascript" src="./Mobile-First Responsive Web Design_files/init.js"></script>
+	<script type="text/javascript" src="./Mobile-First Responsive Web Design_files/comments.js"></script>
+    <script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-2687475-3']);
+	  _gaq.push(['_trackPageview']);
+	
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>
+
+	<div id="comment-link"><a href="http://bradfrost.com/demo/mobile-first/#">Annotations: <strong>OFF</strong></a></div><div id="comment-container" style="bottom: -561px;"><a href="http://bradfrost.com/demo/mobile-first/#" id="close-comments">Close</a><h2 id="comment-title">Annotation Title</h2><div id="comment-text">Here is some comment text</div></div></body></html>
