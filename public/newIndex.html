@@ -1,0 +1,105 @@
+<html>
+<head>
+<style>
+
+a {
+  color: mediumblue;
+  text-decoration: none;
+}
+a:hover {
+  color: black;
+  color: orange;
+}
+
+.menuBar{
+    padding: 10px 10px 10px 10px;
+    width:100%;
+    display:block;
+    position:fixed;
+    background-color: #212121;
+    color : #efefef;
+    top:0;
+    left:0;
+    z-index: 100;
+}
+.logo{
+    float:left;
+    
+}
+.nav{
+    float:none;
+    margin-right:10px;
+}
+.nav ul li{
+    list-style:none;
+    float:left;
+}
+
+.header-div {
+    display:inline-block;
+    width:90%;
+}
+.header{
+    /*float: left;
+    clear: none;*/
+}
+
+@media screen and (min-width: 40.5em) {
+    .header-div {
+        float:left;
+        width:45%;
+    }
+    .header{
+        position:relative;
+        margin-left:47%
+    }
+    .picture-div{
+        position:relative;
+        margin-top:-5em
+    }
+}
+</style>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <div class="menuBar">
+        <div class="nav">
+                    <div style={{float:"right"}}>
+                    <a href="#examples" style={{color:"white"}} >Examples</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#lms" style={{color:"white"}} >LMS Integration</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#faq" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    </div>
+        </div>
+    </div>
+    <div style="height:3em">
+        <!-- spacer for the top menubar -->
+    </div>
+    <h1 class="header">Free Math</h1>
+    <div class="header-div picture-div" style="height:300px">
+        Picture
+    </div>
+    <div class="header-div">
+       this is some text
+       <br />
+       this is some text
+       <br />
+       this is some text
+       <br />
+       this is some text
+       <br />
+    </div>
+    <div style="display:inline-block; float:none; width:90%">
+        More content
+       <br />
+        More content
+       <br />
+        More content
+       <br />
+        More content
+       <br />
+    </div>
+</body>
+</html>

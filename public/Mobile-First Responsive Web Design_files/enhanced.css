@@ -172,6 +172,7 @@ header[role="banner"] .nav {
 @media screen and (min-width: 40.5em) and (max-width: 60em) {
 	.product-img {
 		width: 60%;
+                margin-top:-7em
 	}
 	.product-main > header, .product-desc, .product-form, .product-utils, .product-description {
 		margin-left: 60%;
