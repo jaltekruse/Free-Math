@@ -232,6 +232,16 @@ div.problem-container {
     min-width: 50%;
 }
 
+.student-step-grader{
+    padding: 2px;
+}
+
+.student-step-grader:hover{
+    border-style: solid;
+    border-width: 2px;
+    padding: 0px;
+}
+
 span.solution-step {
     margin: 5px 10px 10px 10px;
     min-width: 50%;
