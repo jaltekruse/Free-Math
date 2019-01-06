@@ -194,22 +194,7 @@ var FreeMath = createReactClass({
         );
     } else if (this.props.value[APP_MODE] === MODE_CHOOSER) {
         return (
-        <div>
-            <div className="menuBar">
-                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
-                    <LogoHomeNav />
-                    <div style={{float:"right"}}>
-                    <a href="#examples" style={{color:"white"}} >Examples</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#lms" style={{color:"white"}} >LMS Integration</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#faq" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    </div>
-                </div>
-            </div>
             <DefaultHomepageActions />
-        </div>
         );
     } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
         var props = this.props;
