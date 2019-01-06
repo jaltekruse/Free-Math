@@ -21,6 +21,7 @@ const calculusExample =
 
 var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
+var GO_TO_MODE_CHOOSER = 'GO_TO_MODE_CHOOSER';
 
 export function render() {
     window.MathQuill = MathQuill.getInterface(1);
@@ -47,6 +48,10 @@ const DefaultHomepageActions = createReactClass({
 		}
 	},
     render: function() {
+        window.addEventListener("popstate", function(e) {
+            window.store.dispatch({type : GO_TO_MODE_CHOOSER});
+            window.onbeforeunload = undefined;
+        });
         var divStyle = {
             width:"44%",
             float: "left",
@@ -184,6 +189,7 @@ const DefaultHomepageActions = createReactClass({
                                                 return true;
                                         };
                                         window.store.dispatch({type : "NEW_ASSIGNMENT"});
+                                        window.history.pushState(null, null, "/");
                                 }}/><br />
 
                                 Open Assignment &nbsp;&nbsp;&nbsp;
@@ -194,6 +200,7 @@ const DefaultHomepageActions = createReactClass({
                                                 return true;
                                         };
                                         readSingleFile(evt, false /* don't warn about data loss */);
+                                        window.history.pushState(null, null, "/");
                                 }}/>
                                 <br />
                                 <br />
@@ -202,7 +209,10 @@ const DefaultHomepageActions = createReactClass({
 
                                         recoveredStudentDocs.map(function(docName, docIndex) {
                                             return (
-                                                <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                                <div key={docName}><input type="submit" value="open" onClick={function() {
+                                                    recoverAutoSaveCallback(docName)
+                                                    window.history.pushState(null, null, "/");
+                                                }} />
                                                      <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
 
                                                 {docName.replace("auto save students ","").replace(/:\d\d\..*/, "")}</div>
@@ -214,9 +224,11 @@ const DefaultHomepageActions = createReactClass({
                         </div>
                         <div style={{...divStyle, float: "right"}}>
                             <h3>Teachers</h3>
-                            Grade Assignments <input type="file" id="open-student-submissions-input" onChange={openAssignments}/>
-                                <br />
-						<small>Select a zip file full of student work, these are generated when downloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
+                            Grade Assignments <input type="file" id="open-student-submissions-input" onChange={function(evt) {
+                                openAssignments(evt);
+                                window.history.pushState(null, null, "/");
+                            }} /><br />
+			    <small>Select a zip file full of student work, these are generated when downloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
                                 <br />
                             <p><a href="https://drive.google.com/uc?export=download&id=1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67">Download Example Assignments To Test Grading</a></p>
                             { (recoveredTeacherDocs.length > 0) ? (<h4>Recovered grading sessions:</h4>) : null }
@@ -224,7 +236,10 @@ const DefaultHomepageActions = createReactClass({
 
                                     recoveredTeacherDocs.map(function(docName, docIndex) {
                                         return (
-                                            <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                            <div key={docName}><input type="submit" value="open" onClick={function() {
+                                                recoverAutoSaveCallback(docName)
+                                                window.history.pushState(null, null, "/");
+                                            }} />
                                                  <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
                                             {docName.replace("auto save teachers ","").replace(/:\d\d\..*/, "")}</div>
                                         );
