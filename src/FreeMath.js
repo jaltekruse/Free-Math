@@ -82,6 +82,10 @@ function datetimeToStr(dt) {
 
 function autoSave() {
     var appState = window.store.getState();
+    // TODO - this doesn't quite work, the history API wants the new state when ading an entry
+    // but if auto-save would also work well with history and back/forward it would need to
+    // replace the state just before navigating away from editing an assignment or grading session
+    //window.history.replaceState(appState, undefined, "/");
 
     if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
         var problems = appState[PROBLEMS];

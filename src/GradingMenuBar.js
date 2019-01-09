@@ -10,6 +10,13 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 
+function scrollToTop() {
+    //window.location.hash = '';
+    // this method doesn't mess with history
+    window.history.replaceState(window.store.getState(), undefined, "#");
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+};
+
 const GradingMenuBar = createReactClass({
     render: function() {
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
@@ -35,16 +42,12 @@ const GradingMenuBar = createReactClass({
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <input type="submit" id="view-grades" value="View grades" onClick={
                             function() {
-								window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;
-								window.store.dispatch({type : SET_TO_VIEW_GRADES});
-							}
+                                scrollToTop();
+			        window.store.dispatch({type : SET_TO_VIEW_GRADES});
+                                window.history.pushState(window.store.getState(), null, "/");
+			    }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={
-                            function() {
-                                window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;}
-                        }/>
+                        <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={scrollToTop} />
                     </div>
                 </div>
             </div>
@@ -70,4 +73,6 @@ export const ModalWhileGradingMenuBar = createReactClass({
     }
 });
 
-export default GradingMenuBar;
+export { GradingMenuBar as default,
+        scrollToTop
+};

@@ -8,6 +8,7 @@ import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep } from './FreeMath.js';
+import { scrollToTop } from './GradingMenuBar.js';
 
 var KAS = window.KAS;
 
@@ -668,6 +669,7 @@ function studentSubmissionsZip(evt) {
             // TODO - add back answer key
             var aggregatedWork = aggregateStudentWork(allStudentWork);
             console.log("@@@@@@ opened docs");
+            console.log(aggregatedWork);
             window.store.dispatch({type : SET_ASSIGNMENTS_TO_GRADE, NEW_STATE : aggregatedWork});
         }
         r.readAsArrayBuffer(f);
@@ -821,11 +823,7 @@ const TeacherInteractiveGrader = createReactClass({
                 }
                 </div>
                 <h3>To grade other problems click on the bars corresponding to your desired problem in the bar graph at the top of the page. &nbsp;&nbsp;
-                <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={
-                            function() {
-                                window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;}
-                }/>
+                <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={scrollToTop}/>
                 <br />
                 <br />
                 </h3>
@@ -844,4 +842,3 @@ export { TeacherInteractiveGrader as default,
     convertToCurrentFormat,
     gradingReducer
 };
-

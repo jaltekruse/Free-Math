@@ -5,6 +5,7 @@ import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import FreeMath from './FreeMath.js';
 import createReactClass from 'create-react-class';
+import exampleGradingState from 'ExampleGradingData.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 
@@ -22,6 +23,7 @@ const calculusExample =
 var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 var GO_TO_MODE_CHOOSER = 'GO_TO_MODE_CHOOSER';
+var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
 export function render() {
     window.MathQuill = MathQuill.getInterface(1);
@@ -48,9 +50,16 @@ const DefaultHomepageActions = createReactClass({
 		}
 	},
     render: function() {
-        window.addEventListener("popstate", function(e) {
-            window.store.dispatch({type : GO_TO_MODE_CHOOSER});
-            window.onbeforeunload = undefined;
+        window.addEventListener("popstate", function(e) { 
+            if (!window.confirm("Are you sure you want to leave?")) {
+                return false;
+            }
+            if (e.state === null) {
+		window.store.dispatch({type : GO_TO_MODE_CHOOSER});
+            	window.onbeforeunload = undefined;
+            } else {
+            	window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : e.state});
+            }
         });
         var divStyle = {
             width:"44%",
@@ -154,6 +163,12 @@ const DefaultHomepageActions = createReactClass({
                 <p>Teachers simultaneously review all assignments with complete solutions grouped by similar final answer.</p>
                 <p>Free for teachers and students.</p>
                 <p>No account setup required.  Student work and grading feedback both save as files that integrate seamlessly with standard LMS tools.</p>
+		<input type="submit" id="new-assignment" name="New assignment" value="Test Out Grading Now!" onClick={
+		    function() {
+            		window.store.dispatch({type : SET_ASSIGNMENTS_TO_GRADE, NEW_STATE : exampleGradingState});
+                        window.history.pushState(window.store.getState(), null, "/");
+		    }
+		} />
 
 				<link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css" />
 				<div id="mc_embed_signup">
@@ -189,7 +204,7 @@ const DefaultHomepageActions = createReactClass({
                                                 return true;
                                         };
                                         window.store.dispatch({type : "NEW_ASSIGNMENT"});
-                                        window.history.pushState(null, null, "/");
+                        		window.history.pushState(window.store.getState(), null, "/");
                                 }}/><br />
 
                                 Open Assignment &nbsp;&nbsp;&nbsp;
@@ -200,7 +215,7 @@ const DefaultHomepageActions = createReactClass({
                                                 return true;
                                         };
                                         readSingleFile(evt, false /* don't warn about data loss */);
-                                        window.history.pushState(null, null, "/");
+                        		window.history.pushState(window.store.getState(), null, "/");
                                 }}/>
                                 <br />
                                 <br />
@@ -211,7 +226,7 @@ const DefaultHomepageActions = createReactClass({
                                             return (
                                                 <div key={docName}><input type="submit" value="open" onClick={function() {
                                                     recoverAutoSaveCallback(docName)
-                                                    window.history.pushState(null, null, "/");
+                        		            window.history.pushState(window.store.getState(), null, "/");
                                                 }} />
                                                      <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
 
@@ -226,7 +241,7 @@ const DefaultHomepageActions = createReactClass({
                             <h3>Teachers</h3>
                             Grade Assignments <input type="file" id="open-student-submissions-input" onChange={function(evt) {
                                 openAssignments(evt);
-                                window.history.pushState(null, null, "/");
+                                window.history.pushState(window.store.getState(), null, "/");
                             }} /><br />
 			    <small>Select a zip file full of student work, these are generated when downloading files from your LMS in bulk. <a href="https://www.wikihow.com/Make-a-Zip-File">Click here for info on zip files</a></small>
                                 <br />
@@ -238,7 +253,7 @@ const DefaultHomepageActions = createReactClass({
                                         return (
                                             <div key={docName}><input type="submit" value="open" onClick={function() {
                                                 recoverAutoSaveCallback(docName)
-                                                window.history.pushState(null, null, "/");
+                                		window.history.pushState(window.store.getState(), null, "/");
                                             }} />
                                                  <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
                                             {docName.replace("auto save teachers ","").replace(/:\d\d\..*/, "")}</div>
