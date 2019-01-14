@@ -134,8 +134,8 @@ const DefaultHomepageActions = createReactClass({
                     <div style={{float:"right"}}>
                     <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#officeHours" style={{color:"white"}} >Office Hours</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#lms" style={{color:"white"}} >LMS Integration</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="#lms" style={{color:"white"}} >LMS Integration</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#faq" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
@@ -283,6 +283,25 @@ const DefaultHomepageActions = createReactClass({
                     <br />
                     <a href="https://hangouts.google.com/call/zI50_reQkvH6k_ruzkOKAEEE">Join the conversation!</a>
                 </p>
+                <span id="contact" />
+                <div style={{paddingTop: "80px", marginTop: "-100px"}} />
+		<br />
+                <h2>Contact the Developer</h2>
+                <p>If you would like to discuss how you could use Free Math in your classroom,
+                   send a message to this address. <br />
+                   Bug reports, questions and press inquiries can be directed here as well.</p>
+                <p>developers@freemathapp.org</p>
+                <div>Follow the project &nbsp;&nbsp;
+		    <a href="https://www.facebook.com/freemathapp">
+                        <img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>&nbsp;
+                    <a href="https://twitter.com/freemathapp">
+                        <img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>&nbsp;
+		    <a href="https://www.reddit.com/r/freemath">
+                        <img alt="facebook" src="/images/snoo.png" style={{height:"35px"}}></img></a>&nbsp;&nbsp;
+                <br />
+                <a href="https://github.com/jaltekruse/Free-Math/issues">Report Bug or Request Feature</a>
+                </div>
+	        <br />
                 <span id="lms" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
 		<br />
@@ -306,26 +325,6 @@ const DefaultHomepageActions = createReactClass({
 
 		<br />
 		<br />
-                <span id="contact" />
-                <div style={{paddingTop: "80px", marginTop: "-100px"}} />
-		<br />
-                <h2>Contact the Developer</h2>
-                <p>If you would like to discuss how you could use Free Math in your classroom,
-                   send a message to this address. <br />
-                   Bug reports, questions and press inquiries can be directed here as well.</p>
-                <p>developers@freemathapp.org</p>
-                <div>Follow the project &nbsp;&nbsp;
-		    <a href="https://www.facebook.com/freemathapp">
-                        <img alt="facebook" src="/images/facebook.png" style={{height:"35px"}}></img></a>&nbsp;
-                    <a href="https://twitter.com/freemathapp">
-                        <img alt="twitter" src="/images/twitter.png" style={{height:"35px"}}></img></a>&nbsp;
-		    <a href="https://www.reddit.com/r/freemath">
-                        <img alt="facebook" src="/images/snoo.png" style={{height:"35px"}}></img></a>&nbsp;&nbsp;
-                <br />
-                <a href="https://github.com/jaltekruse/Free-Math/issues">Report Bug or Request Feature</a>
-                </div>
-	        <br />
-
                 <span id="faq" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
 		<br />
