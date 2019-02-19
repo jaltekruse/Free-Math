@@ -70,6 +70,12 @@ it('test aggregate student work', () => {
               STEPS : [
             { CONTENT : "5x=10"},
             { CONTENT : "x=2"}]}]},
+        { STUDENT_FILE : "jake copy.",
+          ASSIGNMENT: [
+            { PROBLEM_NUMBER : 1, LAST_SHOWN_STEP : 1,
+              STEPS : [
+            { CONTENT : "5x=10"},
+            { CONTENT : "x=2"}]}]},
         { STUDENT_FILE : "jon m.",
             ASSIGNMENT: [
                 { PROBLEM_NUMBER : 1, LAST_SHOWN_STEP : 1,
@@ -91,7 +97,12 @@ it('test aggregate student work', () => {
     deepFreeze(answerKey);
     var expectedOutput = {
         CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
-        SIMILAR_ASSIGNMENT_SETS : [ ],
+        SIMILAR_ASSIGNMENT_SETS: [
+          [
+            "jake r.",
+            "jake copy.",
+          ],
+        ],
         PROBLEMS : {
             "1" : {
                 POSSIBLE_POINTS : 3,
@@ -105,7 +116,18 @@ it('test aggregate student work', () => {
                             { CONTENT : "5x=10"},
                             { CONTENT : "x=2"}
                           ]
-                        }
+                        },
+                        {
+                            AUTOMATICALLY_ASSIGNED_SCORE: 3,
+                            FEEDBACK: "",
+                            LAST_SHOWN_STEP: 1,
+                            SCORE: 3,
+                            STEPS: [
+                                {CONTENT: "5x=10"},
+                                {CONTENT: "x=2"}
+                            ],
+                            STUDENT_FILE: "jake copy.",
+                        },
                       ]
                     },
                     { ANSWER : "x=-2", FILTER : SHOW_ALL,

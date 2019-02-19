@@ -234,8 +234,12 @@ function findSimilarStudentAssignments(allStudentWork) {
 
     allStudentWork.forEach(function(assignment1, index, array) {
         allStudentWork.forEach(function(assignment2, index, array) {
+            // looping over same collection twice, filesnames assumed to be unique so
+            // just saving a few executions of the diff using this early exit
             if (assignment1[STUDENT_FILE] === assignment2[STUDENT_FILE]) return;
-            var result = diffJson(assignment1, assignment2);
+            // ignore the filenames in the diff
+            var result = diffJson({...assignment1, STUDENT_FILE : undefined},
+                                  {...assignment2, STUDENT_FILE : undefined});
             // currently a rough threshold of 30% unique work, will improve later
             // the -2 is to adjust for the filename difference in the structures
             if ((result.length - 2) / 2.0 < averageNumberOfQuestions * averageAnswerLength * 0.3) {
