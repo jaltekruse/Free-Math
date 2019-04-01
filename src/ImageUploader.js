@@ -9,12 +9,11 @@ var ImageUploader = React.createClass({
 	render : function() {
 
 		return (<div>
-			<br />
-			<br />
-                        <input type="file" ref="chooseFile" id="open-file-input" />
-			<div ref="preview">
-			</div>
-			<canvas ref="canvas"></canvas>
+                        <p>
+                        Upload picture of written work <input type="file" ref="chooseFile" id="open-file-input" />
+                        </p>
+                        <br />
+			<canvas style={{float :"inline-block"}} ref="canvas"></canvas>
 		</div>);
 	},
 
@@ -30,8 +29,6 @@ var ImageUploader = React.createClass({
                             var imgDiv = ReactDOM.findDOMNode(this.refs.canvas);
                             var ctx = this.refs.canvas.getContext("2d");
                             ctx.clearRect(0, 0, this.refs.canvas.width, this.refs.canvas.height);
-                            this.refs.preview.style.width = img.width + "px";
-                            this.refs.preview.style.height = img.height + "px";
                             this.refs.canvas.width = img.width;
                             this.refs.canvas.height = img.height;
                             ctx.drawImage(img, 0, 0, img.width, img.height);

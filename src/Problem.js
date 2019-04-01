@@ -2,6 +2,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
+import ImageUploader from './ImageUploader.js';
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -160,7 +161,8 @@ var Problem = createReactClass({
                             }}/>
                     </div>
                         <div style={{float:'left'}} className="equation-list">
-                        <p>Type math here</p>
+                        <ImageUploader/>
+                        <p>Or type your math work here</p>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
                             var styles = {};
