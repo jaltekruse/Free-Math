@@ -7,7 +7,6 @@ var ImageUploader = React.createClass({
 		return { image : null};
 	},
 	render : function() {
-
 		return (<div>
                         <p>
                         Upload picture of written work <input type="file" ref="chooseFile" id="open-file-input" />
@@ -16,7 +15,6 @@ var ImageUploader = React.createClass({
 			<canvas style={{float :"inline-block"}} ref="canvas"></canvas>
 		</div>);
 	},
-
     	componentDidMount: function() {
             var MAX_HEIGHT = 300;
             var render = function(src){
@@ -26,6 +24,10 @@ var ImageUploader = React.createClass({
                                     img.width *= MAX_HEIGHT / img.height;
                                     img.height = MAX_HEIGHT;
                             }
+                            var probNumber = this.props.value["PROBLEM_NUMBER"];
+                            window.store.dispatch(
+                                { type : "SET_PROBLEM_IMG", "PROBLEM_INDEX" : probNumber,
+                                  "NEW_IMG" : img})
                             var imgDiv = ReactDOM.findDOMNode(this.refs.canvas);
                             var ctx = this.refs.canvas.getContext("2d");
                             ctx.clearRect(0, 0, this.refs.canvas.width, this.refs.canvas.height);

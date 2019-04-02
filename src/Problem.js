@@ -84,7 +84,8 @@ var Problem = createReactClass({
     },
     render: function() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
-        var problemIndex = this.props.id;
+        // TODO cleanup probNumber, vs probIndex
+        var problemIndex = probNumber;
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
@@ -161,7 +162,7 @@ var Problem = createReactClass({
                             }}/>
                     </div>
                         <div style={{float:'left'}} className="equation-list">
-                        <ImageUploader/>
+                        <ImageUploader value={this.props.value}/>
                         <p>Or type your math work here</p>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
@@ -272,6 +273,8 @@ var Problem = createReactClass({
  */
 // reducer for an individual problem
 function problemReducer(problem, action) {
+    console.log("problem reducer");
+    console.log(action);
     if (problem === undefined) {
         // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
@@ -281,6 +284,14 @@ function problemReducer(problem, action) {
         return {
             ...problem,
             PROBLEM_NUMBER : action[NEW_PROBLEM_NUMBER]
+        };
+    } else if (action.type === "SET_PROBLEM_IMG") {
+        // TODO - undo/redo support for this action
+        console.log(action["NEW_IMG"]);
+        console.log("image!");
+        return {
+            ...problem,
+            IMG : action["NEW_IMG"],
         };
     } else if (action.type === EDIT_STEP) {
         // if the last action was an edit of this step, don't add an undo
@@ -489,6 +500,8 @@ function problemReducer(problem, action) {
 
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
+    console.log("problem list reducer");
+    console.log(action);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }
@@ -514,6 +527,7 @@ function problemListReducer(probList, action) {
             ...probList.slice(action.PROBLEM_INDEX + 1)
         ];
     } else if (action.type === SET_PROBLEM_NUMBER ||
+               action.type === "SET_PROBLEM_IMG" || 
                action.type === EDIT_STEP ||
                action.type === UNDO_STEP ||
                action.type === REDO_STEP ||
