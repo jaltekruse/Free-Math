@@ -88,7 +88,7 @@ var Problem = createReactClass({
             <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
-										   : null
+                                           : null
                     }
                     {   this.props.value[FEEDBACK] !== undefined
                             ? (<div>
@@ -124,24 +124,24 @@ var Problem = createReactClass({
                             if (stepIndex > lastShownStep) return false;
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
-            					styles = {backgroundColor : GREEN };
+                                styles = {backgroundColor : GREEN };
                             } else if (step[HIGHLIGHT] === ERROR) {
-            					styles = {backgroundColor : SOFT_RED};
+                                styles = {backgroundColor : SOFT_RED};
                             }
                             return (
                             <div>
                                 {showTutorial && stepIndex == 0 ? 
                                 (<div className="answer-partially-correct"
                                     style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-					<span>Click this expression, then press enter.</span></div>) : null}
+                    <span>Click this expression, then press enter.</span></div>) : null}
                                 {showTutorial && stepIndex == 1 ? 
                                 (<div className="answer-partially-correct"
                                     style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-					<span>Edit this line to show part of the work for simplifying this expression, then press enter again.</span></div>) : null}
+                    <span>Edit this line to show part of the work for simplifying this expression, then press enter again.</span></div>) : null}
                                 {showTutorial && stepIndex == 2 ? 
                                 (<div className="answer-partially-correct"
                                     style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-					<span>Repeat until you have reached your solution on the last line you edit.</span></div>) : null}
+                    <span>Repeat until you have reached your solution on the last line you edit.</span></div>) : null}
                                 <MathInput 
                                     key={stepIndex} buttonsVisible='focused' styles={styles}
                                     buttonSets={['trig', 'prealgebra',
@@ -170,12 +170,12 @@ var Problem = createReactClass({
             {showTutorial ?
                 (<div><div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-		    <span>Add another problem to your document. Copy a problem
+                    <span>Add another problem to your document. Copy a problem
                           out of your assignment on the first line, and solve it as you did above.</span>
                 </div>
                 <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-		    <span>You can delete the demo problem above with the x button.</span>
+                    <span>You can delete the demo problem above with the x button.</span>
                 </div>
                 </div>
                 ) : null}

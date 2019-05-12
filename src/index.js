@@ -18,6 +18,6 @@ window.onload = function() {
     window.store = createStore(rootReducer);
     window.store.subscribe(render);
     window.store.subscribe(autoSave);
-	render();
+    render();
 };
 registerServiceWorker();

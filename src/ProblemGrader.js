@@ -29,7 +29,7 @@ var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
 function problemGraderReducer(state, action) {
     if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
         action.type === GRADE_SINGLE_SOLUTION ||
-		action.type === HIGHLIGHT_STEP ||
+        action.type === HIGHLIGHT_STEP ||
         action.type === SET_PROBLEM_FEEDBACK ) {
         return {
             ...state,

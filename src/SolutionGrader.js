@@ -44,24 +44,24 @@ function singleSolutionReducer(state, action) {
         // currently no validation here
         return { ...state,
         SCORE : action[SCORE] };
-	} else if (action.type === HIGHLIGHT_STEP) {
-		var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
-		var newHighlight;
-		if (oldHighlight === undefined)
-			newHighlight = ERROR;
-		else if (oldHighlight === ERROR)
-			newHighlight = SUCCESS;
-		else if (oldHighlight === SUCCESS)
-			newHighlight = undefined;
+    } else if (action.type === HIGHLIGHT_STEP) {
+        var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
+        var newHighlight;
+        if (oldHighlight === undefined)
+            newHighlight = ERROR;
+        else if (oldHighlight === ERROR)
+            newHighlight = SUCCESS;
+        else if (oldHighlight === SUCCESS)
+            newHighlight = undefined;
 
-		var newState = { ...state,
-			STEPS : [
-				...state[STEPS].slice(0, action[STEP_KEY]),
-				{ ...state[STEPS][action[STEP_KEY]], HIGHLIGHT : newHighlight},
-				...state[STEPS].slice(action[STEP_KEY] + 1)
-			]
-		};
-		return newState;
+        var newState = { ...state,
+            STEPS : [
+                ...state[STEPS].slice(0, action[STEP_KEY]),
+                { ...state[STEPS][action[STEP_KEY]], HIGHLIGHT : newHighlight},
+                ...state[STEPS].slice(action[STEP_KEY] + 1)
+            ]
+        };
+        return newState;
     } else if (action.type === SET_PROBLEM_FEEDBACK) {
         return { ...state,
         FEEDBACK : action[FEEDBACK] };
@@ -193,18 +193,18 @@ const SolutionGrader = createReactClass({
                     <br/>
                     {
                         data[STEPS].map(function(step, stepIndex) {
-        				var stepStyle = {};
-						if (step[HIGHLIGHT] === ERROR) stepStyle = {backgroundColor : RED}
-						else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
+                        var stepStyle = {};
+                        if (step[HIGHLIGHT] === ERROR) stepStyle = {backgroundColor : RED}
+                        else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
 
                         return (
                             <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
                                 <div className="student-step-grader" style={{display: "inline-block"}}>
                                 <TeX style={stepStyle} onClick={function() {
-									window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
-													SOLUTION_CLASS_INDEX : solutionClassIndex,
-													SOLUTION_INDEX : studentSolutionIndex,
-													STEP_KEY : stepIndex});
+                                    window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
+                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                                    SOLUTION_INDEX : studentSolutionIndex,
+                                                    STEP_KEY : stepIndex});
                                     }}>{typeof(step[CONTENT]) === 'string' ? step[CONTENT] : "\\text{corruption occured}"}</TeX>
                                 </div>
                             </div>

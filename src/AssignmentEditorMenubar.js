@@ -18,7 +18,7 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 function saveAssignment() {
     var atLeastOneProblemNumberNotSet = false;
-	window.store.getState()[PROBLEMS].forEach(function(problem, index, array) {
+    window.store.getState()[PROBLEMS].forEach(function(problem, index, array) {
         if (problem[PROBLEM_NUMBER].trim() === "") {
             atLeastOneProblemNumberNotSet = true;
         }

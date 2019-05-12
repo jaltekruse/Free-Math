@@ -300,7 +300,7 @@ function calculateGradingOverview(allProblems) {
             gradeOverview["PROBLEMS"].push(currentProblemOverview);
         }
     }
-	gradeOverview[PROBLEMS] = gradeOverview[PROBLEMS].sort(function(a,b) { return a["LARGEST_ANSWER_GROUP_SIZE"] - b["LARGEST_ANSWER_GROUP_SIZE"];});
+    gradeOverview[PROBLEMS] = gradeOverview[PROBLEMS].sort(function(a,b) { return a["LARGEST_ANSWER_GROUP_SIZE"] - b["LARGEST_ANSWER_GROUP_SIZE"];});
     return gradeOverview;
 }
 
@@ -688,30 +688,30 @@ function studentSubmissionsZip(evt) {
 
 const TeacherInteractiveGrader = createReactClass({
     componentDidMount() {
-		var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
-		var labels = [];
-		var numberUniqueAnswersData = {
-			label: "Number unique answers",
-			backgroundColor: "blue",
-			data: []
-		};
-		var largestAnswerGroups = {
-			label: "Largest answer group size",
-			backgroundColor: "green",
-			data: []
-		};
-		var averageAnswerGroups = {
-			label: "Average answer group size",
-			backgroundColor: "purple",
-			data: []
-		};
-		var graphData = [numberUniqueAnswersData, largestAnswerGroups, averageAnswerGroups];
-		gradingOverview.forEach(function(problemSummary, index, array) {
-			labels.push("Problem " + problemSummary[PROBLEM_NUMBER]);
-			numberUniqueAnswersData["data"].push(problemSummary["NUMBER_UNIQUE_ANSWERS"]);
-			largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
-			averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
-		});
+        var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
+        var labels = [];
+        var numberUniqueAnswersData = {
+            label: "Number unique answers",
+            backgroundColor: "blue",
+            data: []
+        };
+        var largestAnswerGroups = {
+            label: "Largest answer group size",
+            backgroundColor: "green",
+            data: []
+        };
+        var averageAnswerGroups = {
+            label: "Average answer group size",
+            backgroundColor: "purple",
+            data: []
+        };
+        var graphData = [numberUniqueAnswersData, largestAnswerGroups, averageAnswerGroups];
+        gradingOverview.forEach(function(problemSummary, index, array) {
+            labels.push("Problem " + problemSummary[PROBLEM_NUMBER]);
+            numberUniqueAnswersData["data"].push(problemSummary["NUMBER_UNIQUE_ANSWERS"]);
+            largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
+            averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
+        });
         var chart = ReactDOM.findDOMNode(this.refs.chart);
         var onClickFunc = function(evt) {
             var activePoints = chart.getElementsAtEvent(evt);
@@ -723,24 +723,24 @@ const TeacherInteractiveGrader = createReactClass({
             // for now make them scroll past the graph and similar assignments themselves
             //window.location.hash = "#grade_problem";
         };
-		chart = new Chart(chart.getContext('2d'), {
-			type: 'bar',
-			data: {
-				labels: labels,
-				datasets: graphData
-			},
-			options: {
-				scales: {
-					yAxes: [{
-						ticks: {
-							beginAtZero:true
-						}
-					}]
-				},
+        chart = new Chart(chart.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: graphData
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero:true
+                        }
+                    }]
+                },
                 onClick: onClickFunc
-			}
-		});
-  	},
+            }
+        });
+      },
     render: function() {
         // TODO - figure out the right way to do this
         // TODO - do I want to be able to change the sort ordering, possibly to put
@@ -757,7 +757,7 @@ const TeacherInteractiveGrader = createReactClass({
             <div style={{backgroundColor:"white", padding:"0px 20px 0px 20px"}}>
                 <br />
                 <h3>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</h3>
-            	<canvas ref="chart" width="400" height="50"></canvas>
+                <canvas ref="chart" width="400" height="50"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 { (similarAssignments && similarAssignments.length > 0) ? (
                     <div className="similar-assignment-filters"><h3>Some students may have copied each others work.</h3>

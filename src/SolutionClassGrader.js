@@ -47,7 +47,7 @@ function solutionClassReducer(state, action) {
         };
     } else if (action.type === GRADE_SINGLE_SOLUTION ||
                action.type === SET_PROBLEM_FEEDBACK ||
-			   action.type === HIGHLIGHT_STEP
+               action.type === HIGHLIGHT_STEP
         ) {
         return {
             ...state,

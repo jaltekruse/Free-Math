@@ -40,7 +40,7 @@ var Assignment = createReactClass({
     },
     render: function() {
         var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
-	return (
+        return (
         <div style={{backgroundColor:"white", padding:"30px 30px 30px 30px"}}>
             <div>
             {this.props.value[PROBLEMS].map(function(problem, problemIndex) {

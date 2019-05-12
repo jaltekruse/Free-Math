@@ -111,7 +111,7 @@ function rootReducer(state, action) {
     } else if (action.type === "NEW_ASSIGNMENT") {
         return {
             ...assignmentReducer(),
-	        "DOC_ID" : Math.floor(Math.random() * 200000000),
+            "DOC_ID" : Math.floor(Math.random() * 200000000),
             APP_MODE : EDIT_ASSIGNMENT
         };
     } else if (action.type === "SET_GLOBAL_STATE") {
@@ -127,18 +127,18 @@ function rootReducer(state, action) {
         var overview = calculateGradingOverview(action[NEW_STATE][PROBLEMS]);
         return {
             ...action[NEW_STATE],
-	        "DOC_ID" : Math.floor(Math.random() * 200000000),
+            "DOC_ID" : Math.floor(Math.random() * 200000000),
             "GRADING_OVERVIEW" : overview,
             "CURRENT_PROBLEM" : overview[PROBLEMS][0][PROBLEM_NUMBER],
             APP_MODE : GRADE_ASSIGNMENTS,
         }
     } else if (action.type === SET_ASSIGNMENT_CONTENT) {
-		// TODO - consider serializing DOC_ID and other future top level attributes into file
-		// for now this prevents all opened docs from clobbering other suto-saves
+        // TODO - consider serializing DOC_ID and other future top level attributes into file
+        // for now this prevents all opened docs from clobbering other suto-saves
         return {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
-	        "DOC_ID" : Math.floor(Math.random() * 200000000)
+            "DOC_ID" : Math.floor(Math.random() * 200000000)
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
@@ -150,8 +150,8 @@ function rootReducer(state, action) {
             ...gradingReducer(state, action)
         };
     } else {
-		return state;
-	}
+        return state;
+    }
 }
 
 var FreeMath = createReactClass({
@@ -201,7 +201,7 @@ var FreeMath = createReactClass({
         return (
             <div>
                 <ModalWhileGradingMenuBar />
-               	<div style={{margin:"60px 30px 30px 30px"}}>
+                   <div style={{margin:"60px 30px 30px 30px"}}>
                 <table>
                     <thead>
                     <tr><th>Student File</th><th>Score</th></tr>
@@ -222,7 +222,7 @@ var FreeMath = createReactClass({
                     }
                     </tbody>
                 </table>
-				</div>
+                </div>
             </div>
         );
     } else  {

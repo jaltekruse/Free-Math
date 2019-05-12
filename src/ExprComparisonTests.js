@@ -4,9 +4,9 @@ import MathInput from './MathInput.js';
 var KAS = window.KAS;
 
 var ExprComparisonTests = React.createClass({
-	getInitialState () {
-		return { leftExpr: "", rightExpr : "", equals : false, matches : false};
-	},
+    getInitialState () {
+        return { leftExpr: "", rightExpr : "", equals : false, matches : false};
+    },
 
     compareExprs: function() {
         console.log("left: " + this.state.leftExpr);
