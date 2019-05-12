@@ -2,6 +2,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
 import TeX from './TeX.js';
+import Button from './Button.js';
 
 var STUDENT_FILE = 'STUDENT_FILE';
 
@@ -173,18 +174,18 @@ const SolutionGrader = createReactClass({
                 <p>Score <input type="text" className="problem-grade-input" value={data[SCORE]} onChange={this.setScore}
                           /> out of {possiblePoints}
                         <br />
-                        <input type="submit" value="Full points" onClick={this.fullPoints}/>
-                        <input type="submit" name="apply score to all" value="Apply to ungraded" onClick={this.applyScoreToUngraded}/>
-                        <input type="submit" name="apply score to all" value="Apply to all" onClick={this.applyScoreToAll}/>
+                        <Button type="submit" text="Full points" onClick={this.fullPoints}/>
+                        <Button text="Apply to ungraded" title="Apply this score to all responses in this group that don't have a grade yet." onClick={this.applyScoreToUngraded}/>
+                        <Button text="Apply to all" title="Apply this score to all responses in this group, will overwrite already entered grade values." onClick={this.applyScoreToAll}/>
                 </p>
                 <p>Feedback &nbsp; &nbsp;
                 <br />
-                <input type="submit" value="Show work" onClick={function() {this.setQuickFeedback("Show your complete work.");}.bind(this)}/>
-                <input type="submit" value="Simple mistake" onClick={function() {this.setQuickFeedback("Review your work for a simple mistake.")}.bind(this)}/>
+                <Button type="submit" text="Show work" onClick={function() {this.setQuickFeedback("Show your complete work.");}.bind(this)}/>
+                <Button type="submit" text="Simple mistake" onClick={function() {this.setQuickFeedback("Review your work for a simple mistake.")}.bind(this)}/>
                 <br />
-                <input type="submit" value="Let's talk" onClick={function() {this.setQuickFeedback("Let's chat about this next class.");}.bind(this)}/>
-                <input type="submit" value="Not simplified" onClick={function() {this.setQuickFeedback("Be sure to simplify completely.");}.bind(this)}/>
-                <input type="submit" value="Sig figs" onClick={function() {this.setQuickFeedback("Incorrect significant figures.");}.bind(this)}/>
+                <Button type="submit" text="Let's talk" onClick={function() {this.setQuickFeedback("Let's chat about this next class.");}.bind(this)}/>
+                <Button type="submit" text="Not simplified" onClick={function() {this.setQuickFeedback("Be sure to simplify completely.");}.bind(this)}/>
+                <Button type="submit" text="Sig figs" onClick={function() {this.setQuickFeedback("Incorrect significant figures.");}.bind(this)}/>
                 </p>
 
                 <div><textarea placeholder="Click a button for quick feedback or type custom feedback here." cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>

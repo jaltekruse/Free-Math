@@ -4,6 +4,7 @@ import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import FreeMath from './FreeMath.js';
+import Button from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
@@ -157,8 +158,8 @@ const DefaultHomepageActions = createReactClass({
                                 "marginRight": "auto",
                     }}>
             <br />
-            Give your studentes feedback, meaningfully and efficiently. <br /><br /></h1>
-            <div className="tex-button" style={divStyle}
+            Give your studentes feedback, meaningfully and efficiently. <br /><br /></h1> 
+            <div className="fm-button" style={{...divStyle, borderRadius:"60px","text-align": "center"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -170,7 +171,7 @@ const DefaultHomepageActions = createReactClass({
             >
                 <h2>Demo Student Assignment Editor</h2>
             </div>
-            <div className="tex-button" style={divStyle}
+            <div className="fm-button" style={{...divStyle, borderRadius:"60px","text-align": "center"}} 
                 onClick={function() {
                     window.store.dispatch(demoGradingAction);
                 }}
@@ -183,7 +184,7 @@ const DefaultHomepageActions = createReactClass({
                         <div style={divStyle}>
                             <h3>Students</h3>
                                 New Assignment &nbsp;&nbsp;&nbsp;
-                                <input type="submit" id="new-assignment" name="New assignment" value="Create" onClick={
+                                <Button type="submit" text="Create" onClick={
                                     function() {
                                         // turn on confirmation dialog upon navigation away
                                         window.onbeforeunload = function() {
@@ -208,8 +209,8 @@ const DefaultHomepageActions = createReactClass({
 
                                         recoveredStudentDocs.map(function(docName, docIndex) {
                                             return (
-                                                <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                     <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
+                                                <div key={docName}><Button type="submit" text="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                                     <Button type="submit" text="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
 
                                                 {docName.replace("auto save students ","").replace(/:\d\d\..*/, "")}</div>
                                             );
@@ -230,8 +231,8 @@ const DefaultHomepageActions = createReactClass({
 
                                     recoveredTeacherDocs.map(function(docName, docIndex) {
                                         return (
-                                            <div key={docName}><input type="submit" value="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                 <input type="submit" value="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
+                                            <div key={docName}><Button type="submit" text="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                                 <Button type="submit" text="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
                                             {docName.replace("auto save teachers ","").replace(/:\d\d\..*/, "")}</div>
                                         );
                                     })

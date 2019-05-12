@@ -2,6 +2,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
 import SolutionClassGrader, { solutionClassReducer } from './SolutionClassGrader.js';
+import Button from './Button.js';
 
 var SOLUTION_CLASS_INDEX = "SOLUTION_CLASS_INDEX";
 
@@ -86,7 +87,7 @@ var ProblemGrader = createReactClass({
                                     POSSIBLE_POINTS : evt.target.value
                                     }) }}
                                 />
-                    <input type="submit" name="apply new possible score" value="Apply" onClick={
+                    <Button text="Apply" title="Apply new possible score" onClick={
                         function() {
                             if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
                                 alert("Possible points must be a number");

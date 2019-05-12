@@ -5,6 +5,7 @@ import './App.css';
 import Problem from './Problem.js';
 import { problemListReducer } from './Problem.js';
 import { MathEditorHelp } from './MathEditorHelpModal.js';
+import Button from './Button.js';
 
 var MathQuill = window.MathQuill;
 
@@ -49,11 +50,11 @@ var Assignment = createReactClass({
                 );
             })}
             </div>
-            <button onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }}>Add Problem</button>
+            <Button text="Add Problem" onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }} />
             <br />
             <br />
             <br />
-            <button onClick={this.toggleModal}>{this.state.showModal ? "Hide symbol list" : "Show available symbol list" }</button>
+            <Button onClick={this.toggleModal} text={this.state.showModal ? "Hide symbol list" : "Show available symbol list" } />
             {this.state.showModal ? <MathEditorHelp /> : null }
         </div>
       )

@@ -8,6 +8,7 @@ import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep } from './FreeMath.js';
+import Button from './Button.js';
 
 var KAS = window.KAS;
 
@@ -762,7 +763,7 @@ const TeacherInteractiveGrader = createReactClass({
                 { (similarAssignments && similarAssignments.length > 0) ? (
                     <div className="similar-assignment-filters"><h3>Some students may have copied each others work.</h3>
                     {   (typeof(currentSimilarityGroupIndex) !== "undefined" && currentSimilarityGroupIndex !== null) ?
-                            (<p> Currently viewing a group of similar assignments, back to grading full class: <input type="submit" value="View All" onClick={
+                            (<p> Currently viewing a group of similar assignments, back to grading full class: <input type="submit" text="View All" onClick={
                                 function(evt) {
                                     window.store.dispatch({type : VIEW_SIMILAR_ASSIGNMENTS, SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined});
                                 }
@@ -780,7 +781,7 @@ const TeacherInteractiveGrader = createReactClass({
                                             (<b>A group of  {similarityGroup.length} students submitted similar assignments &nbsp;</b>)
                                            : (<span>A group of  {similarityGroup.length} students submitted similar assignments &nbsp;</span>)
                                         }
-                                        <input type="submit" value="View" onClick={
+                                        <input type="submit" text="View" onClick={
                                             function(evt) {
                                                 window.store.dispatch({type : VIEW_SIMILAR_ASSIGNMENTS, SIMILAR_ASSIGNMENT_GROUP_INDEX : index});
                                             }

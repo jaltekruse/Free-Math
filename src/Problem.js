@@ -2,6 +2,8 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
+import Button from './Button.js';
+import { CloseButton } from './Button.js';
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -101,20 +103,20 @@ var Problem = createReactClass({
                         Problem number <input type="text" value={probNumber} className="problem-number" onChange={
                         function(evt) { window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
                                         NEW_PROBLEM_NUMBER : evt.target.value}) }}/> &nbsp;&nbsp;&nbsp;
-                        <input type="submit" value="Clone Problem"
+                        <Button type="submit" text="Clone Problem"
                                         title="Make a copy of this work, useful if you need to reference it while trying another solution path." onClick={
                         function() { window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>&nbsp;&nbsp;&nbsp;
-                        <input type="submit" value="x" title="Delete problem" onClick={
+                        <CloseButton type="submit" text="&#10005;" title="Delete problem" onClick={
                         function() { if (!window.confirm("Delete problem?")) { return; }
                                      window.store.dispatch({ type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
                     </div>
                     <div style={{float:'left'}}>
                         <p> Actions </p>
-                        <input type="submit" name="next step" value="Next step (Enter)" onClick={
+                        <Button type="submit" text="Next step (Enter)" onClick={
                             function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <input type="submit" name="undo step" value="Undo step" onClick={
+                        <Button type="submit" text="Undo step" onClick={
                             function() { window.store.dispatch({ type : UNDO_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <input type="submit" name="redo step" value="Redo step" onClick={
+                        <Button type="submit" text="Redo step" onClick={
                             function() { window.store.dispatch({ type : REDO_STEP, PROBLEM_INDEX : problemIndex}) }}/>
                     </div>
                         <div style={{float:'left'}} className="equation-list">
