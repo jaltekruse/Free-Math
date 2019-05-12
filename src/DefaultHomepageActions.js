@@ -281,9 +281,6 @@ const DefaultHomepageActions = createReactClass({
                     <br />
                     Come to office hours on Google Hangouts, held weekdays 8:30-9:30am CST <br />
                     <br />
-                    <div className="answer-incorrect" style={{display:"inline-block", padding:"10px"}}>
-                    <span>Office hours are cancelled Tuesday Jan 29th</span>
-                    </div><br /><br />
                     <a href="https://hangouts.google.com/call/zI50_reQkvH6k_ruzkOKAEEE">Join the conversation!</a>
                 </p>
                 <span id="contact" />
