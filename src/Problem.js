@@ -13,6 +13,8 @@ var STEP_KEY = 'STEP_KEY';
 
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
+var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
+
 // remove problem expects an "index" property
 // specifying which problem to remove
 var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
@@ -33,6 +35,7 @@ var STEPS = 'STEPS';
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
+var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 var NEW_STEP = 'NEW_STEP';
 // this action expects an index for which problem to change
@@ -64,6 +67,7 @@ var Problem = createReactClass({
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
+        var showTutorial = this.props.value[SHOW_TUTORIAL];
         if (score === '') {
             scoreClass = 'show-complete-div';
         } else if (score === possiblePoints) {
@@ -74,11 +78,11 @@ var Problem = createReactClass({
             scoreClass = 'show-partially-correct-div';
         }
 
-		var scoreMessage = null;
-		if (score === '')
-			scoreMessage = 'Complete';
-		else if (score !== undefined)
-			scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
+        var scoreMessage = null;
+        if (score === '')
+                scoreMessage = 'Complete';
+        else if (score !== undefined)
+                scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
             <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
@@ -115,7 +119,7 @@ var Problem = createReactClass({
                         <div style={{float:'left'}} className="equation-list">
                         <p>Type math here</p>
                         {
-                            this.props.value[STEPS].map(function(step, stepIndex) {
+                        this.props.value[STEPS].map(function(step, stepIndex) {
                             if (stepIndex > lastShownStep) return false;
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
@@ -125,19 +129,37 @@ var Problem = createReactClass({
                             }
                             return (
                             <div>
-                            {/*step[CONTENT]}
-                            <TeX>{step[CONTENT]}</TeX> */}
-                            <MathInput key={stepIndex} buttonsVisible='focused' styles={styles}
-                                       buttonSets={['trig', 'prealgebra', 'logarithms', 'calculus']} stepIndex={stepIndex}
-                                       problemIndex={problemIndex} value={step[CONTENT]} onChange={
-                                           function(value) {
-                                            window.store.dispatch({ type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY : stepIndex, NEW_STEP_CONTENT : value});
-                                           }}
-										   onSubmit={function() {
-                    							window.store.dispatch(
-													{ type : NEW_STEP, PROBLEM_INDEX : problemIndex});
-											}}
-                                       />
+                                {showTutorial && stepIndex == 0 ? 
+                                (<div className="answer-partially-correct"
+                                    style={{display:"inline-block", padding:"10px", margin: "10px"}}>
+					<span>Click this expression, then press enter.</span></div>) : null}
+                                {showTutorial && stepIndex == 1 ? 
+                                (<div className="answer-partially-correct"
+                                    style={{display:"inline-block", padding:"10px", margin: "10px"}}>
+					<span>Edit this line to show part of the work for simplifying this expression, then press enter again.</span></div>) : null}
+                                {showTutorial && stepIndex == 2 ? 
+                                (<div className="answer-partially-correct"
+                                    style={{display:"inline-block", padding:"10px", margin: "10px"}}>
+					<span>Repeat until you have reached your solution on the last line you edit.</span></div>) : null}
+                                <MathInput 
+                                    key={stepIndex} buttonsVisible='focused' styles={styles}
+                                    buttonSets={['trig', 'prealgebra',
+                                                 'logarithms', 'calculus']}
+                                    stepIndex={stepIndex}
+                                    problemIndex={problemIndex} value={step[CONTENT]} onChange={
+                                        function(value) {
+                                            window.store.dispatch({
+                                            type : EDIT_STEP,
+                                            PROBLEM_INDEX : problemIndex,
+                                            STEP_KEY : stepIndex,
+                                            NEW_STEP_CONTENT : value});
+                                    }}
+                                    onSubmit={function() {
+                                        window.store.dispatch(
+                                            { type : NEW_STEP,
+                                              PROBLEM_INDEX : problemIndex});
+                                    }}
+                                />
                             </div>
                             );
                         })}
@@ -152,11 +174,6 @@ var Problem = createReactClass({
 function problemReducer(problem, action) {
     if (problem === undefined) {
         return { PROBLEM_NUMBER : "", STEPS : [{CONTENT : ""}], LAST_SHOWN_STEP : 0};
-        /*
-        return { PROBLEM_NUMBER : "1.1", SCORE : 3, POSSIBLE_POINTS : 3, FEEDBACK : "Nice work!", STEPS :
-                [{CONTENT : "5x-2x+5-3"}, {CONTENT : "3x+5-3", HIGHLIGHT : SUCCESS}, {CONTENT : "3x+8", HIGHLIGHT : ERROR}],
-                LAST_SHOWN_STEP : 2};
-        */
     } else if (action.type === SET_PROBLEM_NUMBER) {
         return {
             ...problem,
@@ -204,8 +221,13 @@ function problemListReducer(probList, action) {
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }
-
-    if (action.type === ADD_PROBLEM) {
+    if (action.type === ADD_DEMO_PROBLEM) {
+        return [
+            { ...problemReducer(undefined, action), SHOW_TUTORIAL : true,
+                STEPS : [{CONTENT : "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}"}]},
+            ...probList,
+        ];
+    } else if (action.type === ADD_PROBLEM) {
         return [
             ...probList,
             problemReducer(undefined, action)

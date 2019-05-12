@@ -15,6 +15,7 @@ const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var PROBLEMS = 'PROBLEMS';
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
+var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
@@ -39,35 +40,27 @@ var Assignment = createReactClass({
         this.setState({ showModal: !this.state.showModal});
     },
     render: function() {
-
-		var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
-		return (
+        var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
+	return (
         <div style={{backgroundColor:"white", padding:"30px 30px 30px 30px"}}>
-        <p>Free Math allows you to complete your math homework on your computer. The first problem has been created for you,
-           use the box below to write an equation. When you want to modify it to solve your math problem click
-           the "next step" button to copy your expression or equation and edit it on the next line to show your work.
-           This tool is designed to take care of some of the busywork of math, which makes it easier to record all
-           of your thinking without a bunch of manual copying.</p>
+            <h2>
+            Show Tutorial Problem &nbsp;
+            <button onClick={function() {window.store.dispatch({ type : ADD_DEMO_PROBLEM})}}>Let's go!</button>
+            </h2>
 
-        <p> For example, try typing to following expression and simplifying it, even if you can do
-        parts of it in your head, use the tool to make sure you show your work.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        </p>
-		<span ref={(input) => { this.exampleStaticMath = input; }}>{defaultEqtn}</span>
-        <button onClick={this.toggleModal}>{this.state.showModal ? "Hide symbol list" : "Show available symbol list below" }</button>
-
-        <div>
-        {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
-            return (
-              <Problem value={problem} key={problemIndex} id={problemIndex}/>
-            );
-        })}
-        </div>
-        <button onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }}>Add Problem</button>
-        <br />
-        <br />
-        <br />
-        <button onClick={this.toggleModal}>{this.state.showModal ? "Hide symbol list" : "Show available symbol list" }</button>
-        {this.state.showModal ? <MathEditorHelp /> : null }
+            <div>
+            {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
+                return (
+                  <Problem value={problem} key={problemIndex} id={problemIndex}/>
+                );
+            })}
+            </div>
+            <button onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }}>Add Problem</button>
+            <br />
+            <br />
+            <br />
+            <button onClick={this.toggleModal}>{this.state.showModal ? "Hide symbol list" : "Show available symbol list" }</button>
+            {this.state.showModal ? <MathEditorHelp /> : null }
         </div>
       )
     },
