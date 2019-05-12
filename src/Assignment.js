@@ -8,7 +8,6 @@ import { MathEditorHelp } from './MathEditorHelpModal.js';
 
 var MathQuill = window.MathQuill;
 
-
 // editing assignmnt mode actions
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 

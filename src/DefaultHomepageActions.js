@@ -4,6 +4,7 @@ import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import FreeMath from './FreeMath.js';
+import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
@@ -167,8 +168,15 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h2>Demo Student Assignment Editor</h2></div>
-            <div className="tex-button" style={divStyle}><h2>Demo Teacher Grading</h2></div>
+                <h2>Demo Student Assignment Editor</h2>
+            </div>
+            <div className="tex-button" style={divStyle}
+                onClick={function() {
+                    window.store.dispatch(demoGradingAction);
+                }}
+            >
+                <h2>Demo Teacher Grading</h2>
+            </div>
                 <div style={{padding:"0px 0px 0px 0px"}}>
                 <div style={{display:"inline-block", width:"100%"}}>
                     <div>

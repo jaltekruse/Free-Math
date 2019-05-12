@@ -539,6 +539,16 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             aggregatedWork[problem[PROBLEM_NUMBER]] = problemSummary;
         });
     });
+    // sort list of answer groups, largest to smallest
+    for (var problemNumber in aggregatedWork) {
+        if (aggregatedWork.hasOwnProperty(problemNumber)) {
+            aggregatedWork[problemNumber][UNIQUE_ANSWERS].sort(function(a,b) {
+                return b[STUDENT_WORK].length - a[STUDENT_WORK].length;
+            });
+        }
+    }
+
+    // sort students responses within an answer group by least work first
     for (var problemNumber in aggregatedWork) {
         if (aggregatedWork.hasOwnProperty(problemNumber)) {
             var uniqueAnswers = aggregatedWork[problemNumber][UNIQUE_ANSWERS];
