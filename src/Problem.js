@@ -84,6 +84,7 @@ var Problem = createReactClass({
         else if (score !== undefined)
                 scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
+            <div>
             <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
@@ -165,6 +166,19 @@ var Problem = createReactClass({
                         })}
                     </div>
                 </div>
+            </div>
+            {showTutorial ?
+                (<div><div className="answer-partially-correct"
+                      style={{display:"inline-block", padding:"10px", margin: "10px"}}>
+		    <span>Add another problem to your document. Copy a problem
+                          out of your assignment on the first line, and solve it as you did above.</span>
+                </div>
+                <div className="answer-partially-correct"
+                      style={{display:"inline-block", padding:"10px", margin: "10px"}}>
+		    <span>You can delete the demo problem above with the x button.</span>
+                </div>
+                </div>
+                ) : null}
             </div>
         );
     }
