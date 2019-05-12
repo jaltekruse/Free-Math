@@ -222,6 +222,10 @@ function problemListReducer(probList, action) {
         return [ problemReducer(undefined, action) ];
     }
     if (action.type === ADD_DEMO_PROBLEM) {
+        console.log(probList);
+        if (probList.length === 1 && probList[0][STEPS][0][CONTENT] === "") {
+            probList = [];
+        }
         return [
             { ...problemReducer(undefined, action), SHOW_TUTORIAL : true,
                 STEPS : [{CONTENT : "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}"}]},

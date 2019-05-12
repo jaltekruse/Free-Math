@@ -32,9 +32,9 @@ function assignmentReducer(state, action) {
 }
 
 var Assignment = createReactClass({
-	getInitialState () {
-		return { showModal: false };
-	},
+    getInitialState () {
+            return { showModal: false };
+    },
 
     toggleModal() {
         this.setState({ showModal: !this.state.showModal});
