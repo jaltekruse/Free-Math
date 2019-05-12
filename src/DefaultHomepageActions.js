@@ -158,7 +158,7 @@ const DefaultHomepageActions = createReactClass({
                                 "marginRight": "auto",
                     }}>
             <br />
-            Give your studentes feedback, meaningfully and efficiently. <br /><br /></h1> 
+            Give your students feedback, meaningfully and efficiently. <br /><br /></h1> 
             <div className="fm-button" style={{...divStyle, borderRadius:"60px","text-align": "center"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
