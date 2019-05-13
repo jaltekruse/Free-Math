@@ -196,11 +196,12 @@ function gradingReducer(state, action) {
                 return state;
             }
         }
+        const problemState = state[PROBLEMS][action[PROBLEM_NUMBER]];
         return {
             ...state,
             PROBLEMS : {
                 ...state[PROBLEMS],
-                [action[PROBLEM_NUMBER]] : problemGraderReducer(state[PROBLEMS][action[PROBLEM_NUMBER]], action)
+                [action[PROBLEM_NUMBER]] : problemGraderReducer(problemState, action)
             }
         };
     } else {
@@ -301,7 +302,8 @@ function calculateGradingOverview(allProblems) {
             gradeOverview["PROBLEMS"].push(currentProblemOverview);
         }
     }
-    gradeOverview[PROBLEMS] = gradeOverview[PROBLEMS].sort(function(a,b) { return a["LARGEST_ANSWER_GROUP_SIZE"] - b["LARGEST_ANSWER_GROUP_SIZE"];});
+    gradeOverview[PROBLEMS] = gradeOverview[PROBLEMS].sort(
+        function(a,b) { return a["LARGEST_ANSWER_GROUP_SIZE"] - b["LARGEST_ANSWER_GROUP_SIZE"];});
     return gradeOverview;
 }
 
@@ -388,7 +390,8 @@ function gradeSingleProblem(problem, answerKey) {
             // if (KAS.compare(expr1, expr2).equal) {
             if (answer === studentAnswer) {
                 // TODO - good rounding
-                automaticallyAssignedGrade = answerKey[problem[PROBLEM_NUMBER]][POSSIBLE_POINTS] * answerClass[SCORE];
+                const possiblePoints = answerKey[problem[PROBLEM_NUMBER]][POSSIBLE_POINTS];
+                automaticallyAssignedGrade = possiblePoints * answerClass[SCORE];
                 exitEarly = true;
                 return false; // early terminate loops
             }
@@ -484,7 +487,9 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             // write into the abreviated list of problems completed, used below to fill in placeholder for
             // completely absent work
             var allStudentsWhoDidThisProblem = studentWorkFound[problem[PROBLEM_NUMBER]];
-            allStudentsWhoDidThisProblem = (typeof allStudentsWhoDidThisProblem !== 'undefined') ? allStudentsWhoDidThisProblem : {};
+            allStudentsWhoDidThisProblem =
+                (typeof allStudentsWhoDidThisProblem !== 'undefined') ?
+                allStudentsWhoDidThisProblem : {};
             allStudentsWhoDidThisProblem[assignInfo[STUDENT_FILE]] = true;
             studentWorkFound[problem[PROBLEM_NUMBER]] = allStudentsWhoDidThisProblem;
 
@@ -535,8 +540,10 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                 problemSummary[POSSIBLE_POINTS] = 6;
                 problemSummary[POSSIBLE_POINTS_EDITED] = 6;
              }
-            // this is necessary because this might be the first time this problem number was seen so we just created the list
-            // if this wasn't the case, this wouldn't be necessary because objects including arrays are always passed by reference
+            // this is necessary because this might be the first time this problem
+            // number was seen so we just created the list if this wasn't the case,
+            // this wouldn't be necessary because objects including arrays are always
+            // passed by reference
             aggregatedWork[problem[PROBLEM_NUMBER]] = problemSummary;
         });
     });
@@ -577,10 +584,12 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     });
     */
 
-    // similarity check does a generic diff on JSON docs, for re-opened docs this will include data intermixed
-    // for the grading marks
-    // Loop through the structure to remove all grading marks from the versions that will be used to compare the students
-    // TODO - try to remove this deep clone of all docs, don't know if it is safe today to mutate the incoming data
+    // Similarity check does a generic diff on JSON docs, for re-opened docs this
+    // will include data intermixed for the grading marks.
+    // Loop through the structure to remove all grading marks from the versions
+    // that will be used to compare the students.
+    // TODO - try to remove this deep clone of all docs, don't know if it is safe
+    // today to mutate the incoming data.
     allStudentWork = cloneDeep(allStudentWork);
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
@@ -719,7 +728,9 @@ const TeacherInteractiveGrader = createReactClass({
             if (!activePoints || activePoints.length === 0) {
                 return;
             }
-            window.store.dispatch({ type : "SET_CURENT_PROBLEM", PROBLEM_NUMBER : labels[activePoints[0]["_index"]].replace("Problem ", "")});
+            const problemNum = labels[activePoints[0]["_index"]].replace("Problem ", "");
+            window.store.dispatch({ type : "SET_CURENT_PROBLEM",
+                                    PROBLEM_NUMBER : problemNum});
             // TODO - not working correctly after making users grade single problem at a time
             // for now make them scroll past the graph and similar assignments themselves
             //window.location.hash = "#grade_problem";
@@ -757,15 +768,23 @@ const TeacherInteractiveGrader = createReactClass({
         return (
             <div style={{backgroundColor:"white", padding:"0px 20px 0px 20px"}}>
                 <br />
-                <h3>To see work for a problem, click on one of the bars corresponding to your desired problem in the bar graph.</h3>
+                <h3>To see work for a problem, click on one of the bars
+                    corresponding to your desired problem in the bar graph.</h3>
                 <canvas ref="chart" width="400" height="50"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 { (similarAssignments && similarAssignments.length > 0) ? (
-                    <div className="similar-assignment-filters"><h3>Some students may have copied each others work.</h3>
-                    {   (typeof(currentSimilarityGroupIndex) !== "undefined" && currentSimilarityGroupIndex !== null) ?
-                            (<p> Currently viewing a group of similar assignments, back to grading full class: <input type="submit" text="View All" onClick={
-                                function(evt) {
-                                    window.store.dispatch({type : VIEW_SIMILAR_ASSIGNMENTS, SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined});
+                    <div className="similar-assignment-filters">
+                      <h3>Some students may have copied each others work.</h3>
+                    {   (typeof(currentSimilarityGroupIndex) !== "undefined" &&
+                         currentSimilarityGroupIndex !== null) ?
+                            (<p> Currently viewing a group of similar
+                                assignments, back to grading full class:
+                                <Button text="View All" onClick={
+                                 function(evt) {
+                                    window.store.dispatch(
+                                        { type : VIEW_SIMILAR_ASSIGNMENTS,
+                                          SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined
+                                    });
                                 }
                             }/></p>)
                         : null
@@ -773,17 +792,23 @@ const TeacherInteractiveGrader = createReactClass({
                     {
                         function() {
                             var similarityGroups = [];
-                            similarAssignments.forEach(function(similarityGroup, index, array) {
-                                similarityGroups.push(
+                            similarAssignments.forEach(
+                                function(similarityGroup, index, array) {
+                                    similarityGroups.push(
                                     (
                                         <p key={index}>
                                         { (index === currentSimilarityGroupIndex) ?
-                                            (<b>A group of  {similarityGroup.length} students submitted similar assignments &nbsp;</b>)
-                                           : (<span>A group of  {similarityGroup.length} students submitted similar assignments &nbsp;</span>)
+                                            (<b>A group of  {similarityGroup.length} students
+                                                submitted similar assignments &nbsp;</b>)
+                                           : (<span>A group of  {similarityGroup.length} students
+                                               submitted similar assignments &nbsp;</span>)
                                         }
-                                        <input type="submit" text="View" onClick={
+                                        <Button text="View" onClick={
                                             function(evt) {
-                                                window.store.dispatch({type : VIEW_SIMILAR_ASSIGNMENTS, SIMILAR_ASSIGNMENT_GROUP_INDEX : index});
+                                                window.store.dispatch(
+                                                    { type : VIEW_SIMILAR_ASSIGNMENTS,
+                                                      SIMILAR_ASSIGNMENT_GROUP_INDEX : index
+                                                });
                                             }
                                         }/>
                                         </p>
@@ -819,7 +844,8 @@ const TeacherInteractiveGrader = createReactClass({
                                 }
                             }
                         }
-                        problemArray = problemArray.sort(function(a,b) { return a[PROBLEM_NUMBER] - b[PROBLEM_NUMBER];});
+                        problemArray = problemArray.sort(
+                            function(a,b) { return a[PROBLEM_NUMBER] - b[PROBLEM_NUMBER];});
                         problemArray.forEach(function(problem, index, array) {
                             problemGraders.push(
                                 (<ProblemGrader problemInfo={problem}
@@ -831,15 +857,16 @@ const TeacherInteractiveGrader = createReactClass({
                     }()
                 }
                 </div>
-                <h3>To grade other problems click on the bars corresponding to your desired problem in the bar graph at the top of the page. &nbsp;&nbsp;
-                <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={
+                <h3>To grade other problems click on the bars corresponding
+                    to your desired problem in the bar graph at the top of the page. &nbsp;&nbsp;
+                </h3>
+                <Button text="Scroll to top" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;}
                 }/>
                 <br />
                 <br />
-                </h3>
             </div>
         );
     }

@@ -16,6 +16,21 @@ var Button = createReactClass({
   }
 });
 
+var LightButton = createReactClass({
+
+    render: function() {
+        const onClick = this.props.onClick;
+        return (
+            <div className="fm-button-light"
+                 onClick={function() {
+                     onClick();
+                 }}>
+            {this.props.text}
+            </div>
+        );
+  }
+});
+
 var CloseButton = createReactClass({
 
     render: function() {
@@ -31,4 +46,4 @@ var CloseButton = createReactClass({
   }
 });
 
-export {Button as default, CloseButton};
+export {Button as default, CloseButton, LightButton};

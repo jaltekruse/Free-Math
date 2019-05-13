@@ -47,16 +47,36 @@ Copied from persus project
 end of styles copied form perseus
 */
 
+.fm-button-light {
+  display: inline-block;
+  height: 20px;
+  margin: 2px;
+  padding: 6px 8px 4px 8px;
+  background-color: white;
+  color: #212121;
+  border-radius: 15px;
+}
+
+.fm-button-light:hover {
+  cursor: pointer;
+  background-color: #f2f2f2;
+}
+.fm-button-light:focus {
+  border: 2px solid #1c758a;
+  outline: none;
+}
+
 .fm-button {
   display: inline-block;
   height: 20px;
   margin: 2px;
-  padding: 4px 8px 6px 8px;
+  padding: 4px 10px 6px 10px;
   background-color: #0d57bf;
   color: #f1f1f1;
   border-radius: 15px;
   box-shadow: 0 5px 3px -3px #cfcfcf
 }
+
 .fm-button:hover {
   cursor: pointer;
   background-color: #052d66;

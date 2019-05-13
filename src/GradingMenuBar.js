@@ -3,6 +3,8 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
+import { CloseButton  } from './Button.js';
+import { LightButton } from './Button.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
@@ -28,19 +30,19 @@ const GradingMenuBar = createReactClass({
                                 window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
                             }}
                         />&nbsp;&nbsp;
-                        <input type="submit" id="save-graded-assignments" value="Save graded" onClick={
+                        <LightButton text="Save graded" onClick={
                             function() {
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="submit" id="view-grades" value="View grades" onClick={
+                        <LightButton text="View grades" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : SET_TO_VIEW_GRADES});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="submit" id="scroll-to-top" value="Scroll to top" onClick={
+                        <LightButton text="Scroll to top" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;}
