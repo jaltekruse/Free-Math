@@ -725,10 +725,23 @@ const TeacherInteractiveGrader = createReactClass({
         var chart = ReactDOM.findDOMNode(this.refs.chart);
         var onClickFunc = function(evt) {
             var activePoints = chart.getElementsAtEvent(evt);
+            var problemNum;
             if (!activePoints || activePoints.length === 0) {
-                return;
+                // TODO - this could be better, collision isn't quite right once the text labels
+                // are tight enough they start displaying at an angle.
+                let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
+                let yScale = this.chart.scales['y-axis-0'];
+                if (yScale.getValueForPixel(mousePoint.y) < 0) {
+                    let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
+                    let xScale = this.chart.scales['x-axis-0'];
+                    problemNum = xScale.ticks[xScale.getValueForPixel(mousePoint.x)];
+                } else {
+                    return;
+                }
+            } else {
+                problemNum = labels[activePoints[0]["_index"]];
             }
-            const problemNum = labels[activePoints[0]["_index"]].replace("Problem ", "");
+            problemNum = problemNum.replace("Problem ", "");
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
             // TODO - not working correctly after making users grade single problem at a time
@@ -768,8 +781,8 @@ const TeacherInteractiveGrader = createReactClass({
         return (
             <div style={{backgroundColor:"white", padding:"0px 20px 0px 20px"}}>
                 <br />
-                <h3>To see work for a problem, click on one of the bars
-                    corresponding to your desired problem in the bar graph.</h3>
+                <h3>To see students responses to a question,
+                    click on the corresponding bars or label in the graph.</h3>
                 <canvas ref="chart" width="400" height="50"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 { (similarAssignments && similarAssignments.length > 0) ? (
@@ -857,8 +870,7 @@ const TeacherInteractiveGrader = createReactClass({
                     }()
                 }
                 </div>
-                <h3>To grade other problems click on the bars corresponding
-                    to your desired problem in the bar graph at the top of the page. &nbsp;&nbsp;
+                <h3>To grade other problems use the bar graph at the top of the page to select them.
                 </h3>
                 <Button text="Scroll to top" onClick={
                             function() {
