@@ -3,7 +3,6 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
-import { CloseButton  } from './Button.js';
 import { LightButton } from './Button.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
@@ -62,7 +61,7 @@ export const ModalWhileGradingMenuBar = createReactClass({
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <div style={{float:"left", verticalAlign:"top", marginTop:"5px", lineHeight : 1}}>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <input type="submit" id="back-to-grading" value="Back to grading" onClick={
+                        <LightButton text="Back to grading" onClick={
                             function() {window.store.dispatch({type : NAV_BACK_TO_GRADING})}
                         }/>
                     </div>

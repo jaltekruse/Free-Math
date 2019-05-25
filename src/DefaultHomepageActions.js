@@ -51,13 +51,12 @@ const DefaultHomepageActions = createReactClass({
     },
     render: function() {
         var divStyle = {
-            width:"44%",
+            width:"47%",
             height: "auto",
             float: "left",
             borderRadius:"3px",
-            border:"1px solid #cfcfcf",
             margin:"5px 5px 40px 5px",
-            padding:"20px",
+            padding:"10px",
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
         var divStyleNoBorder = {
@@ -133,7 +132,7 @@ const DefaultHomepageActions = createReactClass({
             <div className="menuBar">
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
-                    <div style={{float:"right"}}>
+                    <div className="navBarElms" style={{float:"right"}}>
                     <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#officeHours" style={{color:"white"}} >Office Hours</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -159,7 +158,8 @@ const DefaultHomepageActions = createReactClass({
                     }}>
             <br />
             Give your students feedback, meaningfully and efficiently. <br /><br /></h1> 
-            <div className="fm-button" style={{...divStyle, borderRadius:"60px","text-align": "center"}} 
+            <div className="fm-button" style={{...divStyle, borderRadius:"60px",
+                                              "text-align": "center", "float":"left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -171,14 +171,15 @@ const DefaultHomepageActions = createReactClass({
             >
                 <h2>Demo Student Assignment Editor</h2>
             </div>
-            <div className="fm-button" style={{...divStyle, borderRadius:"60px","text-align": "center"}} 
+            <div className="fm-button" style={{...divStyle, borderRadius:"60px",
+                                                "text-align": "center", "float":"right"}} 
                 onClick={function() {
                     window.store.dispatch(demoGradingAction);
                 }}
             >
                 <h2>Demo Teacher Grading</h2>
             </div>
-                <div style={{padding:"0px 0px 0px 0px"}}>
+            <div style={{padding:"0px 0px 0px 0px", "marginLeft":"auto", "marginRight": "auto"}}>
                 <div style={{display:"inline-block", width:"100%"}}>
                     <div>
                         <div style={divStyle}>
@@ -209,8 +210,8 @@ const DefaultHomepageActions = createReactClass({
 
                                         recoveredStudentDocs.map(function(docName, docIndex) {
                                             return (
-                                                <div key={docName}><Button type="submit" text="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                     <Button type="submit" text="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
+                                                <div key={docName}><Button type="submit" text="Open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                                     <Button type="submit" text="Delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
 
                                                 {docName.replace("auto save students ","").replace(/:\d\d\..*/, "")}</div>
                                             );
@@ -231,8 +232,8 @@ const DefaultHomepageActions = createReactClass({
 
                                     recoveredTeacherDocs.map(function(docName, docIndex) {
                                         return (
-                                            <div key={docName}><Button type="submit" text="open" onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                 <Button type="submit" text="delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
+                                            <div key={docName}><Button type="submit" text="Open" onClick={function() {recoverAutoSaveCallback(docName)}} />
+                                                 <Button type="submit" text="Delete" onClick={function() {deleteAutoSaveCallback(docName)}} />
                                             {docName.replace("auto save teachers ","").replace(/:\d\d\..*/, "")}</div>
                                         );
                                     })

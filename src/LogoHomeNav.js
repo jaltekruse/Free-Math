@@ -1,11 +1,12 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
+import TeX from './TeX.js';
 
 const LogoHomeNav = createReactClass({
   render: function() {
         return (
-            <div style={{float:"left","margin":"0px 15px 0px 15px", lineHeight : 1}} onClick= {
+            <div style={{float:"left"}} onClick= {
                 function(evt) {
                     if (!window.confirm("Are you sure you want to leave your current work?")) {
                         return;
@@ -16,11 +17,8 @@ const LogoHomeNav = createReactClass({
                     setTimeout(function() { window.onbeforeunload = null;}, 500);
                 }}
             >
-            <h2 style={{"display":"inline","fontFamily":"serif"}}>
-                <b>Free Math</b>
-            </h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <h3 style={{"color" : "#3abfc7","display":"inline","fontFamily":"serif"}}>
-                <b>Beta</b>
+            <h3 style={{"display":"inline"}}>
+                <TeX>{"\\text{Free Math}"}</TeX>
             </h3>
             </div>
             );

@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
-import { LightButton } from './Button.js';
+import Button from './Button.js';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -104,7 +104,7 @@ var AssignmentEditorMenubar = createReactClass({
                             }}
                         />&nbsp;&nbsp;
 
-                        <LightButton text="save" onClick={
+                        <Button text="save" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
                     </div>
                 </div>

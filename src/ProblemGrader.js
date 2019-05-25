@@ -81,12 +81,16 @@ var ProblemGrader = createReactClass({
             <div className="problem-summary-container" style={{float:"none",overflow:"hidden"}}>
                 <h3>Problem number {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
-                <p>Possible points &nbsp;<input type="text" className="possible-points-input" width="4" value={possiblePoints} onChange={
+                <p>Possible points &nbsp;
+                    <input type="text"
+                           className="possible-points-input" width="4"
+                           value={possiblePoints}
+                           onChange={
                                 function(evt) { window.store.dispatch({
                                     type : EDIT_POSSIBLE_POINTS, PROBLEM_NUMBER : problemNumber,
                                     POSSIBLE_POINTS : evt.target.value
                                     }) }}
-                                />
+                    />
                     <Button text="Apply" title="Apply new possible score" onClick={
                         function() {
                             if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
@@ -98,7 +102,7 @@ var ProblemGrader = createReactClass({
                             }
                         }.bind(this)
                     }/> <br/>
-                            </p>
+                </p>
                 {
                     problemInfo[UNIQUE_ANSWERS].map(function(solutionClassInfo, solutionClassIndex) {
                         return (

@@ -71,15 +71,33 @@ end of styles copied form perseus
   height: 20px;
   margin: 2px;
   padding: 4px 10px 6px 10px;
-  background-color: #0d57bf;
-  color: #f1f1f1;
-  border-radius: 15px;
-  box-shadow: 0 5px 3px -3px #cfcfcf
+  background-color: rgb(233, 236, 239);
+  border-color: rgba(27, 31, 35, 0.35);
+  border-radius: 3px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: rgba(27, 31, 35, 0.15) 0px 1.8px 3.6px 0px inset;
+  box-sizing: border-box;
+  color: rgb(22, 25, 34);
+  cursor: pointer;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 12px;
+  font-weight: 600;
+  height: 28px;
+  line-height: 20px;
+  overflow-wrap: break-word;
+  padding-top: 3px 10px 3px 10px;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
 .fm-button:hover {
   cursor: pointer;
-  background-color: #052d66;
+  /*background-color: #052d66;*/
+  /* background-color: #f2f2f2; */
+  background-color: rgb(213, 216, 219);
+  border-color: rgba(27, 31, 35, 0.45);
 }
 .fm-button:focus {
   border: 2px solid #1c758a;
@@ -106,8 +124,12 @@ end of styles copied form perseus
   outline: none;
 }
 
+.navBarElms{
+    padding: 7px 5px 5px 5px;
+}
+
 .menuBar{
-    padding: 10px 10px 10px 10px;
+    padding: 5px 5px 5px 5px;
     width:100%;
     display:block;
     position:fixed;
