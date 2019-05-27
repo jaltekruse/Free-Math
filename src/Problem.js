@@ -87,7 +87,7 @@ var Problem = createReactClass({
                 scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
             <div>
-            <div className="problem-container" style={{float:'none',overflow: 'scroll'}}>
+            <div className="problem-container" style={{float:'none',overflow: 'auto'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
                                            : null
@@ -177,7 +177,9 @@ var Problem = createReactClass({
                 </div>
                 <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-                    <span>You can delete the demo problem above with the x button.</span>
+                    <span>You can delete the demo problem above with the
+                    <CloseButton style={{display:"inline-block", "float": "none"}} text="&#10005;" onClick={function(){}}/>
+                    button in the upper right.</span>
                 </div>
                 </div>
                 ) : null}

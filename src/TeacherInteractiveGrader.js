@@ -748,6 +748,7 @@ const TeacherInteractiveGrader = createReactClass({
             // for now make them scroll past the graph and similar assignments themselves
             //window.location.hash = "#grade_problem";
         };
+        Chart.defaults.global.defaultFontColor = '#010101';
         chart = new Chart(chart.getContext('2d'), {
             type: 'bar',
             data: {
@@ -779,7 +780,7 @@ const TeacherInteractiveGrader = createReactClass({
         var currentProblem = state["CURRENT_PROBLEM"];
 
         return (
-            <div style={{backgroundColor:"white", padding:"0px 20px 0px 20px"}}>
+            <div style={{backgroundColor:"#f9f9f9", padding:"0px 20px 0px 20px"}}>
                 <br />
                 <h3>To see students responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
