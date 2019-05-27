@@ -142,7 +142,7 @@ const DefaultHomepageActions = createReactClass({
             <div className="menuBar">
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
-                    <div style={{float:"right"}}>
+                    <div className="navBarElms" style={{float:"right"}}>
                     <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#officeHours" style={{color:"white"}} >Office Hours</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;

@@ -96,7 +96,7 @@ var AssignmentEditorMenubar = createReactClass({
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                    <div style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                    <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
                         Filename &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="35" name="assignment name" value={this.props.value[ASSIGNMENT_NAME]} onChange={
                             function(evt) {
