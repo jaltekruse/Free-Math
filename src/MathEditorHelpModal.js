@@ -121,7 +121,10 @@ var MathEditorHelp = createReactClass({
             </div>
             </div>
             <br/>
-            Many other symbols from Latex are available as well with a backslash prefix, see here for more symbol codes: <a href="https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols" target="_blank" rel="noopener noreferrer">Latex symbols</a>
+            Many other symbols from Latex are available as well with a 
+            backslash prefix, see here for more symbol codes:
+            <a href="https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
+               target="_blank" rel="noopener noreferrer">Latex symbols</a>
             </div>
         );
     },

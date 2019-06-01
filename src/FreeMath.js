@@ -45,7 +45,11 @@ var CONTENT = "CONTENT";
 // to avoid unneeded object creation
 function cloneDeep(oldObject) {
     return JSON.parse(JSON.stringify(oldObject));
-};
+}
+
+function genID() {
+    return Math.floor(Math.random() * 200000000);
+}
 
 function updateAutoSave(docType, docName, appState) {
     // TODO - validate this against actual saved data on startup
@@ -111,7 +115,7 @@ function rootReducer(state, action) {
     } else if (action.type === "NEW_ASSIGNMENT") {
         return {
             ...assignmentReducer(),
-            "DOC_ID" : Math.floor(Math.random() * 200000000),
+            "DOC_ID" : genID(),
             APP_MODE : EDIT_ASSIGNMENT
         };
     } else if (action.type === "SET_GLOBAL_STATE") {
@@ -127,7 +131,7 @@ function rootReducer(state, action) {
         var overview = calculateGradingOverview(action[NEW_STATE][PROBLEMS]);
         return {
             ...action[NEW_STATE],
-            "DOC_ID" : Math.floor(Math.random() * 200000000),
+            "DOC_ID" : genID(),
             "GRADING_OVERVIEW" : overview,
             "CURRENT_PROBLEM" : overview[PROBLEMS][0][PROBLEM_NUMBER],
             APP_MODE : GRADE_ASSIGNMENTS,
@@ -138,7 +142,7 @@ function rootReducer(state, action) {
         return {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
-            "DOC_ID" : Math.floor(Math.random() * 200000000)
+            "DOC_ID" : genID() 
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
@@ -214,7 +218,10 @@ var FreeMath = createReactClass({
                             for (var studentFileName in grades) {
                                 if (grades.hasOwnProperty(studentFileName)) {
                                     tableRows.push(
-                                    (<tr><td>{studentFileName}</td><td>{grades[studentFileName]}</td></tr> ));
+                                    (<tr>
+                                        <td>{studentFileName}</td>
+                                        <td>{grades[studentFileName]}</td>
+                                    </tr> ));
                                 }
                             }
                             return tableRows;
@@ -231,4 +238,4 @@ var FreeMath = createReactClass({
   }
 });
 
-export {FreeMath as default, autoSave, rootReducer, cloneDeep };
+export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID};

@@ -75,41 +75,47 @@ var ProblemGrader = createReactClass({
         var problemNumber = this.props.problemNumber;
         var studentsToView = this.props.studentsToView;
         var problemInfo = this.props.problemInfo;
-        var possiblePoints = problemInfo[POSSIBLE_POINTS_EDITED] !== undefined ? problemInfo[POSSIBLE_POINTS_EDITED] : problemInfo[POSSIBLE_POINTS];
+        var possiblePoints =
+            problemInfo[POSSIBLE_POINTS_EDITED] !== undefined ?
+                problemInfo[POSSIBLE_POINTS_EDITED]
+                : problemInfo[POSSIBLE_POINTS];
         var oldPossiblePoints = problemInfo[POSSIBLE_POINTS];
         return (
             <div className="problem-summary-container" style={{float:"none",overflow:"hidden"}}>
                 <h3>Problem number {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
-                <p>Possible points &nbsp;<input type="text" className="possible-points-input" width="4" value={possiblePoints} onChange={
-                                function(evt) { window.store.dispatch({
-                                    type : EDIT_POSSIBLE_POINTS, PROBLEM_NUMBER : problemNumber,
-                                    POSSIBLE_POINTS : evt.target.value
-                                    }) }}
-                                />
-                    <Button text="Apply" title="Apply new possible score" onClick={
-                        function() {
-                            if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
-                                alert("Possible points must be a number");
-                            } else {
-                                window.store.dispatch(
-                                    { type : SET_PROBLEM_POSSIBLE_POINTS,
-                                      PROBLEM_NUMBER : problemNumber});
-                            }
-                        }.bind(this)
-                    }/> <br/>
-                            </p>
-                {
-                    problemInfo[UNIQUE_ANSWERS].map(function(solutionClassInfo, solutionClassIndex) {
+                <p>Possible points &nbsp;
+                    <input type="text" width="4" value={possiblePoints}
+                           onChange={function(evt) {
+                               window.store.dispatch(
+                                   { type : EDIT_POSSIBLE_POINTS, PROBLEM_NUMBER : problemNumber,
+                                      POSSIBLE_POINTS : evt.target.value})
+                           }}/>
+                    <Button text="Apply"
+                           onClick={function() {
+                                if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
+                                    alert("Possible points must be a number");
+                                } else {
+                                    window.store.dispatch(
+                                        { type : SET_PROBLEM_POSSIBLE_POINTS,
+                                          PROBLEM_NUMBER : problemNumber});
+                                }
+                            }.bind(this)
+                        }/> <br/>
+                </p>
+                { problemInfo[UNIQUE_ANSWERS].map(
+                    function(solutionClassInfo, solutionClassIndex) {
                         return (
-                            <SolutionClassGrader solutionClassInfo={solutionClassInfo} key={solutionClassIndex}
-                                                 solutionClassIndex={solutionClassIndex} problemNumber={problemNumber}
-                                                 possiblePoints={oldPossiblePoints} studentsToView={studentsToView}/>
-
+                        <SolutionClassGrader solutionClassInfo={solutionClassInfo}
+                                             key={solutionClassIndex}
+                                             solutionClassIndex={solutionClassIndex}
+                                             problemNumber={problemNumber}
+                                             possiblePoints={oldPossiblePoints}
+                                             studentsToView={studentsToView}/>
                         );
                     })
                 }
-            </div>);
+        </div>);
     }
 });
 

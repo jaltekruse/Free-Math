@@ -7,7 +7,7 @@ import JSZip from 'jszip';
 import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
-import { cloneDeep } from './FreeMath.js';
+import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 
 var KAS = window.KAS;
@@ -39,6 +39,9 @@ var VIEW_SIMILAR_ASSIGNMENTS = "VIEW_SIMILAR_ASSIGNMENTS";
 // Problem properties
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var STEPS = 'STEPS';
+var UNDO_STACK = 'UNDO_STACK';
+var REDO_STACK = 'REDO_STACK';
+var STEP_ID = 'STEP_ID';
 
 var VIEW_GRADES = 'VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
@@ -608,6 +611,12 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
 
 // TODO - delete this, highlights now shown in student experience for viewing
 // feedback on a graded assignment.
+// 
+// Still used in the legacy document upgrade code below.
+//
+// This was from a very old version of the software, likely safe to
+// delete but I'll keep it in.
+//
 // currently in the student model, the steps associated with a problem
 // are a simple array of strings with Latex in them. In the teacher
 // gradng model, each step is wrapped in an object to allow for storing
@@ -622,9 +631,14 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
+    return convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+}
+
+function convertToCurrentFormatFromAlpha(possiblyOldDoc) {
     if (!possiblyOldDoc.hasOwnProperty('problems')) {
         return possiblyOldDoc;
     }
+    possiblyOldDoc = cloneDeep(possiblyOldDoc);
 
     possiblyOldDoc.problems.forEach(function (problem) {
         if (problem.problemNumber !== undefined) {
@@ -638,6 +652,31 @@ function convertToCurrentFormat(possiblyOldDoc) {
     possiblyOldDoc[PROBLEMS] = possiblyOldDoc.problems;
     delete possiblyOldDoc.problems;
     return possiblyOldDoc;
+}
+
+// Covert old problem format to new one
+// TODO: add versioning number to make upgrades easier and more reliable in the future
+function convertToCurrentFormat2(possiblyOldDoc) {
+    if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
+        && possiblyOldDoc[PROBLEMS].length > 0
+        && possiblyOldDoc[PROBLEMS][0].hasOwnProperty(LAST_SHOWN_STEP)) {
+
+        // TODO - consider getting rid of this deep clone, but not much object creation
+        // to avoid if I want to keep this function pure
+        possiblyOldDoc = cloneDeep(possiblyOldDoc);
+        possiblyOldDoc[PROBLEMS].forEach(function (problem) {
+            problem[STEPS] = problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1);
+            problem[STEPS].forEach(function(step, index, arr) {
+                step[STEP_ID] = genID();
+            });
+            delete problem.LAST_SHOWN_STEP;
+            problem[UNDO_STACK] = [];
+            problem[REDO_STACK] = [];
+        });
+        return possiblyOldDoc;
+    } else {
+        return possiblyOldDoc;
+    }
 }
 
 // open zip file full of student assignments for grading

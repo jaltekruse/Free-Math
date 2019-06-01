@@ -40,7 +40,7 @@ var Assignment = createReactClass({
         this.setState({ showModal: !this.state.showModal});
     },
     render: function() {
-        var defaultEqtn = "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}";
+
         return (
         <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 30px 30px"}}>
             <div>

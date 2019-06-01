@@ -10,6 +10,9 @@ import { LightButton } from './Button.js';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
+// NOTE: NOT USED IN CURRENT VERSION, ADDED WHILE SAVING FOR BACKWARDS COMPATIBILITY
+var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
+var STEPS = 'STEPS';
 
 // editing assignmnt mode actions
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
@@ -33,8 +36,17 @@ function saveAssignment() {
         }
     }
 
-    var blob = new Blob([JSON.stringify({ PROBLEMS : window.store.getState()[PROBLEMS]})], {type: "text/plain;charset=utf-8"});
+    var blob = new Blob([JSON.stringify({
+        PROBLEMS : makeBackwardsCompatible(window.store.getState())[PROBLEMS]})],
+        {type: "text/plain;charset=utf-8"});
     saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
+}
+
+function makeBackwardsCompatible(newDoc) {
+    newDoc[PROBLEMS].forEach(function (problem) {
+        problem[LAST_SHOWN_STEP] = problem[STEPS].length - 1;
+    });
+    return newDoc; 
 }
 
 function removeExtension(filename) {
@@ -80,6 +92,7 @@ export function readSingleFile(evt, discardDataWarning) {
                     var contents = e.target.result;
                     openAssignment(contents, f.name, discardDataWarning);
                 } catch (e) {
+                    console.log(e);
                     alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
                 }
         }
