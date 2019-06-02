@@ -111,7 +111,7 @@ var Problem = createReactClass({
             scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
         return (
             <div>
-            <div className="problem-container" style={{float:'none',overflow: 'auto'}}>
+            <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
                                            : null
@@ -153,7 +153,7 @@ var Problem = createReactClass({
                                         title="Make a copy of this work, useful if you need to reference it while trying another solution path." onClick={
                         function() { window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
                     </div>
-                        <div style={{float:'left'}} className="equation-list">
+                        <div style={{float:'left', maxWidth:"85%"}} className="equation-list">
                         Type math here<br />
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
@@ -194,8 +194,14 @@ var Problem = createReactClass({
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
                                 }}/> &nbsp;
+                                <CloseButton text="&#10005;" title='Delete step' onClick={
+                                    function(value) {
+                                        window.store.dispatch(
+                                            { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+                                              STEP_KEY : stepIndex});
+                                    }}/>
                                 <MathInput 
-                                    key={stepIndex} buttonsVisible='focused' styles={styles}
+                                    key={stepIndex} buttonsVisible='focused' styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
                                     buttonSets={['trig', 'prealgebra',
                                                  'logarithms', 'calculus']}
                                     stepIndex={stepIndex}
@@ -213,12 +219,6 @@ var Problem = createReactClass({
                                               PROBLEM_INDEX : problemIndex});
                                     }}
                                 />
-                                <CloseButton text="&#10005;" title='Delete step' onClick={
-                                    function(value) {
-                                        window.store.dispatch(
-                                            { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
-                                              STEP_KEY : stepIndex});
-                                    }}/>
                                 </div>
                                 </div>
                                 <div style={{"clear":"both"}} />

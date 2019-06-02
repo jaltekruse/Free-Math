@@ -166,7 +166,6 @@ var FreeMath = createReactClass({
         padding:"0px 30px 0px 30px",
         "margin-left":"auto",
         "margin-right": "auto",
-        width:"1024",
         height:"100%"
     };
     /*
@@ -182,7 +181,7 @@ var FreeMath = createReactClass({
 
     if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
         return (
-            <div style={wrapperDivStyle}>
+            <div style={{wrapperDivStyle, width : "100%"}}>
                 <AssignmentEditorMenubar value={this.props.value}/>
                 <div style={{display:"inline-block", width:"100%"}}>
                     <Assignment value={this.props.value}/>

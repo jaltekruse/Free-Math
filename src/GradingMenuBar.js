@@ -20,7 +20,7 @@ const GradingMenuBar = createReactClass({
         }
         return (
             <div className="menuBar">
-                <div className="nav">
+                <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav /> 
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
                         Assignment Name &nbsp;&nbsp;
