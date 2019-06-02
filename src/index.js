@@ -6,8 +6,8 @@ import { autoSave } from './FreeMath.js';
 import registerServiceWorker from './registerServiceWorker';
 
 window.onload = function() {
-    var location = window.location;
     /* No longer necessary, figured out how to set up server level https
+    var location = window.location;
     if (location.hostname !== "localhost" && location.protocol !== 'https:')
     {
          location.href = 'https:' + window.location.href.substring(window.location.protocol.length);

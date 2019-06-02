@@ -52,30 +52,25 @@ const DefaultHomepageActions = createReactClass({
         }
     },
     render: function() {
-	var halfScreenStyle= {
-	    width:"44%",
-	    height: "auto",
-	    float: "left",
-	    borderRadius:"3px",
-	    margin:"5px 5px 40px 5px",
-	    padding:"20px",
-	}
-    var divStyle = {
-	    ...halfScreenStyle,
-        border:"1px solid #cfcfcf",
-        boxShadow: "0 5px 3px -3px #cfcfcf"
-    };
-	var demoButtonStyle = {
-	    ...halfScreenStyle,
-	    width:"49%",
-	    borderRadius:"60px",
-	    "text-align": "center"
-	};
-        var divStyleNoBorder = {
-            ...divStyle,
-            boxShadow: "none",
-            border: "none"
+    var halfScreenStyle= {
+        width:"44%",
+        height: "auto",
+        float: "left",
+        borderRadius:"3px",
+        margin:"5px 5px 40px 5px",
+        padding:"20px",
+    }
+        var divStyle = {
+                ...halfScreenStyle,
+            border:"1px solid #cfcfcf",
+            boxShadow: "0 5px 3px -3px #cfcfcf"
         };
+    var demoButtonStyle = {
+        ...halfScreenStyle,
+        width:"49%",
+        borderRadius:"60px",
+        "text-align": "center"
+    };
         var wrapperDivStyle = {
             padding:"0px 30px 0px 30px",
             "backgroundColor":"#ffffff",

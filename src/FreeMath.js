@@ -1,7 +1,6 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
 import GradingMenuBar from './GradingMenuBar.js';
-import LogoHomeNav from './LogoHomeNav.js';
 import Assignment from './Assignment.js';
 import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';

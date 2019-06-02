@@ -15,7 +15,6 @@ const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var PROBLEMS = 'PROBLEMS';
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
-var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {

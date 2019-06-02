@@ -165,14 +165,14 @@ var Problem = createReactClass({
                             }
                             return (
                             <div key={step[STEP_ID]}>
-                                {showTutorial && stepIndex == 0 ? 
+                                {showTutorial && stepIndex === 0 ? 
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
                                         <span>Click this expression, then press enter.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex == 1 ? 
+                                {showTutorial && stepIndex === 1 ? 
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
@@ -180,7 +180,7 @@ var Problem = createReactClass({
                                               simplifying this expression, then press enter again.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex == 2 ? 
+                                {showTutorial && stepIndex === 2 ? 
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
@@ -438,7 +438,7 @@ function problemReducer(problem, action) {
             ]
         }
     } else if (action.type === DELETE_STEP) {
-        if (problem[STEPS].length == 1) {
+        if (problem[STEPS].length === 1) {
             return problem;
         }
         let inverseAction = {

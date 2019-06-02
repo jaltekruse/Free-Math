@@ -3,7 +3,6 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
-import { CloseButton  } from './Button.js';
 import { LightButton } from './Button.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
