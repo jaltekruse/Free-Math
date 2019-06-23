@@ -283,6 +283,22 @@ const DefaultHomepageActions = createReactClass({
                           storage provider like Google Drive, Dropbox, etc.</span>
                 </div>
                 <br />
+                <div style={{"display":"flex", "flex-direction": "row-reverse"}}>
+                <div style={{"float": "left", "display": "flex","flex-direction":"column",
+                        "box-sizing":"border-box","width": "36vw", "padding":"40px 40px 0px 80px"}}>
+                <h1>Students digitally record step-by-step math work.</h1>
+                </div>
+                <div style={{"float": "right", "display": "flex",
+                              "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                            "-webkit-box-align": "center",
+                                "align-items": "center",
+                                "text-align": "center",
+                                "marginTop":"auto",
+                                "marginButtom": "auto"
+                }}>
+                <video alt="student.webm" autoPlay muted playsinline loop><track kind="captions" /><source src="free_math_student_new_buttons" type="video/webm" /></video>
+                </div>
+                </div>
                 <h2>Great for many areas of Math</h2>
                 <div style={{float:"none", display:"inline-block"}}>
                     <div style={{float:"left", margin:"5px"}}>
