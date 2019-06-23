@@ -3,6 +3,7 @@ import { deepFreeze } from './utils.js';
 import { assignmentReducer } from './Assignment.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { problemReducer } from './Problem.js';
+import { rootReducer} from './FreeMath.js';
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
@@ -24,6 +25,7 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
+var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 // remove problem expects an "index" property
 // specifying which problem to remove
 var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
@@ -61,6 +63,7 @@ var EDIT_STEP = 'EDIT_STEP';
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 
+// TODO - need to finish this test
 // test converting old problem format to new one
 it('test problem format conversion', () => {
     var initialAssignment = {
@@ -73,6 +76,62 @@ it('test problem format conversion', () => {
         ]
     }
 })
+
+it('test demo creation, undo/redo bug', () => {
+    const newAssignment = rootReducer({}, { type : "NEW_ASSIGNMENT" });
+
+    const expected = {
+        "APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+        "PROBLEMS": [
+            {"PROBLEM_NUMBER": "", "REDO_STACK": [], "STEPS": [{"CONTENT": ""}], "UNDO_STACK": []}
+        ]
+    };
+
+    compareOverallEditorState(
+        expected,
+        newAssignment
+    );
+
+    const withDemoProb = rootReducer(newAssignment, {type : ADD_DEMO_PROBLEM});
+
+    const expectedDemo = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+
+    compareOverallEditorState(
+        expectedDemo,
+        withDemoProb
+    );
+
+    const afterNextStep = rootReducer(expectedDemo, {type : NEW_STEP, PROBLEM_INDEX : 0});
+
+    const expectedState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}, {"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 61417230}], "UNDO_STACK": [{"INVERSE_ACTION": {"PROBLEM_INDEX": 0, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"}]}]};
+
+    compareOverallEditorState(
+        expectedState,
+        afterNextStep
+    );
+
+    const afterFirstUndo = rootReducer(afterNextStep, {type : "UNDO", PROBLEM_INDEX : 0});
+
+    const expectedUndoState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [{"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"}, "PROBLEM_INDEX": 0, "type": "NEW_STEP"}], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+
+    compareOverallEditorState(
+        expectedUndoState,
+        afterFirstUndo
+    );
+
+    const afterSecondUndo = rootReducer(afterFirstUndo, {type : "UNDO", PROBLEM_INDEX : 0});
+
+    const expectedUndoState2 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [{"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"}, "PROBLEM_INDEX": 0, "type": "NEW_STEP"}], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+
+    const afterThirdUndo = rootReducer(afterSecondUndo, {type : "UNDO", PROBLEM_INDEX : 0});
+
+    const expectedUndoState3 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [{"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"}, "PROBLEM_INDEX": 0, "type": "NEW_STEP"}], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+
+    compareOverallEditorState(
+        expectedUndoState3,
+        afterThirdUndo
+    );
+});
 
 it('test adding a problem', () => {
     var initialAssignment = {
@@ -108,13 +167,13 @@ it('test adding a problem', () => {
 // they are present is important, there values just aren't deterministic.
 function compareOverallEditorState(expected, actual) {
     try {
-    expect({...expected, PROBLEMS : null}).toEqual({...actual, PROBLEMS : null});
+    expect({...expected, DOC_ID : null, PROBLEMS : null}).toEqual({...actual, DOC_ID : null, PROBLEMS : null});
     expected[PROBLEMS].forEach(function (problem, index, arr) {
         compareSingleProblem(problem, actual[PROBLEMS][index]);
     });
     } catch(ex) {
         console.log(ex);
-        // Note: diff view is more useful than the low level comparion error for debugging:
+        // Note: diff view is more useful than the low level comparison error for debugging:
         expect(actual).toEqual(expected);
     }
 }

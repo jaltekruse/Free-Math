@@ -376,7 +376,8 @@ function problemReducer(problem, action) {
 
             if (newContent.length > currContent.length) {
                 // one character addition
-                if (i === newContent.length - 1 || newContent.substring(i+1) === currContent.substring(i)) {
+                if (i === newContent.length - 1
+                        || newContent.substring(i+1) === currContent.substring(i)) {
                     pos = i;
                     editType = ADD;
                     if (latestUndo && latestUndo[INVERSE_ACTION][EDIT_TYPE] === editType
@@ -386,7 +387,8 @@ function problemReducer(problem, action) {
                 }
             } else {
                 // one character deletion
-                if (i === currContent.length - 1 || currContent.substring(i+1) === newContent.substring(i)) {
+                if (i === currContent.length - 1
+                        || currContent.substring(i+1) === newContent.substring(i)) {
                     pos = i;
                     editType = DELETE;
                     if (latestUndo && latestUndo[INVERSE_ACTION][EDIT_TYPE] === editType
@@ -521,7 +523,8 @@ function problemReducer(problem, action) {
     } else if (action.type === UNDO) {
         if (problem[UNDO_STACK].length === 0) return problem;
         let undoAction = problem[UNDO_STACK][0];
-        let inverseAction = {...undoAction[INVERSE_ACTION], INVERSE_ACTION : undoAction};
+        let inverseAction = {...undoAction[INVERSE_ACTION],
+                             INVERSE_ACTION : {...undoAction, INVERSE_ACTION : undefined}};
         let ret = problemReducer(problem, undoAction)
         return {...ret,
                 UNDO_STACK : problem[UNDO_STACK].slice(1, problem[UNDO_STACK].length),
@@ -557,15 +560,17 @@ function problemListReducer(probList, action) {
         return [ problemReducer(undefined, action) ];
     }
     if (action.type === ADD_DEMO_PROBLEM) {
-        console.log(probList);
         if (probList.length === 1 && probList[0][STEPS][0][CONTENT] === "") {
-            probList = [];
+
+            return [{ PROBLEM_NUMBER : "",
+                 STEPS : [{
+                     STEP_ID : genID(), CONTENT : "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}"}],
+                 UNDO_STACK : [], REDO_STACK : [],
+                 SHOW_TUTORIAL : true
+                 }];
+        } else {
+            return probList;
         }
-        return [
-            { ...problemReducer(undefined, action), SHOW_TUTORIAL : true,
-                STEPS : [{CONTENT : "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot 4}"}]},
-            ...probList,
-        ];
     } else if (action.type === ADD_PROBLEM) {
         return [
             ...probList,
