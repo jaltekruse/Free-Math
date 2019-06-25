@@ -33,52 +33,8 @@ export function render() {
     );
 }
 
-const DefaultHomepageActions = createReactClass({
-    componentDidMount: function() {
-        // React 15 doesn't support custom attributes in JSX
-        // TODO - this doesn't appear to be working, still can't make
-        // the youtube video full screen
-        var element = ReactDOM.findDOMNode(this.refs.youtubeEmbed);
-        element.setAttribute("fs", "1");
-        element.setAttribute("allowfullscreen", "allowfullscreen");
-        element.setAttribute("mozallowfullscreen", "mozallowfullscreen");
-        element.setAttribute("msallowfullscreen", "msallowfullscreen");
-        element.setAttribute("oallowfullscreen", "oallowfullscreen");
-        element.setAttribute("webkitallowfullscreen", "webkitallowfullscreen");
-    },
-    getInitialState: function() {
-        return {
-            emailString : ''
-        }
-    },
+const UserActions = createReactClass({
     render: function() {
-    var halfScreenStyle= {
-        width:"44%",
-        height: "auto",
-        float: "left",
-        borderRadius:"3px",
-        margin:"5px 5px 40px 5px",
-        padding:"20px",
-    }
-        var divStyle = {
-                ...halfScreenStyle,
-            border:"1px solid #cfcfcf",
-            boxShadow: "0 5px 3px -3px #cfcfcf"
-        };
-    var demoButtonStyle = {
-        ...halfScreenStyle,
-        width:"49%",
-        borderRadius:"60px",
-        "text-align": "center"
-    };
-        var wrapperDivStyle = {
-            padding:"0px 30px 0px 30px",
-            "backgroundColor":"#ffffff",
-            "marginLeft":"auto",
-            "marginRight": "auto",
-            width:"1024px"
-        };
-
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = function() {
@@ -122,6 +78,168 @@ const DefaultHomepageActions = createReactClass({
                 recoveredTeacherDocs.push(key);
             }
         }
+        var halfScreenStyle= {
+            width:"44%",
+            height: "auto",
+            float: "left",
+            borderRadius:"3px",
+            margin:"5px 5px 40px 5px",
+            padding:"20px",
+        }
+        var divStyle = {
+                ...halfScreenStyle,
+            border:"1px solid #cfcfcf",
+            boxShadow: "0 5px 3px -3px #cfcfcf"
+        };
+        return (
+            <div>
+            <div style={{display:"inline-block", width:"100%"}}>
+            <div>
+                <div style={divStyle}>
+                    <h3>Students</h3>
+                        New Assignment &nbsp;&nbsp;&nbsp;
+                        <Button type="submit" text="Create" onClick={
+                            function() {
+                                // turn on confirmation dialog upon navigation away
+                                window.onbeforeunload = function() {
+                                        return true;
+                                };
+                                window.store.dispatch({type : "NEW_ASSIGNMENT"});
+                            }}
+                        /><br />
+
+                        Open Assignment &nbsp;&nbsp;&nbsp;
+                        <input type="file" id="open-file-input" onChange={
+                            function(evt) {
+                                // turn on confirmation dialog upon navigation away
+                                window.onbeforeunload = function() {
+                                        return true;
+                                };
+                                readSingleFile(evt, false /*don't warn about data loss*/);
+                        }}/>
+                        <br />
+                        <br />
+                        { (recoveredStudentDocs.length > 0) ?
+
+                                recoveredStudentDocs.map(function(docName, docIndex) {
+                                    return (
+                                        <div key={docName}>
+                                            <Button type="submit" text="Open"
+                                                    onClick={function() {
+                                                        recoverAutoSaveCallback(docName)}
+                                                    } />
+                                            <Button type="submit" text="Delete"
+                                                    onClick={function() {
+                                                        deleteAutoSaveCallback(docName)}
+                                                    } />
+                                        {docName.replace("auto save students ","")
+                                            .replace(/:\d\d\..*/, "")}</div>
+                                    );
+                                })
+                           : null
+                        }
+                        { (recoveredStudentDocs.length > 0) ?
+                            (<p>Recovered assignments stored temporarily in your
+                                browser, save to your device as soon as 
+                                possible</p>) : null}
+                </div>
+                <div style={{...divStyle, float: "right"}}>
+                    <h3>Teachers</h3>
+                    Grade Assignments <input type="file" onChange={openAssignments}/>
+                        <br />
+                    <small> Select a zip file full of student work, these are generated
+                            when downloading files from your LMS in bulk.
+                        <a href="https://www.wikihow.com/Make-a-Zip-File">
+                            Click here for info on zip files
+                        </a>
+                    </small>
+                        <br />
+                    <p><a href={"https://drive.google.com/uc?export=download&id=" + 
+                                "1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67"}>
+                        Download Example Assignments To Test Grading
+                    </a></p>
+                    { (recoveredTeacherDocs.length > 0) ?
+                        (<h4>Recovered grading sessions:</h4>) : null }
+                    { (recoveredTeacherDocs.length > 0) ?
+                        recoveredTeacherDocs.map(function(docName, docIndex) {
+                            return (
+                            <div key={docName}>
+                                <Button text="Open" onClick={
+                                    function() {recoverAutoSaveCallback(docName)}} />
+                                <Button text="Delete" onClick={
+                                    function() {deleteAutoSaveCallback(docName)}}
+                                />
+                                {docName.replace("auto save teachers ","")
+                                    .replace(/:\d\d\..*/, "")}</div>
+                                );
+                            })
+                       : null
+                    }
+                    { (recoveredTeacherDocs.length > 0) ?
+                            (<p>Recovered grading sessions stored temporarily in
+                                your browser, save to your device as soon as 
+                                possible</p>) : null }
+                </div>
+            </div>
+            </div>
+            <div className="answer-incorrect"
+                 style={{display:"block", padding:"10px", margin: "10px"}}>
+                <span>DATA LOSS WARNING: School districts may clear your 
+                      downloads folder when logging off. It is recommended 
+                      to save your files on a USB drive, LMS (Canvas, Moodle,
+                      Blackboard) or your institution's preferred cloud
+                      storage provider like Google Drive, Dropbox, etc.</span>
+            </div>
+            </div>
+        );
+    }
+});
+
+const DefaultHomepageActions = createReactClass({
+    componentDidMount: function() {
+        // React 15 doesn't support custom attributes in JSX
+        // TODO - this doesn't appear to be working, still can't make
+        // the youtube video full screen
+        var element = ReactDOM.findDOMNode(this.refs.youtubeEmbed);
+        element.setAttribute("fs", "1");
+        element.setAttribute("allowfullscreen", "allowfullscreen");
+        element.setAttribute("mozallowfullscreen", "mozallowfullscreen");
+        element.setAttribute("msallowfullscreen", "msallowfullscreen");
+        element.setAttribute("oallowfullscreen", "oallowfullscreen");
+        element.setAttribute("webkitallowfullscreen", "webkitallowfullscreen");
+    },
+    getInitialState: function() {
+        return {
+            emailString : ''
+        }
+    },
+    render: function() {
+        var halfScreenStyle= {
+            width:"44%",
+            height: "auto",
+            float: "left",
+            borderRadius:"3px",
+            margin:"5px 5px 40px 5px",
+            padding:"20px",
+        }
+        var divStyle = {
+                ...halfScreenStyle,
+            border:"1px solid #cfcfcf",
+            boxShadow: "0 5px 3px -3px #cfcfcf"
+        };
+        var demoButtonStyle = {
+            ...halfScreenStyle,
+            width:"49%",
+            borderRadius:"60px",
+            "text-align": "center"
+        };
+        var wrapperDivStyle = {
+            padding:"0px 30px 0px 30px",
+            "backgroundColor":"#ffffff",
+            "marginLeft":"auto",
+            "marginRight": "auto",
+            width:"1024px"
+        };
 
         const renderExampleWork = function(problemData) {
             return (
@@ -189,103 +307,11 @@ const DefaultHomepageActions = createReactClass({
                 <h2>Demo Teacher Grading</h2>
             </button>
             </div>
-                <div style={{padding:"0px 0px 0px 0px"}}>
-                <div style={{display:"inline-block", width:"100%"}}>
-                    <div>
-                        <div style={divStyle}>
-                            <h3>Students</h3>
-                                New Assignment &nbsp;&nbsp;&nbsp;
-                                <Button type="submit" text="Create" onClick={
-                                    function() {
-                                        // turn on confirmation dialog upon navigation away
-                                        window.onbeforeunload = function() {
-                                                return true;
-                                        };
-                                        window.store.dispatch({type : "NEW_ASSIGNMENT"});
-                                    }}
-                                /><br />
-
-                                Open Assignment &nbsp;&nbsp;&nbsp;
-                                <input type="file" id="open-file-input" onChange={
-                                    function(evt) {
-                                        // turn on confirmation dialog upon navigation away
-                                        window.onbeforeunload = function() {
-                                                return true;
-                                        };
-                                        readSingleFile(evt, false /*don't warn about data loss*/);
-                                }}/>
-                                <br />
-                                <br />
-                                { (recoveredStudentDocs.length > 0) ?
-
-                                        recoveredStudentDocs.map(function(docName, docIndex) {
-                                            return (
-                                                <div key={docName}>
-                                                    <Button type="submit" text="Open"
-                                                            onClick={function() {recoverAutoSaveCallback(docName)}} />
-                                                    <Button type="submit" text="Delete"
-                                                            onClick={function() {deleteAutoSaveCallback(docName)}} />
-                                                {docName.replace("auto save students ","").replace(/:\d\d\..*/, "")}</div>
-                                            );
-                                        })
-                                   : null
-                                }
-                                { (recoveredStudentDocs.length > 0) ?
-                                    (<p>Recovered assignments stored temporarily in your
-                                        browser, save to your device as soon as 
-                                        possible</p>) : null}
-                        </div>
-                        <div style={{...divStyle, float: "right"}}>
-                            <h3>Teachers</h3>
-                            Grade Assignments <input type="file" onChange={openAssignments}/>
-                                <br />
-                            <small> Select a zip file full of student work, these are generated
-                                    when downloading files from your LMS in bulk.
-                                <a href="https://www.wikihow.com/Make-a-Zip-File">
-                                    Click here for info on zip files
-                                </a>
-                            </small>
-                                <br />
-                            <p><a href={"https://drive.google.com/uc?export=download&id=" + 
-                                        "1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67"}>
-                                Download Example Assignments To Test Grading
-                            </a></p>
-                            { (recoveredTeacherDocs.length > 0) ?
-                                (<h4>Recovered grading sessions:</h4>) : null }
-                            { (recoveredTeacherDocs.length > 0) ?
-                                recoveredTeacherDocs.map(function(docName, docIndex) {
-                                    return (
-                                    <div key={docName}>
-                                        <Button text="Open" onClick={
-                                            function() {recoverAutoSaveCallback(docName)}} />
-                                        <Button text="Delete" onClick={
-                                            function() {deleteAutoSaveCallback(docName)}}
-                                        />
-                                        {docName.replace("auto save teachers ","")
-                                            .replace(/:\d\d\..*/, "")}</div>
-                                        );
-                                    })
-                               : null
-                            }
-                            { (recoveredTeacherDocs.length > 0) ?
-                                    (<p>Recovered grading sessions stored temporarily in
-                                        your browser, save to your device as soon as 
-                                        possible</p>) : null }
-                        </div>
-                    </div>
-                </div>
-                <div className="answer-incorrect"
-                     style={{display:"block", padding:"10px", margin: "10px"}}>
-                    <span>DATA LOSS WARNING: School districts may clear your 
-                          downloads folder when logging off. It is recommended 
-                          to save your files on a USB drive, LMS (Canvas, Moodle,
-                          Blackboard) or your institution's preferred cloud
-                          storage provider like Google Drive, Dropbox, etc.</span>
-                </div>
+            <div style={{padding:"0px 0px 0px 0px"}}>
                 <br />
-                <div style={{"display":"flex", "flex-direction": "row-reverse"}}>
+                <div style={{"display":"flex", "flex-direction": "row-reverse", "padding":"100px 0px 200px 0px"}}>
                 <div style={{"float": "left", "display": "flex","flex-direction":"column",
-                        "box-sizing":"border-box","width": "36vw", "padding":"40px 40px 0px 80px"}}>
+                        "box-sizing":"border-box","width": "300px", "padding":"150px 0px 0px 80px"}}>
                 <h1>Students digitally record step-by-step math work.</h1>
                 </div>
                 <div style={{"float": "right", "display": "flex",
@@ -296,7 +322,25 @@ const DefaultHomepageActions = createReactClass({
                                 "marginTop":"auto",
                                 "marginButtom": "auto"
                 }}>
-                <video alt="student.webm" autoPlay muted playsinline loop><track kind="captions" /><source src="free_math_student_new_buttons" type="video/webm" /></video>
+                <video alt="student.webm" autoPlay muted playsinline loop width="550px"><track kind="captions" />
+                    <source src="free_math_student_new_buttons_2" type="video/webm" /></video>
+                </div>
+                </div>
+                <div>
+                <div style={{"float": "right", "box-sizing":"border-box","width": "36vw", "padding":"50px 100px 0px 0px"}}>
+                <h1>Teachers simultaneously review all assignments with complete 
+                    solutions grouped by similar final answer.</h1>
+                </div>
+                <div style={{"float": "left", "display": "flex",
+                              "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                            "-webkit-box-align": "center",
+                                "align-items": "center",
+                                "text-align": "center",
+                                "marginTop":"auto",
+                                "marginButtom": "auto"
+                }}>
+                <video alt="student.webm" autoPlay muted playsinline loop width="550px"><track kind="captions" />
+                    <source src="free_math_grading_new_buttons_2" type="video/webm" /></video>
                 </div>
                 </div>
                 <h2>Great for many areas of Math</h2>

@@ -85,7 +85,7 @@ var ProblemGrader = createReactClass({
                 <h3>Problem number {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
                 <p>Possible points &nbsp;
-                    <input type="text" width="4" value={possiblePoints}
+                    <input type="text" size="4" value={possiblePoints}
                            onChange={function(evt) {
                                window.store.dispatch(
                                    { type : EDIT_POSSIBLE_POINTS, PROBLEM_NUMBER : problemNumber,

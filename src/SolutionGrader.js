@@ -171,10 +171,11 @@ const SolutionGrader = createReactClass({
                            Look up react best pratices for this, right now I'll assume I should attach another event here to ensure
                            that the field contains a number when focus is lost
                 */}
-                <p>Score <input type="text" className="problem-grade-input" value={data[SCORE]} onChange={this.setScore}
-                          /> out of {possiblePoints}
-                        <br />
+                <p>Score <input type="text" size="4" className="problem-grade-input"
+                                value={data[SCORE]} onChange={this.setScore}
+                          /> out of {possiblePoints} &nbsp;
                         <Button type="submit" text="Full points" onClick={this.fullPoints}/>
+                        <br />
                         <Button text="Apply to ungraded" title="Apply this score to all responses in this group that don't have a grade yet." onClick={this.applyScoreToUngraded}/>
                         <Button text="Apply to all" title="Apply this score to all responses in this group, will overwrite already entered grade values." onClick={this.applyScoreToAll}/>
                 </p>
