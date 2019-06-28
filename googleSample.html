@@ -109,7 +109,7 @@
           mimeType: 'text/plain',
           body: blob
         };
-        drive.files.create({
+        gapi.client.drive.files.create({
           resource: fileMetadata,
           media: media,
           fields: 'id'
