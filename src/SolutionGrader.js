@@ -160,6 +160,16 @@ const SolutionGrader = createReactClass({
             correctness = "answer-partially-correct";
         }
         var classes = "student-work " + correctness;
+        const feedbackButton = function(shortDescription, fullText) {
+            return (
+                <Button type="submit" text={shortDescription}
+                        onClick={
+                            function() {
+                                this.setQuickFeedback(fullText);
+                            }.bind(this)
+                        }/>
+            );
+        };
         return (
             <div className={classes} style={{float:"left"}}> {/*<!-- container for nav an equation list --> */}
                 <div style={{visibility: (data[SCORE] === "") ? "visible" : "hidden"}}>
@@ -176,17 +186,23 @@ const SolutionGrader = createReactClass({
                           /> out of {possiblePoints} &nbsp;
                         <Button type="submit" text="Full points" onClick={this.fullPoints}/>
                         <br />
-                        <Button text="Apply to ungraded" title="Apply this score to all responses in this group that don't have a grade yet." onClick={this.applyScoreToUngraded}/>
-                        <Button text="Apply to all" title="Apply this score to all responses in this group, will overwrite already entered grade values." onClick={this.applyScoreToAll}/>
+                        <Button text="Apply to ungraded"
+                                title={"Apply this score to all responses in this " +
+                                    "group that don't have a grade yet."}
+                                onClick={this.applyScoreToUngraded}/>
+                        <Button text="Apply to all"
+                                title={"Apply this score to all responses in this group, " +
+                                      "will overwrite already entered grade values."}
+                                onClick={this.applyScoreToAll}/>
                 </p>
                 <p>Feedback &nbsp; &nbsp;
                 <br />
-                <Button type="submit" text="Show work" onClick={function() {this.setQuickFeedback("Show your complete work.");}.bind(this)}/>
-                <Button type="submit" text="Simple mistake" onClick={function() {this.setQuickFeedback("Review your work for a simple mistake.")}.bind(this)}/>
+                {feedbackButton("Show work", "Show your complete work.")}
+                {feedbackButton("Simple mistake", "Review your work for a simple mistake.")}
                 <br />
-                <Button type="submit" text="Let's talk" onClick={function() {this.setQuickFeedback("Let's chat about this next class.");}.bind(this)}/>
-                <Button type="submit" text="Not simplified" onClick={function() {this.setQuickFeedback("Be sure to simplify completely.");}.bind(this)}/>
-                <Button type="submit" text="Sig figs" onClick={function() {this.setQuickFeedback("Incorrect significant figures.");}.bind(this)}/>
+                {feedbackButton("Let's talk", "Let's chat about this next class.")}
+                {feedbackButton("Not simplified", "Be sure to simplify completely.")}
+                {feedbackButton("Sig figs", "Incorrect significant figures.")}
                 </p>
 
                 <div><textarea placeholder="Click a button for quick feedback or type custom feedback here." cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>

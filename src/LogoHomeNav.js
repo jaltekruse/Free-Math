@@ -17,11 +17,11 @@ const LogoHomeNav = createReactClass({
                     setTimeout(function() { window.onbeforeunload = null;}, 500);
                 }}
             >
-            <h3 style={{"display":"inline","fontFamily":"serif"}}>
+            <h2 style={{"display":"inline", color: "#eee", "fontFamily":"serif"}}>
                 <TeX>{"\\text{Free Math}"}</TeX>
-            </h3>
+            </h2>
             </div>
-            );
+        );
   }
 });
 

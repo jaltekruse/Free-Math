@@ -71,7 +71,6 @@ end of styles copied form perseus
 
 .fm-button {
   border: 2px solid transparent;
-  display: inline-block;
   padding: 0.25rem 0.5rem;
   margin: 0.25rem;
   background-color: #0d57bf;
@@ -151,8 +150,8 @@ html {
 }
 body {
   min-height: 100%;
-  font-family: 'HelveticaNeue-Light',Helvetica,Arial,sans-serif;
-  color: black;
+  font-family: 'Roboto',sans-serif;
+  color: #222;
   /* background-color: #e7effd; */
   /* background-color: #92d1ff; */
   margin-bottom: 0;
@@ -162,11 +161,18 @@ body {
   padding: 1em;
 }
 h1 {
-  font-size: 2em;
+  font-size: 3.6em;
+}
+h2 {
+  font-size: 1.5em;
   margin: 0;
+  color: #0d9600;
 }
 h1 small {
   font-size: 60%;
+}
+p {
+  font-size: 18px;
 }
 code {
   font: 90% monospace;

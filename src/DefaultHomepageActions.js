@@ -220,7 +220,7 @@ const DefaultHomepageActions = createReactClass({
             float: "left",
             borderRadius:"3px",
             margin:"5px 5px 40px 5px",
-            padding:"20px",
+            padding:"10px",
         }
         var divStyle = {
                 ...halfScreenStyle,
@@ -229,16 +229,16 @@ const DefaultHomepageActions = createReactClass({
         };
         var demoButtonStyle = {
             ...halfScreenStyle,
-            width:"49%",
+            width:"32%",
             borderRadius:"60px",
             "text-align": "center"
         };
         var wrapperDivStyle = {
-            padding:"0px 30px 0px 30px",
+            padding:"0px 0px 0px 0px",
             "backgroundColor":"#ffffff",
             "marginLeft":"auto",
             "marginRight": "auto",
-            width:"1024px"
+            //width:"1024px"
         };
 
         const renderExampleWork = function(problemData) {
@@ -262,9 +262,7 @@ const DefaultHomepageActions = createReactClass({
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
                     <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#officeHours" style={{color:"white"}} >Office Hours</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#lms" style={{color:"white"}} >LMS Integration</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#faq" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
@@ -286,8 +284,8 @@ const DefaultHomepageActions = createReactClass({
                     }}>
             <br />
             Give your students feedback, meaningfully and efficiently. <br /><br /></h1>
-            <div style={{"margin": " 0 auto"}}>
-            <button className="fm-button" style={demoButtonStyle} 
+            <div style={{"margin": " 0 auto", "width": "900px"}}>
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -297,52 +295,126 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h2>Demo Student Assignment Editor</h2>
+                <h2 style={{color:"#eeeeee"}}>Demo Student Experience</h2>
             </button>
-            <button className="fm-button" style={demoButtonStyle} 
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h2>Demo Teacher Grading</h2>
+                <h2 style={{color:"#eeeeee"}}>Demo Teacher Grading</h2>
+            </button>
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+                onClick={function() {
+                    window.store.dispatch(demoGradingAction);
+                }}
+            >
+                <h2 style={{color:"#eeeeee"}}>Actions for Returning Users</h2>
             </button>
             </div>
-            <div style={{padding:"0px 0px 0px 0px"}}>
+            <div style={{padding:"0px 0px 0px 0px", "display":"inline-block"}}>
                 <br />
-                <div style={{"display":"flex", "flex-direction": "row-reverse", "padding":"100px 0px 200px 0px"}}>
-                <div style={{"float": "left", "display": "flex","flex-direction":"column",
-                        "box-sizing":"border-box","width": "300px", "padding":"150px 0px 0px 80px"}}>
-                <h1>Students digitally record step-by-step math work.</h1>
+                <div style={{"padding":"25px 0px 0px 30px"}}>
+                    <div style={{"float": "left", "width": "32vw", "padding":"120px 0px 0px 0px"}}>
+                        <h2>Students Show Step-by-Step Work</h2>
+                        <p>They create their assignments directly from problems
+                            in your existing materials, no setup required.</p>
+                    </div>
+                    <div style={{"float": "right",
+                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                                "-webkit-box-align": "center",
+                                    "align-items": "center",
+                                    "text-align": "center",
+                                    "marginTop":"auto",
+                                    "marginButtom": "auto"
+                    }}>
+                    <video alt="student.webm" autoPlay muted playsinline loop><track kind="captions" />
+                        <source src="free_math_assignment.mp4" type="video/mp4" /></video>
+                    </div>
                 </div>
-                <div style={{"float": "right", "display": "flex",
-                              "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
-                            "-webkit-box-align": "center",
-                                "align-items": "center",
-                                "text-align": "center",
-                                "marginTop":"auto",
-                                "marginButtom": "auto"
-                }}>
-                <video alt="student.webm" autoPlay muted playsinline loop width="550px"><track kind="captions" />
-                    <source src="free_math_student_new_buttons_2" type="video/webm" /></video>
+                <div style={{"padding":"300px 0px 0px 0px", "display":"inline-block"}}>
+                    <div style={{"float": "left", "display": "flex",
+                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                                "-webkit-box-align": "center",
+                                    "align-items": "center",
+                                    "text-align": "center",
+                                    "marginTop":"auto",
+                                    "marginButtom": "auto"
+                    }}>
+                        <video alt="student.webm" autoPlay muted playsinline loop>
+                            <track kind="captions" />
+                            <source src="free_math_grading.mp4" type="video/mp4" /></video>
+                    </div>
+                    <div style={{"float": "right", "width": "32vw", "padding":"120px 0px 0px 40px"}}>
+                        <h2>Simultaneously Review All Assignments</h2>
+                        <p>Complete solutions are shown, grouped by similar final answer.</p>
+                    </div>
                 </div>
+                <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
+                    <h2>Analytics Show Where Students Struggled</h2>
+                    <p>Give feedback on the most impactful problems first, <br />
+                        everything else gets completion points.</p>
+                    <img style={{"width":"100%",
+                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                               }}
+                         alt="grading_analytics_graph"
+                         src="/images/teacher_grading_analytics.png"/>
                 </div>
-                <div>
-                <div style={{"float": "right", "box-sizing":"border-box","width": "36vw", "padding":"50px 100px 0px 0px"}}>
-                <h1>Teachers simultaneously review all assignments with complete 
-                    solutions grouped by similar final answer.</h1>
-                </div>
-                <div style={{"float": "left", "display": "flex",
-                              "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
-                            "-webkit-box-align": "center",
-                                "align-items": "center",
-                                "text-align": "center",
-                                "marginTop":"auto",
-                                "marginButtom": "auto"
-                }}>
-                <video alt="student.webm" autoPlay muted playsinline loop width="550px"><track kind="captions" />
-                    <source src="free_math_grading_new_buttons_2" type="video/webm" /></video>
-                </div>
-                </div>
+                <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
+                    <h2>Integrates with your favorite LMS<br /><br /></h2>
+                    <img style={{margin : "20px"}}
+                         alt="google classroom logo"
+                         src="/images/google_classroom.png"/>
+                    <img style={{margin : "20px"}}
+                         alt="canvas logo"
+                         src="/images/canvas.png"/>
+                    <img style={{margin : "20px"}}
+                         alt="moodle logo"
+                         src="/images/moodle.png"/>
+                    <img style={{margin : "20px"}}
+                         alt="moodle logo"
+                         src="/images/blackboard.png"/>
+                </div> 
+                <div style={{"width" : "100%", "margin":"200px 0px 0px 0px",
+                             "padding":"50px 0px 50px 0px",
+                             "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
+                             }}>
+		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
+			<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"
+                              method="post" id="mc-embedded-subscribe-form"
+                              name="mc-embedded-subscribe-form" className="validate"
+                              target="_blank" style={{paddingLeft:"0px"}} noValidate>
+                        <div id="mc_embed_signup_scroll">
+                        <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
+                            <input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea"
+                                   tabIndex="-1" value=""/>
+                        </div>
+
+                        <div style={{overflow: "hidden"}}>
+                            <label htmlFor="mce-EMAIL">
+                                <h2 style={{"display":"inline", color: "#eee"}}>
+                                    Subscribe for Updates <br />
+                                </h2>
+                            </label>
+                            <p style={{color: "#eee"}}>
+                                Join our e-mail list to find out first about new features and updates to the site.
+                            </p>
+                            <input type="email" name="EMAIL" className="email" size="25" 
+                                   id="mce-EMAIL" placeholder="  email address"
+                                   style={{"border": "0px"}}
+                                   value={this.state.emailString}
+                                   onChange={function(evt) {
+                                            this.setState({emailString : evt.target.value});
+                                   }.bind(this)}/>
+                        <input style={{margin:"10px"}} type="submit"
+                           value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
+                           className="fm-button-light"/>
+	            </div>
+	            </div>
+		    </form>
+		    </div>
+		</div>
+                <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
                 <h2>Great for many areas of Math</h2>
                 <div style={{float:"none", display:"inline-block"}}>
                     <div style={{float:"left", margin:"5px"}}>
@@ -358,19 +430,23 @@ const DefaultHomepageActions = createReactClass({
                         {renderExampleWork(physicsExample) }
                     </div>
                 </div>
+                </div>
                 <br />
                 <span id="gettingStarted" />
                 <div style={{paddingTop: "80px", marginTop: "-100px"}} />
                 <br />
                 <h2>Getting Started</h2>
-        <p>Free Math is easy to set up, all you need is a standard LMS that can collect files.</p>
+                    <p>Free Math is easy to set up, all you need is a standard LMS that can
+                       collect files.</p>
                 <ol>
                     <li>Assign problems from your textbook or a worksheet.</li>
                     <li>Students complete digital work, save it as a file and submit it through your LMS.</li>
                     <li>You download the files in bulk from your LMS as a zip file.</li>
-                    <li>Load the zip file into Free Math for grading, the app will show you where students struggled the most.
+                    <li>Load the zip file into Free Math for grading, the app will show you
+                        where students struggled the most.
                         Anything you don’t have time to grade gets completion points.</li>
-                    <li>Save the grading feedback, which generates a zip file filled with individual graded documents for each student.</li>
+                    <li>Save the grading feedback, which generates a zip file filled with
+                        individual graded documents for each student.</li>
                     <li>Upload the zip file full of documents into your LMS, it will provide the
                         individual graded documents to each student.</li>
                     <li>Record the overall grades into your grade book.</li></ol>

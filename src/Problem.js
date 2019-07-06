@@ -193,13 +193,7 @@ var Problem = createReactClass({
                                         window.store.dispatch(
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
-                                }}/> &nbsp;
-                                <CloseButton text="&#10005;" title='Delete step' onClick={
-                                    function(value) {
-                                        window.store.dispatch(
-                                            { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
-                                              STEP_KEY : stepIndex});
-                                    }}/>
+                                }}/>
                                 <MathInput 
                                     key={stepIndex} buttonsVisible='focused' styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
                                     buttonSets={['trig', 'prealgebra',
@@ -219,6 +213,12 @@ var Problem = createReactClass({
                                               PROBLEM_INDEX : problemIndex});
                                     }}
                                 />
+                                <CloseButton text="&#10005;" title='Delete step' onClick={
+                                    function(value) {
+                                        window.store.dispatch(
+                                            { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+                                              STEP_KEY : stepIndex});
+                                    }}/>
                                 </div>
                                 </div>
                                 <div style={{"clear":"both"}} />

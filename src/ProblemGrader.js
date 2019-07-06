@@ -82,7 +82,7 @@ var ProblemGrader = createReactClass({
         var oldPossiblePoints = problemInfo[POSSIBLE_POINTS];
         return (
             <div className="problem-summary-container" style={{float:"none",overflow:"hidden"}}>
-                <h3>Problem number {problemNumber}</h3>
+                <h3>Problem {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
                 <p>Possible points &nbsp;
                     <input type="text" size="4" value={possiblePoints}

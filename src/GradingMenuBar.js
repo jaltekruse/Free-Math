@@ -33,19 +33,19 @@ const GradingMenuBar = createReactClass({
                                                 ASSIGNMENT_NAME : evt.target.value});
                                     }}
                         />&nbsp;&nbsp;
-                        <LightButton text="Save graded" onClick={
+                        <LightButton text="Save Graded" onClick={
                             function() {
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <LightButton text="View grades" onClick={
+                        <LightButton text="View Grades" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : SET_TO_VIEW_GRADES});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <LightButton text="Scroll to top" onClick={
+                        <LightButton text="Scroll to Top" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;}
