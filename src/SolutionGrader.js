@@ -160,13 +160,14 @@ const SolutionGrader = createReactClass({
             correctness = "answer-partially-correct";
         }
         var classes = "student-work " + correctness;
+        var outerThis = this;
         const feedbackButton = function(shortDescription, fullText) {
             return (
                 <Button type="submit" text={shortDescription}
                         onClick={
                             function() {
                                 this.setQuickFeedback(fullText);
-                            }.bind(this)
+                            }.bind(outerThis)
                         }/>
             );
         };
