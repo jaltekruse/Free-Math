@@ -219,7 +219,7 @@ const DefaultHomepageActions = createReactClass({
         };
         var demoButtonStyle = {
             ...halfScreenStyle,
-            width:"32%",
+            width:"290px",
             borderRadius:"60px",
             "text-align": "center"
         };
@@ -274,7 +274,21 @@ const DefaultHomepageActions = createReactClass({
                     }}>
             <br />
             Give your students feedback, meaningfully and efficiently. <br /><br /></h1>
-            <div style={{"margin": " 0 auto", "width": "900px"}}>
+            <div style={{
+                    "width": "100%",
+                    "-webkit-box-align": "center",
+                    "align-items": "center",
+                    "display": "flex",
+                    "flex-direction": "column",
+                    "font-size": "3.6em",
+                    "font-weight": "600",
+                    "letter-spacing": "-2px",
+                    "line-height": "1.2em",
+                    "text-align": "center",
+                    "marginLeft":"auto",
+                    "marginRight": "auto"
+            }}>
+            <div style={{}}>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
@@ -302,15 +316,17 @@ const DefaultHomepageActions = createReactClass({
                 <h2 style={{color:"#eeeeee"}}>Actions for Returning Users</h2>
             </button>
             </div>
+            </div>
             <div style={{padding:"0px 0px 0px 0px", "display":"inline-block"}}>
                 <br />
                 <div style={{"padding":"25px 0px 0px 30px"}}>
-                    <div style={{"float": "left", "width": "450px", "padding":"120px 0px 0px 0px"}}>
+                    <div style={{"float": "left", "width": "40vw", "padding":"8vw 0px 0px 0px"}}>
                         <h2>Students Show Step-by-Step Work</h2>
                         <p>They create their assignments directly from problems
                             in your existing materials, no setup required.</p>
                     </div>
                     <div style={{"float": "right",
+                                  "width": "50vw",
                                   "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
                                 "-webkit-box-align": "center",
                                     "align-items": "center",
@@ -318,12 +334,13 @@ const DefaultHomepageActions = createReactClass({
                                     "marginTop":"auto",
                                     "marginButtom": "auto"
                     }}>
-                    <video alt="student.webm" autoPlay muted playsinline loop><track kind="captions" />
+                    <video alt="student.webm" autoPlay muted playsinline loop width="100%"><track kind="captions" />
                         <source src="free_math_assignment.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
                 <div style={{"padding":"300px 0px 0px 0px", "display":"inline-block"}}>
                     <div style={{"float": "left", "display": "flex",
+                                  "width": "50vw",
                                   "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
                                 "-webkit-box-align": "center",
                                     "align-items": "center",
@@ -331,11 +348,11 @@ const DefaultHomepageActions = createReactClass({
                                     "marginTop":"auto",
                                     "marginButtom": "auto"
                     }}>
-                        <video alt="student.webm" autoPlay muted playsinline loop>
+                        <video alt="student.webm" autoPlay muted playsinline loop width="100%">
                             <track kind="captions" />
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
-                    <div style={{"float": "right", "width": "450px", "padding":"120px 0px 0px 80px"}}>
+                    <div style={{"float": "right", "width": "35vw", "padding":"8vw 0px 0px 80px"}}>
                         <h2>Simultaneously Review All Assignments</h2>
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
                     </div>
