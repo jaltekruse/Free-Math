@@ -92,7 +92,15 @@ const UserActions = createReactClass({
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
         return (
-            <div>
+            <div style={{
+                    "max-width": "900px",
+                    "-webkit-box-align": "center",
+                    "align-items": "center",
+                    "display": "flex",
+                    "flex-direction": "column",
+                    "marginLeft":"auto",
+                    "marginRight": "auto"
+            }}>
             <div style={{display:"inline-block", width:"100%"}}>
             <div>
                 <div style={divStyle}>
@@ -148,16 +156,12 @@ const UserActions = createReactClass({
                     Grade Assignments <input type="file" onChange={openAssignments}/>
                         <br />
                     <small> Select a zip file full of student work, these are generated
-                            when downloading files from your LMS in bulk.
+                            when downloading files from your LMS in bulk. 
                         <a href="https://www.wikihow.com/Make-a-Zip-File">
-                            Click here for info on zip files
+                            More info on zip files
                         </a>
                     </small>
                         <br />
-                    <p><a href={"https://drive.google.com/uc?export=download&id=" + 
-                                "1Cgi0E4vXJ4P41nJrjEAD9my51gHc9h67"}>
-                        Download Example Assignments To Test Grading
-                    </a></p>
                     { (recoveredTeacherDocs.length > 0) ?
                         (<h4>Recovered grading sessions:</h4>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
@@ -182,6 +186,11 @@ const UserActions = createReactClass({
                 </div>
             </div>
             </div>
+            </div>
+        );
+    }
+    /*
+     *
             <div className="answer-incorrect"
                  style={{display:"block", padding:"10px", margin: "10px"}}>
                 <span>DATA LOSS WARNING: School districts may clear your 
@@ -190,9 +199,7 @@ const UserActions = createReactClass({
                       Blackboard) or your institution's preferred cloud
                       storage provider like Google Drive, Dropbox, etc.</span>
             </div>
-            </div>
-        );
-    }
+     */
 });
 
 const DefaultHomepageActions = createReactClass({
@@ -265,7 +272,6 @@ const DefaultHomepageActions = createReactClass({
                                 "flex-direction": "column",
                                 "font-size": "3.6em",
                                 "font-weight": "600",
-                                "letter-spacing": "-2px",
                                 "line-height": "1.2em",
                                 "max-width": "800px",
                                 "text-align": "center",
@@ -288,7 +294,7 @@ const DefaultHomepageActions = createReactClass({
                     "marginLeft":"auto",
                     "marginRight": "auto"
             }}>
-            <div style={{}}>
+            <div style={{"padding":"0px 0px 100px 0px"}}>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
@@ -317,9 +323,10 @@ const DefaultHomepageActions = createReactClass({
             </button>
             </div>
             </div>
-            <div style={{padding:"0px 0px 0px 0px", "display":"inline-block"}}>
+            <UserActions />
+            <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />
-                <div style={{"padding":"25px 0px 0px 30px"}}>
+                <div style={{"padding":"0px 0px 0px 30px"}}>
                     <div style={{"float": "left", "width": "40vw", "padding":"8vw 0px 0px 0px"}}>
                         <h2>Students Show Step-by-Step Work</h2>
                         <p>They create their assignments directly from problems
