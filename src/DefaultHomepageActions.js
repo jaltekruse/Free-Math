@@ -151,7 +151,7 @@ const UserActions = createReactClass({
                                 browser, save to your device as soon as 
                                 possible</p>) : null}
                 </div>
-                <div style={{...divStyle, float: "right"}}>
+                <div style={{...divStyle}}>
                     <h3>Teachers</h3>
                     Grade Assignments <input type="file" onChange={openAssignments}/>
                         <br />
@@ -226,7 +226,7 @@ const DefaultHomepageActions = createReactClass({
         };
         var demoButtonStyle = {
             ...halfScreenStyle,
-            width:"290px",
+            width:"350px",
             borderRadius:"60px",
             "text-align": "center"
         };
@@ -280,6 +280,11 @@ const DefaultHomepageActions = createReactClass({
                     }}>
             <br />
             Give your students feedback, meaningfully and efficiently. <br /><br /></h1>
+            <div style={{"padding":"0px 0px 75px 0px",
+                    "-webkit-box-align": "center",
+                    "align-items": "center",
+                    "display": "flex",
+            }}>
             <div style={{
                     "width": "100%",
                     "-webkit-box-align": "center",
@@ -294,7 +299,7 @@ const DefaultHomepageActions = createReactClass({
                     "marginLeft":"auto",
                     "marginRight": "auto"
             }}>
-            <div style={{"padding":"0px 0px 100px 0px"}}>
+            <div style={{"padding":"0px 0px 75px 0px"}}>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
@@ -305,22 +310,16 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h2 style={{color:"#eeeeee"}}>Demo Student Experience</h2>
+                <h3 style={{color:"#eeeeee"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h2 style={{color:"#eeeeee"}}>Demo Teacher Grading</h2>
+                <h3 style={{color:"#eeeeee"}}>Demo Teacher Grading</h3>
             </button>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
-                onClick={function() {
-                    window.store.dispatch(demoGradingAction);
-                }}
-            >
-                <h2 style={{color:"#eeeeee"}}>Actions for Returning Users</h2>
-            </button>
+            </div>
             </div>
             </div>
             <UserActions />
@@ -372,22 +371,22 @@ const DefaultHomepageActions = createReactClass({
                                   "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
                                }}
                          alt="grading_analytics_graph"
-                         src="/images/teacher_grading_analytics.png"/>
+                         src="images/teacher_grading_analytics.png"/>
                 </div>
                 <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
                     <h2>Integrates with Your Favorite LMS<br /><br /></h2>
                     <img style={{margin : "20px"}}
                          alt="google classroom logo"
-                         src="/images/google_classroom.png"/>
+                         src="images/google_classroom.png"/>
                     <img style={{margin : "20px"}}
                          alt="canvas logo"
-                         src="/images/canvas.png"/>
+                         src="images/canvas.png"/>
                     <img style={{margin : "20px"}}
                          alt="moodle logo"
-                         src="/images/moodle.png"/>
+                         src="images/moodle.png"/>
                     <img style={{margin : "20px"}}
                          alt="moodle logo"
-                         src="/images/blackboard.png"/>
+                         src="images/blackboard.png"/>
                 </div> 
                 <div style={{"width" : "100%", "margin":"200px 0px 0px 0px",
                              "padding":"50px 0px 50px 0px",
