@@ -79,7 +79,7 @@ const UserActions = createReactClass({
             }
         }
         var halfScreenStyle= {
-            width:"44%",
+            width:"42%",
             height: "auto",
             float: "left",
             borderRadius:"3px",
@@ -153,7 +153,7 @@ const UserActions = createReactClass({
                                 browser, save to your device as soon as 
                                 possible</p>) : null}
                 </div>
-                <div style={{...divStyle}}>
+                <div style={{...divStyle, "float": "right"}}>
                     <h3>Teachers</h3>
                     Grade Assignments <input type="file" onChange={openAssignments}/>
                         <br />
@@ -268,40 +268,14 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             </div>
             <div style={wrapperDivStyle}>
-                    <h1 style={{"-webkit-box-align": "center",
-                                "align-items": "center",
-                                "display": "flex",
-                                "flex-direction": "column",
-                                "font-size": "60",
-                                "font-weight": "600",
-                                "line-height": "70",
+                    <h1 className="homepage-center homepage-headline" style={{
                                 "max-width": "850px",
-                                "text-align": "center",
-                                "margin": "0px auto 0px auto",
-                                "padding":"50px 0px 0px 0px"
                     }}>
             <br />
             Give your students feedback, meaningfully and efficiently. <br /><br /></h1>
-            <div style={{"padding":"0px 0px 75px 0px",
-                    "-webkit-box-align": "center",
-                    "align-items": "center",
-                    "display": "flex",
-            }}>
-            <div style={{
-                    "width": "100%",
-                    "-webkit-box-align": "center",
-                    "align-items": "center",
-                    "display": "flex",
-                    "flex-direction": "column",
-                    "font-size": "3.6em",
-                    "font-weight": "600",
-                    "letter-spacing": "-2px",
-                    "line-height": "1.2em",
-                    "text-align": "center",
-                    "marginLeft":"auto",
-                    "marginRight": "auto"
-            }}>
-            <div style={{"padding":"0px 0px 75px 0px"}}>
+            <div className="homepage-disappear-mobile">
+            <div className="homepage-center">
+            <div style={{"padding":"0px 0px 30px 0px"}}>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
@@ -323,46 +297,32 @@ const DefaultHomepageActions = createReactClass({
             </button>
             </div>
             </div>
-            </div>
             <UserActions />
+            </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />
-                <div style={{"padding":"0px 0px 0px 30px"}}>
-                    <div style={{"float": "left", "width": "40vw", "padding":"8vw 0px 0px 0px"}}>
+                <div className="homepage-wrapper">
+                    <div className="homepage-text homepage-left homepage-center-mobile">
                         <h2>Students Show Step-by-Step Work</h2>
                         <p>They create their assignments directly from problems
                             in your existing materials, no setup required.</p>
                     </div>
-                    <div style={{"float": "right",
-                                  "width": "50vw",
-                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
-                                "-webkit-box-align": "center",
-                                    "align-items": "center",
-                                    "text-align": "center",
-                                    "marginTop":"auto",
-                                    "marginButtom": "auto"
-                    }}>
-                    <video alt="student.webm" autoPlay muted playsinline loop width="100%"><track kind="captions" />
-                        <source src="free_math_assignment.mp4" type="video/mp4" /></video>
+                    <div className="homepage-video homepage-right homepage-center-mobile">
+                        <video alt="student.webm" autoPlay muted playsinline loop width="100%">
+                            <track kind="captions" />
+                            <source src="free_math_assignment.mp4" type="video/mp4" />
+                        </video>
                     </div>
                 </div>
-                <div style={{"padding":"300px 0px 0px 0px", "display":"inline-block"}}>
-                    <div style={{"float": "left", "display": "flex",
-                                  "width": "50vw",
-                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
-                                "-webkit-box-align": "center",
-                                    "align-items": "center",
-                                    "text-align": "center",
-                                    "marginTop":"auto",
-                                    "marginButtom": "auto"
-                    }}>
+                <div className="homepage-wrapper">
+                    <div className="homepage-text homepage-right homepage-center-mobile">
+                        <h2>Simultaneously Review All Assignments</h2>
+                        <p>Complete solutions are shown, grouped by similar final answer.</p>
+                    </div>
+                    <div className="homepage-video homepage-left homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsinline loop width="100%">
                             <track kind="captions" />
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
-                    </div>
-                    <div style={{"float": "right", "width": "35vw", "padding":"8vw 0px 0px 80px"}}>
-                        <h2>Simultaneously Review All Assignments</h2>
-                        <p>Complete solutions are shown, grouped by similar final answer.</p>
                     </div>
                 </div>
                 <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
@@ -432,15 +392,15 @@ const DefaultHomepageActions = createReactClass({
                 <div style={{"padding":"200px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>
                 <div style={{float:"none", display:"inline-block"}}>
-                    <div style={{float:"left", margin:"5px"}}>
+                    <div className="homepage-center-mobile homepage-left">
                         <h3>Algebra</h3>
                         {renderExampleWork(algebraExample) }
                     </div>
-                    <div style={{float:"left",margin:"5px"}}>
+                    <div className="homepage-center-mobile homepage-left">
                         <h3>Calculus</h3>
                         {renderExampleWork(calculusExample) }
                     </div>
-                    <div style={{float:"left", margin:"5px"}}>
+                    <div className="homepage-center-mobile homepage-left">
                         <h3>Physics</h3>
                         {renderExampleWork(physicsExample) }
                     </div>

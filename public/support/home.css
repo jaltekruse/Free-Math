@@ -47,6 +47,66 @@ Copied from persus project
 end of styles copied form perseus
 */
 
+.homepage-center {
+    width: 100%;
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 850px) {
+    .homepage-disappear-mobile {
+        display:none
+    }
+    .homepage-headline {
+        font-size: 40px
+    }
+    .homepage-center-mobile {
+        text-align: center;
+        width: 100%;
+        display: inline-block;
+        float: none;
+        padding: 0vw 0px 10vw 0vw
+    }
+    .homepage-wrapper {
+        align-items: center;
+        text-align: center;
+        padding: 100px 0px 0px 0px;
+        display: inline-block;
+    }
+}
+
+@media (min-width: 851px) {
+    .homepage-headline {
+        font-size: 60px
+    }
+    .homepage-right {
+        float: right;
+        display: block;
+    }
+    .homepage-text {
+        display: block;
+        width: 35vw;
+        padding: 8vw 0px 0px 6vw
+    }
+    .homepage-video {
+        width: 50vw;
+        box-shadow: rgb(176, 177, 178) 0px 10px 50px
+    }
+    .homepage-left {
+        float: left;
+    }
+    .homepage-wrapper {
+        padding: 200px 0px 0px 0px;
+        display: inline-block;
+        width: 100%
+    }
+}
+
 .fm-button-light {
   border: 2px solid transparent;
   display: inline-block;
