@@ -257,7 +257,7 @@ const DefaultHomepageActions = createReactClass({
         return (
             <div>
             <div className="menuBar">
-                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
                     <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
