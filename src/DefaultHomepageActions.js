@@ -128,6 +128,8 @@ const UserActions = createReactClass({
                         <br />
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
+                            (<h4>Recovered Assignments</h4>) : null }
+                        { (recoveredStudentDocs.length > 0) ?
 
                                 recoveredStudentDocs.map(function(docName, docIndex) {
                                     return (
@@ -163,7 +165,7 @@ const UserActions = createReactClass({
                     </small>
                         <br />
                     { (recoveredTeacherDocs.length > 0) ?
-                        (<h4>Recovered grading sessions:</h4>) : null }
+                        (<h4>Recovered Grading Sessions</h4>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
                         recoveredTeacherDocs.map(function(docName, docIndex) {
                             return (
@@ -228,7 +230,7 @@ const DefaultHomepageActions = createReactClass({
             ...halfScreenStyle,
             width:"350px",
             borderRadius:"60px",
-            "text-align": "center"
+            "text-align": "center",
         };
         var wrapperDivStyle = {
             padding:"0px 0px 0px 0px",
@@ -270,13 +272,13 @@ const DefaultHomepageActions = createReactClass({
                                 "align-items": "center",
                                 "display": "flex",
                                 "flex-direction": "column",
-                                "font-size": "3.6em",
+                                "font-size": "60",
                                 "font-weight": "600",
-                                "line-height": "1.2em",
-                                "max-width": "800px",
+                                "line-height": "70",
+                                "max-width": "850px",
                                 "text-align": "center",
-                                "marginLeft":"auto",
-                                "marginRight": "auto",
+                                "margin": "0px auto 0px auto",
+                                "padding":"50px 0px 0px 0px"
                     }}>
             <br />
             Give your students feedback, meaningfully and efficiently. <br /><br /></h1>
@@ -310,14 +312,14 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee"}}>Demo Teacher Grading</h3>
+                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 
             </button>
             </div>
             </div>

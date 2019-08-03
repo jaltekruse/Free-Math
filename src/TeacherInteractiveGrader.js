@@ -832,7 +832,7 @@ const TeacherInteractiveGrader = createReactClass({
                     {   (typeof(currentSimilarityGroupIndex) !== "undefined" &&
                          currentSimilarityGroupIndex !== null) ?
                             (<p> Currently viewing a group of similar
-                                assignments, back to grading full class:
+                                assignments, back to grading full class
                                 <Button text="View All" onClick={
                                  function(evt) {
                                     window.store.dispatch(
