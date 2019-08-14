@@ -268,11 +268,10 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             </div>
             <div style={wrapperDivStyle}>
-                    <h1 className="homepage-center homepage-headline" style={{
-                                "max-width": "850px",
-                    }}>
-            <br />
-            Give your students feedback, meaningfully and efficiently. <br /><br /></h1>
+                <h1 className="homepage-center homepage-headline"
+                    style={{"max-width": "850px","padding":"100px 0px 100px 0px"}}>
+                    Give your students feedback, meaningfully and efficiently.
+                </h1>
             <div className="homepage-disappear-mobile">
             <div className="homepage-center">
             <div style={{"padding":"0px 0px 30px 0px"}}>
@@ -325,7 +324,7 @@ const DefaultHomepageActions = createReactClass({
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
-                <div style={{"padding":"300px 0px 300px 0px", "align-items": "center", "text-align": "center"}}>
+                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
@@ -343,7 +342,7 @@ const DefaultHomepageActions = createReactClass({
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         gesture="media"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
+                <div className="homepage-wrapper homepage-center">
                     <h2>Integrates with Your Favorite LMS<br /><br /></h2>
                     <img style={{margin : "20px"}}
                          alt="google classroom logo"
