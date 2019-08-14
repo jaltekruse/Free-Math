@@ -9,6 +9,7 @@ import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
+import { removeExtension } from './AssignmentEditorMenubar.js';
 
 var KAS = window.KAS;
 
@@ -474,7 +475,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     var studentWorkFound = {};
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            var studentAnswer = problem[STEPS][problem[LAST_SHOWN_STEP]][CONTENT];
+            var studentAnswer = _.last(problem[STEPS])[CONTENT];
             // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
             var automaticallyAssignedGrade = "";
             if (!_.isEmpty(answerKey)) {
@@ -530,8 +531,8 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                   AUTOMATICALLY_ASSIGNED_SCORE : automaticallyAssignedGrade,
                   SCORE : automaticallyAssignedGrade,
                   FEEDBACK : feedback,
-                  LAST_SHOWN_STEP : problem[LAST_SHOWN_STEP],
-                  STEPS : problem[STEPS].slice(0, problem[LAST_SHOWN_STEP] + 1)}
+                  STEPS : problem[STEPS]
+                }
             );
             uniqueAnswers[indexInUniqueAnswersList] = workList;
             problemSummary[UNIQUE_ANSWERS] = uniqueAnswers;
@@ -565,7 +566,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
         if (aggregatedWork.hasOwnProperty(problemNumber)) {
             var uniqueAnswers = aggregatedWork[problemNumber][UNIQUE_ANSWERS];
             uniqueAnswers.forEach(function(uniqueAnswer, index, arr) {
-                uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[LAST_SHOWN_STEP] - b[LAST_SHOWN_STEP]; });
+                uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[STEPS].length - b[STEPS].length; });
             });
         }
     }
@@ -682,7 +683,6 @@ function convertToCurrentFormat2(possiblyOldDoc) {
 
 // open zip file full of student assignments for grading
 function studentSubmissionsZip(evt) {
-    console.log("studentSubmissionsZip");
     // reset scroll location from previous view of student docs
     window.location.hash = '';
     var f = evt.target.files[0];
@@ -728,7 +728,11 @@ function studentSubmissionsZip(evt) {
             // TODO - add back answer key
             var aggregatedWork = aggregateStudentWork(allStudentWork);
             console.log("@@@@@@ opened docs");
-            window.store.dispatch({type : SET_ASSIGNMENTS_TO_GRADE, NEW_STATE : aggregatedWork});
+            console.log(aggregatedWork);
+            window.store.dispatch(
+                { type : SET_ASSIGNMENTS_TO_GRADE,
+                  NEW_STATE :
+                    {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(f.name)}});
         }
         r.readAsArrayBuffer(f);
     } else {

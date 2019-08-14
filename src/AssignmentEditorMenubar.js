@@ -126,4 +126,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export default AssignmentEditorMenubar;
+export {AssignmentEditorMenubar as default, removeExtension };
