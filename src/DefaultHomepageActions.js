@@ -325,7 +325,7 @@ const DefaultHomepageActions = createReactClass({
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
-                <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
+                <div style={{"padding":"300px 0px 300px 0px", "align-items": "center", "text-align": "center"}}>
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
@@ -335,6 +335,14 @@ const DefaultHomepageActions = createReactClass({
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
                 </div>
+                <div className="homepage-center"
+                     style={{width:"70%", height: "0",
+                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        gesture="media"
+                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
                 <div style={{"padding":"300px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
                     <h2>Integrates with Your Favorite LMS<br /><br /></h2>
                     <img style={{margin : "20px"}}
