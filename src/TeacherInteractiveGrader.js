@@ -9,7 +9,7 @@ import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
-import { removeExtension } from './AssignmentEditorMenubar.js';
+import { makeBackwardsCompatible, removeExtension } from './AssignmentEditorMenubar.js';
 
 var KAS = window.KAS;
 
@@ -367,6 +367,11 @@ function saveGradedStudentWork(gradedWork) {
     window.onbeforeunload = null;
 
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
+    for (var filename in separatedAssignments) {
+        if (separatedAssignments.hasOwnProperty(filename)) {
+            separatedAssignments[filename] = makeBackwardsCompatible(separatedAssignments[filename]);
+        }
+    }
     var zip = new JSZip();
     for (var filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
