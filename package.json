@@ -31,7 +31,7 @@
     "fs-extra": "3.0.1",
     "html-webpack-plugin": "2.29.0",
     "jest": "20.0.4",
-    "jszip": "^2.6.0",
+    "jszip": "3.1.x",
     "katex": "^0.8.2",
     "mathjax": "^2.7.2-rc",
     "object-assign": "4.1.1",

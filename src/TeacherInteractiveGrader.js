@@ -10,6 +10,7 @@ import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 import { removeExtension } from './AssignmentEditorMenubar.js';
+import { saveAs } from 'file-saver';
 
 var KAS = window.KAS;
 
@@ -379,10 +380,14 @@ function saveGradedStudentWork(gradedWork) {
             zip.file(filename, JSON.stringify(separatedAssignments[filename]));
         }
     }
-    var content = zip.generate();
+    zip.generateAsync({type:"blob"})
+    .then(function (blob) {
+        saveAs(blob, "hello.zip");
+    });
+    //var content = zip.generate();
 
-    window.location.href="data:application/zip;download:testing;base64," + content;
-    setTimeout(function() { window.onbeforeunload = function() { return true; }}, 500);
+    //window.location.href="data:application/zip;download:testing;base64," + content;
+    //setTimeout(function() { window.onbeforeunload = function() { return true; }}, 500);
 }
 
 // returns score out of total possible points that are specified in the answer key
@@ -708,45 +713,52 @@ function studentSubmissionsZip(evt) {
 
             var new_zip = new JSZip();
             // more files !
-            new_zip.load(content);
+            new_zip.loadAsync(content).then(function(new_zip) {
 
-            var allStudentWork = [];
+                var allStudentWork = [];
 
-            // you now have every files contained in the loaded zip
-            for (var file in new_zip.files) {
-                // don't get properties from prototype
-                if (new_zip.files.hasOwnProperty(file)) {
-                    // extra directory added when zipping files on mac
-                    // TODO - check for other things to filter out from zip
-                    // files created on other platforms
-                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
-                    // check the extension is .math
-                    // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
-                    if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
-                    // filter out directories which are part of this list
-                    if (new_zip.file(file) === null) continue;
-                    try {
-                        var fileContents = new_zip.file(file).asText();
-                        // how is this behaviring differrntly than JSOn.parse()?!?!
-                        //var assignmentData = window.$.parseJSON(fileContents);
-                        fileContents = fileContents.trim();
-                        var assignmentData = JSON.parse(fileContents);
-                        assignmentData = convertToCurrentFormat(assignmentData);
-                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
-                    } catch (e) {
-                        console.log("failed to parse file: " + file);
-                        console.log(e);
+                // you now have every files contained in the loaded zip
+                new_zip.forEach(function (relativePath, zipEntry) {
+                    var file = zipEntry.name;
+                //for (var file in new_zip.files) {
+                    // don't get properties from prototype
+                    if (new_zip.files.hasOwnProperty(file)) {
+                        // extra directory added when zipping files on mac
+                        // TODO - check for other things to filter out from zip
+                        // files created on other platforms
+                        if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) return;
+                        // check the extension is .math
+                        // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+                        if (file.indexOf(".math", file.length - ".math".length) === -1) return;
+                        // filter out directories which are part of this list
+                        if (new_zip.file(file) === null) return;
+                        new_zip.file(file).async("string")
+                            .then(
+                                function success(fileContents) {
+                                    // how is this behaviring differrntly than JSOn.parse()?!?!
+                                    //var assignmentData = window.$.parseJSON(fileContents);
+                                    fileContents = fileContents.trim();
+                                    var assignmentData = JSON.parse(fileContents);
+                                    assignmentData = convertToCurrentFormat(assignmentData);
+                                    allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                                },
+                                function error(e) {
+                                    console.log("failed to parse file: " + file);
+                                    console.log(e);
+                                });
                     }
-                }
-            }
-            // TODO - add back answer key
-            var aggregatedWork = aggregateStudentWork(allStudentWork);
-            console.log("@@@@@@ opened docs");
-            console.log(aggregatedWork);
-            window.store.dispatch(
-                { type : SET_ASSIGNMENTS_TO_GRADE,
-                  NEW_STATE :
-                    {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(f.name)}});
+                });
+                console.log("3333333333 opened docs");
+                console.log(allStudentWork);
+                // TODO - add back answer key
+                var aggregatedWork = aggregateStudentWork(allStudentWork);
+                console.log("@@@@@@ opened docs");
+                console.log(aggregatedWork);
+                window.store.dispatch(
+                    { type : SET_ASSIGNMENTS_TO_GRADE,
+                      NEW_STATE :
+                        {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(f.name)}});
+            });
         }
         r.readAsArrayBuffer(f);
     } else {
