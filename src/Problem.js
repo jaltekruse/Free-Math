@@ -38,9 +38,6 @@ var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
 var STEPS = 'STEPS';
-// TODO - write conversion to upgrade old docs with the legacy undo/redo implementation
-// based on this property
-var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
@@ -108,17 +105,18 @@ var Problem = createReactClass({
         if (score === '')
             scoreMessage = 'Complete';
         else if (score !== undefined)
-            scoreMessage = 'Score: ' + score + ' / ' + possiblePoints;
+            scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div style={{width:"200", height:"100%",float:"left"}}>
-                    {   score !== undefined ? (<div className={scoreClass}>{scoreMessage}</div>)
+                    {   score !== undefined ? (<div className={scoreClass}><b>{scoreMessage}</b></div>)
                                            : null
                     }
                     {   this.props.value[FEEDBACK] !== undefined
                             ? (<div>
-                                    Feedback:<br /> {this.props.value[FEEDBACK]}
+                                    <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''} Teacher Feedback</b><br />
+                                    {this.props.value[FEEDBACK]}
                                </div>) : null
                     }
                 </div>
@@ -246,27 +244,6 @@ var Problem = createReactClass({
         );
     }
 });
-
-/*
-function convertToCurrentFormat(possiblyOldDoc) {
-    if (!possiblyOldDoc.hasOwnProperty('problems')) {
-        return possiblyOldDoc;
-    }
-
-    possiblyOldDoc.problems.forEach(function (problem) {
-        if (problem.problemNumber !== undefined) {
-            problem[STEPS] = wrapSteps(problem.steps);
-            problem[LAST_SHOWN_STEP] = problem[STEPS].length - 1;
-            problem[PROBLEM_NUMBER] = problem.problemNumber;
-            delete problem.steps;
-            delete problem.problemNumber;
-        }
-    });
-    possiblyOldDoc[PROBLEMS] = possiblyOldDoc.problems;
-    delete possiblyOldDoc.problems;
-    return possiblyOldDoc;
-}
-*/
 
 /*
  * Designing more complex undo/redo, now that individual steps can be deleted or added in the middle

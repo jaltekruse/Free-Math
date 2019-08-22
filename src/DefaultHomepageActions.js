@@ -221,11 +221,6 @@ const DefaultHomepageActions = createReactClass({
             margin:"5px 5px 40px 5px",
             padding:"10px",
         }
-        var divStyle = {
-                ...halfScreenStyle,
-            border:"1px solid #cfcfcf",
-            boxShadow: "0 5px 3px -3px #cfcfcf"
-        };
         var demoButtonStyle = {
             ...halfScreenStyle,
             width:"350px",
@@ -307,7 +302,7 @@ const DefaultHomepageActions = createReactClass({
                             in your existing materials, no setup required.</p>
                     </div>
                     <div className="homepage-video homepage-right homepage-center-mobile">
-                        <video alt="student.webm" autoPlay muted playsinline loop width="100%">
+                        <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
                             <source src="free_math_assignment.mp4" type="video/mp4" />
                         </video>
@@ -319,7 +314,7 @@ const DefaultHomepageActions = createReactClass({
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
                     </div>
                     <div className="homepage-video homepage-left homepage-center-mobile">
-                        <video alt="student.webm" autoPlay muted playsinline loop width="100%">
+                        <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>

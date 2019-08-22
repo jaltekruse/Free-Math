@@ -9,7 +9,7 @@ import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
-import { makeBackwardsCompatible, removeExtension } from './AssignmentEditorMenubar.js';
+import { removeExtension } from './AssignmentEditorMenubar.js';
 
 var KAS = window.KAS;
 
@@ -367,13 +367,14 @@ function saveGradedStudentWork(gradedWork) {
     window.onbeforeunload = null;
 
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-    for (var filename in separatedAssignments) {
+    var filename;
+    for (filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             separatedAssignments[filename] = makeBackwardsCompatible(separatedAssignments[filename]);
         }
     }
     var zip = new JSZip();
-    for (var filename in separatedAssignments) {
+    for (filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             zip.file(filename, JSON.stringify(separatedAssignments[filename]));
         }
@@ -532,11 +533,12 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                 feedback = problem[FEEDBACK];
             }
             workList[STUDENT_WORK].push(
-                { STUDENT_FILE : assignInfo[STUDENT_FILE],
+                {
+                  ...problem,
+                  STUDENT_FILE : assignInfo[STUDENT_FILE],
                   AUTOMATICALLY_ASSIGNED_SCORE : automaticallyAssignedGrade,
                   SCORE : automaticallyAssignedGrade,
                   FEEDBACK : feedback,
-                  STEPS : problem[STEPS]
                 }
             );
             uniqueAnswers[indexInUniqueAnswersList] = workList;
@@ -667,7 +669,7 @@ function convertToCurrentFormat2(possiblyOldDoc) {
     if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
         && possiblyOldDoc[PROBLEMS].length > 0
         && possiblyOldDoc[PROBLEMS][0].hasOwnProperty(LAST_SHOWN_STEP)) {
-
+        console.log("needs upgrade");
         // TODO - consider getting rid of this deep clone, but not much object creation
         // to avoid if I want to keep this function pure
         possiblyOldDoc = cloneDeep(possiblyOldDoc);
@@ -684,6 +686,13 @@ function convertToCurrentFormat2(possiblyOldDoc) {
     } else {
         return possiblyOldDoc;
     }
+}
+
+function makeBackwardsCompatible(newDoc) {
+    newDoc[PROBLEMS].forEach(function (problem) {
+        problem[LAST_SHOWN_STEP] = problem[STEPS].length - 1;
+    });
+    return newDoc;
 }
 
 // open zip file full of student assignments for grading
@@ -942,6 +951,7 @@ export { TeacherInteractiveGrader as default,
     separateIndividualStudentAssignments,
     calculateGradingOverview,
     convertToCurrentFormat,
-    gradingReducer
+    gradingReducer,
+    makeBackwardsCompatible
 };
 

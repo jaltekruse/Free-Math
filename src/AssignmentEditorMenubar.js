@@ -3,16 +3,13 @@ import createReactClass from 'create-react-class';
 import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
-import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { LightButton } from './Button.js';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
-// NOTE: NOT USED IN CURRENT VERSION, ADDED WHILE SAVING FOR BACKWARDS COMPATIBILITY
-var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
-var STEPS = 'STEPS';
 
 // editing assignmnt mode actions
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
@@ -40,13 +37,6 @@ function saveAssignment() {
         PROBLEMS : makeBackwardsCompatible(window.store.getState())[PROBLEMS]})],
         {type: "text/plain;charset=utf-8"});
     saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
-}
-
-function makeBackwardsCompatible(newDoc) {
-    newDoc[PROBLEMS].forEach(function (problem) {
-        problem[LAST_SHOWN_STEP] = problem[STEPS].length - 1;
-    });
-    return newDoc; 
 }
 
 function removeExtension(filename) {
@@ -126,4 +116,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export {AssignmentEditorMenubar as default, makeBackwardsCompatible, removeExtension };
+export {AssignmentEditorMenubar as default, removeExtension };
