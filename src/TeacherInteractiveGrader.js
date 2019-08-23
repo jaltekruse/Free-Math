@@ -838,7 +838,7 @@ const TeacherInteractiveGrader = createReactClass({
         var currentProblem = state["CURRENT_PROBLEM"];
 
         return (
-            <div style={{backgroundColor:"#f9f9f9", padding:"0px 20px 0px 20px"}}>
+            <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
                 <h3>To see students responses to a question,
                     click on the corresponding bars or label in the graph.</h3>

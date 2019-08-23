@@ -284,7 +284,7 @@ div.answer-incorrect {
 div.answer-complete {
     border-radius: 2px;
     border:1px solid #a4a4a4;
-    background-color:white;
+    background-color:#f9f9f9;
 }
 
 .error-highlight{
