@@ -61,7 +61,7 @@ export const ModalWhileGradingMenuBar = createReactClass({
     render: function() {
         return (
             <div className="menuBar">
-                <div className="nav">
+                <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <div style={{float:"left", verticalAlign:"top",
                                  marginTop:"5px", lineHeight : 1}}>
