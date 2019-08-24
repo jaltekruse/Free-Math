@@ -83,7 +83,7 @@ const UserActions = createReactClass({
             height: "auto",
             float: "left",
             borderRadius:"3px",
-            margin:"5px 5px 40px 5px",
+            margin:"5px 5px 5px 5px",
             padding:"20px",
         }
         var divStyle = {
@@ -255,10 +255,9 @@ const DefaultHomepageActions = createReactClass({
                 <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
-                    <a href="#gettingStarted" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#contact" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#faq" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a href="#license" style={{color:"white"}} >License</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="gettingStarted.html" style={{color:"white"}} >Getting Started</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="contact.html" style={{color:"white"}} >Contact</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a href="faq.html" style={{color:"white"}} >FAQ</a>&nbsp;&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
             </div>
@@ -407,6 +406,29 @@ const DefaultHomepageActions = createReactClass({
                         {renderExampleWork(physicsExample) }
                     </div>
                 </div>
+                </div>
+                <div style={{"width" : "100%", "margin":"100px 0px 0px 0px",
+                             "padding":"50px 0px 50px 0px",
+                             "backgroundColor": "rgba(10,0,30,1)",
+                              color: "#eee"
+                             }}>
+
+		    <div style={{"padding":"0px 100px 0px 100px"}}>
+                    <small>
+                        Free Math is free software: you can redistribute it and/or modify
+                        it under the terms of the GNU General Public License as published by
+                        the Free Software Foundation, either version 3 of the License, or
+                        (at your option) any later version.
+
+                        Free Math is distributed in the hope that it will be useful,
+                        but WITHOUT ANY WARRANTY; without even the implied warranty of
+                        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                        GNU General Public License for more details.
+
+                        You should have received a copy of the GNU General Public License
+                        along with Free Math.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+                    </small>
+                    </div>
                 </div>
             </div>
             </div>

@@ -201,7 +201,7 @@ var FreeMath = createReactClass({
     } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
         var props = this.props;
         return (
-            <div>
+            <div style={{...wrapperDivStyle, width : "95%" }}>
                 <ModalWhileGradingMenuBar />
                    <div style={{margin:"60px 30px 30px 30px"}}>
                 <table>
