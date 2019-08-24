@@ -203,7 +203,7 @@ const TeX = createReactClass({
         }
 
         return <div onClick={this.props.onClick}>
-            <div style={{...this.props.style, display : "inline-block",padding: "3px 3px 3px 3px"}}>
+            <div style={{...this.props.style, display : "inline-block",padding: "3px"}}>
             <span ref="mathjax" />
             <span
                 ref="katex"
