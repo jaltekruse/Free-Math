@@ -300,7 +300,7 @@ const DefaultHomepageActions = createReactClass({
                         <p>They create their assignments directly from problems
                             in your existing materials, no setup required.</p>
                     </div>
-                    <div className="homepage-video homepage-right homepage-center-mobile">
+                    <div className="homepage-right homepage-video homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
                             <source src="free_math_assignment.mp4" type="video/mp4" />

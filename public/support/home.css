@@ -103,18 +103,20 @@ h1 small {
     .homepage-headline {
         font-size: 60px
     }
-    .homepage-right {
-        float: right;
-        display: block;
-    }
     .homepage-text {
         display: block;
         width: 35vw;
         padding: 8vw 0px 0px 6vw
     }
+    .homepage-right {
+        float: right;
+        display: block;
+        padding-right:6vw
+    }
     .homepage-video {
         width: 50vw;
-        box-shadow: rgb(176, 177, 178) 0px 10px 50px
+        box-shadow: rgb(176, 177, 178) 0px 10px 50px;
+        padding-right:0px
     }
     .homepage-left {
         float: left;
