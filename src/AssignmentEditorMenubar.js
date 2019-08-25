@@ -107,7 +107,7 @@ var AssignmentEditorMenubar = createReactClass({
                             }}
                         />&nbsp;&nbsp;
 
-                        <LightButton text="save" onClick={
+                        <LightButton text="Save" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
                     </div>
                 </div>

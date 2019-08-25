@@ -130,9 +130,9 @@ var Problem = createReactClass({
                         <small>Problem Number</small><br /><input type="text" size="3" value={probNumber} className="problem-number" onChange={
                         function(evt) { window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
                                         NEW_PROBLEM_NUMBER : evt.target.value}) }}/> <br />
-                        <Button text="Next step (Enter)" onClick={
+                        <Button text="Next Step (Enter)" onClick={
                             function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <Button text="New blank step" onClick={
+                        <Button text="New Blank Step" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
@@ -141,7 +141,7 @@ var Problem = createReactClass({
                             function() {
                                 window.store.dispatch(
                                     { type : UNDO, PROBLEM_INDEX : problemIndex})
-                            }}/> <br/>
+                            }}/>
                         <Button text="Redo" onClick={
                             function() {
                                 window.store.dispatch(

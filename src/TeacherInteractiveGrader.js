@@ -846,7 +846,7 @@ const TeacherInteractiveGrader = createReactClass({
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 { (similarAssignments && similarAssignments.length > 0) ? (
                     <div className="similar-assignment-filters">
-                      <h3>Some students may have copied each others work.</h3>
+                      <h3>Some students may have copied each others work</h3>
                     {   (typeof(currentSimilarityGroupIndex) !== "undefined" &&
                          currentSimilarityGroupIndex !== null) ?
                             (<p> Currently viewing a group of similar

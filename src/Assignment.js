@@ -53,7 +53,7 @@ var Assignment = createReactClass({
             <br />
             <br />
             <br />
-            <Button onClick={this.toggleModal} text={this.state.showModal ? "Hide symbol list" : "Show available symbol list" } />
+            <Button onClick={this.toggleModal} text={this.state.showModal ? "Hide Symbol List" : "Show Available Symbol List" } />
             {this.state.showModal ? <MathEditorHelp /> : null }
         </div>
       )
