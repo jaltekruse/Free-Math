@@ -215,6 +215,8 @@ it('test separate assignments', () => {
 });
 
 it('test aggregate student work no answer key', () => {
+    // TODO - change this use of ASSIGNMENT to just be PROBLEMS for matching student doc format
+    // then it will be simpler to use the convertToCurrentFormat() method here
     var allStudentWork = [
         { STUDENT_FILE : "jake r.",
           ASSIGNMENT: [
