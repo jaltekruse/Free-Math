@@ -101,6 +101,7 @@ it('test aggregate student work', () => {
                         { STUDENT_FILE : "jake r.", AUTOMATICALLY_ASSIGNED_SCORE : 3,
                           SCORE : 3, FEEDBACK : "",
                           LAST_SHOWN_STEP : 1,
+                          PROBLEM_NUMBER : 1,
                           STEPS : [
                             { CONTENT : "5x=10"},
                             { CONTENT : "x=2"}
@@ -113,6 +114,7 @@ it('test aggregate student work', () => {
                         { STUDENT_FILE : "jon m.", AUTOMATICALLY_ASSIGNED_SCORE : 1.5,
                           SCORE : 1.5,FEEDBACK : "",
                           LAST_SHOWN_STEP: 1,
+                          PROBLEM_NUMBER : 1,
                           STEPS : [
                             { CONTENT : "5x=10"},
                             { CONTENT : "x=-2"}
@@ -250,6 +252,7 @@ it('test aggregate student work no answer key', () => {
                         { STUDENT_FILE : "jake r.",
                           AUTOMATICALLY_ASSIGNED_SCORE : "",
                           SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
+                          PROBLEM_NUMBER : 1,
                           STEPS : [
                             { CONTENT : "5x=10"},
                             { CONTENT : "x=2"}
@@ -262,6 +265,7 @@ it('test aggregate student work no answer key', () => {
                         { STUDENT_FILE : "jon m.",
                           AUTOMATICALLY_ASSIGNED_SCORE : "",
                           SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
+                          PROBLEM_NUMBER : 1,
                           STEPS : [
                             { CONTENT : "5x=10"},
                             { CONTENT : "x=-2"}
