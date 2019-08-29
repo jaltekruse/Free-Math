@@ -20,4 +20,4 @@ window.onload = function() {
     window.store.subscribe(autoSave);
     render();
 };
-registerServiceWorker();
+//registerServiceWorker();
