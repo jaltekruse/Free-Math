@@ -3,7 +3,7 @@ import './index.css';
 import { rootReducer } from './FreeMath';
 import { render } from './DefaultHomepageActions';
 import { autoSave } from './FreeMath.js';
-import registerServiceWorker from './registerServiceWorker';
+import { unregister } from './registerServiceWorker';
 
 window.onload = function() {
     /* No longer necessary, figured out how to set up server level https
@@ -20,4 +20,4 @@ window.onload = function() {
     window.store.subscribe(autoSave);
     render();
 };
-//registerServiceWorker();
+unregister();
