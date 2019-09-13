@@ -607,6 +607,8 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
             problem[FEEDBACK] = "";
             problem[SCORE] = "";
+            problem[POSSIBLE_POINTS] = "";
+            problem["LAST_SHOWN_STEP"] = "";
             problem[STEPS].forEach(function(step, index, array) {
                 if (step[HIGHLIGHT])
                     delete step[HIGHLIGHT];
