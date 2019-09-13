@@ -236,6 +236,11 @@ body {
   /* background-color: #e7effd; */
   /* background-color: #92d1ff; */
   margin-bottom: 0;
+  margin-left:0;
+  margin-right:0;
+  padding-left:0;
+  padding-right:0;
+  padding-bottom:0;
   line-height: 1.5
 }
 #body {
