@@ -352,9 +352,9 @@ const DefaultHomepageActions = createReactClass({
                          alt="moodle logo"
                          src="images/blackboard.png"/>
                 </div> 
-                <div style={{"width" : "100%", "margin":"100px 0px 0px 0px",
+                <div style={{"width" : "100%", "margin":"100px 0px 100px 0px",
                              "padding":"50px 0px 50px 0px",
-                             "marginBottom": "35px",
+                             "marginBottom": "100px",
                              "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
                              }}>
 		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
@@ -397,14 +397,14 @@ const DefaultHomepageActions = createReactClass({
                         <p> It looks like you are on a mobile device, please save the link and visit on
                             one of your larger devices to try out the demo. </p>
                 </div>
-                <div className="homepage-center" style={{"margin":"100px 0px 0px 0px"}}>
+                <div className="homepage-center" style={{"padding":"0px 0px 100px 0px"}}>
                     <h2>Free and Open Source</h2>
                     <p><a href="https://github.com/jaltekruse/Free-Math">
                         Source Code
                       </a>
                         &nbsp;released under the GPL Open Source license.</p>
                 </div>
-                <div style={{"padding":"100px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
+                <div style={{"align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>
                 <br />
                 <div style={{float:"none", display:"inline-block"}}>
