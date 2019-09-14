@@ -323,6 +323,7 @@ const DefaultHomepageActions = createReactClass({
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
+                    <br />
                     <img style={{"width":"100%",
                                   "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
                                }}
@@ -399,10 +400,10 @@ const DefaultHomepageActions = createReactClass({
                 </div>
                 <div className="homepage-center" style={{"padding":"0px 0px 100px 0px"}}>
                     <h2>Free and Open Source</h2>
-                    <p><a href="https://github.com/jaltekruse/Free-Math">
-                        Source Code
-                      </a>
-                        &nbsp;released under the GPL Open Source license.</p>
+                    <p>Released under the GPL Open Source license.</p>
+                    <a href="https://github.com/jaltekruse/Free-Math">
+                    Source Code
+                    </a>
                 </div>
                 <div style={{"align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>
