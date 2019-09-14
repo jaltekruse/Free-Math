@@ -228,7 +228,7 @@ const DefaultHomepageActions = createReactClass({
             "text-align": "center",
         };
         var wrapperDivStyle = {
-            padding:"0px 0px 0px 0px",
+            padding:"0px 2vw 0px 2vw",
             "backgroundColor":"#ffffff",
             "marginLeft":"auto",
             "marginRight": "auto",
@@ -252,7 +252,9 @@ const DefaultHomepageActions = createReactClass({
         return (
             <div>
             <div className="menuBar">
-                <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{maxWidth:1024,marginLeft:"auto",
+                             marginRight:"auto", padding: "0 10px 0 10px"}}
+                     className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
                     <a href="gettingStarted.html" style={{color:"white", marginRight:"15px"}} >Getting Started</a>{' '}
