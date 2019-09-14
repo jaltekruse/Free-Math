@@ -266,6 +266,9 @@ body {
 p {
   font-size: 18px;
 }
+a {
+  font-size: 18px;
+}
 code {
   font: 90% monospace;
   background: #DDD;
