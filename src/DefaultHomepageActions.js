@@ -228,7 +228,7 @@ const DefaultHomepageActions = createReactClass({
             "text-align": "center",
         };
         var wrapperDivStyle = {
-            padding:"0px 2vw 0px 2vw",
+            padding:"0px 0px 0px 0px",
             "backgroundColor":"#ffffff",
             "marginLeft":"auto",
             "marginRight": "auto",
@@ -264,8 +264,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             </div>
             <div style={wrapperDivStyle}>
-                <h1 className="homepage-center homepage-headline"
-                    style={{"max-width": "850px","padding":"100px 0px 100px 0px"}}>
+                <h1 className="homepage-center homepage-headline">
                     Give your students feedback, meaningfully and efficiently.
                 </h1>
             <div className="homepage-disappear-mobile">
@@ -355,6 +354,7 @@ const DefaultHomepageActions = createReactClass({
                 </div> 
                 <div style={{"width" : "100%", "margin":"200px 0px 0px 0px",
                              "padding":"50px 0px 50px 0px",
+                             "marginBottom": "35px",
                              "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
                              }}>
 		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
@@ -392,7 +392,19 @@ const DefaultHomepageActions = createReactClass({
 		    </form>
 		    </div>
 		</div>
-                <div style={{"padding":"200px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
+                <div className="homepage-center-mobile homepage-only-on-mobile">
+                    <h2> Windows Computers, Chromebooks and Macs Currently Supported </h2>
+                        <p> It looks like you are on a mobile device, please save the link and visit on
+                            one of your larger devices to try out the demo. </p>
+                </div>
+                <div className="homepage-center">
+                    <h2>Free and Open Source</h2>
+                    <p><a href="https://github.com/jaltekruse/Free-Math">
+                        Source Code
+                      </a>
+                        &nbsp;released under the GPL Open Source license.</p>
+                </div>
+                <div style={{"padding":"100px 0px 0px 0px", "align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>
                 <div style={{float:"none", display:"inline-block"}}>
                     <div className="homepage-center-mobile homepage-left">
