@@ -398,13 +398,6 @@ const DefaultHomepageActions = createReactClass({
                         <p> It looks like you are on a mobile device, please save the link and visit on
                             one of your larger devices to try out the demo. </p>
                 </div>
-                <div className="homepage-center" style={{"padding":"0px 0px 100px 0px"}}>
-                    <h2>Free and Open Source</h2>
-                    <p>Released under the GPL Open Source license.</p>
-                    <a href="https://github.com/jaltekruse/Free-Math">
-                    Source Code
-                    </a>
-                </div>
                 <div style={{"align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>
                 <br />
