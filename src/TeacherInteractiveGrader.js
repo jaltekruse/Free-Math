@@ -213,14 +213,61 @@ function gradingReducer(state, action) {
     }
 }
 
+function buildKey(string1, string2) {
+    if (string1 < string2) {
+        return JSON.stringify([string1, string2]);
+    } else {
+        return JSON.stringify([string2, string1]);
+    }
+}
+
+function splitKey(compositeKey) {
+    return JSON.parse(compositeKey);
+}
+
+// Find similar assignments, do generic JSON diff between all assignments, then
+// combine pairs of sufficiently similar documents into larger groups that are
+// all within the threshold of similarity
+//
+// First compute diff between all assignments, store in hashmap/object
+// with keys of [ "student_doc_1", "student_doc_2" ] with the names sorted alphabetically
+// in each pair, for consistent access later.
+//
+// Loop through all pairs below a threshold of uniqueness, relationship of similarity
+// is not transitive. One document could be 20% different from 2 others, but in different
+// ways, making the other two up to 40% different. For a document to join a group, it must
+// be sufficiently similar to all docs already in that group.
+//
 function findSimilarStudentAssignments(allStudentWork) {
+
+    // Similarity check does a generic diff on JSON docs, for re-opened docs this
+    // will include data intermixed for the grading marks.
+    // Loop through the structure to remove all grading marks from the versions
+    // that will be used to compare the students.
+    // TODO - try to remove this deep clone of all docs, don't know if it is safe
+    // today to mutate the incoming data.
+    allStudentWork = cloneDeep(allStudentWork);
+    allStudentWork.forEach(function(assignInfo, index, array) {
+        assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
+            problem[FEEDBACK] = "";
+            problem[SCORE] = "";
+            problem[POSSIBLE_POINTS] = "";
+            problem["LAST_SHOWN_STEP"] = "";
+            problem[UNDO_STACK] = [];
+            problem[REDO_STACK] = [];
+            problem[STEPS].forEach(function(step, index, array) {
+                if (step[HIGHLIGHT])
+                    delete step[HIGHLIGHT];
+                step[STEP_ID] = "";
+            });
+        });
+    });
+    // with keys of student_doc_1__student_doc_2 with the names sorted alphabetically
+    // values are numbers for percentage of unique work from 0 to 1.0
+    let similarityScores = {};
+
     // 2d array of student names whose docs were similar
     var allSimilarityGroups = [];
-    // map from student names to hash set with group id's
-    var groupMemberships = {};
-
-    // TODO - FINISH FLAGGING DOCS NOT SHOWING ENOUGH WORK
-    // average amount of work on each problem
 
     // calculate average length of answer accross all docs
     var totalWork = 0
@@ -228,7 +275,9 @@ function findSimilarStudentAssignments(allStudentWork) {
     var totalProblemsAttempted = 0;
     var maxProblemsAttempted = 0;
     allStudentWork.forEach(function(assignment, index, array) {
-        if (assignment[ASSIGNMENT].length > maxProblemsAttempted) maxProblemsAttempted = assignment[ASSIGNMENT].length;
+        if (assignment[ASSIGNMENT].length > maxProblemsAttempted) {
+            maxProblemsAttempted = assignment[ASSIGNMENT].length;
+        }
         totalProblemsAttempted += assignment[ASSIGNMENT].length;
         assignment[ASSIGNMENT].forEach(function(problem, index, array) {
             totalWork += problem[STEPS].length;
@@ -244,24 +293,46 @@ function findSimilarStudentAssignments(allStudentWork) {
             var result = diffJson(assignment1, assignment2);
             // currently a rough threshold of 30% unique work, will improve later
             // the -2 is to adjust for the filename difference in the structures
-            if ((result.length - 2) / 2.0 < averageNumberOfQuestions * averageAnswerLength * 0.3) {
-                // is the first assignment matched with at least one similarity group
-                var matchingGroup = groupMemberships[assignment1[STUDENT_FILE]];
-                // does assignment 1 already belong to match groups, if so just add
-                // assignment 2 to each of those, TODO - missing a loop?
-                // TODO - need a length here?
-                if (matchingGroup >= 0) {
-                    if (groupMemberships[assignment2[STUDENT_FILE]] >= 0) return;
-                    allSimilarityGroups[matchingGroup].push(assignment2[STUDENT_FILE]);
-                    groupMemberships[assignment2[STUDENT_FILE]] = matchingGroup;
-                } else {
-                    groupMemberships[assignment1[STUDENT_FILE]] = allSimilarityGroups.length;
-                    groupMemberships[assignment2[STUDENT_FILE]] = allSimilarityGroups.length;
-                    allSimilarityGroups.push([assignment1[STUDENT_FILE], assignment2[STUDENT_FILE]]);
-                }
+            console.log("comprison results " + assignment1[STUDENT_FILE] + " " + assignment2[STUDENT_FILE]);
+            console.log(result);
+            let similarity = ((result.length - 2) / 2.0)
+                / ( averageNumberOfQuestions * averageAnswerLength);
+
+            if (similarity < 0.3) {
+                let key = buildKey(assignment1[STUDENT_FILE], assignment2[STUDENT_FILE]);
+                similarityScores[key] = similarity;
             }
         });
     });
+    console.log(similarityScores);
+    for (var similarPair in similarityScores) {
+        if (similarityScores.hasOwnProperty(similarPair)) {
+            let pair = splitKey(similarPair);
+            var addedToOneGroup = false;
+            allSimilarityGroups.forEach(function(group, index, array) {
+                var matchesAll = true;
+                group.forEach(function(groupMember, index, array) {
+                    if ( (groupMember !== pair[0]
+                           && similarityScores[buildKey(groupMember, pair[0])] == undefined) ||
+                          (groupMember !== pair[1]
+                           && similarityScores[buildKey(groupMember, pair[1])] == undefined) ) {
+                        matchesAll = false;
+                    }
+                });
+                if (matchesAll) {
+                    // add if not in list
+                    group.indexOf(pair[0]) === -1 ? group.push(pair[0]) : 0;
+                    group.indexOf(pair[1]) === -1 ? group.push(pair[1]) : 0;
+                    addedToOneGroup = true;
+                }
+            });
+            if (!addedToOneGroup) {
+                allSimilarityGroups.push(pair);
+            }
+            console.log(JSON.stringify(allSimilarityGroups));
+        }
+    }
+
     return allSimilarityGroups;
 }
 
@@ -596,25 +667,6 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     });
     */
 
-    // Similarity check does a generic diff on JSON docs, for re-opened docs this
-    // will include data intermixed for the grading marks.
-    // Loop through the structure to remove all grading marks from the versions
-    // that will be used to compare the students.
-    // TODO - try to remove this deep clone of all docs, don't know if it is safe
-    // today to mutate the incoming data.
-    allStudentWork = cloneDeep(allStudentWork);
-    allStudentWork.forEach(function(assignInfo, index, array) {
-        assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            problem[FEEDBACK] = "";
-            problem[SCORE] = "";
-            problem[POSSIBLE_POINTS] = "";
-            problem["LAST_SHOWN_STEP"] = "";
-            problem[STEPS].forEach(function(step, index, array) {
-                if (step[HIGHLIGHT])
-                    delete step[HIGHLIGHT];
-            });
-        });
-    });
     var similarAssignments = findSimilarStudentAssignments(allStudentWork);
     return { CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
     SIMILAR_ASSIGNMENT_SETS : similarAssignments, PROBLEMS : aggregatedWork }
