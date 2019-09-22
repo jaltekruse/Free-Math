@@ -293,8 +293,6 @@ function findSimilarStudentAssignments(allStudentWork) {
             var result = diffJson(assignment1, assignment2);
             // currently a rough threshold of 30% unique work, will improve later
             // the -2 is to adjust for the filename difference in the structures
-            console.log("comprison results " + assignment1[STUDENT_FILE] + " " + assignment2[STUDENT_FILE]);
-            console.log(result);
             let similarity = ((result.length - 2) / 2.0)
                 / ( averageNumberOfQuestions * averageAnswerLength);
 
@@ -304,21 +302,27 @@ function findSimilarStudentAssignments(allStudentWork) {
             }
         });
     });
-    console.log(similarityScores);
     for (var similarPair in similarityScores) {
         if (similarityScores.hasOwnProperty(similarPair)) {
             let pair = splitKey(similarPair);
             var addedToOneGroup = false;
             allSimilarityGroups.forEach(function(group, index, array) {
                 var matchesAll = true;
-                group.forEach(function(groupMember, index, array) {
+                // are both members of this pair already in this group, then skip comparing with
+                // everyone else
+                if (group.indexOf(pair[0]) !== -1 && group.indexOf(pair[1]) !== -1) {
+                    addedToOneGroup = true;
+                    return true;
+                }
+                for (let groupMember of group) {
                     if ( (groupMember !== pair[0]
                            && similarityScores[buildKey(groupMember, pair[0])] == undefined) ||
                           (groupMember !== pair[1]
                            && similarityScores[buildKey(groupMember, pair[1])] == undefined) ) {
                         matchesAll = false;
+                        break;
                     }
-                });
+                }
                 if (matchesAll) {
                     // add if not in list
                     group.indexOf(pair[0]) === -1 ? group.push(pair[0]) : 0;
@@ -329,7 +333,6 @@ function findSimilarStudentAssignments(allStudentWork) {
             if (!addedToOneGroup) {
                 allSimilarityGroups.push(pair);
             }
-            console.log(JSON.stringify(allSimilarityGroups));
         }
     }
 
