@@ -240,6 +240,11 @@ function splitKey(compositeKey) {
 //
 function findSimilarStudentAssignments(allStudentWork) {
 
+    if (allStudentWork.length > 100) {
+        alert("Too many assignments to perform overall document similarity check.\n" + 
+            "To use this feature you can open up documents in groups of 100 students or less at a time.");
+        return [];
+    }
     // Similarity check does a generic diff on JSON docs, for re-opened docs this
     // will include data intermixed for the grading marks.
     // Loop through the structure to remove all grading marks from the versions
@@ -287,6 +292,9 @@ function findSimilarStudentAssignments(allStudentWork) {
     var averageAnswerLength = totalWork / totalProblemsCompleted;
     var averageNumberOfQuestions = totalProblemsAttempted / allStudentWork.length;
 
+    // map from student doc names to list of docs that one student is similar to
+    var similarDocsToEach = {}
+
     allStudentWork.forEach(function(assignment1, index, array) {
         allStudentWork.forEach(function(assignment2, index, array) {
             if (assignment1[STUDENT_FILE] === assignment2[STUDENT_FILE]) return;
@@ -299,9 +307,41 @@ function findSimilarStudentAssignments(allStudentWork) {
             if (similarity < 0.3) {
                 let key = buildKey(assignment1[STUDENT_FILE], assignment2[STUDENT_FILE]);
                 similarityScores[key] = similarity;
+                // create list if one not already existing at this key
+                similarDocsToEach[assignment1[STUDENT_FILE]] =
+                    ( typeof similarDocsToEach[assignment1[STUDENT_FILE]] !== 'undefined')
+                    ? similarDocsToEach[assignment1[STUDENT_FILE]]
+                    : [];
+
+                // add if not in list
+                similarDocsToEach[assignment1[STUDENT_FILE]].indexOf(assignment2[STUDENT_FILE]) === -1
+                    ? similarDocsToEach[assignment1[STUDENT_FILE]].push(assignment2[STUDENT_FILE])
+                    : 0;
             }
         });
     });
+    // too many pairs to do the complete reduction of redundant groups in reasonable time
+    if (Object.keys(similarityScores).length > 100) {
+        for (var similarGroup in similarDocsToEach) {
+            if (similarDocsToEach.hasOwnProperty(similarGroup)) {
+                let newGroup = similarDocsToEach[similarGroup];
+                // add the student that the list was keyed by, it is similar to all those in this list
+                newGroup.push(similarGroup);
+                // check if new group already present (if exact groups of students all match, there will
+                // be duplicate lists)
+                // but if student a matches b,c and d
+                // but two of those are different from one antother, say c and d, the groups shown to the user
+                // will be [a,b,c,d], [a,b,c] and [a,b,d]
+                let alreadyPresent = allSimilarityGroups.some(function(group) {
+                    return _.isEqual(group.sort(), newGroup.sort())
+                });
+                if (! alreadyPresent) {
+                    allSimilarityGroups.push(newGroup);
+                }
+            }
+        }
+        return allSimilarityGroups;
+    }
     for (var similarPair in similarityScores) {
         if (similarityScores.hasOwnProperty(similarPair)) {
             let pair = splitKey(similarPair);
