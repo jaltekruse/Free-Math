@@ -276,6 +276,8 @@ const DefaultHomepageActions = createReactClass({
                     window.onbeforeunload = function() {
                             return true;
                     };
+                    window.location.hash = '';
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
                     window.store.dispatch({type : "NEW_ASSIGNMENT"});
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
@@ -284,6 +286,8 @@ const DefaultHomepageActions = createReactClass({
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
+                    window.location.hash = '';
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
                     window.store.dispatch(demoGradingAction);
                 }}
             >
