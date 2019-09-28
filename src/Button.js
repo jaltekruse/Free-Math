@@ -18,10 +18,11 @@ var Button = createReactClass({
     render: function() {
         const onClick = this.props.onClick;
         const title = this.props.title;
+        const style =  this.props.style;
         return (
             <button
                 className="fm-button"
-                style={{...unselectable}}
+                style={{...unselectable, ...style}}
                 onClick={function() {
                      onClick();
                  }}

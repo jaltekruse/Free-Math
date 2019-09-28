@@ -203,11 +203,13 @@ const SolutionGrader = createReactClass({
                         <Button text="Apply to Ungraded"
                                 title={"Apply this score and feedback text to all responses in this " +
                                     "group that don't have a grade yet."}
-                                onClick={this.applyScoreToUngraded}/>
+                                onClick={this.applyScoreToUngraded}
+                                style={{backgroundColor: "#008000"}}/>
                         <Button text="Apply to All"
                                 title={"Apply this score and feedback text to all responses in this group, " +
                                       "will overwrite already entered values."}
-                                onClick={this.applyScoreToAll}/>
+                                onClick={this.applyScoreToAll}
+                                style={{backgroundColor: "#008000"}}/>
                 </p>
                 <p>Feedback &nbsp; &nbsp;
                 <br />

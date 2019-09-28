@@ -871,7 +871,9 @@ const SimilarDocChecker = createReactClass({
         return (
             <div>
                 <SimilarGroupSelector />
-                <AllProblemGraders />
+                { (this.props.value[SIMILAR_ASSIGNMENT_GROUP_INDEX] !== undefined)
+                    ? <AllProblemGraders />
+                    : null }
             </div>
         );
     }
