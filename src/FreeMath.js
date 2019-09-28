@@ -18,8 +18,6 @@ var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
 var MODE_CHOOSER = 'MODE_CHOOSER';
 
 var VIEW_GRADES = 'VIEW_GRADES';
-var GRADE_INFO = 'GRADE_INFO';
-var STUDENT_GRADES = 'STUDENT_GRADES';
 
 var SIMILAR_DOC_CHECK = 'SIMILAR_DOC_CHECK';
 
@@ -204,7 +202,6 @@ var FreeMath = createReactClass({
             <DefaultHomepageActions />
         );
     } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
-        var props = this.props;
         return (
             <div style={{...wrapperDivStyle, width : "80%" }}>
                 <ModalWhileGradingMenuBar />

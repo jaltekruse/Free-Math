@@ -1,7 +1,6 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
-import TeX from './TeX.js';
 
 const LogoHomeNav = createReactClass({
   render: function() {

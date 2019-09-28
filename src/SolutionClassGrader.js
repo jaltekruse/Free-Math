@@ -1,6 +1,5 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
-import _ from 'underscore';
 import './App.css';
 import TeX from './TeX.js';
 import SolutionGrader, { singleSolutionReducer } from './SolutionGrader.js';

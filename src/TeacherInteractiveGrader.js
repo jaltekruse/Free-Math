@@ -367,9 +367,9 @@ function findSimilarStudentAssignments(allStudentWork) {
                 }
                 for (let groupMember of group) {
                     if ( (groupMember !== pair[0]
-                           && similarityScores[buildKey(groupMember, pair[0])] == undefined) ||
+                           && similarityScores[buildKey(groupMember, pair[0])] === undefined) ||
                           (groupMember !== pair[1]
-                           && similarityScores[buildKey(groupMember, pair[1])] == undefined) ) {
+                           && similarityScores[buildKey(groupMember, pair[1])] === undefined) ) {
                         matchesAll = false;
                         break;
                     }
@@ -1093,12 +1093,6 @@ const TeacherInteractiveGrader = createReactClass({
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-
-        var state = window.store.getState();
-        var problems = state[PROBLEMS];
-        var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
-        var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
-        var currentProblem = state["CURRENT_PROBLEM"];
 
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
