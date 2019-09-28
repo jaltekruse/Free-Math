@@ -43,8 +43,16 @@ var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
 function singleSolutionReducer(state, action) {
     if (action.type === GRADE_SINGLE_SOLUTION) {
         // currently no validation here
-        return { ...state,
-        SCORE : action[SCORE] };
+        // Apply to all has been modified not to just apply the score, but also
+        // the feedback, so also include the feedback in this update
+        // TODO - add validation to prevent overrriding custom feedback on a single
+        // problem with a bulk action
+        let ret = { ...state,
+                    SCORE : action[SCORE]};
+        if (action[FEEDBACK] !== undefined) {
+            ret[FEEDBACK] = action[FEEDBACK];
+        }
+        return ret;
     } else if (action.type === HIGHLIGHT_STEP) {
         var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
         var newHighlight;
@@ -65,10 +73,12 @@ function singleSolutionReducer(state, action) {
         return newState;
     } else if (action.type === SET_PROBLEM_FEEDBACK) {
         return { ...state,
-        FEEDBACK : action[FEEDBACK] };
+                 FEEDBACK : action[FEEDBACK] };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
         if (Number(state[SCORE]) > 0) {
-            var newScore = Math.round( (Number(state[SCORE])/Number(action[OLD_POSSIBLE_POINTS])) * Number(action[POSSIBLE_POINTS]));
+            var newScore = Math.round(
+                ( Number(state[SCORE]) / Number(action[OLD_POSSIBLE_POINTS]) )
+                * Number(action[POSSIBLE_POINTS]));
             return { ...state,
                      SCORE : newScore };
         } else {
@@ -109,14 +119,17 @@ const SolutionGrader = createReactClass({
         // that doesn't expose the data completely but just allows this check to be made
 
         window.store.dispatch({ type : GRADE_CLASS_OF_SOLUTIONS, MODE : ALL, PROBLEM_NUMBER : problemNumber,
-                         SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : data[SCORE]});
+                         SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : data[SCORE],
+                         FEEDBACK : data[FEEDBACK]});
     },
     applyScoreToUngraded: function(evt) {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
-        window.store.dispatch({ type : GRADE_CLASS_OF_SOLUTIONS, MODE : JUST_UNGRADED, PROBLEM_NUMBER : problemNumber,
-                         SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : data[SCORE]});
+        window.store.dispatch({ type : GRADE_CLASS_OF_SOLUTIONS, MODE : JUST_UNGRADED,
+                         PROBLEM_NUMBER : problemNumber, SOLUTION_CLASS_INDEX : solutionClassIndex,
+                         SCORE : data[SCORE], FEEDBACK : data[FEEDBACK]
+                        });
     },
     setFeedback: function(evt) {
         var problemNumber = this.props.problemNumber
@@ -185,25 +198,25 @@ const SolutionGrader = createReactClass({
                 <p>Score <input type="text" size="4" className="problem-grade-input"
                                 value={data[SCORE]} onChange={this.setScore}
                           /> out of {possiblePoints} &nbsp;
-                        <Button type="submit" text="Full points" onClick={this.fullPoints}/>
+                        <Button type="submit" text="Full Points" onClick={this.fullPoints}/>
                         <br />
-                        <Button text="Apply to ungraded"
-                                title={"Apply this score to all responses in this " +
+                        <Button text="Apply to Ungraded"
+                                title={"Apply this score and feedback text to all responses in this " +
                                     "group that don't have a grade yet."}
                                 onClick={this.applyScoreToUngraded}/>
-                        <Button text="Apply to all"
-                                title={"Apply this score to all responses in this group, " +
-                                      "will overwrite already entered grade values."}
+                        <Button text="Apply to All"
+                                title={"Apply this score and feedback text to all responses in this group, " +
+                                      "will overwrite already entered values."}
                                 onClick={this.applyScoreToAll}/>
                 </p>
                 <p>Feedback &nbsp; &nbsp;
                 <br />
-                {feedbackButton("Show work", "Show your complete work.")}
-                {feedbackButton("Simple mistake", "Review your work for a simple mistake.")}
+                {feedbackButton("Show Work", "Show your complete work.")}
+                {feedbackButton("Simple Mistake", "Review your work for a simple mistake.")}
                 <br />
-                {feedbackButton("Let's talk", "Let's chat about this next class.")}
-                {feedbackButton("Not simplified", "Be sure to simplify completely.")}
-                {feedbackButton("Sig figs", "Incorrect significant figures.")}
+                {feedbackButton("Let's Talk", "Let's chat about this next class.")}
+                {feedbackButton("Not Simplified", "Be sure to simplify completely.")}
+                {feedbackButton("Sig Figs", "Incorrect significant figures.")}
                 </p>
 
                 <div><textarea placeholder="Click a button for quick feedback or type custom feedback here." cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>

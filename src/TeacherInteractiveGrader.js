@@ -1109,7 +1109,7 @@ const TeacherInteractiveGrader = createReactClass({
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
                 <AllProblemGraders />
                 <h3>To grade other problems use the bar graph at the top of the page to select them.</h3>
-                <Button text="Scroll to top" onClick={
+                <Button text="Scroll to Top" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;}
