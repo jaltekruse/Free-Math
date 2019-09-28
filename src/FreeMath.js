@@ -3,6 +3,7 @@ import createReactClass from 'create-react-class';
 import GradingMenuBar from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
 import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
+import { GradesView, SimilarDocChecker } from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
@@ -19,6 +20,8 @@ var MODE_CHOOSER = 'MODE_CHOOSER';
 var VIEW_GRADES = 'VIEW_GRADES';
 var GRADE_INFO = 'GRADE_INFO';
 var STUDENT_GRADES = 'STUDENT_GRADES';
+
+var SIMILAR_DOC_CHECK = 'SIMILAR_DOC_CHECK';
 
 // Actions to change modes
 var GO_TO_MODE_CHOOSER = 'GO_TO_MODE_CHOOSER';
@@ -148,7 +151,9 @@ function rootReducer(state, action) {
             ...assignmentReducer(state, action),
             APP_MODE : EDIT_ASSIGNMENT
         }
-    } else if (state[APP_MODE] === GRADE_ASSIGNMENTS || state[APP_MODE] === VIEW_GRADES) {
+    } else if (state[APP_MODE] === GRADE_ASSIGNMENTS
+        || state[APP_MODE] === SIMILAR_DOC_CHECK
+        || state[APP_MODE] === VIEW_GRADES) {
        return {
             ...gradingReducer(state, action)
         };
@@ -201,32 +206,17 @@ var FreeMath = createReactClass({
     } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
         var props = this.props;
         return (
+            <div style={{...wrapperDivStyle, width : "80%" }}>
+                <ModalWhileGradingMenuBar />
+                <GradesView value={this.props.value} />
+            </div>
+        );
+    } else if (this.props.value[APP_MODE] === SIMILAR_DOC_CHECK) {
+        return (
             <div style={{...wrapperDivStyle, width : "95%" }}>
                 <ModalWhileGradingMenuBar />
-                   <div style={{margin:"60px 30px 30px 30px"}}>
-                <table>
-                    <thead>
-                    <tr><th>Student File</th><th>Score</th></tr>
-                    </thead>
-                    <tbody>
-                    {
-                        function() {
-                            var tableRows = [];
-                            var grades = props.value[GRADE_INFO][STUDENT_GRADES];
-                            for (var studentFileName in grades) {
-                                if (grades.hasOwnProperty(studentFileName)) {
-                                    tableRows.push(
-                                    (<tr>
-                                        <td>{studentFileName}</td>
-                                        <td>{grades[studentFileName]}</td>
-                                    </tr> ));
-                                }
-                            }
-                            return tableRows;
-                        }()
-                    }
-                    </tbody>
-                </table>
+                <div style={{margin:"60px 0px 30px 0px"}}>
+                <SimilarDocChecker value={this.props.value} />
                 </div>
             </div>
         );

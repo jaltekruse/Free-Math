@@ -27,6 +27,8 @@ var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
 // when grading, open the view where overall student grades are show
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
+var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
+var SIMILAR_DOC_CHECK = 'SIMILAR_DOC_CHECK';
 
 var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
@@ -52,6 +54,10 @@ var STUDENT_FILE = 'STUDENT_FILE';
 var ASSIGNMENT = 'ASSIGNMENT';
 var AUTOMATICALLY_ASSIGNED_SCORE = 'AUTOMATICALLY_ASSIGNED_SCORE';
 var HIGHLIGHT = 'HIGHLIGHT';
+
+// View grades component
+var GRADE_INFO = 'GRADE_INFO';
+var STUDENT_GRADES = 'STUDENT_GRADES';
 
 // answer key properties
 var GRADE_STRATEGY = "GRADE_STRATEGY";
@@ -175,6 +181,11 @@ function gradingReducer(state, action) {
             ...state,
             GRADE_INFO : grades,
             APP_MODE : VIEW_GRADES
+        };
+    } else if (action.type === SET_TO_SIMILAR_DOC_CHECK) {
+        return {
+            ...state,
+            APP_MODE : SIMILAR_DOC_CHECK
         };
     } else if (action.type === NAV_BACK_TO_GRADING ) {
         return {
@@ -851,6 +862,161 @@ function studentSubmissionsZip(evt) {
     }
 }
 
+const SimilarDocChecker = createReactClass({
+    render: function() {
+        return (
+            <div>
+                <SimilarGroupSelector />
+                <AllProblemGraders />
+            </div>
+        );
+    }
+});
+
+const SimilarGroupSelector = createReactClass({
+
+    render: function() {
+        var state = window.store.getState();
+        var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
+        var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
+        return(
+            <div>
+            { (similarAssignments && similarAssignments.length > 0) ? (
+                <div className="similar-assignment-filters">
+                  <h3>Some students may have copied each others work</h3>
+                {/* Not really needed anymore now that similar doc check is on separate page
+                    TODO - remove this completely, including actions
+                {   (typeof(currentSimilarityGroupIndex) !== "undefined" &&
+                     currentSimilarityGroupIndex !== null) ?
+                        (<p> Currently viewing a group of similar
+                            assignments, back to grading full class
+                            <Button text="View All" onClick={
+                             function(evt) {
+                                window.store.dispatch(
+                                    { type : VIEW_SIMILAR_ASSIGNMENTS,
+                                      SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined
+                                });
+                            }
+                        }/></p>)
+                    : null
+                }
+                */}
+                {
+                    function() {
+                        var similarityGroups = [];
+                        similarAssignments.forEach(
+                            function(similarityGroup, index, array) {
+                                similarityGroups.push(
+                                (
+                                    <p key={index}>
+                                    { (index === currentSimilarityGroupIndex) ?
+                                        (<b>A group of  {similarityGroup.length} students
+                                            submitted similar assignments &nbsp;</b>)
+                                       : (<span>A group of  {similarityGroup.length} students
+                                           submitted similar assignments &nbsp;</span>)
+                                    }
+                                    <Button text="View" onClick={
+                                        function(evt) {
+                                            window.store.dispatch(
+                                                { type : VIEW_SIMILAR_ASSIGNMENTS,
+                                                  SIMILAR_ASSIGNMENT_GROUP_INDEX : index
+                                            });
+                                        }
+                                    }/>
+                                    </p>
+                                )
+                            );
+                        });
+                        return similarityGroups;
+                    }()
+                }
+                </div>
+                )
+               : null
+            }
+            </div>
+        );
+    }
+});
+
+const GradesView = createReactClass({
+    render: function() {
+        var props = this.props;
+        return (
+            <div style={{margin:"60px 30px 30px 30px"}}>
+                <table>
+                    <thead>
+                    <tr><th>Student File</th><th>Score</th></tr>
+                    </thead>
+                    <tbody>
+                    {
+                        function() {
+                            var tableRows = [];
+                            var grades = props.value[GRADE_INFO][STUDENT_GRADES];
+                            for (var studentFileName in grades) {
+                                if (grades.hasOwnProperty(studentFileName)) {
+                                    tableRows.push(
+                                    (<tr>
+                                        <td>{studentFileName}</td>
+                                        <td>{grades[studentFileName]}</td>
+                                    </tr> ));
+                                }
+                            }
+                            return tableRows;
+                        }()
+                    }
+                    </tbody>
+                </table>
+            </div>
+        );
+    }
+});
+
+const AllProblemGraders = createReactClass({
+    render: function() {
+        var state = window.store.getState();
+        var problems = state[PROBLEMS];
+        var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
+        var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
+        var currentProblem = state["CURRENT_PROBLEM"];
+
+        return (
+            <div>
+            {
+                function() {
+                    var problemGraders = [];
+                    var problemArray = [];
+                    for (var property in problems) {
+                        if (problems.hasOwnProperty(property)) {
+                            // when viewing similar assignments show all problems, otherwise only show
+                            // one problem at a time
+                            if (property === currentProblem
+                                    || (typeof(currentSimilarityGroupIndex) !== "undefined"
+                                    && currentSimilarityGroupIndex !== null)) {
+                                // problem number is stored as keys in the map, add to each object
+                                // so the list can be sorted by problem number
+                                problems[property][PROBLEM_NUMBER] = property;
+                                problemArray.push(problems[property]);
+                            }
+                        }
+                    }
+                    problemArray = problemArray.sort(
+                        function(a,b) { return a[PROBLEM_NUMBER] - b[PROBLEM_NUMBER];});
+                    problemArray.forEach(function(problem, index, array) {
+                        problemGraders.push(
+                            (<ProblemGrader problemInfo={problem}
+                                            key={problem[PROBLEM_NUMBER]}
+                                            problemNumber={problem[PROBLEM_NUMBER]}
+                                studentsToView={similarAssignments[currentSimilarityGroupIndex]}/> ));
+                    });
+                    return problemGraders;
+                }()
+            }
+            </div>
+        );
+    }
+});
+
 const TeacherInteractiveGrader = createReactClass({
     componentDidMount() {
         var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
@@ -923,8 +1089,8 @@ const TeacherInteractiveGrader = createReactClass({
         });
       },
     render: function() {
-        // TODO - figure out the right way to do this
-        // TODO - do I want to be able to change the sort ordering, possibly to put
+        // todo - figure out the right way to do this
+        // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
 
@@ -941,93 +1107,10 @@ const TeacherInteractiveGrader = createReactClass({
                     click on the corresponding bars or label in the graph.</h3>
                 <canvas ref="chart" width="400" height="50"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
-                { (similarAssignments && similarAssignments.length > 0) ? (
-                    <div className="similar-assignment-filters">
-                      <h3>Some students may have copied each others work</h3>
-                    {   (typeof(currentSimilarityGroupIndex) !== "undefined" &&
-                         currentSimilarityGroupIndex !== null) ?
-                            (<p> Currently viewing a group of similar
-                                assignments, back to grading full class
-                                <Button text="View All" onClick={
-                                 function(evt) {
-                                    window.store.dispatch(
-                                        { type : VIEW_SIMILAR_ASSIGNMENTS,
-                                          SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined
-                                    });
-                                }
-                            }/></p>)
-                        : null
-                    }
-                    {
-                        function() {
-                            var similarityGroups = [];
-                            similarAssignments.forEach(
-                                function(similarityGroup, index, array) {
-                                    similarityGroups.push(
-                                    (
-                                        <p key={index}>
-                                        { (index === currentSimilarityGroupIndex) ?
-                                            (<b>A group of  {similarityGroup.length} students
-                                                submitted similar assignments &nbsp;</b>)
-                                           : (<span>A group of  {similarityGroup.length} students
-                                               submitted similar assignments &nbsp;</span>)
-                                        }
-                                        <Button text="View" onClick={
-                                            function(evt) {
-                                                window.store.dispatch(
-                                                    { type : VIEW_SIMILAR_ASSIGNMENTS,
-                                                      SIMILAR_ASSIGNMENT_GROUP_INDEX : index
-                                                });
-                                            }
-                                        }/>
-                                        </p>
-                                    )
-                                );
-                            });
-                            return similarityGroups;
-                        }()
-                    }
-                    </div>
-                    )
-                   : null
-                }
-
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
-                <div>
-                {
-                    function() {
-                        var problemGraders = [];
-                        var problemArray = [];
-                        for (var property in problems) {
-                            if (problems.hasOwnProperty(property)) {
-                                // when viewing similar assignments show all problems, otherwise only show
-                                // one problem at a time
-                                if (property === currentProblem
-                                        || (typeof(currentSimilarityGroupIndex) !== "undefined"
-                                        && currentSimilarityGroupIndex !== null)) {
-                                    // problem number is stored as keys in the map, add to each object
-                                    // so the list can be sorted by problem number
-                                    problems[property][PROBLEM_NUMBER] = property;
-                                    problemArray.push(problems[property]);
-                                }
-                            }
-                        }
-                        problemArray = problemArray.sort(
-                            function(a,b) { return a[PROBLEM_NUMBER] - b[PROBLEM_NUMBER];});
-                        problemArray.forEach(function(problem, index, array) {
-                            problemGraders.push(
-                                (<ProblemGrader problemInfo={problem}
-                                                key={problem[PROBLEM_NUMBER]}
-                                                problemNumber={problem[PROBLEM_NUMBER]}
-                                    studentsToView={similarAssignments[currentSimilarityGroupIndex]}/> ));
-                        });
-                        return problemGraders;
-                    }()
-                }
-                </div>
-                <h3>To grade other problems use the bar graph at the top of the page to select them.
-                </h3>
+                <AllProblemGraders />
+                <h3>To grade other problems use the bar graph at the top of the page to select them.</h3>
                 <Button text="Scroll to top" onClick={
                             function() {
                                 window.location.hash = '';
@@ -1041,6 +1124,8 @@ const TeacherInteractiveGrader = createReactClass({
 });
 
 export { TeacherInteractiveGrader as default,
+    GradesView,
+    SimilarDocChecker,
     studentSubmissionsZip,
     saveGradedStudentWork,
     gradeSingleProblem,

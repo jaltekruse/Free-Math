@@ -6,6 +6,7 @@ import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
 import { LightButton } from './Button.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
+var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -36,6 +37,13 @@ const GradingMenuBar = createReactClass({
                         <LightButton text="Save Graded" onClick={
                             function() {
                                 saveGradedStudentWork(window.store.getState());
+                            }
+                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <LightButton text="Similar Doc Check" onClick={
+                            function() {
+                                window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <LightButton text="View Grades" onClick={
