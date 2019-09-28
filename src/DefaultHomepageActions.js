@@ -41,6 +41,8 @@ const UserActions = createReactClass({
                     return true;
             };
             console.log(evt);
+            window.location.hash = '';
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
             studentSubmissionsZip(evt);
         };
 
@@ -112,6 +114,8 @@ const UserActions = createReactClass({
                                 window.onbeforeunload = function() {
                                         return true;
                                 };
+                                window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
                             }}
                         /><br />
@@ -123,6 +127,8 @@ const UserActions = createReactClass({
                                 window.onbeforeunload = function() {
                                         return true;
                                 };
+                                window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
                         <br />
