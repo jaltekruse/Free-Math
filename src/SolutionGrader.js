@@ -89,20 +89,60 @@ function singleSolutionReducer(state, action) {
     }
 }
 
+const StudentWork = createReactClass({
+    render: function() {
+        var data = this.props.solutionGradeInfo;
+        var problemNumber = this.props.problemNumber
+        var possiblePoints = this.props.possiblePoints;
+        var solutionClassIndex = this.props.solutionClassIndex;
+        var studentSolutionIndex = this.props.id;
+        return (
+            <div style={{float:"left"}} className="equation-list">
+                <br/>
+                {
+                    data[STEPS].map(function(step, stepIndex) {
+                    var stepStyle = {};
+                    if (step[HIGHLIGHT] === ERROR) stepStyle = {backgroundColor : RED}
+                    else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
+
+                    return (
+                        <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
+                            <div className="student-step-grader" style={{display: "inline-block"}}>
+                            <TeX style={stepStyle} onClick={function() {
+                                window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
+                                                SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                                SOLUTION_INDEX : studentSolutionIndex,
+                                                STEP_KEY : stepIndex});
+                                }}>
+                                {typeof(step[CONTENT]) === 'string'
+                                    ? step[CONTENT]
+                                    : "\\text{corruption occured}"}
+                                </TeX>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        );
+    }
+});
+
 const SolutionGrader = createReactClass({
     setScore: function(evt) {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : GRADE_SINGLE_SOLUTION, PROBLEM_NUMBER : problemNumber,
-                         SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : evt.target.value, SOLUTION_INDEX : studentSolutionIndex});
+                         SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : evt.target.value,
+                         SOLUTION_INDEX : studentSolutionIndex});
     },
     fullPoints: function(evt) {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : GRADE_SINGLE_SOLUTION, PROBLEM_NUMBER : problemNumber,
-                         SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : this.props.possiblePoints, SOLUTION_INDEX : studentSolutionIndex});
+                         SOLUTION_CLASS_INDEX : solutionClassIndex,
+                         SCORE : this.props.possiblePoints, SOLUTION_INDEX : studentSolutionIndex});
     },
     applyScoreToAll: function(evt) {
         var data = this.props.solutionGradeInfo;
@@ -136,14 +176,16 @@ const SolutionGrader = createReactClass({
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : SET_PROBLEM_FEEDBACK, PROBLEM_NUMBER : problemNumber,
-                         SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : evt.target.value, SOLUTION_INDEX : studentSolutionIndex});
+                         SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : evt.target.value,
+                         SOLUTION_INDEX : studentSolutionIndex});
     },
     setQuickFeedback: function(text) {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : SET_PROBLEM_FEEDBACK, PROBLEM_NUMBER : problemNumber,
-                         SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : text, SOLUTION_INDEX : studentSolutionIndex});
+                         SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : text,
+                         SOLUTION_INDEX : studentSolutionIndex});
     },
     render: function() {
         var data = this.props.solutionGradeInfo;
@@ -151,6 +193,7 @@ const SolutionGrader = createReactClass({
         var possiblePoints = this.props.possiblePoints;
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
+        var viewingSimilarGroup = this.props.viewingSimilarGroup;
         //var showStudentName = this.props.showStudentName;
         var showStudentName = true;
         var correctness;
@@ -186,65 +229,59 @@ const SolutionGrader = createReactClass({
         };
         return (
             <div className={classes} style={{float:"left"}}> {/*<!-- container for nav an equation list --> */}
-                <div style={{visibility: (data[SCORE] === "") ? "visible" : "hidden"}}>
-                    <small><span style={{color:"#545454"}}>Complete - Full Credit</span><br /></small>
-                </div>
-                <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
-                {/* TODO - I need teachers to be able to edit the score, including deleting down to empty string, so they
-                           can write a new score. If I add validation when setting the value in the reducer the field won't be editable.
-                           Look up react best pratices for this, right now I'll assume I should attach another event here to ensure
-                           that the field contains a number when focus is lost
-                */}
-                <p>Score <input type="text" size="4" className="problem-grade-input"
-                                value={data[SCORE]} onChange={this.setScore}
-                          /> out of {possiblePoints} &nbsp;
-                        <Button type="submit" text="Full Points" onClick={this.fullPoints}/>
-                        <br />
-                        <Button text="Apply to Ungraded"
-                                title={"Apply this score and feedback text to all responses in this " +
-                                    "group that don't have a grade yet."}
-                                onClick={this.applyScoreToUngraded}
-                                style={{backgroundColor: "#008000"}}/>
-                        <Button text="Apply to All"
-                                title={"Apply this score and feedback text to all responses in this group, " +
-                                      "will overwrite already entered values."}
-                                onClick={this.applyScoreToAll}
-                                style={{backgroundColor: "#008000"}}/>
-                </p>
-                <p>Feedback &nbsp; &nbsp;
-                <br />
-                {feedbackButton("Show Work", "Show your complete work.")}
-                {feedbackButton("Simple Mistake", "Review your work for a simple mistake.")}
-                <br />
-                {feedbackButton("Let's Talk", "Let's chat about this next class.")}
-                {feedbackButton("Not Simplified", "Be sure to simplify completely.")}
-                {feedbackButton("Sig Figs", "Incorrect significant figures.")}
-                </p>
+                { viewingSimilarGroup
+                        ? (<span> {showStudentName ? data[STUDENT_FILE] : "" }</span>)
+                        : ( /* Hide grading actions if viewing similar work group */
+                    <div>
+                    <div style={{visibility: (data[SCORE] === "") ? "visible" : "hidden"}}>
+                        <small><span style={{color:"#545454"}}>Complete - Full Credit</span><br /></small>
+                    </div>
+                    <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
+                    {/* TODO - I need teachers to be able to edit the score, including deleting down to
+                               empty string, so they can write a new score. If I add validation when setting
+                               the value in the reducer the field won't be editable. Look up react best pratices
+                               for this, right now I'll assume I should attach another event here to ensure
+                               that the field contains a number when focus is lost
+                    */}
+                    <p>Score <input type="text" size="4" className="problem-grade-input"
+                                    value={data[SCORE]} onChange={this.setScore}
+                              /> out of {possiblePoints} &nbsp;
+                            <Button type="submit" text="Full Points" onClick={this.fullPoints}/>
+                            <br />
+                            <Button text="Apply to Ungraded"
+                                    title={"Apply this score and feedback text to all responses in this " +
+                                        "group that don't have a grade yet."}
+                                    onClick={this.applyScoreToUngraded}
+                                    style={{backgroundColor: "#008000"}}/>
+                            <Button text="Apply to All"
+                                    title={"Apply this score and feedback text to all responses in this group, " +
+                                          "will overwrite already entered values."}
+                                    onClick={this.applyScoreToAll}
+                                    style={{backgroundColor: "#008000"}}/>
+                    </p>
+                    <p>Feedback &nbsp; &nbsp;
+                    <br />
+                    {feedbackButton("Show Work", "Show your complete work.")}
+                    {feedbackButton("Simple Mistake", "Review your work for a simple mistake.")}
+                    <br />
+                    {feedbackButton("Let's Talk", "Let's chat about this next class.")}
+                    {feedbackButton("Not Simplified", "Be sure to simplify completely.")}
+                    {feedbackButton("Sig Figs", "Incorrect significant figures.")}
+                    </p>
 
-                <div><textarea placeholder="Click a button for quick feedback or type custom feedback here." cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>
-                </div>
-                <div style={{float:"left"}} className="equation-list">
-                    <br/>
-                    {
-                        data[STEPS].map(function(step, stepIndex) {
-                        var stepStyle = {};
-                        if (step[HIGHLIGHT] === ERROR) stepStyle = {backgroundColor : RED}
-                        else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
-
-                        return (
-                            <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
-                                <div className="student-step-grader" style={{display: "inline-block"}}>
-                                <TeX style={stepStyle} onClick={function() {
-                                    window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
-                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
-                                                    SOLUTION_INDEX : studentSolutionIndex,
-                                                    STEP_KEY : stepIndex});
-                                    }}>{typeof(step[CONTENT]) === 'string' ? step[CONTENT] : "\\text{corruption occured}"}</TeX>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                    <div><textarea placeholder="Click a button for quick feedback or type custom feedback here."
+                                   cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>
+                    </div>
+                    </div>
+                )}
+                <StudentWork
+                    solutionGradeInfo={data}
+                    problemNumber={problemNumber}
+                    possiblePoints={possiblePoints}
+                    key={studentSolutionIndex}
+                    id={studentSolutionIndex}
+                    solutionClassIndex={solutionClassIndex}
+                />
             </div>
         );
     }

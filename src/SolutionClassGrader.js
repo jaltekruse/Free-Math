@@ -114,7 +114,8 @@ var SolutionClassGrader = createReactClass({
                                     possiblePoints={possiblePoints}
                                     key={studentSolutionIndex}
                                     id={studentSolutionIndex}
-                                    solutionClassIndex={solutionClassIndex}/>
+                                    solutionClassIndex={solutionClassIndex}
+                                    viewingSimilarGroup={(true && studentsToView)}/>
                                 );
                         } else {
                             return null;
