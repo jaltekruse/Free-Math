@@ -51,6 +51,8 @@ const UserActions = createReactClass({
             window.onbeforeunload = function() {
                     return true;
             };
+            window.location.hash = '';
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
             var recovered = JSON.parse(window.localStorage.getItem(docName));
             window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
         };
