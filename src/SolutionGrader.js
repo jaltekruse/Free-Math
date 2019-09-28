@@ -230,7 +230,7 @@ const SolutionGrader = createReactClass({
         return (
             <div className={classes} style={{float:"left"}}> {/*<!-- container for nav an equation list --> */}
                 { viewingSimilarGroup
-                        ? (<span> {showStudentName ? data[STUDENT_FILE] : "" }</span>)
+                        ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
                     <div style={{visibility: (data[SCORE] === "") ? "visible" : "hidden"}}>
@@ -274,7 +274,7 @@ const SolutionGrader = createReactClass({
                     </div>
                     </div>
                 )}
-                <StudentWork
+                <StudentWork 
                     solutionGradeInfo={data}
                     problemNumber={problemNumber}
                     possiblePoints={possiblePoints}
