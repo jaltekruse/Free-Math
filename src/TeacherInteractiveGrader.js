@@ -190,6 +190,10 @@ function gradingReducer(state, action) {
     } else if (action.type === NAV_BACK_TO_GRADING ) {
         return {
             ...state,
+            // Only needed navigating away from similar assignment view.
+            // This action is also used to move away from grading, but this won't
+            // hurt anything happening in both cases.
+            SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined,
             APP_MODE : GRADE_ASSIGNMENTS,
         };
     } else if (action.type === "SET_CURENT_PROBLEM") {
