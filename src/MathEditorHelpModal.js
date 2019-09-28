@@ -142,6 +142,13 @@ var MathEditorHelp = createReactClass({
     }
 });
 
+// attempted to transition this to a generic modal component
+// its a work in progress, at least figured out how to pass a sub-component in
+// and then render it in a common wrapper like this, the styles were a bit messed
+// up when trying to make this more generic (like moving the size of the modal content outside
+// of this component.
+// For current usage:
+// <MathEditorHelpModal content={(<MathEditorHelp />)}/>
 var MathEditorHelpModal = createReactClass({
     getInitialState () {
         return { showModal: false };
@@ -186,6 +193,7 @@ var MathEditorHelpModal = createReactClass({
             padding: 20
           };
         };
+        const contentComponent = this.props.content;
         return (
                 <span>
         <button onClick={this.openModal}>Open available symbol list</button>
@@ -197,7 +205,7 @@ var MathEditorHelpModal = createReactClass({
           backdropStyle={backdropStyle}
         >
           <div style={dialogStyle()} >
-            <MathEditorHelp />
+            {contentComponent}
           </div>
         </Modal>
         </span>
