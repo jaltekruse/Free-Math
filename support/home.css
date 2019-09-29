@@ -47,8 +47,181 @@ Copied from persus project
 end of styles copied form perseus
 */
 
+.homepage-center {
+    width: 100%;
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1 {
+  font-size: 3.6em;
+}
+h2 {
+  font-size: 2.5em;
+  margin: 0;
+  color: #0d9600;
+}
+h3 {
+  font-size: 1.2em;
+  margin: 0;
+}
+h1 small {
+  font-size: 60%;
+}
+
+.homepage-headline {
+    max-width: 850px;
+    padding: 100px 2vw 100px 2vw;
+    /* this is necesary to prevent the padding from adding to thw width */
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+}
+
+@media (max-width: 850px) {
+    .homepage-disappear-mobile {
+        display:none
+    }
+    .homepage-headline {
+        font-size: 40px;
+        padding-bottom: 0px;
+    }
+    h2 {
+        font-size: 35px
+    }
+    .homepage-center-mobile {
+        text-align: center;
+        width: 100%;
+        display: inline-block;
+        float: none;
+        padding: 0vw 2vw 10vw 2vw;
+        /* this is necesary to prevent the padding from adding to thw width */
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+        box-sizing: border-box;         /* Opera/IE 8+ */
+    }
+    .homepage-wrapper {
+        align-items: center;
+        text-align: center;
+        padding: 100px 0px 0px 0px;
+        display: inline-block;
+    }
+}
+
+@media (min-width: 851px) {
+    .homepage-only-on-mobile {
+        display:none
+    }
+    .homepage-headline {
+        font-size: 60px;
+    }
+    .homepage-text {
+        display: block;
+        width: 35vw;
+        padding: 8vw 0px 0px 6vw
+    }
+    .homepage-right {
+        float: right;
+        display: block;
+        padding-right:6vw
+    }
+    .homepage-video {
+        width: 47vw;
+        box-shadow: rgb(176, 177, 178) 0px 10px 50px;
+        padding-right:0px
+    }
+    .homepage-left {
+        float: left;
+    }
+    .homepage-wrapper {
+        padding: 200px 0px 0px 0px;
+        display: inline-block;
+        width: 100%
+    }
+}
+
+.fm-button-light {
+  border: 2px solid transparent;
+  display: inline-block;
+  height: 20px;
+  margin: 2px;
+  padding: 0px 8px 0px 8px;
+  background-color: white;
+  font-size: 12px;
+  font-weight: 600;
+  color: #212121;
+  border-radius: 15px;
+}
+
+.fm-button-light:hover {
+  cursor: pointer;
+  background-color: #f2f2f2;
+}
+.fm-button-light:focus {
+  border: 2px solid #ffa535;
+  outline: none;
+}
+
+.fm-button {
+  border: 2px solid transparent;
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem;
+  background-color: #0d57bf;
+  color: #f1f1f1;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 5px 3px -3px #cfcfcf
+}
+
+.fm-button:hover
+{
+  cursor: pointer;
+  background-color: #052d66;
+}
+
+.fm-button:focus {
+  border: 2px solid #ffa535;
+  outline:0;
+}
+
+.fm-button:active {
+  transform: scale(0.99);
+}
+
+.fm-close-button {
+  border: 2px solid transparent;
+  float: right;
+  display: inline-block;
+  height: 20px;
+  margin: 2px;
+  padding: 4px 6px 18px 6px;
+  background-color: white;
+  border: 1px solid #d1d1d1;
+  color: #414141;
+  border-radius: 3px;
+}
+.fm-close-button:hover {
+  cursor: pointer;
+  background-color: #f2f2f2;
+}
+.fm-close-button:focus {
+  border: 2px solid #ffa535;
+  outline: none;
+}
+
+.navBarElms{
+     padding: 7px 5px 5px 5px;
+}
+
+
 .menuBar{
-    padding: 10px 10px 10px 10px;
+    padding: 5px 5px 5px 5px;
     width:100%;
     display:block;
     position:fixed;
@@ -60,37 +233,40 @@ end of styles copied form perseus
     }
 .logo{
     float:left;
-    }
+}
+
 .nav{
     float:none;
     margin-right:10px;}
 .nav ul li{
     list-style:none;
     float:left;
-    }
+}
 
 html {
   height: 100%;
 }
 body {
   min-height: 100%;
-  font-family: 'HelveticaNeue-Light',Helvetica,Arial,sans-serif;
-  color: black;
+  font-family: 'Roboto',sans-serif;
+  color: #222;
   /* background-color: #e7effd; */
-  background-color: #92d1ff; 
+  /* background-color: #92d1ff; */
   margin-bottom: 0;
+  margin-left:0;
+  margin-right:0;
+  padding-left:0;
+  padding-right:0;
+  padding-bottom:0;
   line-height: 1.5
 }
 #body {
   padding: 1em;
 }
-h1 {
-  font-size: 2em;
-  margin: 0;
+p {
+  font-size: 18px;
 }
-h1 small {
-  font-size: 60%;
-}
+
 code {
   font: 90% monospace;
   background: #DDD;
@@ -126,14 +302,14 @@ div.problem-summary-container {
 
 div.answer-incorrect {
     border-radius: 2px;
-    border:1px solid #dc8484;
+    border:1px solid #a4a4a4;
     background-color:#FFDEDE;
 }
 
 div.answer-complete {
     border-radius: 2px;
-    border:1px solid #747474;
-    background-color:#EEEEEE;
+    border:1px solid #a4a4a4;
+    background-color:#f9f9f9;
 }
 
 .error-highlight{
@@ -146,13 +322,13 @@ div.answer-complete {
 
 div.answer-partially-correct {
     border-radius: 2px;
-    border:1px solid #ece583;
+    border:1px solid #a4a4a4;
     background-color:#FFFDBF;
 }
 
 div.answer-correct {
     border-radius: 2px;
-    border:1px solid #94b98e;
+    border:1px solid #a4a4a4;
     background-color:#D0FFC9;
 }
 
@@ -193,10 +369,10 @@ div.show-complete-div {
 }
 
 div.similar-assignment-filters {
-    border:1px solid black;
+    border-radius: 2px;
+    border:1px solid #a4a4a4;
     margin: 15px 15px 15px 15px;
     padding: 15px 15px 15px 15px;
-    border:1px solid black;
     background-color:#FFFDBF;
 }
 
@@ -217,14 +393,16 @@ div.similar-student-answers {
 }
 
 div.student-work {
+    border-radius: 3px;
+    border:1px solid #a4a4a4;
+    box-shadow: 0 5px 3px -3px #cfcfcf;
     margin: 10px 5px 10px 5px;
     padding: 15px 15px 15px 15px;
-    box-shadow: 0 10px 6px -6px #777;
 }
 
 div.problem-container {
     border-radius: 3px;
-    border:1px solid #cfcfcf;
+    border:1px solid #bfbfbf;
     background-color:white;
     margin: 15px 15px 15px 15px;
     padding: 15px 15px 130px 15px;
