@@ -940,7 +940,7 @@ const SimilarGroupSelector = createReactClass({
                 }
                 </div>
                 )
-               : null
+               : <h3>No students submitted documents sharing a significant amount work.</h3>
             }
             </div>
         );
