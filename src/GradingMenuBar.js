@@ -24,7 +24,7 @@ const GradingMenuBar = createReactClass({
                     <LogoHomeNav /> 
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
                         Assignment Name &nbsp;&nbsp;
-                        <input  type="text" id="assignment-name-text" size="35"
+                        <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
                                 value={this.props.value[ASSIGNMENT_NAME]}
                                 onChange={
