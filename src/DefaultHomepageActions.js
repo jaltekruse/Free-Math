@@ -7,6 +7,7 @@ import FreeMath from './FreeMath.js';
 import Button from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
+import FreeMathModal from './Modal.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 
@@ -34,17 +35,29 @@ export function render() {
 }
 
 const UserActions = createReactClass({
+    getInitialState () {
+        return { showModal: false };
+    },
+
+    closeSpinner() {
+        this.setState({ showModal: false });
+    },
+
+    openSpinner() {
+        this.setState({ showModal: true });
+    },
     render: function() {
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = function() {
                     return true;
             };
-            console.log(evt);
+            this.openSpinner();
+
             window.location.hash = '';
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             studentSubmissionsZip(evt);
-        };
+        }.bind(this);
 
         var recoverAutoSaveCallback = function(docName) {
             // turn on confirmation dialog upon navigation away
@@ -105,6 +118,19 @@ const UserActions = createReactClass({
                     "marginLeft":"auto",
                     "marginRight": "auto"
             }}>
+            <FreeMathModal
+                showModal={this.state.showModal}
+                content={(
+                    <div style={{"align-items": "center"}}>
+                        <img style={{
+                            "display": "flex",
+                            "marginLeft":"auto",
+                            "marginRight": "auto"
+                             }}
+                             src="images/Ajax-loader.gif" /><br />
+                        Analyzing and grouping student work...
+                    </div>)}
+            />
             <div style={{display:"inline-block", width:"100%"}}>
             <div>
                 <div style={divStyle}>

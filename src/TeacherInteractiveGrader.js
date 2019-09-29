@@ -336,6 +336,8 @@ function findSimilarStudentAssignments(allStudentWork) {
         });
     });
     // too many pairs to do the complete reduction of redundant groups in reasonable time
+    // TODO - I think this might actually be logically equivelent to the code below, need to confirm
+    // as this is much faster
     if (Object.keys(similarityScores).length > 100) {
         for (var similarGroup in similarDocsToEach) {
             if (similarDocsToEach.hasOwnProperty(similarGroup)) {

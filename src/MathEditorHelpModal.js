@@ -1,7 +1,6 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
-import { Modal } from 'react-overlays';
 import TeX from './TeX.js';
 
 var MathQuill = window.MathQuill;
@@ -20,7 +19,8 @@ var MathEditorHelp = createReactClass({
             <div style={{float:"left"}}>
             <table>
                 <thead>
-                <tr><th style={{textAlign:"left"}}>Type this...</th><th style={{textAlign:"left"}}>For Symbol&nbsp;&nbsp;&nbsp;</th></tr>
+                <tr><th style={{textAlign:"left"}}>Type this...</th>
+                    <th style={{textAlign:"left"}}>For Symbol&nbsp;&nbsp;&nbsp;</th></tr>
                 </thead>
                 <tbody>
                 <tr><td>/ (slash)</td><td><span ref="exampleStaticMath3">{"\\frac{a}{b}"}</span> (fraction)</td></tr>
@@ -142,78 +142,6 @@ var MathEditorHelp = createReactClass({
     }
 });
 
-// attempted to transition this to a generic modal component
-// its a work in progress, at least figured out how to pass a sub-component in
-// and then render it in a common wrapper like this, the styles were a bit messed
-// up when trying to make this more generic (like moving the size of the modal content outside
-// of this component.
-// For current usage:
-// <MathEditorHelpModal content={(<MathEditorHelp />)}/>
-var MathEditorHelpModal = createReactClass({
-    getInitialState () {
-        return { showModal: false };
-    },
-
-    closeModal() {
-        this.setState({ showModal: false });
-    },
-
-    openModal() {
-        this.setState({ showModal: true });
-    },
-
-    render() {
-        const modalStyle = {
-            position: 'fixed',
-            zIndex: 1040,
-            top: 0, bottom: 0, left: 0, right: 0
-        };
-
-        const backdropStyle = {
-            ...modalStyle,
-            zIndex: 'auto',
-            backgroundColor: '#000',
-            opacity: 0.5
-        };
-
-        const dialogStyle = function() {
-          let top = 50;
-          let left = 50;
-
-          return {
-            position: 'absolute',
-            width: 1000,
-            maxHeight:"90%",
-            overflow:"scroll",
-            top: top + '%', left: left + '%',
-            transform: `translate(-${top}%, -${left}%)`,
-            border: '1px solid #e5e5e5',
-            backgroundColor: 'white',
-            boxShadow: '0 5px 15px rgba(0,0,0,.5)',
-            padding: 20
-          };
-        };
-        const contentComponent = this.props.content;
-        return (
-                <span>
-        <button onClick={this.openModal}>Open available symbol list</button>
-        <Modal
-          aria-labelledby='modal-label'
-          show={this.state.showModal}
-          onHide={this.closeModal}
-          style={modalStyle}
-          backdropStyle={backdropStyle}
-        >
-          <div style={dialogStyle()} >
-            {contentComponent}
-          </div>
-        </Modal>
-        </span>
-        );
-    }
-});
-
 export {
-    MathEditorHelpModal as default,
     MathEditorHelp
 };
