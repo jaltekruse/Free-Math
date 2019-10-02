@@ -114,17 +114,6 @@ var AssignmentEditorMenubar = createReactClass({
 
                         <LightButton text="Save" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
-                        <GoogleLogin
-                            clientId="412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com"
-                            buttonText="Login"
-                            onSuccess={responseGoogle}
-                            onFailure={responseGoogle}
-                            cookiePolicy={'single_host_origin'}
-                          />
-                        <GoogleLogout
-                            clientId="658977310896-knrl3gka66fldh83dao2rhgbblmd4un9.apps.googleusercontent.com"
-                            buttonText="Logout"
-                            onLogoutSuccess={function() {alert("logged out");}} />
                         <LightButton text="Save to drive" onClick={
                             function() {
                                 window.createFileWithJSONContent(
