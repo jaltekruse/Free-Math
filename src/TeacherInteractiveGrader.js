@@ -490,7 +490,7 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
     return assignments;
 }
 
-function saveGradedStudentWork(gradedWork) {
+function genStudentWorkZip(gradedWork) {
     if (gradedWork === undefined) {
         console.log("no graded assignments to save");
     }
@@ -510,6 +510,11 @@ function saveGradedStudentWork(gradedWork) {
             zip.file(filename, JSON.stringify(separatedAssignments[filename]));
         }
     }
+    return zip;
+}
+
+function saveGradedStudentWork(gradedWork) {
+    var zip = genStudentWorkZip(gradedWork);
     var content = zip.generate();
 
     window.location.href="data:application/zip;download:testing;base64," + content;
@@ -1128,6 +1133,7 @@ const TeacherInteractiveGrader = createReactClass({
 export { TeacherInteractiveGrader as default,
     GradesView,
     SimilarDocChecker,
+    genStudentWorkZip,
     studentSubmissionsZip,
     saveGradedStudentWork,
     gradeSingleProblem,

@@ -190,6 +190,60 @@ http://mozilla.org/MPL/2.0/
         pre.appendChild(textContent);
       }      
 
+      var createFileWithBinaryContent = function(name, content, fileType='application/zip', callback) {
+
+        //var content = new Blob([file]);
+        var meta = {name: name, mimeType: fileType};
+        var accessToken = gapi.auth.getToken().access_token;
+        var payload = new FormData();
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
+        payload.append('file', content);
+        xhr = new XMLHttpRequest();
+        xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+          console.log(xhr.response);
+        };
+        xhr.send(payload);
+
+        /*
+        const boundary = '-------314159265358979323846';
+        const delimiter = "\r\n--" + boundary + "\r\n";
+        const close_delim = "\r\n--" + boundary + "--";
+
+        const contentType = 'application/json';
+
+        var metadata = {
+            'name': name,
+            'mimeType': contentType
+          };
+
+          var multipartRequestBody =
+              delimiter +
+              'Content-Type: application/json\r\n\r\n' +
+              JSON.stringify(metadata) +
+              delimiter +
+              'Content-Type: ' + contentType + '\r\n\r\n' +
+              data +
+              close_delim;
+
+          var request = gapi.client.request({
+              'path': '/upload/drive/v3/files',
+              'method': 'POST',
+              'params': {'uploadType': 'multipart'},
+              'headers': {
+                'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+              },
+              'body': multipartRequestBody});
+          if (!callback) {
+            callback = function(file) {
+              console.log(file)
+            };
+          }
+          request.execute(callback);
+          */
+      }
+
       // https://stackoverflow.com/a/35182924
       var createFileWithJSONContent = function(name,data,callback) {
         const boundary = '-------314159265358979323846';

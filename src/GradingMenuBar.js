@@ -2,7 +2,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
-import { saveGradedStudentWork } from './TeacherInteractiveGrader.js';
+import { saveGradedStudentWork, genStudentWorkZip } from './TeacherInteractiveGrader.js';
 import { LightButton } from './Button.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
@@ -46,6 +46,16 @@ const GradingMenuBar = createReactClass({
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <LightButton text="Drive" onClick={
+                            function() {
+                                var zip = genStudentWorkZip(window.store.getState());
+                                var content = zip.generate({type: "blob"});
+                                window.createFileWithBinaryContent (
+                                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                                    content, 
+                                    'application/zip',
+                                    function() {alert("saved successfully to google drive");});
+                            }} /> &nbsp;&nbsp;&nbsp;
                         <LightButton text="View Grades" onClick={
                             function() {
                                 window.location.hash = '';
