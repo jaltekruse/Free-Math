@@ -119,6 +119,7 @@ http://mozilla.org/MPL/2.0/
       function handleClientLoad() {
         gapi.load('client:auth2', initClient);
         gapi.load('picker');
+        gapi.load('drive');
       }
 
       // Client ID and API key from the Developer Console
@@ -159,9 +160,9 @@ http://mozilla.org/MPL/2.0/
        */
       function updateSigninStatus(isSignedIn) {
         if (isSignedIn) {
-            alert("signed in");
+            console.log("signed in");
         } else {
-            alert("not signed in");
+            console.log("not signed in");
         }
       }
 
@@ -192,7 +193,11 @@ http://mozilla.org/MPL/2.0/
       }
 
     // callback takes 2 parameters filename and content
-      function openDriveFile(callback){
+      function openDriveFile(isBinary, callback){
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Connect to google first using button on top menu');
+            return;
+        }
         var accessToken = gapi.auth.getToken().access_token;
           var picker = new google.picker.PickerBuilder()
               .addView(new google.picker.DocsUploadView())
@@ -204,7 +209,7 @@ http://mozilla.org/MPL/2.0/
                     var doc = data[google.picker.Response.DOCUMENTS][0];
                     //url = doc[google.picker.Document.URL];
                     console.log(doc);
-                    downloadFile(doc.id, function(data) {
+                    downloadFile(doc.id, isBinary, function(data) {
                         callback(doc.name, data, false);
                     });
                   }
@@ -213,18 +218,24 @@ http://mozilla.org/MPL/2.0/
           picker.setVisible(true);
       }
 
-    function downloadFile(file_id, callback) {
+    function downloadFile(fileId, isBinary, callback) {
         gapi.client.request({
-            'path': '/drive/v2/files/'+file_id,
+            'path': '/drive/v2/files/'+fileId,
             'method': 'GET',
             callback: function (file, responsetxt){
                   if (file.downloadUrl) {
                     var accessToken = gapi.auth.getToken().access_token;
                     var xhr = new XMLHttpRequest();
                     xhr.open('GET', file.downloadUrl);
+                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+                    if (isBinary) {
+                        xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+                    }
                     xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
                     xhr.onload = function() {
-                      callback(xhr.responseText);
+                      console.log(xhr);
+                      console.log(xhr.response);
+                      callback(xhr.response);
                     };
                     xhr.onerror = function() {
                       callback(null);
@@ -334,30 +345,9 @@ http://mozilla.org/MPL/2.0/
           request.execute(callback);
       }
 
-      /**
-       * Print files.
-       */
-      function listFiles() {
-        gapi.client.drive.files.list({
-          'pageSize': 10,
-          'fields': "nextPageToken, files(id, name)"
-        }).then(function(response) {
-          appendPre('Files:');
-          var files = response.result.files;
-          if (files && files.length > 0) {
-            for (var i = 0; i < files.length; i++) {
-              var file = files[i];
-              appendPre(file.name + ' (' + file.id + ')');
-            }
-          } else {
-            appendPre('No files found.');
-          }
-        });
-      }
-
     </script>
 <script async defer src="https://apis.google.com/js/api.js"
-  onload="this.onload=function(){};handleClientLoad();loadPicker()"
+  onload="this.onload=function(){};handleClientLoad();"
   onreadystatechange="if (this.readyState === 'complete') this.onload()">
 </script>
 <!-- <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>-->

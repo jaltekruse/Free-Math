@@ -814,6 +814,46 @@ function makeBackwardsCompatible(newDoc) {
     return newDoc;
 }
 
+function loadStudentDocsFromZip(new_zip, filename) {
+    var allStudentWork = [];
+
+    // you now have every files contained in the loaded zip
+    for (var file in new_zip.files) {
+        // don't get properties from prototype
+        if (new_zip.files.hasOwnProperty(file)) {
+            // extra directory added when zipping files on mac
+            // TODO - check for other things to filter out from zip
+            // files created on other platforms
+            if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+            // check the extension is .math
+            // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+            if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+            // filter out directories which are part of this list
+            if (new_zip.file(file) === null) continue;
+            try {
+                var fileContents = new_zip.file(file).asText();
+                // how is this behaviring differrntly than JSOn.parse()?!?!
+                //var assignmentData = window.$.parseJSON(fileContents);
+                fileContents = fileContents.trim();
+                var assignmentData = JSON.parse(fileContents);
+                assignmentData = convertToCurrentFormat(assignmentData);
+                allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+            } catch (e) {
+                console.log("failed to parse file: " + file);
+                console.log(e);
+            }
+        }
+    }
+    // TODO - add back answer key
+    var aggregatedWork = aggregateStudentWork(allStudentWork);
+    console.log("@@@@@@ opened docs");
+    console.log(aggregatedWork);
+    window.store.dispatch(
+        { type : SET_ASSIGNMENTS_TO_GRADE,
+          NEW_STATE :
+            {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
+}
+
 // open zip file full of student assignments for grading
 function studentSubmissionsZip(evt) {
     // reset scroll location from previous view of student docs
@@ -828,44 +868,7 @@ function studentSubmissionsZip(evt) {
             var new_zip = new JSZip();
             // more files !
             new_zip.load(content);
-
-            var allStudentWork = [];
-
-            // you now have every files contained in the loaded zip
-            for (var file in new_zip.files) {
-                // don't get properties from prototype
-                if (new_zip.files.hasOwnProperty(file)) {
-                    // extra directory added when zipping files on mac
-                    // TODO - check for other things to filter out from zip
-                    // files created on other platforms
-                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
-                    // check the extension is .math
-                    // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
-                    if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
-                    // filter out directories which are part of this list
-                    if (new_zip.file(file) === null) continue;
-                    try {
-                        var fileContents = new_zip.file(file).asText();
-                        // how is this behaviring differrntly than JSOn.parse()?!?!
-                        //var assignmentData = window.$.parseJSON(fileContents);
-                        fileContents = fileContents.trim();
-                        var assignmentData = JSON.parse(fileContents);
-                        assignmentData = convertToCurrentFormat(assignmentData);
-                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
-                    } catch (e) {
-                        console.log("failed to parse file: " + file);
-                        console.log(e);
-                    }
-                }
-            }
-            // TODO - add back answer key
-            var aggregatedWork = aggregateStudentWork(allStudentWork);
-            console.log("@@@@@@ opened docs");
-            console.log(aggregatedWork);
-            window.store.dispatch(
-                { type : SET_ASSIGNMENTS_TO_GRADE,
-                  NEW_STATE :
-                    {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(f.name)}});
+            loadStudentDocsFromZip(new_zip, f.name);
         }
         r.readAsArrayBuffer(f);
     } else {
@@ -1133,6 +1136,7 @@ const TeacherInteractiveGrader = createReactClass({
 export { TeacherInteractiveGrader as default,
     GradesView,
     SimilarDocChecker,
+    loadStudentDocsFromZip,
     genStudentWorkZip,
     studentSubmissionsZip,
     saveGradedStudentWork,

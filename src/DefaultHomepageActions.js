@@ -8,8 +8,10 @@ import Button from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
-import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
+import { LightButton } from './Button.js';
+import { studentSubmissionsZip, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile, openAssignment } from './AssignmentEditorMenubar.js';
+import JSZip from 'jszip';
 
 var MathQuill = window.MathQuill;
 
@@ -155,7 +157,7 @@ const UserActions = createReactClass({
                                 };
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
-                                window.openDriveFile(function(name, content) {openAssignment(content, name, false)});
+                                window.openDriveFile(false, function(name, content) {openAssignment(content, name, false)});
                             }}
                         /><br />
 
@@ -200,7 +202,27 @@ const UserActions = createReactClass({
                 </div>
                 <div style={{...divStyle, "float": "right"}}>
                     <h3>Teachers</h3>
-                    Grade Assignments <input type="file" onChange={openAssignments}/>
+                    Grade Assignments
+                        <Button type="submit" text="Open from Drive" onClick={
+                            function() {
+                                // turn on confirmation dialog upon navigation away
+                                window.onbeforeunload = function() {
+                                        return true;
+                                };
+                                window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.openDriveFile(true, function(name, content) {
+
+                                    //var content = e.target.result;
+
+                                    var new_zip = new JSZip();
+                                    // more files !
+                                    new_zip.load(content);
+                                    loadStudentDocsFromZip(new_zip, name);
+                                });
+                            }}
+                        /><br />
+                    <input type="file" onChange={openAssignments}/>
                         <br />
                     <small> Select a zip file full of student work, these are generated
                             when downloading files from your LMS in bulk.&nbsp;
@@ -302,6 +324,10 @@ const DefaultHomepageActions = createReactClass({
                      className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
+                    <LightButton text="Connect to google" onClick={
+                        function() {window.handleAuthClick() }} /> &nbsp;&nbsp;&nbsp;
+                    <LightButton text="Disconnect google" onClick={
+                        function() {window.handleSignoutClick() }} /> &nbsp;&nbsp;&nbsp;
                     <a href="gettingStarted.html" style={{color:"white", marginRight:"15px"}} >Getting Started</a>{' '}
                     <a href="contact.html" style={{color:"white", marginRight:"15px"}} >Contact</a>{' '}
                     <a href="faq.html" style={{color:"white"}} >FAQ</a>
