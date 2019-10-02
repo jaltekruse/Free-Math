@@ -5,6 +5,8 @@ import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { LightButton } from './Button.js';
+import GoogleLogin from 'react-google-login';
+import { GoogleLogout } from 'react-google-login';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -94,6 +96,9 @@ export function readSingleFile(evt, discardDataWarning) {
 
 var AssignmentEditorMenubar = createReactClass({
   render: function() {
+        const responseGoogle = (response) => {
+            console.log(response);
+        }
         return (
             <div className="menuBar">
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
@@ -109,6 +114,26 @@ var AssignmentEditorMenubar = createReactClass({
 
                         <LightButton text="Save" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
+                        <GoogleLogin
+                            clientId="412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com"
+                            buttonText="Login"
+                            onSuccess={responseGoogle}
+                            onFailure={responseGoogle}
+                            cookiePolicy={'single_host_origin'}
+                          />
+                        <GoogleLogout
+                            clientId="658977310896-knrl3gka66fldh83dao2rhgbblmd4un9.apps.googleusercontent.com"
+                            buttonText="Logout"
+                            onLogoutSuccess={function() {alert("logged out");}} />
+                        <LightButton text="Save to drive" onClick={
+                            function() {
+                                window.createFileWithJSONContent(
+                                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                                    JSON.stringify(
+                                        { PROBLEMS : makeBackwardsCompatible(
+                                            window.store.getState())[PROBLEMS]}), 
+                                function() {alert("saved successfully to google drive");});
+                            }} /> &nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
             </div>
