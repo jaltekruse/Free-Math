@@ -3,7 +3,7 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork, genStudentWorkZip } from './TeacherInteractiveGrader.js';
-import { LightButton } from './Button.js';
+import { LightButton, HtmlButton } from './Button.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
@@ -34,7 +34,7 @@ const GradingMenuBar = createReactClass({
                                                 ASSIGNMENT_NAME : evt.target.value});
                                     }}
                         />&nbsp;&nbsp;
-                        <LightButton text="Save Graded" onClick={
+                        <LightButton text="Save to Device" onClick={
                             function() {
                                 saveGradedStudentWork(window.store.getState());
                             }
@@ -46,16 +46,29 @@ const GradingMenuBar = createReactClass({
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <LightButton text="Drive" onClick={
-                            function() {
-                                var zip = genStudentWorkZip(window.store.getState());
-                                var content = zip.generate({type: "blob"});
-                                window.createFileWithBinaryContent (
-                                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
-                                    content, 
-                                    'application/zip',
-                                    function() {alert("saved successfully to google drive");});
-                            }} /> &nbsp;&nbsp;&nbsp;
+                        <HtmlButton
+                            className="fm-button-light"
+                            onClick={
+                                function() {
+                                    var zip = genStudentWorkZip(window.store.getState());
+                                    var content = zip.generate({type: "blob"});
+                                    window.createFileWithBinaryContent (
+                                        window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                                        content, 
+                                        'application/zip',
+                                        function() {
+                                            alert("saved successfully to google drive");
+                                        }
+                                    );
+                            }}
+                            content={(
+                                    <div style={{display: "inline-block"}}>
+                                        <div style={{float: "left", paddingTop: "4px"}}>Save to&nbsp;</div>
+                                         <img style={{paddingTop: "2px"}}
+                                                src="images/google_drive_small_logo.png"
+                                                alt="google logo" />
+                                    </div>
+                            )} />&nbsp;&nbsp;&nbsp;
                         <LightButton text="View Grades" onClick={
                             function() {
                                 window.location.hash = '';

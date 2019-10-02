@@ -13,6 +13,29 @@ const unselectable = {
     "user-select": "none"
 }
 
+var HtmlButton = createReactClass({
+
+    render: function() {
+        const contentComponent = this.props.content;
+        const onClick = this.props.onClick;
+        const title = this.props.title;
+        const style =  this.props.style;
+        const className =  this.props.className;
+        return (
+            <button
+                className={className}
+                style={{...unselectable, ...style}}
+                onClick={function() {
+                     onClick();
+                 }}
+                title={title}
+            >
+                {contentComponent}
+            </button>
+        );
+  }
+});
+
 var Button = createReactClass({
 
     render: function() {
@@ -28,7 +51,7 @@ var Button = createReactClass({
                  }}
                 title={title}
             >
-            {this.props.text}
+            <div style={{display: "inline-block"}}>{this.props.text}</div>
             </button>
         );
   }
@@ -47,7 +70,12 @@ var LightButton = createReactClass({
                 }}
                 title={title}
             >
-                {this.props.text}
+                <div style={{display:"inline-block"}}>
+                <div style={{float: "left", paddingTop: "4px"}}>{this.props.text}</div>
+                 <img style={{paddingTop: "2px"}}
+                    src="images/small_vertical_image.png"
+                    alt="empty spacer" />
+                </div>
             </button>
         );
   }
@@ -74,4 +102,4 @@ var CloseButton = createReactClass({
   }
 });
 
-export {Button as default, CloseButton, LightButton};
+export {Button as default, HtmlButton, CloseButton, LightButton};

@@ -4,7 +4,7 @@ import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
-import { LightButton } from './Button.js';
+import { LightButton, HtmlButton } from './Button.js';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -104,23 +104,44 @@ var AssignmentEditorMenubar = createReactClass({
 
                     <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
                         Filename &nbsp;&nbsp;
-                        <input type="text" id="assignment-name-text" size="35" name="assignment name" value={this.props.value[ASSIGNMENT_NAME]} onChange={
-                            function(evt) {
-                                window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
+                        <input type="text" id="assignment-name-text" size="35"
+                               name="assignment name"
+                               value={this.props.value[ASSIGNMENT_NAME]}
+                               onChange={
+                                    function(evt) {
+                                        window.store.dispatch(
+                                            { type : SET_ASSIGNMENT_NAME,
+                                              ASSIGNMENT_NAME : evt.target.value});
                             }}
                         />&nbsp;&nbsp;
 
-                        <LightButton text="Save" onClick={
+                        <LightButton text="Save to Device" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
-                        <LightButton text="Save to drive" onClick={
-                            function() {
-                                window.createFileWithJSONContent(
-                                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
-                                    JSON.stringify(
-                                        { PROBLEMS : makeBackwardsCompatible(
-                                            window.store.getState())[PROBLEMS]}), 
-                                function() {alert("Saved successfully to google drive");});
-                            }} /> &nbsp;&nbsp;&nbsp;
+
+                        <HtmlButton
+                            className="fm-button-light"
+                            onClick={
+                                function() {
+                                    window.createFileWithJSONContent(
+                                        window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                                        JSON.stringify(
+                                            { PROBLEMS : makeBackwardsCompatible(
+                                                         window.store.getState())[PROBLEMS]
+                                            }
+                                        ), 
+                                        function() {
+                                            alert("Saved successfully to google drive");
+                                        }
+                                    );
+                            }}
+                            content={(
+                                    <div style={{display: "inline-block"}}>
+                                        <div style={{float: "left", paddingTop: "4px"}}>Save to&nbsp;</div>
+                                         <img style={{paddingTop: "2px"}}
+                                                src="images/google_drive_small_logo.png"
+                                                alt="google logo" />
+                                    </div>
+                            )} />&nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
             </div>

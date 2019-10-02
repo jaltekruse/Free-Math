@@ -230,19 +230,27 @@ http://mozilla.org/MPL/2.0/
                     // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
                     if (isBinary) {
                         xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+                    } else {
+                        xhr.overrideMimeType('text\/plain; charset=utf8');
                     }
                     xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
                     xhr.onload = function() {
                       console.log(xhr);
                       console.log(xhr.response);
-                      callback(xhr.response);
+                      if (xhr.status == 200) {
+                        callback(xhr.response);
+                      } else {
+                        alert("Something went wrong: " + xhr.status);
+                      }
                     };
                     xhr.onerror = function() {
-                      callback(null);
+                      console.log(xhr);
+                      alert("Something went wrong: " + xhr.status);
                     };
                     xhr.send();
                   } else {
-                    callback(null);
+                      console.log(file);
+                      alert("Something went wrong: No download URL");
                   }
             }
         });
