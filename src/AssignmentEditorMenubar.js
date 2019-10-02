@@ -5,8 +5,6 @@ import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { LightButton } from './Button.js';
-import GoogleLogin from 'react-google-login';
-import { GoogleLogout } from 'react-google-login';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
