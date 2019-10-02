@@ -111,13 +111,14 @@ http://mozilla.org/MPL/2.0/
 
 <link rel="stylesheet" type="text/css" href="build/mathquill.css">
 <script type="text/javascript" src="build/mathquill.js"></script>
-    <script type="text/javascript">
+<script type="text/javascript">
 
       /**
        *  On load, called to load the auth2 library and API client library.
        */
       function handleClientLoad() {
         gapi.load('client:auth2', initClient);
+        gapi.load('picker');
       }
 
       // Client ID and API key from the Developer Console
@@ -188,7 +189,53 @@ http://mozilla.org/MPL/2.0/
         var pre = document.getElementById('content');
         var textContent = document.createTextNode(message + '\n');
         pre.appendChild(textContent);
-      }      
+      }
+
+    // callback takes 2 parameters filename and content
+      function openDriveFile(callback){
+        var accessToken = gapi.auth.getToken().access_token;
+          var picker = new google.picker.PickerBuilder()
+              .addView(new google.picker.DocsUploadView())
+              .addView(new google.picker.DocsView())
+              .setOAuthToken(accessToken)
+              .setCallback(function(data) {
+                  var url = 'nothing';
+                  if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+                    var doc = data[google.picker.Response.DOCUMENTS][0];
+                    //url = doc[google.picker.Document.URL];
+                    console.log(doc);
+                    downloadFile(doc.id, function(data) {
+                        callback(doc.name, data, false);
+                    });
+                  }
+              })
+              .build();
+          picker.setVisible(true);
+      }
+
+    function downloadFile(file_id, callback) {
+        gapi.client.request({
+            'path': '/drive/v2/files/'+file_id,
+            'method': 'GET',
+            callback: function (file, responsetxt){
+                  if (file.downloadUrl) {
+                    var accessToken = gapi.auth.getToken().access_token;
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', file.downloadUrl);
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+                    xhr.onload = function() {
+                      callback(xhr.responseText);
+                    };
+                    xhr.onerror = function() {
+                      callback(null);
+                    };
+                    xhr.send();
+                  } else {
+                    callback(null);
+                  }
+            }
+        });
+      }
 
       var createFileWithBinaryContent = function(name, content, fileType='application/zip', callback) {
 
@@ -202,7 +249,12 @@ http://mozilla.org/MPL/2.0/
         xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-          console.log(xhr.response);
+          console.log(xhr);
+            if (xhr.status == 200) {
+                alert("Saved successfully to google drive");
+            } else {
+                alert(xhr.responseText);
+            }
         };
         xhr.send(payload);
 

@@ -9,7 +9,7 @@ import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
 import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
-import { readSingleFile } from './AssignmentEditorMenubar.js';
+import { readSingleFile, openAssignment } from './AssignmentEditorMenubar.js';
 
 var MathQuill = window.MathQuill;
 
@@ -145,6 +145,17 @@ const UserActions = createReactClass({
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
+                            }}
+                        /><br />
+                        <Button type="submit" text="Open from Drive" onClick={
+                            function() {
+                                // turn on confirmation dialog upon navigation away
+                                window.onbeforeunload = function() {
+                                        return true;
+                                };
+                                window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.openDriveFile(function(name, content) {openAssignment(content, name, false)});
                             }}
                         /><br />
 

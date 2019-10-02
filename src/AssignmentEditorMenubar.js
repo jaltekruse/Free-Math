@@ -132,7 +132,7 @@ var AssignmentEditorMenubar = createReactClass({
                                     JSON.stringify(
                                         { PROBLEMS : makeBackwardsCompatible(
                                             window.store.getState())[PROBLEMS]}), 
-                                function() {alert("saved successfully to google drive");});
+                                function() {alert("Saved successfully to google drive");});
                             }} /> &nbsp;&nbsp;&nbsp;
                     </div>
                 </div>
