@@ -219,20 +219,25 @@ const UserActions = createReactClass({
                             className="fm-button"
                             onClick={
                                 function() {
+                                    // turn on confirmation dialog upon navigation away
+                                    window.onbeforeunload = function() {
+                                            return true;
+                                    };
                                     window.openDriveFile(true, function(name, content) {
-                                        // turn on confirmation dialog upon navigation away
-                                        window.onbeforeunload = function() {
-                                                return true;
-                                        };
                                         window.location.hash = '';
                                         document.body.scrollTop = document.documentElement.scrollTop = 0;
-                                        
-                                        var new_zip = new JSZip();
-                                        // more files !
-                                        new_zip.load(content);
-                                        loadStudentDocsFromZip(new_zip, name);
-                                    });
-                                }}
+                                        // TODO - also show this while downloading file
+                                        this.openSpinner();
+                                       
+                                        setTimeout(function() {
+                                            var new_zip = new JSZip();
+                                            // more files !
+                                            new_zip.load(content);
+                                            loadStudentDocsFromZip(new_zip, name);
+                                            },
+                                            50);
+                                    }.bind(this));
+                                }.bind(this)}
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
