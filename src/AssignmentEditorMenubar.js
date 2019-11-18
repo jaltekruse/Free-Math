@@ -52,7 +52,7 @@ function removeExtension(filename) {
 
 // TODO - consider giving legacy docs an ID upon opening, allows auto-save to work properly when
 // opening older docs
-export function openAssignment(serializedDoc, filename, discardDataWarning) {
+export function openAssignment(serializedDoc, filename, discardDataWarning, driveFileId) {
     // this is now handled at a higher level, this is mostly triggered by onChange events of "file" input elements
     // if the user selects "cancel", I want them to be able to try re-opening again. If they pick the same file I
     // won't get on onChange event without resetting the value, and here I don't have a reference to the DOM element
@@ -65,7 +65,7 @@ export function openAssignment(serializedDoc, filename, discardDataWarning) {
     // compatibility for old files, need to convert the old proerty names as
     // well as add the LAST_SHOWN_STEP
     newDoc = convertToCurrentFormat(newDoc);
-    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS]});
+    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId});
     window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
 }
 
@@ -122,17 +122,36 @@ var AssignmentEditorMenubar = createReactClass({
                             className="fm-button-light"
                             onClick={
                                 function() {
-                                    window.createFileWithJSONContent(
-                                        window.store.getState()[ASSIGNMENT_NAME] + '.math',
-                                        JSON.stringify(
-                                            { PROBLEMS : makeBackwardsCompatible(
-                                                         window.store.getState())[PROBLEMS]
-                                            }
-                                        ), 
-                                        function() {
-                                            alert("Saved successfully to google drive");
-                                        }
+
+                                    var assignment = JSON.stringify(
+                                                { PROBLEMS : makeBackwardsCompatible(
+                                                             window.store.getState())[PROBLEMS]
+                                                }
                                     );
+                                    assignment = new Blob([assignment], {type: 'application/json'});
+                                    var googleId = window.store.getState()["GOOGLE_ID"];
+                                    console.log("update in google drive:" + googleId);
+                                    if (googleId) {
+                                        console.log("update in google drive:" + googleId);
+                                        window.updateFileWithBinaryContent(
+                                            window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                                            assignment,
+                                            googleId,
+                                            'application/json',
+                                            function() {
+                                                alert("Saved successfully to google drive");
+                                            }
+                                        );
+                                    } else {
+                                        window.createFileWithBinaryContent(
+                                            window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                                            assignment,
+                                            'application/json',
+                                            function() {
+                                                alert("Saved successfully to google drive");
+                                            }
+                                        );
+                                    }
                             }}
                             content={(
                                     <div style={{display: "inline-block"}}>

@@ -155,14 +155,14 @@ const UserActions = createReactClass({
                             className="fm-button"
                             onClick={
                                 function() {
-                                    window.openDriveFile(false, function(name, content) {
+                                    window.openDriveFile(false, function(name, content, driveFileId) {
                                         // turn on confirmation dialog upon navigation away
                                         window.onbeforeunload = function() {
                                                 return true;
                                         };
                                         window.location.hash = '';
                                         document.body.scrollTop = document.documentElement.scrollTop = 0;
-                                        openAssignment(content, name, false)
+                                        openAssignment(content, name, false, driveFileId)
                                     });
                                 }}
                             content={(

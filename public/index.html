@@ -210,7 +210,7 @@ http://mozilla.org/MPL/2.0/
                     //url = doc[google.picker.Document.URL];
                     console.log(doc);
                     downloadFile(doc.id, isBinary, function(data) {
-                        callback(doc.name, data, false);
+                        callback(doc.name, data, doc.id);
                     });
                   }
               })
@@ -238,7 +238,7 @@ http://mozilla.org/MPL/2.0/
                       console.log(xhr);
                       console.log(xhr.response);
                       if (xhr.status == 200) {
-                        callback(xhr.response);
+                        callback(xhr.response, fileId);
                       } else {
                         alert("Something went wrong: " + xhr.status);
                       }
@@ -254,6 +254,27 @@ http://mozilla.org/MPL/2.0/
                   }
             }
         });
+      }
+
+      var updateFileWithBinaryContent = function(name, content, googleId, fileType='application/zip', callback) {
+
+        var meta = {name: name, mimeType: fileType};
+        var accessToken = gapi.auth.getToken().access_token;
+        var payload = new FormData();
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
+        payload.append('file', content);
+        xhr = new XMLHttpRequest();
+        xhr.open('patch', 'https://www.googleapis.com/upload/drive/v3/files/' + googleId + '?uploadType=multipart');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+          console.log(xhr);
+            if (xhr.status == 200) {
+                alert("Saved successfully to google drive");
+            } else {
+                alert(xhr.responseText);
+            }
+        };
+        xhr.send(payload);
       }
 
       var createFileWithBinaryContent = function(name, content, fileType='application/zip', callback) {
@@ -276,84 +297,7 @@ http://mozilla.org/MPL/2.0/
             }
         };
         xhr.send(payload);
-
-        /*
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
-
-        const contentType = 'application/json';
-
-        var metadata = {
-            'name': name,
-            'mimeType': contentType
-          };
-
-          var multipartRequestBody =
-              delimiter +
-              'Content-Type: application/json\r\n\r\n' +
-              JSON.stringify(metadata) +
-              delimiter +
-              'Content-Type: ' + contentType + '\r\n\r\n' +
-              data +
-              close_delim;
-
-          var request = gapi.client.request({
-              'path': '/upload/drive/v3/files',
-              'method': 'POST',
-              'params': {'uploadType': 'multipart'},
-              'headers': {
-                'Content-Type': 'multipart/related; boundary="' + boundary + '"'
-              },
-              'body': multipartRequestBody});
-          if (!callback) {
-            callback = function(file) {
-              console.log(file)
-            };
-          }
-          request.execute(callback);
-          */
       }
-
-      // https://stackoverflow.com/a/35182924
-      var createFileWithJSONContent = function(name,data,callback) {
-        const boundary = '-------314159265358979323846';
-        const delimiter = "\r\n--" + boundary + "\r\n";
-        const close_delim = "\r\n--" + boundary + "--";
-
-        const contentType = 'application/json';
-
-        var metadata = {
-            'name': name,
-            'mimeType': contentType
-          };
-
-          var multipartRequestBody =
-              delimiter +
-              'Content-Type: application/json\r\n\r\n' +
-              JSON.stringify(metadata) +
-              delimiter +
-              'Content-Type: ' + contentType + '\r\n\r\n' +
-              data +
-              close_delim;
-
-          var request = gapi.client.request({
-              'path': '/upload/drive/v3/files',
-              'method': 'POST',
-              'params': {'uploadType': 'multipart'},
-              'headers': {
-                'Content-Type': 'multipart/related; boundary="' + boundary + '"'
-              },
-              'body': multipartRequestBody});
-          if (!callback) {
-            callback = function(file) {
-              console.log(file)
-            };
-          }
-          // TODO - need to make this only called on success
-          request.execute(callback);
-      }
-
     </script>
 <script async defer src="https://apis.google.com/js/api.js"
   onload="this.onload=function(){};handleClientLoad();"

@@ -142,6 +142,7 @@ function rootReducer(state, action) {
         return {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
+            GOOGLE_ID: action.GOOGLE_ID,
             "DOC_ID" : genID() 
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
