@@ -52,14 +52,28 @@ const GradingMenuBar = createReactClass({
                                 function() {
                                     var zip = genStudentWorkZip(window.store.getState());
                                     var content = zip.generate({type: "blob"});
-                                    window.createFileWithBinaryContent (
-                                        window.store.getState()[ASSIGNMENT_NAME] + '.zip',
-                                        content, 
-                                        'application/zip',
-                                        function() {
-                                            alert("saved successfully to google drive");
-                                        }
-                                    );
+                                    var googleId = window.store.getState()["GOOGLE_ID"];
+                                    console.log("update in google drive:" + googleId);
+                                    if (googleId) {
+                                        window.updateFileWithBinaryContent (
+                                            window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                                            content,
+                                            googleId,
+                                            'application/zip',
+                                            function() {
+                                                alert("saved successfully to google drive");
+                                            }
+                                        );
+                                    } else {
+                                        window.createFileWithBinaryContent (
+                                            window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                                            content,
+                                            'application/zip',
+                                            function() {
+                                                alert("saved successfully to google drive");
+                                            }
+                                        );
+                                    }
                             }}
                             content={(
                                     <div style={{display: "inline-block"}}>

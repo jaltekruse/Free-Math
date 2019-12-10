@@ -814,7 +814,7 @@ function makeBackwardsCompatible(newDoc) {
     return newDoc;
 }
 
-function loadStudentDocsFromZip(new_zip, filename) {
+function loadStudentDocsFromZip(new_zip, filename, googleId = false) {
     var allStudentWork = [];
 
     // you now have every files contained in the loaded zip
@@ -850,6 +850,7 @@ function loadStudentDocsFromZip(new_zip, filename) {
     console.log(aggregatedWork);
     window.store.dispatch(
         { type : SET_ASSIGNMENTS_TO_GRADE,
+          GOOGLE_ID : googleId,
           NEW_STATE :
             {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
 }

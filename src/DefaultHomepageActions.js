@@ -223,7 +223,7 @@ const UserActions = createReactClass({
                                     window.onbeforeunload = function() {
                                             return true;
                                     };
-                                    window.openDriveFile(true, function(name, content) {
+                                    window.openDriveFile(true, function(name, content, googleId) {
                                         window.location.hash = '';
                                         document.body.scrollTop = document.documentElement.scrollTop = 0;
                                         // TODO - also show this while downloading file
@@ -233,7 +233,7 @@ const UserActions = createReactClass({
                                             var new_zip = new JSZip();
                                             // more files !
                                             new_zip.load(content);
-                                            loadStudentDocsFromZip(new_zip, name);
+                                            loadStudentDocsFromZip(new_zip, name, googleId);
                                             },
                                             50);
                                     }.bind(this));
