@@ -264,7 +264,7 @@ http://mozilla.org/MPL/2.0/
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
         payload.append('file', content);
         xhr = new XMLHttpRequest();
-        xhr.open('patch', 'https://www.googleapis.com/upload/drive/v3/files/' + googleId + '?uploadType=multipart');
+        xhr.open('put', 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
           console.log(xhr);
