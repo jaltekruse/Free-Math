@@ -126,7 +126,8 @@ http://mozilla.org/MPL/2.0/
       var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
       // Authorization scopes required by the API; multiple scopes can be
       // included, separated by spaces.
-      var SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive';
+      var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
+                   'https://www.googleapis.com/auth/drive';
       var APP_ID = 'quickstart-1561689319732';
 
       /**
@@ -200,8 +201,8 @@ http://mozilla.org/MPL/2.0/
         }
         var accessToken = gapi.auth.getToken().access_token;
           var picker = new google.picker.PickerBuilder()
-              .addView(new google.picker.DocsUploadView())
               .addView(new google.picker.DocsView())
+              .addView(new google.picker.DocsUploadView())
               .setOAuthToken(accessToken)
               .setCallback(function(data) {
                   var url = 'nothing';
