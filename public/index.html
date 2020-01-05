@@ -259,7 +259,7 @@ http://mozilla.org/MPL/2.0/
 
       var updateFileWithBinaryContent = function(name, content, googleId, fileType='application/zip', callback) {
 
-        var meta = {name: name, mimeType: fileType};
+        var meta = {title: name, mimeType: fileType};
         var accessToken = gapi.auth.getToken().access_token;
         var payload = new FormData();
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
