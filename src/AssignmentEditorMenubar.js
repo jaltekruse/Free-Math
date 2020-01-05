@@ -61,12 +61,21 @@ export function openAssignment(serializedDoc, filename, discardDataWarning, driv
     //    return;
     //}
 
-    var newDoc = JSON.parse(serializedDoc);
-    // compatibility for old files, need to convert the old proerty names as
-    // well as add the LAST_SHOWN_STEP
-    newDoc = convertToCurrentFormat(newDoc);
-    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId});
-    window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
+    try {
+        var newDoc = JSON.parse(serializedDoc);
+        // compatibility for old files, need to convert the old proerty names as
+        // well as add the LAST_SHOWN_STEP
+        newDoc = convertToCurrentFormat(newDoc);
+        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, 
+            PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId});
+        window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
+    } catch (e) {
+        console.log(e);
+        alert("Error reading the file, Free Math can only read files with " +
+              "a .math extension that it creates. If you saved this file " +
+              "with Free Math please send it to developers@freemathapp.org " +
+              "to allow us to debug the issue.");
+    }
 }
 
 // read a file from the local disk, pass an onChange event from a "file" input type
@@ -76,15 +85,10 @@ export function readSingleFile(evt, discardDataWarning) {
     var f = evt.target.files[0];
 
     if (f) {
-            var r = new FileReader();
-            r.onload = function(e) {
-                try {
-                    var contents = e.target.result;
-                    openAssignment(contents, f.name, discardDataWarning);
-                } catch (e) {
-                    console.log(e);
-                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
-                }
+        var r = new FileReader();
+        r.onload = function(e) { 
+            var contents = e.target.result;
+            openAssignment(contents, f.name, discardDataWarning);
         }
         r.readAsText(f);
     } else {
