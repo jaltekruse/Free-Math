@@ -1082,9 +1082,6 @@ const TeacherInteractiveGrader = createReactClass({
             problemNum = problemNum.replace("Problem ", "");
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
-            // TODO - not working correctly after making users grade single problem at a time
-            // for now make them scroll past the graph and similar assignments themselves
-            //window.location.hash = "#grade_problem";
         };
         Chart.defaults.global.defaultFontColor = '#010101';
         chart = new Chart(chart.getContext('2d'), {
@@ -1101,7 +1098,22 @@ const TeacherInteractiveGrader = createReactClass({
                         }
                     }]
                 },
-                onClick: onClickFunc
+                onClick: onClickFunc,
+                hover: {
+                    onHover: function(e) {
+                        var point = this.getElementAtEvent(e);
+                        let mousePoint = Chart.helpers.getRelativePosition(e, this.chart.chart);
+                        let yScale = this.chart.scales['y-axis-0'];
+                        // detect if hitting an element, in this case one of the bars,
+                        // or if anywhere below the graph where users can click on the
+                        // labels to also select problems
+                        if (point.length || 
+                              yScale.getValueForPixel(mousePoint.y) < 0) {
+                            e.target.style.cursor = 'pointer';
+                        }
+                        else e.target.style.cursor = 'default';
+                    }
+                }
             }
         });
       },
