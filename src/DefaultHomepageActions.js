@@ -59,6 +59,7 @@ const UserActions = createReactClass({
             window.location.hash = '';
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             studentSubmissionsZip(evt);
+            this.closeSpinner();
         }.bind(this);
 
         var recoverAutoSaveCallback = function(docName) {
@@ -230,12 +231,9 @@ const UserActions = createReactClass({
                                         this.openSpinner();
                                        
                                         setTimeout(function() {
-                                            var new_zip = new JSZip();
-                                            // more files !
-                                            new_zip.load(content);
-                                            loadStudentDocsFromZip(new_zip, name, googleId);
-                                            },
-                                            50);
+                                            loadStudentDocsFromZip(content, name, googleId);
+                                            this.closeSpinner();
+                                            }.bind(this), 50);
                                     }.bind(this));
                                 }.bind(this)}
                             content={(
