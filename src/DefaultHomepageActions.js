@@ -40,7 +40,40 @@ const UserActions = createReactClass({
     getInitialState () {
         return { showModal: false };
     },
+    componentDidMount: function() {
+        const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
+            function() {
+                window.openDriveFile(false, function(name, content, driveFileId) {
+                    openAssignment(content, name, false, driveFileId)
+                    // turn on confirmation dialog upon navigation away
+                    window.onbeforeunload = function() {
+                            return true;
+                    };
+                    window.location.hash = '';
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                });
+            }, function(){/* TODO - on sign in error*/})
 
+        const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
+            function() {
+                window.openDriveFile(true, function(name, content, googleId) {
+                    // turn on confirmation dialog upon navigation away
+                    window.onbeforeunload = function() {
+                            return true;
+                    };
+                    window.location.hash = '';
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    // TODO - also show this while downloading file
+                    this.openSpinner();
+                    setTimeout(function() {
+                        loadStudentDocsFromZip(content, name, googleId);
+                        this.closeSpinner();
+                        }.bind(this), 50);
+                }.bind(this));
+            }.bind(this), function(){/* TODO - on sign in error*/})
+    },
     closeSpinner() {
         this.setState({ showModal: false });
     },
@@ -154,18 +187,8 @@ const UserActions = createReactClass({
                         <br />
                         <HtmlButton
                             className="fm-button"
-                            onClick={
-                                function() {
-                                    window.openDriveFile(false, function(name, content, driveFileId) {
-                                        // turn on confirmation dialog upon navigation away
-                                        window.onbeforeunload = function() {
-                                                return true;
-                                        };
-                                        window.location.hash = '';
-                                        document.body.scrollTop = document.documentElement.scrollTop = 0;
-                                        openAssignment(content, name, false, driveFileId)
-                                    });
-                                }}
+                            ref="studentDriveOpen"
+                            onClick={/* contrlled by google auth in componentDidMount*/function(){}}
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
@@ -210,7 +233,7 @@ const UserActions = createReactClass({
                         }
                         { (recoveredStudentDocs.length > 0) ?
                             (<p>Recovered assignments stored temporarily in your
-                                browser, save to your device as soon as 
+                                browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
                 <div style={{...divStyle, "float": "right"}}>
@@ -218,24 +241,8 @@ const UserActions = createReactClass({
                     Grade Assignments <br />
                         <HtmlButton
                             className="fm-button"
-                            onClick={
-                                function() {
-                                    // turn on confirmation dialog upon navigation away
-                                    window.onbeforeunload = function() {
-                                            return true;
-                                    };
-                                    window.openDriveFile(true, function(name, content, googleId) {
-                                        window.location.hash = '';
-                                        document.body.scrollTop = document.documentElement.scrollTop = 0;
-                                        // TODO - also show this while downloading file
-                                        this.openSpinner();
-                                       
-                                        setTimeout(function() {
-                                            loadStudentDocsFromZip(content, name, googleId);
-                                            this.closeSpinner();
-                                            }.bind(this), 50);
-                                    }.bind(this));
-                                }.bind(this)}
+                            ref="teacherDriveOpen"
+                            onClick={function(){}}
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
@@ -273,7 +280,7 @@ const UserActions = createReactClass({
                     }
                     { (recoveredTeacherDocs.length > 0) ?
                             (<p>Recovered grading sessions stored temporarily in
-                                your browser, save to your device as soon as 
+                                your browser, save to your device as soon as
                                 possible</p>) : null }
                 </div>
             </div>
@@ -285,8 +292,8 @@ const UserActions = createReactClass({
      *
             <div className="answer-incorrect"
                  style={{display:"block", padding:"10px", margin: "10px"}}>
-                <span>DATA LOSS WARNING: School districts may clear your 
-                      downloads folder when logging off. It is recommended 
+                <span>DATA LOSS WARNING: School districts may clear your
+                      downloads folder when logging off. It is recommended
                       to save your files on a USB drive, LMS (Canvas, Moodle,
                       Blackboard) or your institution's preferred cloud
                       storage provider like Google Drive, Dropbox, etc.</span>
@@ -346,7 +353,8 @@ const DefaultHomepageActions = createReactClass({
                              marginRight:"auto", padding: "0 10px 0 10px"}}
                      className="nav">
                     <LogoHomeNav />
-                    <div className="navBarElms" style={{float:"right"}}>
+                    <div className="navBarElms" style={{marginTop:"4px", float:"right"}}>
+                    {/* Now handled by auth tied directly into the "Open from" buttons, see componentDidMount()
                     <HtmlButton
                             className="fm-button-light"
                             onClick={
@@ -372,6 +380,7 @@ const DefaultHomepageActions = createReactClass({
                                     </div>
                             )} />
                     &nbsp;&nbsp;&nbsp;
+                    */}
                     <a href="gettingStarted.html" style={{color:"white", marginRight:"15px"}} >Getting Started</a>{' '}
                     <a href="contact.html" style={{color:"white", marginRight:"15px"}} >Contact</a>{' '}
                     <a href="faq.html" style={{color:"white"}} >FAQ</a>
@@ -385,7 +394,7 @@ const DefaultHomepageActions = createReactClass({
             <div className="homepage-disappear-mobile">
             <div className="homepage-center">
             <div style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -399,14 +408,14 @@ const DefaultHomepageActions = createReactClass({
             >
                 <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
             </button>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 
+                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3>
             </button>
             </div>
             </div>
@@ -471,7 +480,7 @@ const DefaultHomepageActions = createReactClass({
                     <img style={{margin : "20px"}}
                          alt="moodle logo"
                          src="images/blackboard.png"/>
-                </div> 
+                </div>
                 <div style={{"width" : "100%", "margin":"100px 0px 100px 0px",
                              "padding":"50px 0px 50px 0px",
                              "marginBottom": "100px",
@@ -497,7 +506,7 @@ const DefaultHomepageActions = createReactClass({
                             <p style={{color: "#eee"}}>
                                 Join our e-mail list to find out first about new features and updates to the site.
                             </p>
-                            <input type="email" name="EMAIL" className="email" size="25" 
+                            <input type="email" name="EMAIL" className="email" size="25"
                                    id="mce-EMAIL" placeholder="  email address"
                                    style={{"border": "0px"}}
                                    value={this.state.emailString}

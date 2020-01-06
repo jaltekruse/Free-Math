@@ -196,8 +196,8 @@ http://mozilla.org/MPL/2.0/
     // callback takes 2 parameters filename and content
       function openDriveFile(isBinary, callback){
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Connect to google first using button on top menu');
-            return;
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
         }
         var accessToken = gapi.auth.getToken().access_token;
           var picker = new google.picker.PickerBuilder()
@@ -257,8 +257,15 @@ http://mozilla.org/MPL/2.0/
         });
       }
 
-      var updateFileWithBinaryContent = function(name, content, googleId, fileType='application/zip', callback) {
+      var updateFileWithBinaryContent = function(name, content, googleId,
+          fileType='application/zip', callback, errorCallback = function(){}) {
 
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            errorCallback();
+            alert('Need to re-authorize access to Google Services.');
+            handleAuthClick();
+            return;
+        }
         var meta = {title: name, mimeType: fileType};
         var accessToken = gapi.auth.getToken().access_token;
         var payload = new FormData();
@@ -273,6 +280,7 @@ http://mozilla.org/MPL/2.0/
                 if (this.status == 200) {
                     callback();
                 } else {
+                    errorCallback();
                     console.log(this.status + " " + this.responseText);
                     alert(this.status + " " + this.responseText);
                 }

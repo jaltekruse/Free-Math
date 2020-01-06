@@ -138,7 +138,7 @@ function autoSave() {
             // kick off an event that will save to google in N seconds, when the timeout
             // expires the current app state will be requested again to capture any
             // more upates that happened in the meantime, and thoe edits will have avoided
-            // creating their own callback with a timeout based on the currentlyGatheringUpdates 
+            // creating their own callback with a timeout based on the currentlyGatheringUpdates
             // flag and the check above
             const onSuccess = function() {
                 pendingSaves--;
@@ -149,6 +149,15 @@ function autoSave() {
                         {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
                 }
             }
+            const onFailure = function() {
+                pendingSaves--;
+                console.log('pendingSaves');
+                console.log(pendingSaves);
+                if (pendingSaves === 0) {
+                    window.store.dispatch(
+                        {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
+                }
+            }
             const saveStudentDoc = function() {
                 var assignment = JSON.stringify(
                             { PROBLEMS : makeBackwardsCompatible(window.store.getState())[PROBLEMS]});
@@ -156,7 +165,8 @@ function autoSave() {
                 window.updateFileWithBinaryContent(
                     window.store.getState()[ASSIGNMENT_NAME] + '.math',
                     assignment, googleId, 'application/json',
-                    onSuccess
+                    onSuccess,
+                    onFailure
                 );
             }
             const saveTeacherGrading = function() {
@@ -165,7 +175,8 @@ function autoSave() {
                 window.updateFileWithBinaryContent (
                     window.store.getState()[ASSIGNMENT_NAME] + '.zip',
                     content, googleId, 'application/zip',
-                    onSuccess
+                    onSuccess,
+                    onFailure
                 );
             }
             const saveFunc = appState[APP_MODE] === EDIT_ASSIGNMENT ? saveStudentDoc : saveTeacherGrading;

@@ -256,7 +256,7 @@ function splitKey(compositeKey) {
 function findSimilarStudentAssignments(allStudentWork) {
 
     if (allStudentWork.length > 100) {
-        alert("Too many assignments to perform overall document similarity check.\n" + 
+        alert("Too many assignments to perform overall document similarity check.\n" +
             "To use this feature you can open up documents in groups of 100 students or less at a time.");
         return [];
     }
@@ -739,7 +739,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
 
 // TODO - delete this, highlights now shown in student experience for viewing
 // feedback on a graded assignment.
-// 
+//
 // Still used in the legacy document upgrade code below.
 //
 // This was from a very old version of the software, likely safe to
@@ -1119,7 +1119,7 @@ const TeacherInteractiveGrader = createReactClass({
                         // detect if hitting an element, in this case one of the bars,
                         // or if anywhere below the graph where users can click on the
                         // labels to also select problems
-                        if (point.length || 
+                        if (point.length ||
                               yScale.getValueForPixel(mousePoint.y) < 0) {
                             e.target.style.cursor = 'pointer';
                         }
