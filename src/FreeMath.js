@@ -10,6 +10,7 @@ import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
 import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
+import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 
 // Application modes
 var APP_MODE = 'APP_MODE';
@@ -31,6 +32,17 @@ var NEW_STATE = 'NEW_STATE';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
+
+var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 
 // used to swap out the entire content of the document, for opening
 // a document from a file
@@ -84,19 +96,80 @@ function datetimeToStr(dt) {
                     ":" + ("00" + dt.getMinutes()).slice(-2) + ":" + ("00" + dt.getSeconds()).slice(-2) + "." + dt.getMilliseconds();
 }
 
+let currentSaveState;
+let currentAppMode;
+let currentlyGatheringUpdates;
+let pendingSaves = 0;
 function autoSave() {
     var appState = window.store.getState();
+    let previousSaveState = currentSaveState;
+    currentSaveState = appState[GOOGLE_DRIVE_STATE];
+
+    let previousAppMode = currentAppMode;
+    currentAppMode = appState[APP_MODE];
 
     if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
+
         var problems = appState[PROBLEMS];
-        // check for the initial state, do not save this
-        if (problems.length === 1) {
-            var steps = problems[0][STEPS];
-            if (steps.length === 1 && steps[0][CONTENT] === '') {
+        var googleId = window.store.getState()[GOOGLE_ID];
+        if (googleId) {
+            // filter out changes to state made in this function, saving state, pending save count
+            // also filter out the initial load of the page when a doc opens
+            if (previousSaveState !== currentSaveState
+               || previousAppMode !== currentAppMode) {
+                // ignore the changes to the drive state, none of them should trigger auto-save events
+                // escpecially as we kick off an update to this value within this function
                 return;
             }
+            // try to bundle together a few updates, wait 2 seconds before calling save. assume
+            // some more keystrokes are incomming
+            if (window.store.getState()[GOOGLE_DRIVE_STATE] !== SAVING) {
+                window.store.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
+            }
+            // assume users will type multiple characters rapidly, don't eagerly send a request
+            // to google for each update, let thm batch up for a bit first
+            if (currentlyGatheringUpdates) {
+                console.log("skipping new auto-save because currently gathering updates");
+                return;
+            }
+            currentlyGatheringUpdates = true;
+            pendingSaves++;
+            // kick off an event that will save to google in N seconds, when the timeout
+            // expires the current app state will be requested again to capture any
+            // more upates that happened in the meantime, and thoe edits will have avoided
+            // creating their own callback with a timeout based on the currentlyGatheringUpdates 
+            // flag and the check above
+            setTimeout(function() {
+                currentlyGatheringUpdates = false;
+                console.log("update in google drive:" + googleId);
+                var assignment = JSON.stringify(
+                            { PROBLEMS : makeBackwardsCompatible(window.store.getState())[PROBLEMS]});
+                assignment = new Blob([assignment], {type: 'application/json'});
+                window.updateFileWithBinaryContent(
+                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    assignment,
+                    googleId,
+                    'application/json',
+                    function() {
+                        pendingSaves--;
+                        if (pendingSaves === 0) {
+                            window.store.dispatch(
+                                {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        }
+                    }
+                );
+            }, 2000);
+        } else {
+            // check for the initial state, do not save this
+            if (problems.length === 1) {
+                var steps = problems[0][STEPS];
+                if (steps.length === 1 && steps[0][CONTENT] === '') {
+                    return;
+                }
+            }
+            console.log("auto saving problems");
+            updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
         }
-        updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
     } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
         // TODO - add input for assignment name to teacher page
         updateAutoSave("TEACHERS", appState["ASSIGNMENT_NAME"], appState);
@@ -116,6 +189,8 @@ function rootReducer(state, action) {
         return {
             ...assignmentReducer(),
             "DOC_ID" : genID(),
+            PENDING_SAVES : 0,
+            GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY,
             APP_MODE : EDIT_ASSIGNMENT
         };
     } else if (action.type === "SET_GLOBAL_STATE") {
@@ -123,6 +198,14 @@ function rootReducer(state, action) {
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
+        }
+    } else if (action.type === SET_GOOGLE_DRIVE_STATE) {
+        return { ...state,
+                 GOOGLE_DRIVE_STATE: action[GOOGLE_DRIVE_STATE]
+        }
+    } else if (action.type === SET_GOOGLE_ID) {
+        return { ...state,
+                 GOOGLE_ID: action[GOOGLE_ID]
         }
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
@@ -144,12 +227,16 @@ function rootReducer(state, action) {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
             GOOGLE_ID: action.GOOGLE_ID,
-            "DOC_ID" : genID() 
+            ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
+            PENDING_SAVES : 0,
+            GOOGLE_DRIVE_STATE : ALL_SAVED,
+            "DOC_ID" : genID()
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
             ...assignmentReducer(state, action),
-            APP_MODE : EDIT_ASSIGNMENT
+            APP_MODE : EDIT_ASSIGNMENT,
+            PENDING_SAVES : 0
         }
     } else if (state[APP_MODE] === GRADE_ASSIGNMENTS
         || state[APP_MODE] === SIMILAR_DOC_CHECK

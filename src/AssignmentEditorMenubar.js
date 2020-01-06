@@ -17,6 +17,17 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
+var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+
 function saveAssignment() {
     var atLeastOneProblemNumberNotSet = false;
     window.store.getState()[PROBLEMS].forEach(function(problem, index, array) {
@@ -66,9 +77,9 @@ export function openAssignment(serializedDoc, filename, discardDataWarning, driv
         // compatibility for old files, need to convert the old proerty names as
         // well as add the LAST_SHOWN_STEP
         newDoc = convertToCurrentFormat(newDoc);
-        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, 
-            PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId});
-        window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
+        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+            PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
+            ASSIGNMENT_NAME : removeExtension(filename)});
     } catch (e) {
         console.log(e);
         alert("Error reading the file, Free Math can only read files with " +
@@ -97,9 +108,16 @@ export function readSingleFile(evt, discardDataWarning) {
 }
 
 var AssignmentEditorMenubar = createReactClass({
-  render: function() {
+    render: function() {
         const responseGoogle = (response) => {
             console.log(response);
+        }
+        var saveStateMsg = '';
+        var googleId = window.store.getState()[GOOGLE_ID];
+        if (googleId) {
+            var state = this.props.value[GOOGLE_DRIVE_STATE];
+            if (state === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
+            else if (state === SAVING) saveStateMsg = "Saving in Drive...";
         }
         return (
             <div className="menuBar">
@@ -107,6 +125,8 @@ var AssignmentEditorMenubar = createReactClass({
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                        <span style={{margin : "0px 15px 0px 15px"}}>
+                            {saveStateMsg}</span>
                         Filename &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="35"
                                name="assignment name"
@@ -133,8 +153,7 @@ var AssignmentEditorMenubar = createReactClass({
                                                 }
                                     );
                                     assignment = new Blob([assignment], {type: 'application/json'});
-                                    var googleId = window.store.getState()["GOOGLE_ID"];
-                                    console.log("update in google drive:" + googleId);
+                                    var googleId = window.store.getState()[GOOGLE_ID];
                                     if (googleId) {
                                         console.log("update in google drive:" + googleId);
                                         window.updateFileWithBinaryContent(
@@ -143,7 +162,9 @@ var AssignmentEditorMenubar = createReactClass({
                                             googleId,
                                             'application/json',
                                             function() {
-                                                alert("Saved successfully to google drive");
+                                                window.store.dispatch(
+                                                    { type : SET_GOOGLE_DRIVE_STATE,
+                                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
                                             }
                                         );
                                     } else {
@@ -151,8 +172,13 @@ var AssignmentEditorMenubar = createReactClass({
                                             window.store.getState()[ASSIGNMENT_NAME] + '.math',
                                             assignment,
                                             'application/json',
-                                            function() {
-                                                alert("Saved successfully to google drive");
+                                            function(driveFileId) {
+                                                window.store.dispatch({type : SET_GOOGLE_ID,
+                                                    GOOGLE_ID: driveFileId,
+                                                });
+                                                window.store.dispatch(
+                                                    { type : SET_GOOGLE_DRIVE_STATE,
+                                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
                                             }
                                         );
                                     }

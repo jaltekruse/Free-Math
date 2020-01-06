@@ -269,10 +269,15 @@ http://mozilla.org/MPL/2.0/
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
           console.log(xhr);
-            if (xhr.status == 200) {
-                alert("Saved successfully to google drive");
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    callback();
+                } else {
+                    console.log(this.status + " " + this.responseText);
+                    alert(this.status + " " + this.responseText);
+                }
             } else {
-                alert(xhr.responseText);
+                // ignore other events for request still in progress
             }
         };
         xhr.send(payload);
@@ -290,9 +295,14 @@ http://mozilla.org/MPL/2.0/
         xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-          console.log(xhr);
+            console.log(xhr);
             if (xhr.status == 200) {
-                alert("Saved successfully to google drive");
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response.id);
+                } catch (e) {
+                    alert("Error reading google's response:" + xhr.responseText);
+                }
             } else {
                 alert(xhr.responseText);
             }
