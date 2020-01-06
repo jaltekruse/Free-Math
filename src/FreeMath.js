@@ -9,7 +9,7 @@ import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
-import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
+import { calculateGradingOverview, genStudentWorkZip } from './TeacherInteractiveGrader.js';
 import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 
 // Application modes
@@ -108,7 +108,8 @@ function autoSave() {
     let previousAppMode = currentAppMode;
     currentAppMode = appState[APP_MODE];
 
-    if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
+    if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
+        appState[APP_MODE] === GRADE_ASSIGNMENTS) {
 
         var problems = appState[PROBLEMS];
         var googleId = window.store.getState()[GOOGLE_ID];
@@ -139,40 +140,55 @@ function autoSave() {
             // more upates that happened in the meantime, and thoe edits will have avoided
             // creating their own callback with a timeout based on the currentlyGatheringUpdates 
             // flag and the check above
-            setTimeout(function() {
-                currentlyGatheringUpdates = false;
-                console.log("update in google drive:" + googleId);
+            const onSuccess = function() {
+                pendingSaves--;
+                console.log('pendingSaves');
+                console.log(pendingSaves);
+                if (pendingSaves === 0) {
+                    window.store.dispatch(
+                        {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
+                }
+            }
+            const saveStudentDoc = function() {
                 var assignment = JSON.stringify(
                             { PROBLEMS : makeBackwardsCompatible(window.store.getState())[PROBLEMS]});
                 assignment = new Blob([assignment], {type: 'application/json'});
                 window.updateFileWithBinaryContent(
                     window.store.getState()[ASSIGNMENT_NAME] + '.math',
-                    assignment,
-                    googleId,
-                    'application/json',
-                    function() {
-                        pendingSaves--;
-                        if (pendingSaves === 0) {
-                            window.store.dispatch(
-                                {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        }
-                    }
+                    assignment, googleId, 'application/json',
+                    onSuccess
                 );
+            }
+            const saveTeacherGrading = function() {
+                var zip = genStudentWorkZip(window.store.getState());
+                var content = zip.generate({type: "blob"});
+                window.updateFileWithBinaryContent (
+                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                    content, googleId, 'application/zip',
+                    onSuccess
+                );
+            }
+            const saveFunc = appState[APP_MODE] === EDIT_ASSIGNMENT ? saveStudentDoc : saveTeacherGrading;
+            setTimeout(function() {
+                currentlyGatheringUpdates = false;
+                saveFunc();
+                console.log("update in google drive:" + googleId);
             }, 2000);
         } else {
-            // check for the initial state, do not save this
-            if (problems.length === 1) {
-                var steps = problems[0][STEPS];
-                if (steps.length === 1 && steps[0][CONTENT] === '') {
-                    return;
+            if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
+                // check for the initial state, do not save this
+                if (problems.length === 1) {
+                    var steps = problems[0][STEPS];
+                    if (steps.length === 1 && steps[0][CONTENT] === '') {
+                        return;
+                    }
                 }
+                console.log("auto saving problems");
+                updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
+            } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
+                updateAutoSave("TEACHERS", appState["ASSIGNMENT_NAME"], appState);
             }
-            console.log("auto saving problems");
-            updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
         }
-    } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
-        // TODO - add input for assignment name to teacher page
-        updateAutoSave("TEACHERS", appState["ASSIGNMENT_NAME"], appState);
     } else {
         // current other states include mode chooser homepage and view grades "modal"
         return;

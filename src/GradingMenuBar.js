@@ -12,18 +12,38 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 
+var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+
 const GradingMenuBar = createReactClass({
     render: function() {
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
             assignmentName = "";
         }
+        var saveStateMsg = '';
+        var googleId = window.store.getState()[GOOGLE_ID];
+        if (googleId) {
+            var state = this.props.value[GOOGLE_DRIVE_STATE];
+            if (state === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
+            else if (state === SAVING) saveStateMsg = "Saving in Drive...";
+        }
         return (
             <div className="menuBar">
                 <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav /> 
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
-                        Name &nbsp;&nbsp;
+                        <span style={{margin : "0px 15px 0px 15px"}}>
+                            {saveStateMsg}</span>
+                        Name &nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
                                 value={this.props.value[ASSIGNMENT_NAME]}
@@ -38,14 +58,14 @@ const GradingMenuBar = createReactClass({
                             function() {
                                 saveGradedStudentWork(window.store.getState());
                             }
-                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        }/>&nbsp;&nbsp;
                         <LightButton text="Similar Doc Check" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
-                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        }/>&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
                             onClick={
@@ -69,8 +89,13 @@ const GradingMenuBar = createReactClass({
                                             window.store.getState()[ASSIGNMENT_NAME] + '.zip',
                                             content,
                                             'application/zip',
-                                            function() {
-                                                alert("saved successfully to google drive");
+                                            function(driveFileId) {
+                                                window.store.dispatch({type : SET_GOOGLE_ID,
+                                                    GOOGLE_ID: driveFileId,
+                                                });
+                                                window.store.dispatch(
+                                                    { type : SET_GOOGLE_DRIVE_STATE,
+                                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
                                             }
                                         );
                                     }
@@ -82,19 +107,14 @@ const GradingMenuBar = createReactClass({
                                                 src="images/google_drive_small_logo.png"
                                                 alt="google logo" />
                                     </div>
-                            )} />&nbsp;&nbsp;&nbsp;
-                        <LightButton text="View Grades" onClick={
+                            )} />&nbsp;&nbsp;
+                        <LightButton text="Grades" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : SET_TO_VIEW_GRADES});
                             }
-                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <LightButton text="Scroll to Top" onClick={
-                            function() {
-                                window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;}
-                        }/>
+                        }/>&nbsp;&nbsp;
                     </div>
                 </div>
             </div>
