@@ -28,7 +28,30 @@ var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
-export function render() {
+var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+
+var APP_MODE = 'APP_MODE';
+var MODE_CHOOSER = 'MODE_CHOOSER';
+
+function checkAllSaved() {
+    const appState = window.store.getState();
+    if (appState[APP_MODE] !== MODE_CHOOSER &&
+        !(appState[GOOGLE_ID] && appState[GOOGLE_DRIVE_STATE] == ALL_SAVED)) {
+        return true;
+    } else {
+        return null;
+    }
+}
+
+function render() {
     window.MathQuill = MathQuill.getInterface(1);
     ReactDOM.render(
         <FreeMath value={window.store.getState()} />,
@@ -47,9 +70,7 @@ const UserActions = createReactClass({
                 window.openDriveFile(false, function(name, content, driveFileId) {
                     openAssignment(content, name, false, driveFileId)
                     // turn on confirmation dialog upon navigation away
-                    window.onbeforeunload = function() {
-                            return true;
-                    };
+                    window.onbeforeunload = checkAllSaved;
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
                 });
@@ -60,9 +81,7 @@ const UserActions = createReactClass({
             function() {
                 window.openDriveFile(true, function(name, content, googleId) {
                     // turn on confirmation dialog upon navigation away
-                    window.onbeforeunload = function() {
-                            return true;
-                    };
+                    window.onbeforeunload = checkAllSaved;
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
                     // TODO - also show this while downloading file
@@ -84,9 +103,7 @@ const UserActions = createReactClass({
     render: function() {
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
-            window.onbeforeunload = function() {
-                    return true;
-            };
+            window.onbeforeunload = checkAllSaved;
             this.openSpinner();
 
             window.location.hash = '';
@@ -97,9 +114,7 @@ const UserActions = createReactClass({
 
         var recoverAutoSaveCallback = function(docName) {
             // turn on confirmation dialog upon navigation away
-            window.onbeforeunload = function() {
-                    return true;
-            };
+            window.onbeforeunload = checkAllSaved;
             window.location.hash = '';
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             var recovered = JSON.parse(window.localStorage.getItem(docName));
@@ -175,9 +190,7 @@ const UserActions = createReactClass({
                         <Button type="submit" text="Create" onClick={
                             function() {
                                 // turn on confirmation dialog upon navigation away
-                                window.onbeforeunload = function() {
-                                        return true;
-                                };
+                                window.onbeforeunload = checkAllSaved;
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
@@ -201,9 +214,7 @@ const UserActions = createReactClass({
                         <input type="file" id="open-file-input" onChange={
                             function(evt) {
                                 // turn on confirmation dialog upon navigation away
-                                window.onbeforeunload = function() {
-                                        return true;
-                                };
+                                window.onbeforeunload = checkAllSaved;
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt, false /*don't warn about data loss*/);
@@ -397,9 +408,7 @@ const DefaultHomepageActions = createReactClass({
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
-                    window.onbeforeunload = function() {
-                            return true;
-                    };
+                    window.onbeforeunload = checkAllSaved;
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
                     window.store.dispatch({type : "NEW_ASSIGNMENT"});
@@ -575,4 +584,4 @@ const DefaultHomepageActions = createReactClass({
 });
 
 
-export default DefaultHomepageActions;
+export { DefaultHomepageActions as default, render, checkAllSaved };

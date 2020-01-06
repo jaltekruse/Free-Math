@@ -10,6 +10,7 @@ import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 import { removeExtension } from './AssignmentEditorMenubar.js';
+import { checkAllSaved } from './DefaultHomepageActions.js';
 
 var KAS = window.KAS;
 
@@ -518,7 +519,7 @@ function saveGradedStudentWork(gradedWork) {
     var content = zip.generate();
 
     window.location.href="data:application/zip;download:testing;base64," + content;
-    setTimeout(function() { window.onbeforeunload = function() { return true; }}, 500);
+    setTimeout(function() { window.onbeforeunload = checkAllSaved() }, 500);
 }
 
 // returns score out of total possible points that are specified in the answer key

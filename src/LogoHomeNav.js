@@ -1,5 +1,6 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
+import { checkAllSaved } from './DefaultHomepageActions.js';
 import './App.css';
 
 const LogoHomeNav = createReactClass({
@@ -7,9 +8,12 @@ const LogoHomeNav = createReactClass({
         return (
             <div style={{float:"left", lineHeight : 1}} onClick= {
                 function(evt) {
-                    if (!window.confirm("Are you sure you want to leave your current work?")) {
-                        return;
+                    if (checkAllSaved()) {
+                        if (!window.confirm("Are you sure you want to leave your current work?")) {
+                            return;
+                        }
                     }
+
                     window.store.dispatch({type : "GO_TO_MODE_CHOOSER"});
 
                     // temporarily disable data loss warning

@@ -72,7 +72,7 @@ const GradingMenuBar = createReactClass({
                                 function() {
                                     var zip = genStudentWorkZip(window.store.getState());
                                     var content = zip.generate({type: "blob"});
-                                    var googleId = window.store.getState()["GOOGLE_ID"];
+                                    var googleId = window.store.getState()[GOOGLE_ID];
                                     console.log("update in google drive:" + googleId);
                                     if (googleId) {
                                         window.updateFileWithBinaryContent (

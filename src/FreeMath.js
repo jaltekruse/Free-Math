@@ -243,6 +243,7 @@ function rootReducer(state, action) {
             ...action[NEW_STATE],
             "DOC_ID" : genID(),
             GOOGLE_ID: action.GOOGLE_ID,
+            GOOGLE_DRIVE_STATE : ALL_SAVED,
             "GRADING_OVERVIEW" : overview,
             "CURRENT_PROBLEM" : overview[PROBLEMS][0][PROBLEM_NUMBER],
             APP_MODE : GRADE_ASSIGNMENTS,
