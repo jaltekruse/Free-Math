@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import createReactClass from 'create-react-class';
 import { saveAs } from 'file-saver';
 import './App.css';
@@ -108,6 +109,48 @@ export function readSingleFile(evt, discardDataWarning) {
 }
 
 var AssignmentEditorMenubar = createReactClass({
+    componentDidMount: function() {
+        const saveCallback = function() {
+            var assignment = JSON.stringify(
+                        { PROBLEMS : makeBackwardsCompatible(
+                                     window.store.getState())[PROBLEMS]
+                        }
+            );
+            assignment = new Blob([assignment], {type: 'application/json'});
+            var googleId = window.store.getState()[GOOGLE_ID];
+            if (googleId) {
+                console.log("update in google drive:" + googleId);
+                window.updateFileWithBinaryContent(
+                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    assignment,
+                    googleId,
+                    'application/json',
+                    function() {
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_DRIVE_STATE,
+                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                    }
+                );
+            } else {
+                window.createFileWithBinaryContent(
+                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    assignment,
+                    'application/json',
+                    function(driveFileId) {
+                        window.store.dispatch({type : SET_GOOGLE_ID,
+                            GOOGLE_ID: driveFileId,
+                        });
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_DRIVE_STATE,
+                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                    }
+                );
+            }
+        }
+        const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
+            saveCallback, function(){/* TODO - on sign in error*/})
+    },
     render: function() {
         const responseGoogle = (response) => {
             console.log(response);
@@ -144,45 +187,8 @@ var AssignmentEditorMenubar = createReactClass({
 
                         <HtmlButton
                             className="fm-button-light"
-                            onClick={
-                                function() {
-
-                                    var assignment = JSON.stringify(
-                                                { PROBLEMS : makeBackwardsCompatible(
-                                                             window.store.getState())[PROBLEMS]
-                                                }
-                                    );
-                                    assignment = new Blob([assignment], {type: 'application/json'});
-                                    var googleId = window.store.getState()[GOOGLE_ID];
-                                    if (googleId) {
-                                        console.log("update in google drive:" + googleId);
-                                        window.updateFileWithBinaryContent(
-                                            window.store.getState()[ASSIGNMENT_NAME] + '.math',
-                                            assignment,
-                                            googleId,
-                                            'application/json',
-                                            function() {
-                                                window.store.dispatch(
-                                                    { type : SET_GOOGLE_DRIVE_STATE,
-                                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
-                                            }
-                                        );
-                                    } else {
-                                        window.createFileWithBinaryContent(
-                                            window.store.getState()[ASSIGNMENT_NAME] + '.math',
-                                            assignment,
-                                            'application/json',
-                                            function(driveFileId) {
-                                                window.store.dispatch({type : SET_GOOGLE_ID,
-                                                    GOOGLE_ID: driveFileId,
-                                                });
-                                                window.store.dispatch(
-                                                    { type : SET_GOOGLE_DRIVE_STATE,
-                                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
-                                            }
-                                        );
-                                    }
-                            }}
+                            ref="saveToDrive"
+                            onClick={function() {}}
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "4px"}}>Save to&nbsp;</div>

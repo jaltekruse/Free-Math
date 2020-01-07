@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -24,6 +25,44 @@ var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 
 const GradingMenuBar = createReactClass({
+    componentDidMount: function() {
+        const saveCallback = function() {
+            var zip = genStudentWorkZip(window.store.getState());
+            var content = zip.generate({type: "blob"});
+            var googleId = window.store.getState()[GOOGLE_ID];
+            console.log("update in google drive:" + googleId);
+            if (googleId) {
+                window.updateFileWithBinaryContent (
+                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                    content,
+                    googleId,
+                    'application/zip',
+                    function() {
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_DRIVE_STATE,
+                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                    }
+                );
+            } else {
+                window.createFileWithBinaryContent (
+                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                    content,
+                    'application/zip',
+                    function(driveFileId) {
+                        window.store.dispatch({type : SET_GOOGLE_ID,
+                            GOOGLE_ID: driveFileId,
+                        });
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_DRIVE_STATE,
+                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                    }
+                );
+            }
+        }
+        const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
+            saveCallback, function(){/* TODO - on sign in error*/})
+    },
     render: function() {
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
@@ -59,7 +98,7 @@ const GradingMenuBar = createReactClass({
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;
-                        <LightButton text="Similar Doc Check" onClick={
+                        <LightButton text="Similar Docs" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -68,38 +107,8 @@ const GradingMenuBar = createReactClass({
                         }/>&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
-                            onClick={
-                                function() {
-                                    var zip = genStudentWorkZip(window.store.getState());
-                                    var content = zip.generate({type: "blob"});
-                                    var googleId = window.store.getState()[GOOGLE_ID];
-                                    console.log("update in google drive:" + googleId);
-                                    if (googleId) {
-                                        window.updateFileWithBinaryContent (
-                                            window.store.getState()[ASSIGNMENT_NAME] + '.zip',
-                                            content,
-                                            googleId,
-                                            'application/zip',
-                                            function() {
-                                                alert("saved successfully to google drive");
-                                            }
-                                        );
-                                    } else {
-                                        window.createFileWithBinaryContent (
-                                            window.store.getState()[ASSIGNMENT_NAME] + '.zip',
-                                            content,
-                                            'application/zip',
-                                            function(driveFileId) {
-                                                window.store.dispatch({type : SET_GOOGLE_ID,
-                                                    GOOGLE_ID: driveFileId,
-                                                });
-                                                window.store.dispatch(
-                                                    { type : SET_GOOGLE_DRIVE_STATE,
-                                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
-                                            }
-                                        );
-                                    }
-                            }}
+                            ref="saveToDrive"
+                            onClick={function() {}}
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "4px"}}>Save to&nbsp;</div>
