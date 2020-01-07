@@ -100,6 +100,9 @@ const UserActions = createReactClass({
     openSpinner() {
         this.setState({ showModal: true });
     },
+    createAssignment() {
+        this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : true });
+    },
     render: function() {
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
@@ -182,6 +185,59 @@ const UserActions = createReactClass({
                         Analyzing and grouping student work...
                     </div>)}
             />
+            <FreeMathModal
+                showModal={this.state['CREATING_GOOGLE_CLASSROOM_ASSINGMENT']}
+                content={(
+                    <div style={{"align-items": "center"}}>
+
+                    <div><b>Create Assignment</b></div>
+                    <div>Class</div>
+                    {this.state['GOOGLE_CLASS_LIST'] === undefined ? null :
+                        (<div><select onChange={
+                            function(event) {
+                                this.setState({courseId: event.target.value});
+                            }.bind(this)}
+                        >
+                            {this.state['GOOGLE_CLASS_LIST'].courses
+                                .map(function(classInfo, index) {
+                                    return (
+                                        <option value={classInfo.id}>{classInfo.name}</option>
+                                    )
+                                })
+                            }
+                        </select><br/>
+                        </div>)
+                    }
+                    {/* TODO - required field validation */}
+                    {/* TODO - add due date*/}
+                    Title* <input type="text"
+                       value={this.state.assignmentName}
+                       onChange={function(evt) {
+                                this.setState({assignmentName: evt.target.value});
+                       }.bind(this)}/><br />
+                    Description<br />
+                    <textarea
+                       value={this.state.assignmentDescription}
+                       onChange={function(evt) {
+                                this.setState({assignmentDescription: evt.target.value});
+                       }.bind(this)}/><br />
+                    <Button type="submit" text="Create" onClick={
+                        function() {
+                            window.createGoogeClassroomAssignment(
+                                this.state.courseId, this.state.assignmentName,
+                                this.state.assignmentDescription,
+                                function(response) {
+                                    console.log(response);
+                                    this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : false});
+                                    alert("successfully created asignment");
+                                }.bind(this)
+                            );
+                        }.bind(this)}
+                    /><br />
+                    <small>* denotes a required field</small>
+                    </div>
+                )}
+            />
             <div style={{display:"inline-block", width:"100%"}}>
             <div>
                 <div style={divStyle}>
@@ -249,6 +305,17 @@ const UserActions = createReactClass({
                 </div>
                 <div style={{...divStyle, "float": "right"}}>
                     <h3>Teachers</h3>
+                    <Button type="submit" text="Create Assignment" onClick={
+                        function() {
+                            window.listGoogeClassroomCourses(function(response) {
+                                this.setState({GOOGLE_CLASS_LIST : response});
+                                // TODO - make this safe when no classes
+                                this.setState({courseId: response.courses[0].id});
+
+                                this.createAssignment();
+                            }.bind(this));
+                        }.bind(this)}
+                    /><br />
                     Grade Assignments <br />
                         <HtmlButton
                             className="fm-button"

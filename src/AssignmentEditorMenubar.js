@@ -5,7 +5,9 @@ import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
+import FreeMathModal from './Modal.js';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -17,6 +19,13 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 // used to swap out the entire content of the document, for opening
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
+
+var SET_GOOGLE_CLASS_LIST = 'SET_GOOGLE_CLASS_LIST';
+var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
+var GOOGLE_SELECTED_CLASS = 'GOOGLE_SELECTED_CLASS';
+var GOOGLE_ASSIGNMENT_LIST = 'GOOGLE_ASSIGNMENT_LIST';
+var GOOGLE_SELECTED_ASSIGNMENT = 'GOOGLE_SELECTED_ASSIGNMENT';
+var GOOGLE_COURSEWORK_LIST = 'GOOGLE_COURSEWORK_LIST';
 
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
@@ -98,7 +107,7 @@ export function readSingleFile(evt, discardDataWarning) {
 
     if (f) {
         var r = new FileReader();
-        r.onload = function(e) { 
+        r.onload = function(e) {
             var contents = e.target.result;
             openAssignment(contents, f.name, discardDataWarning);
         }
@@ -113,15 +122,15 @@ var AssignmentEditorMenubar = createReactClass({
         const saveCallback = function() {
             var assignment = JSON.stringify(
                         { PROBLEMS : makeBackwardsCompatible(
-                                     window.store.getState())[PROBLEMS]
+                                     this.props.value)[PROBLEMS]
                         }
             );
             assignment = new Blob([assignment], {type: 'application/json'});
-            var googleId = window.store.getState()[GOOGLE_ID];
+            var googleId = this.props.value[GOOGLE_ID];
             if (googleId) {
                 console.log("update in google drive:" + googleId);
                 window.updateFileWithBinaryContent(
-                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    this.props.value[ASSIGNMENT_NAME] + '.math',
                     assignment,
                     googleId,
                     'application/json',
@@ -133,7 +142,7 @@ var AssignmentEditorMenubar = createReactClass({
                 );
             } else {
                 window.createFileWithBinaryContent(
-                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    this.props.value[ASSIGNMENT_NAME] + '.math',
                     assignment,
                     'application/json',
                     function(driveFileId) {
@@ -146,7 +155,7 @@ var AssignmentEditorMenubar = createReactClass({
                     }
                 );
             }
-        }
+        }.bind(this);
         const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
         window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
             saveCallback, function(){/* TODO - on sign in error*/})
@@ -156,14 +165,122 @@ var AssignmentEditorMenubar = createReactClass({
             console.log(response);
         }
         var saveStateMsg = '';
-        var googleId = window.store.getState()[GOOGLE_ID];
+        var googleId = this.props.value[GOOGLE_ID];
         if (googleId) {
             var state = this.props.value[GOOGLE_DRIVE_STATE];
             if (state === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
             else if (state === SAVING) saveStateMsg = "Saving in Drive...";
         }
+        var rootState = this.props.value;
+
+        const courseList = function() {
+            return (<div>
+                <div>Pick a class</div>
+                {rootState[GOOGLE_CLASS_LIST].courses
+                    .map(function(classInfo, index) {
+                        return (
+                            <Button text={classInfo.name}
+                                onClick={function() {
+                                    window.listGoogeClassroomAssignments(classInfo.id,
+                                        function(response) {
+
+                                        window.store.dispatch(
+                                            { type : SET_GOOGLE_CLASS_LIST,
+                                              GOOGLE_CLASS_LIST :
+                                                rootState[GOOGLE_CLASS_LIST],
+                                              GOOGLE_SELECTED_CLASS : classInfo.id,
+                                              GOOGLE_ASSIGNMENT_LIST : response
+                                            });
+                                    });
+                                    // load docs for this class id
+                                    // classInfo.id
+                                }} />
+                        )
+                    })
+                }
+            </div>)
+        };
+        const assignmentList = function() {
+            return (
+                <div>
+                    <div>Pick an assignment</div>
+                        {rootState[GOOGLE_ASSIGNMENT_LIST].courseWork
+                            .map(function(assignment, index) {
+                                return (
+                                    <Button text={assignment.title}
+                                        onClick={function() {
+                                            window.listGoogeClassroomSubmissions(
+                                                rootState[GOOGLE_SELECTED_CLASS],
+                                                assignment.id,
+                                                function(response) {
+                                                    console.log(response);
+                                                window.store.dispatch(
+                                                    { type : SET_GOOGLE_CLASS_LIST,
+                                                      GOOGLE_CLASS_LIST :
+                                                        rootState[GOOGLE_CLASS_LIST],
+                                                      GOOGLE_SELECTED_CLASS :
+                                                        rootState[GOOGLE_SELECTED_CLASS],
+                                                      GOOGLE_ASSIGNMENT_LIST :
+                                                        rootState[GOOGLE_ASSIGNMENT_LIST],
+                                                      GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
+                                                      GOOGLE_COURSEWORK_LIST : response
+                                                    });
+                                            });
+                                        }}
+                                    />)
+                            })
+                        }
+                </div>
+            )
+        };
+
+        const courseWorkList = function() {
+            return (
+                <div>
+                    <div>Pick an submission</div>
+                        {rootState[GOOGLE_COURSEWORK_LIST].studentSubmissions
+                            .map(function(submission, index) {
+                                return (
+                                    <Button text={submission.creationTime}
+                                        onClick={function() {
+                                            // TODO - auto save doc to drive before doing this
+                                            window.modifyGoogeClassroomSubmission(
+                                                rootState[GOOGLE_SELECTED_CLASS],
+                                                rootState[GOOGLE_SELECTED_ASSIGNMENT],
+                                                submission.id, rootState[GOOGLE_ID],
+                                                function(response) {
+                                                    console.log(response);
+                                                    alert('Successfully submitted to classroom.');
+                                                }
+                                            );
+                                        }}
+                                    />
+                                );
+                            })
+                        }
+                </div>
+            );
+        };
         return (
             <div className="menuBar">
+                <FreeMathModal
+                    showModal={rootState[GOOGLE_CLASS_LIST]}
+                    content={(
+                        <div style={{"align-items": "center"}}>
+                            { (rootState[GOOGLE_CLASS_LIST] === undefined ||
+                                rootState[GOOGLE_SELECTED_CLASS] !== undefined ||
+                                rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined) ? null :
+                                courseList()
+                            }
+                            {(rootState[GOOGLE_SELECTED_CLASS] === undefined ||
+                                rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined)? null :
+                                assignmentList()
+                            }
+                            {rootState[GOOGLE_SELECTED_ASSIGNMENT] === undefined ? null :
+                               courseWorkList()
+                            }
+                        </div>)}
+                />
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -171,9 +288,9 @@ var AssignmentEditorMenubar = createReactClass({
                         <span style={{margin : "0px 15px 0px 15px"}}>
                             {saveStateMsg}</span>
                         Filename &nbsp;&nbsp;
-                        <input type="text" id="assignment-name-text" size="35"
+                        <input type="text" id="assignment-name-text" size="20"
                                name="assignment name"
-                               value={this.props.value[ASSIGNMENT_NAME]}
+                               value={rootState[ASSIGNMENT_NAME]}
                                onChange={
                                     function(evt) {
                                         window.store.dispatch(
@@ -192,6 +309,23 @@ var AssignmentEditorMenubar = createReactClass({
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "4px"}}>Save to&nbsp;</div>
+                                         <img style={{paddingTop: "2px"}}
+                                                src="images/google_drive_small_logo.png"
+                                                alt="google logo" />
+                                    </div>
+                            )} />&nbsp;&nbsp;&nbsp;
+                        <HtmlButton
+                            className="fm-button-light"
+                            onClick={function() {
+                                // TODO - hook into auth in componentDidMount
+                                window.listGoogeClassroomCourses(function(response) {
+                                    window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                                        GOOGLE_CLASS_LIST : response});
+                                });
+                            }}
+                            content={(
+                                    <div style={{display: "inline-block"}}>
+                                        <div style={{float: "left", paddingTop: "4px"}}>Submit to Classroom&nbsp;</div>
                                          <img style={{paddingTop: "2px"}}
                                                 src="images/google_drive_small_logo.png"
                                                 alt="google logo" />

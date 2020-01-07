@@ -33,6 +33,13 @@ var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 
+var SET_GOOGLE_CLASS_LIST = 'SET_GOOGLE_CLASS_LIST';
+var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
+var GOOGLE_ASSIGNMENT_LIST = 'GOOGLE_ASSIGNMENT_LIST';
+var GOOGLE_SELECTED_CLASS = 'GOOGLE_SELECTED_CLASS';
+var GOOGLE_SELECTED_ASSIGNMENT = 'GOOGLE_SELECTED_ASSIGNMENT';
+var GOOGLE_COURSEWORK_LIST = 'GOOGLE_COURSEWORK_LIST';
+
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
@@ -234,6 +241,16 @@ function rootReducer(state, action) {
         return { ...state,
                  GOOGLE_ID: action[GOOGLE_ID]
         }
+    } else if (action.type === SET_GOOGLE_CLASS_LIST) {
+        const ret = { ...state,
+                 GOOGLE_CLASS_LIST : action[GOOGLE_CLASS_LIST],
+                 GOOGLE_SELECTED_CLASS : action[GOOGLE_SELECTED_CLASS],
+                 GOOGLE_ASSIGNMENT_LIST : action[GOOGLE_ASSIGNMENT_LIST],
+                 GOOGLE_SELECTED_ASSIGNMENT : action[GOOGLE_SELECTED_ASSIGNMENT],
+                 GOOGLE_COURSEWORK_LIST : action[GOOGLE_COURSEWORK_LIST]
+        };
+        console.log(ret);
+        return ret;
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
         // TODO - get similar assignment list from comparing the assignments

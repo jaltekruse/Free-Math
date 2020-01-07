@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<!--    
-    This file is part of Free Math 
+<!--
+    This file is part of Free Math
 
     Free Math is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Free Math.  If not, see <http://www.gnu.org/licenses/>. 
+    along with Free Math.  If not, see <http://www.gnu.org/licenses/>.
 
     -->
 <!--
@@ -61,7 +61,7 @@ http://mozilla.org/MPL/2.0/
   gtag('config', 'UA-70441517-2');
 </script>
 
-<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF -->
 
 <meta name="viewport" content="width=624">
 <meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
@@ -78,7 +78,7 @@ http://mozilla.org/MPL/2.0/
 <!-- reading ZIP files -->
 <!-- <script type="text/javascript" src="jszip.min.js"></script> -->
 
-<!-- Only use this for MathQuill! --> 
+<!-- Only use this for MathQuill! -->
 <!-- <script src="https://code.jquery.com/jquery-1.7.2.min.js"
   integrity="sha256-R7aNzoy2gFrVs+pNJ6+SokH04ppcEqJ0yFLkNGoFALQ="
   crossorigin="anonymous"></script> -->
@@ -127,7 +127,13 @@ http://mozilla.org/MPL/2.0/
       // Authorization scopes required by the API; multiple scopes can be
       // included, separated by spaces.
       var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
-                   'https://www.googleapis.com/auth/drive';
+                   'https://www.googleapis.com/auth/drive ' +
+                   'https://www.googleapis.com/auth/classroom.courses.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.me ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.me.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.students';
+
       var APP_ID = 'quickstart-1561689319732';
 
       /**
@@ -192,6 +198,165 @@ http://mozilla.org/MPL/2.0/
         var textContent = document.createTextNode(message + '\n');
         pre.appendChild(textContent);
       }
+
+    function listGoogeClassroomCourses(callback, errorcallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://classroom.googleapis.com/v1/courses');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(xhr);
+            if (xhr.status == 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response);
+                } catch (e) {
+                    console.log(e);
+                    alert("Error reading google's response:" + xhr.responseText);
+                }
+            } else {
+                alert(xhr.responseText);
+            }
+        };
+        xhr.send();
+    }
+
+    function listGoogeClassroomAssignments(courseId, callback, errorcallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(xhr);
+            if (xhr.status == 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response);
+                } catch (e) {
+                    console.log(e);
+                    alert("Error reading google's response:" + xhr.responseText);
+                }
+            } else {
+                alert(xhr.responseText);
+            }
+        };
+        xhr.send();
+    }
+
+    function listGoogeClassroomSubmissions(courseId, courseWorkId, callback, errorcallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(xhr);
+            if (xhr.status == 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response);
+                } catch (e) {
+                    console.log(e);
+                    alert("Error reading google's response:" + xhr.responseText);
+                }
+            } else {
+                alert(xhr.responseText);
+            }
+        };
+        xhr.send();
+    }
+
+    function modifyGoogeClassroomSubmission(
+        courseId, courseWorkId, submissionId, driveFileId, callback, errorcallback = function(){}) {
+
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        xhr = new XMLHttpRequest();
+        xhr.open('post', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions/' + submissionId + ':modifyAttachments');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(xhr);
+            if (xhr.status == 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response);
+                } catch (e) {
+                    console.log(e);
+                    alert("Error reading google's response:" + xhr.responseText);
+                }
+            } else {
+                alert(xhr.responseText);
+            }
+        };
+        var payload = {
+          "addAttachments": [
+            {
+                "driveFile": {
+                    "id" : driveFileId
+                }
+            }
+          ]
+        };
+        console.log(payload);
+        xhr.send(JSON.stringify(payload));
+    }
+
+    function createGoogeClassroomAssignment(
+        courseId, title, description, callback, errorcallback = function(){}) {
+
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        xhr = new XMLHttpRequest();
+        xhr.open('post', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(xhr);
+            if (xhr.status == 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response);
+                } catch (e) {
+                    console.log(e);
+                    alert("Error reading google's response:" + xhr.responseText);
+                }
+            } else {
+                alert(xhr.responseText);
+            }
+        };
+        // TODO - add due date
+        var payload = {
+            title: title,
+            description: description,
+            workType : "ASSIGNMENT",
+            state : "PUBLISHED"
+        };
+        console.log(payload);
+        xhr.send(JSON.stringify(payload));
+    }
 
     // callback takes 2 parameters filename and content
       function openDriveFile(isBinary, callback){
@@ -275,7 +440,7 @@ http://mozilla.org/MPL/2.0/
         xhr.open('put', 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-          console.log(xhr);
+          console.log(this);
             if (this.readyState === 4) {
                 if (this.status == 200) {
                     callback();
@@ -309,6 +474,7 @@ http://mozilla.org/MPL/2.0/
                     var response = JSON.parse(xhr.responseText);
                     callback(response.id);
                 } catch (e) {
+                    console.log(e);
                     alert("Error reading google's response:" + xhr.responseText);
                 }
             } else {
