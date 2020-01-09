@@ -98,16 +98,10 @@ const GradingMenuBar = createReactClass({
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;
-                        <LightButton text="Similar Docs" onClick={
-                            function() {
-                                window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;
-                                window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
-                            }
-                        }/>&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
                             ref="saveToDrive"
+                            title="Save to Google Drive"
                             onClick={function() {}}
                             content={(
                                     <div style={{display: "inline-block"}}>
@@ -117,6 +111,13 @@ const GradingMenuBar = createReactClass({
                                                 alt="google logo" />
                                     </div>
                             )} />&nbsp;&nbsp;
+                        <LightButton text="Similar Docs" onClick={
+                            function() {
+                                window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
+                            }
+                        }/>&nbsp;&nbsp;
                         <LightButton text="Grades" onClick={
                             function() {
                                 window.location.hash = '';

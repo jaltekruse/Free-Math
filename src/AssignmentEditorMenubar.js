@@ -305,6 +305,7 @@ var AssignmentEditorMenubar = createReactClass({
                         <HtmlButton
                             className="fm-button-light"
                             ref="saveToDrive"
+                            title="Save to Google Drive"
                             onClick={function() {}}
                             content={(
                                     <div style={{display: "inline-block"}}>
@@ -316,6 +317,7 @@ var AssignmentEditorMenubar = createReactClass({
                             )} />&nbsp;&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
+                            title="Submit assignment to Google Classroom"
                             onClick={function() {
                                 // TODO - hook into auth in componentDidMount
                                 window.listGoogeClassroomCourses(function(response) {
@@ -327,10 +329,11 @@ var AssignmentEditorMenubar = createReactClass({
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "4px"}}>Submit to Classroom&nbsp;</div>
                                          <img style={{paddingTop: "2px"}}
-                                                src="images/google_drive_small_logo.png"
-                                                alt="google logo" />
+                                                src="images/google_classroom_small.png"
+                                                alt="Google logo"
+                                                height="16px"/>
                                     </div>
-                            )} />&nbsp;&nbsp;&nbsp;
+                            )} />
                     </div>
                 </div>
             </div>

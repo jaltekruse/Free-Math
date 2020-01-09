@@ -257,6 +257,7 @@ const UserActions = createReactClass({
                         <HtmlButton
                             className="fm-button"
                             ref="studentDriveOpen"
+                            title="Open assignment from Google Drive"
                             onClick={/* contrlled by google auth in componentDidMount*/function(){}}
                             content={(
                                     <div style={{display: "inline-block"}}>
@@ -305,7 +306,10 @@ const UserActions = createReactClass({
                 </div>
                 <div style={{...divStyle, "float": "right"}}>
                     <h3>Teachers</h3>
-                    <Button type="submit" text="Create Assignment" onClick={
+                    <HtmlButton
+                        className="fm-button"
+                        title="Create new Google Classroom assignment"
+                        onClick={
                         function() {
                             window.listGoogeClassroomCourses(function(response) {
                                 this.setState({GOOGLE_CLASS_LIST : response});
@@ -315,11 +319,20 @@ const UserActions = createReactClass({
                                 this.createAssignment();
                             }.bind(this));
                         }.bind(this)}
-                    /><br />
+                        content={(
+                                <div style={{display: "inline-block"}}>
+                                    <div style={{float: "left", paddingTop: "2px"}}>New Classroom Assignment&nbsp;</div>
+                                     <img style={{paddingTop: "2px"}}
+                                            src="images/google_classroom_small.png"
+                                            alt="Google logo"
+                                            height="16px"/>
+                                </div>
+                        )} /><br />
                     Grade Assignments <br />
                         <HtmlButton
                             className="fm-button"
                             ref="teacherDriveOpen"
+                            title="Open zip file of student assignments from Google Drive"
                             onClick={function(){}}
                             content={(
                                     <div style={{display: "inline-block"}}>
