@@ -5,6 +5,7 @@ import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import FreeMath from './FreeMath.js';
 import Button from './Button.js';
+import { CloseButton } from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
@@ -189,7 +190,12 @@ const UserActions = createReactClass({
                 showModal={this.state['CREATING_GOOGLE_CLASSROOM_ASSINGMENT']}
                 content={(
                     <div style={{"align-items": "center"}}>
-
+                    <CloseButton type="submit" text="&#10005;" title="Close"
+                                 onClick={ function() {
+                                        // this closes the modal
+                                        this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : false});
+                                    }}
+                    />
                     <div><b>Create Assignment</b></div>
                     <div>Class</div>
                     {this.state['GOOGLE_CLASS_LIST'] === undefined ? null :

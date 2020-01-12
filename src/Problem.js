@@ -163,22 +163,22 @@ var Problem = createReactClass({
                             }
                             return (
                             <div key={step[STEP_ID]}>
-                                {showTutorial && stepIndex === 0 ? 
+                                {showTutorial && stepIndex === 0 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
                                         <span>Click this expression, then press enter.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex === 1 ? 
+                                {showTutorial && stepIndex === 1 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
-                                        <span>Edit this line to show part of the work for 
+                                        <span>Edit this line to show part of the work for
                                               simplifying this expression, then press enter again.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex === 2 ? 
+                                {showTutorial && stepIndex === 2 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
@@ -192,7 +192,7 @@ var Problem = createReactClass({
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
                                 }}/>
-                                <MathInput 
+                                <MathInput
                                     key={stepIndex} buttonsVisible='focused' styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
                                     buttonSets={['trig', 'prealgebra',
                                                  'logarithms', 'calculus']}

@@ -122,7 +122,7 @@ export function readSingleFile(evt, discardDataWarning) {
 
 var AssignmentEditorMenubar = createReactClass({
     componentDidMount: function() {
-        const saveCallback = function() {
+        const saveCallback = function(onSuccessCallback = function() {}) {
             var assignment = JSON.stringify(
                         { PROBLEMS : makeBackwardsCompatible(
                                      this.props.value)[PROBLEMS]
@@ -141,6 +141,7 @@ var AssignmentEditorMenubar = createReactClass({
                         window.store.dispatch(
                             { type : SET_GOOGLE_DRIVE_STATE,
                                 GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        onSuccessCallback();
                     }
                 );
             } else {
@@ -155,6 +156,7 @@ var AssignmentEditorMenubar = createReactClass({
                         window.store.dispatch(
                             { type : SET_GOOGLE_DRIVE_STATE,
                                 GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        onSuccessCallback();
                     }
                 );
             }
@@ -162,6 +164,37 @@ var AssignmentEditorMenubar = createReactClass({
         const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
         window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
             saveCallback, function(){/* TODO - on sign in error*/})
+
+        const submitToClassroomCallback = function() {
+            // save the file to Drive first
+            saveCallback(function() {
+                window.listGoogeClassroomCourses(function(response) {
+                    if (response.courses.length == 1) {
+                        var classList = response;
+                        var classInfo = response.courses[0];
+                        window.listGoogeClassroomAssignments(classInfo.id,
+                            function(response) {
+                                window.store.dispatch(
+                                    { type : SET_GOOGLE_CLASS_LIST,
+                                      GOOGLE_CLASS_LIST :
+                                        classList,
+                                      GOOGLE_SELECTED_CLASS : classInfo.id,
+                                      GOOGLE_SELECTED_CLASS_NAME : classInfo.name,
+                                      GOOGLE_ASSIGNMENT_LIST : response
+                                    });
+                            }
+                        );
+                    } else {
+                        window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                            GOOGLE_CLASS_LIST : response});
+                    }
+                });
+            });
+        }.bind(this);
+
+        const submitToClassroom = ReactDOM.findDOMNode(this.refs.submitToClassroom)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(submitToClassroom, {},
+            submitToClassroomCallback, function(){/* TODO - on sign in error*/})
     },
     render: function() {
         const responseGoogle = (response) => {
@@ -217,10 +250,20 @@ var AssignmentEditorMenubar = createReactClass({
                         GOOGLE_CLASS_LIST : undefined});
                     alert('Successfully submitted to classroom.');
                 },
-                function() {
+                function(errorXhr) {
+                    if (errorXhr.status == 403) {
+                        alert('This assignment was not created using Free Math, ' +
+                              'and google only allows 3rd party apps like Free Math ' +
+                              'to edit assignments that they create.\n\n' +
+                              'Your document has been saved in your Google Drive, you will ' +
+                              'need to go to Google Classroom and attach the file to the ' +
+                              'assignment yourself.');
+                    } else {
+                        alert('Save Failed.');
+                    }
+
                     // in the case of error also close the modal
                     // and make them select a different class/assignment
-                    alert('Save Failed.');
                     window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
                         GOOGLE_CLASS_LIST : undefined});
                 }
@@ -319,9 +362,9 @@ var AssignmentEditorMenubar = createReactClass({
                     showModal={rootState[GOOGLE_CLASS_LIST]}
                     content={(
                         <div style={{"align-items": "center"}}>
-                            <CloseButton type="submit" text="&#10005;" title="Delete problem"
+                            <CloseButton type="submit" text="&#10005;" title="Close"
                                          onClick={
-                                            function() { 
+                                            function() {
                                                 // this closes the modal
                                                 window.store.dispatch(
                                                     { type : SET_GOOGLE_CLASS_LIST,
@@ -380,33 +423,13 @@ var AssignmentEditorMenubar = createReactClass({
                         <HtmlButton
                             className="fm-button-light"
                             title="Submit assignment to Google Classroom"
-                            onClick={function() {
-                                // TODO - hook into auth in componentDidMount
-                                window.listGoogeClassroomCourses(function(response) {
-                                    if (response.courses.length == 1) {
-                                        var classList = response;
-                                        var classInfo = response.courses[0];
-                                        window.listGoogeClassroomAssignments(classInfo.id,
-                                            function(response) {
-                                                window.store.dispatch(
-                                                    { type : SET_GOOGLE_CLASS_LIST,
-                                                      GOOGLE_CLASS_LIST :
-                                                        classList,
-                                                      GOOGLE_SELECTED_CLASS : classInfo.id,
-                                                      GOOGLE_SELECTED_CLASS_NAME : classInfo.name,
-                                                      GOOGLE_ASSIGNMENT_LIST : response
-                                                    });
-                                            }
-                                        );
-                                    } else {
-                                        window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                                            GOOGLE_CLASS_LIST : response});
-                                    }
-                                });
-                            }}
+                            onClick={function() {}}
+                            ref="submitToClassroom"
                             content={(
                                     <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Submit to Classroom&nbsp;</div>
+                                        <div style={{float: "left", paddingTop: "4px"}}>
+                                            Submit to Classroom&nbsp;
+                                        </div>
                                          <img style={{paddingTop: "2px"}}
                                                 src="images/google_classroom_small.png"
                                                 alt="Google logo"

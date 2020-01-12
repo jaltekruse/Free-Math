@@ -121,23 +121,29 @@ function autoSave() {
         appState[APP_MODE] === GRADE_ASSIGNMENTS) {
 
         var problems = appState[PROBLEMS];
-        var googleId = window.store.getState()[GOOGLE_ID];
+        var googleId = appState[GOOGLE_ID];
         if (googleId) {
             // filter out changes to state made in this function, saving state, pending save count
             // also filter out the initial load of the page when a doc opens
             if (previousSaveState !== currentSaveState
-               || previousAppMode !== currentAppMode) {
+               || previousAppMode !== currentAppMode
+                // TODO - possibly cleanup, while this prop is set a modal is shown for picking
+                // where to submit an assignment to google classroom. This state might not belong in
+                // redux store, but for now filter out any actions while this modal is active from
+                // triggering auto-saves, otherwise it confusingly reports re-saving while the modal
+                // is up, but users should be confident that the docs is saved in drive the whole time.
+               || appState[GOOGLE_CLASS_LIST]) {
                 // ignore the changes to the drive state, none of them should trigger auto-save events
-                // escpecially as we kick off an update to this value within this function
+                // especially as we kick off an update to this value within this function
                 return;
             }
             // try to bundle together a few updates, wait 2 seconds before calling save. assume
             // some more keystrokes are incomming
-            if (window.store.getState()[GOOGLE_DRIVE_STATE] !== SAVING) {
+            if (appState[GOOGLE_DRIVE_STATE] !== SAVING) {
                 window.store.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
             }
             // assume users will type multiple characters rapidly, don't eagerly send a request
-            // to google for each update, let thm batch up for a bit first
+            // to google for each update, let them batch up for a bit first
             if (currentlyGatheringUpdates) {
                 console.log("skipping new auto-save because currently gathering updates");
                 return;
