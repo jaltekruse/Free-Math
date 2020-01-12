@@ -194,7 +194,7 @@ const UserActions = createReactClass({
                                  onClick={ function() {
                                         // this closes the modal
                                         this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : false});
-                                    }}
+                                    }.bind(this)}
                     />
                     <div><b>Create Assignment</b></div>
                     <div>Class</div>
