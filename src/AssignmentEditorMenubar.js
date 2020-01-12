@@ -8,6 +8,7 @@ import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherIntera
 import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
+import { CloseButton } from './Button.js';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -26,6 +27,8 @@ var GOOGLE_SELECTED_CLASS = 'GOOGLE_SELECTED_CLASS';
 var GOOGLE_ASSIGNMENT_LIST = 'GOOGLE_ASSIGNMENT_LIST';
 var GOOGLE_SELECTED_ASSIGNMENT = 'GOOGLE_SELECTED_ASSIGNMENT';
 var GOOGLE_COURSEWORK_LIST = 'GOOGLE_COURSEWORK_LIST';
+var GOOGLE_SELECTED_CLASS_NAME = 'GOOGLE_SELECTED_CLASS_NAME';
+var GOOGLE_SELECTED_ASSIGNMENT_NAME = 'GOOGLE_SELECTED_ASSIGNMENT_NAME';
 
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
@@ -189,6 +192,7 @@ var AssignmentEditorMenubar = createReactClass({
                                               GOOGLE_CLASS_LIST :
                                                 rootState[GOOGLE_CLASS_LIST],
                                               GOOGLE_SELECTED_CLASS : classInfo.id,
+                                              GOOGLE_SELECTED_CLASS_NAME : classInfo.name,
                                               GOOGLE_ASSIGNMENT_LIST : response
                                             });
                                     });
@@ -200,33 +204,86 @@ var AssignmentEditorMenubar = createReactClass({
                 }
             </div>)
         };
+
+        const submitAssignment = function(submission, selectedClass, selectedAssignment) {
+            window.modifyGoogeClassroomSubmission(
+                selectedClass,
+                selectedAssignment,
+                submission.id, rootState[GOOGLE_ID],
+                function(response) {
+                    console.log(response);
+                    // clear the class list to stop showing the modal
+                    window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                        GOOGLE_CLASS_LIST : undefined});
+                    alert('Successfully submitted to classroom.');
+                },
+                function() {
+                    // in the case of error also close the modal
+                    // and make them select a different class/assignment
+                    alert('Save Failed.');
+                    window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                        GOOGLE_CLASS_LIST : undefined});
+                }
+            );
+        }
+
+        const listSubmissionsSubmitIfOnlyOne = function(assignment) {
+            window.listGoogeClassroomSubmissions(
+                rootState[GOOGLE_SELECTED_CLASS],
+                assignment.id,
+                function(response) {
+                    console.log(response);
+                    if (response.studentSubmissions.length == 1) {
+                        var submission = response.studentSubmissions[0];
+                        // close the modal by setting null class list, and also set "SELECTED_ASSIGNMENT"
+                        // which is needed for next method call to save the submission
+                        // TODO - make suer to show a spinner or somthing while waiting
+                        // for the final request to save the assignment
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_CLASS_LIST,
+                              GOOGLE_CLASS_LIST :
+                                null,
+                              GOOGLE_SELECTED_CLASS :
+                                rootState[GOOGLE_SELECTED_CLASS],
+                              GOOGLE_ASSIGNMENT_LIST :
+                                rootState[GOOGLE_ASSIGNMENT_LIST],
+                              GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
+                              GOOGLE_SELECTED_ASSIGNMENT_NAME: assignment.title,
+                              GOOGLE_COURSEWORK_LIST : response
+                            });
+                        submitAssignment(submission,
+                                        rootState[GOOGLE_SELECTED_CLASS],
+                                        assignment.id);
+                    } else {
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_CLASS_LIST,
+                              GOOGLE_CLASS_LIST :
+                                rootState[GOOGLE_CLASS_LIST],
+                              GOOGLE_SELECTED_CLASS :
+                                rootState[GOOGLE_SELECTED_CLASS],
+                              GOOGLE_ASSIGNMENT_LIST :
+                                rootState[GOOGLE_ASSIGNMENT_LIST],
+                              GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
+                              GOOGLE_SELECTED_ASSIGNMENT_NAME: assignment.title,
+                              GOOGLE_COURSEWORK_LIST : response
+                            });
+                    }
+            });
+        }
+
         const assignmentList = function() {
             return (
                 <div>
-                    <div>Pick an assignment</div>
+                    <div>Pick an assignment - {rootState[GOOGLE_SELECTED_CLASS_NAME]}</div>
                         {rootState[GOOGLE_ASSIGNMENT_LIST].courseWork
                             .map(function(assignment, index) {
                                 return (
                                     <Button text={assignment.title}
-                                        onClick={function() {
-                                            window.listGoogeClassroomSubmissions(
-                                                rootState[GOOGLE_SELECTED_CLASS],
-                                                assignment.id,
-                                                function(response) {
-                                                    console.log(response);
-                                                window.store.dispatch(
-                                                    { type : SET_GOOGLE_CLASS_LIST,
-                                                      GOOGLE_CLASS_LIST :
-                                                        rootState[GOOGLE_CLASS_LIST],
-                                                      GOOGLE_SELECTED_CLASS :
-                                                        rootState[GOOGLE_SELECTED_CLASS],
-                                                      GOOGLE_ASSIGNMENT_LIST :
-                                                        rootState[GOOGLE_ASSIGNMENT_LIST],
-                                                      GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
-                                                      GOOGLE_COURSEWORK_LIST : response
-                                                    });
-                                            });
-                                        }}
+                                        onClick={
+                                            function() {
+                                                listSubmissionsSubmitIfOnlyOne(assignment);
+                                            }
+                                        }
                                     />)
                             })
                         }
@@ -237,21 +294,16 @@ var AssignmentEditorMenubar = createReactClass({
         const courseWorkList = function() {
             return (
                 <div>
-                    <div>Pick an submission</div>
+                    <div>Pick an submission - {rootState[GOOGLE_SELECTED_ASSIGNMENT_NAME]}</div>
                         {rootState[GOOGLE_COURSEWORK_LIST].studentSubmissions
                             .map(function(submission, index) {
                                 return (
                                     <Button text={submission.creationTime}
                                         onClick={function() {
                                             // TODO - auto save doc to drive before doing this
-                                            window.modifyGoogeClassroomSubmission(
-                                                rootState[GOOGLE_SELECTED_CLASS],
-                                                rootState[GOOGLE_SELECTED_ASSIGNMENT],
-                                                submission.id, rootState[GOOGLE_ID],
-                                                function(response) {
-                                                    console.log(response);
-                                                    alert('Successfully submitted to classroom.');
-                                                }
+                                            submitAssignment(submission,
+                                                            rootState[GOOGLE_SELECTED_CLASS],
+                                                            rootState[GOOGLE_SELECTED_ASSIGNMENT]
                                             );
                                         }}
                                     />
@@ -267,6 +319,16 @@ var AssignmentEditorMenubar = createReactClass({
                     showModal={rootState[GOOGLE_CLASS_LIST]}
                     content={(
                         <div style={{"align-items": "center"}}>
+                            <CloseButton type="submit" text="&#10005;" title="Delete problem"
+                                         onClick={
+                                            function() { 
+                                                // this closes the modal
+                                                window.store.dispatch(
+                                                    { type : SET_GOOGLE_CLASS_LIST,
+                                                      GOOGLE_CLASS_LIST : undefined});
+                                            }
+                                         }
+                            />
                             { (rootState[GOOGLE_CLASS_LIST] === undefined ||
                                 rootState[GOOGLE_SELECTED_CLASS] !== undefined ||
                                 rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined) ? null :
@@ -321,8 +383,25 @@ var AssignmentEditorMenubar = createReactClass({
                             onClick={function() {
                                 // TODO - hook into auth in componentDidMount
                                 window.listGoogeClassroomCourses(function(response) {
-                                    window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                                        GOOGLE_CLASS_LIST : response});
+                                    if (response.courses.length == 1) {
+                                        var classList = response;
+                                        var classInfo = response.courses[0];
+                                        window.listGoogeClassroomAssignments(classInfo.id,
+                                            function(response) {
+                                                window.store.dispatch(
+                                                    { type : SET_GOOGLE_CLASS_LIST,
+                                                      GOOGLE_CLASS_LIST :
+                                                        classList,
+                                                      GOOGLE_SELECTED_CLASS : classInfo.id,
+                                                      GOOGLE_SELECTED_CLASS_NAME : classInfo.name,
+                                                      GOOGLE_ASSIGNMENT_LIST : response
+                                                    });
+                                            }
+                                        );
+                                    } else {
+                                        window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                                            GOOGLE_CLASS_LIST : response});
+                                    }
                                 });
                             }}
                             content={(
