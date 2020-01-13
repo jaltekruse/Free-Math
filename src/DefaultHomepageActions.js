@@ -92,7 +92,28 @@ const UserActions = createReactClass({
                         this.closeSpinner();
                         }.bind(this), 50);
                 }.bind(this));
-            }.bind(this), function(){/* TODO - on sign in error*/})
+            }.bind(this), function(){/* TODO - on sign in error*/});
+
+        const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
+            function() {
+                // TODO - tie into auth in componentDidMount
+                window.listGoogeClassroomCourses(function(response) {
+                    this.setState({GOOGLE_CLASS_LIST : response});
+                    // TODO - make this safe when no classes
+                    this.setState({courseId: response.courses[0].id});
+
+                    this.createAssignment();
+                }.bind(this));
+            }.bind(this)
+        );
+        const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment);
+        window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
+            function() {
+
+            }.bind(this)
+        );
+
     },
     closeSpinner() {
         this.setState({ showModal: false });
@@ -315,26 +336,34 @@ const UserActions = createReactClass({
                     <HtmlButton
                         className="fm-button"
                         title="Create new Google Classroom assignment"
-                        onClick={
-                        function() {
-                            window.listGoogeClassroomCourses(function(response) {
-                                this.setState({GOOGLE_CLASS_LIST : response});
-                                // TODO - make this safe when no classes
-                                this.setState({courseId: response.courses[0].id});
-
-                                this.createAssignment();
-                            }.bind(this));
-                        }.bind(this)}
+                        ref="newClassroomAssignment"
+                        onClick={function(){}}
                         content={(
                                 <div style={{display: "inline-block"}}>
                                     <div style={{float: "left", paddingTop: "2px"}}>New Classroom Assignment&nbsp;</div>
-                                     <img style={{paddingTop: "2px"}}
+                                     <img style={{paddingTop: "1px"}}
                                             src="images/google_classroom_small.png"
                                             alt="Google logo"
                                             height="16px"/>
                                 </div>
                         )} /><br />
                     Grade Assignments <br />
+                    <HtmlButton
+                        className="fm-button"
+                        title="Submit assignment to Google Classroom"
+                        onClick={function() {}}
+                        ref="gradeClassroomAssignment"
+                        content={(
+                                <div style={{display: "inline-block"}}>
+                                    <div style={{float: "left", paddingTop: "2px"}}>
+                                        Grade Classroom Assignment&nbsp;
+                                    </div>
+                                     <img style={{paddingTop: "1px"}}
+                                            src="images/google_classroom_small.png"
+                                            alt="Google logo"
+                                            height="16px"/>
+                                </div>
+                        )} /> <br />
                         <HtmlButton
                             className="fm-button"
                             ref="teacherDriveOpen"

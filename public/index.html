@@ -199,6 +199,38 @@ http://mozilla.org/MPL/2.0/
         //pre.appendChild(textContent);
       }
 
+    function downloadAllGoogeClassroomSubmissions(driveFolderId, callback, errorCallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://classroom.googleapis.com/v1/courses');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
+    }
+
     function listGoogeClassroomCourses(callback, errorCallback = function(){}) {
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
