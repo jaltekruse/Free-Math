@@ -2,146 +2,119 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import TeX from './TeX.js';
+import MathQuillStatic from './MathQuillStatic.js';
 
 var MathQuill = window.MathQuill;
 
-var MathEditorHelp = createReactClass({
-    render() {
-        /* TODO - mathquill not parsing these correctly, but it can put them in the editor and
-         *        produce latex for them
-                <tr><td>\N <input type="submit" disabled="disabled" value="Enter"/></td><td><span ref="exampleStaticMath8">\N</span></td></tr>
-                <tr><td>\Z <input type="submit" disabled="disabled" value="Enter"/></td><td><span ref="exampleStaticMath9">\Z</span></td></tr>
-                <tr><td>\Q <input type="submit" disabled="disabled" value="Enter"/></td><td><span ref="exampleStaticMath10">\Q</span></td></tr>
+const symbolGroups = {
+    BASIC : [
+        /* TODO - trouble getting this to work right
+        {toType:"/ (slash)", mqStatic:"\\frac{a}{b}", description:"fraction", editorCommands: input => {
+            input.keystroke("/");
+        }},
         */
-        return (
-            <div>
-            <div style={{display:"inline-block"}}>
-            <div style={{float:"left"}}>
-            <table>
-                <thead>
-                <tr><th style={{textAlign:"left"}}>Type this...</th>
-                    <th style={{textAlign:"left"}}>For Symbol&nbsp;&nbsp;&nbsp;</th></tr>
-                </thead>
-                <tbody>
-                <tr><td>/ (slash)</td><td><span ref="exampleStaticMath3">{"\\frac{a}{b}"}</span> (fraction)</td></tr>
-                <tr><td>pi</td><td><TeX>{"\\pi"}</TeX></td></tr>
-                <tr><td>sqrt</td><td><span ref="exampleStaticMath6">{"\\sqrt{x}"}</span></td></tr>
-                <tr><td>\nthroot <input type="submit" disabled="disabled" value="Enter"/></td><td><span ref="exampleStaticMath5">{"\\sqrt[y]{x}"}</span></td></tr>
-                <tr><td>| (shift backslash)</td><td><span ref="exampleStaticMath7">{"|x|"}</span></td></tr>
-                <tr><td>&gt;=</td><td><TeX>\ge</TeX></td></tr>
-                <tr><td>&lt;=</td><td><TeX>\le</TeX></td></tr>
-                <tr><td>\approx <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\approx</TeX></td></tr>
-                <tr><td>_ (underscore)</td><td><span ref="exampleStaticMath">a_b</span>  (subscript)</td></tr>
-                <tr><td>^</td><td><span ref="exampleStaticMath2">a^b</span> (power)</td></tr>
-                <tr><td>\pm <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\pm</TeX></td></tr>
-                <tr><td>\degree <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\degree</TeX></td></tr>
-                <tr><td>\angle <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\angle</TeX></td></tr>
-                <tr><td>int</td><td><TeX>\int</TeX></td></tr>
-                <tr><td>\oint <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\oint</TeX></td></tr>
-                <tr><td>\partial <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\partial</TeX></td></tr>
-                <tr><td>sum</td><td><TeX>{"\\sum_{ }^{ }"}</TeX></td></tr>
-                </tbody>
-            </table>
-            </div>
-            <div style={{float:"left"}}>
-            <table>
-                <thead>
-                <tr><th style={{textAlign:"left"}}>Type this...</th><th style={{textAlign:"left"}}>For Symbol&nbsp;&nbsp;&nbsp;</th></tr>
-                </thead>
-                <tbody>
-                <tr><td>\infinity <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\infty</TeX></td></tr>
-                <tr><td>forall</td><td><TeX>\forall</TeX></td></tr>
-                <tr><td>therefore</td><td><TeX>\therefore</TeX></td></tr>
-                <tr><td>exists</td><td><TeX>\exists</TeX></td></tr>
-                <tr><td>\in <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\in</TeX></td></tr>
-                <tr><td>\to <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\to</TeX></td></tr>
-                <tr><td>\gets <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\gets</TeX></td></tr>
-                <tr><td>union</td><td><TeX>\cup</TeX></td></tr>
-                <tr><td>\intersect <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\cap</TeX></td></tr>
-                <tr><td>subset</td><td><TeX>\subset</TeX></td></tr>
-                <tr><td>\subseteq <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\subseteq</TeX></td></tr>
-                <tr><td>\superset <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\supset</TeX></td></tr>
-                <tr><td>\superseteq <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\supseteq</TeX></td></tr>
-                </tbody>
-            </table>
-            </div>
-            <div style={{float:"left"}}>
-            <table>
-                <thead>
-                <tr><th style={{textAlign:"left"}}>Type this...</th><th style={{textAlign:"left"}}>For Symbol&nbsp;&nbsp;&nbsp;</th></tr>
-                </thead>
-                <tbody>
-                <tr><td>alpha</td><td><TeX>\alpha</TeX></td></tr>
-                <tr><td>beta</td><td><TeX>\beta</TeX></td></tr>
-                <tr><td>gamma</td><td><TeX>\gamma</TeX></td></tr>
-                <tr><td>\Gamma <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Gamma</TeX></td></tr>
-                <tr><td>delta</td><td><TeX>\delta</TeX></td></tr>
-                <tr><td>\Delta <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Delta</TeX></td></tr>
-                <tr><td>epsilon</td><td><TeX>\epsilon</TeX></td></tr>
-                <tr><td>digamma</td><td><TeX>\digamma</TeX></td></tr>
-                <tr><td>zeta</td><td><TeX>\zeta</TeX></td></tr>
-                <tr><td>eta</td><td><TeX>\eta</TeX></td></tr>
-                <tr><td>theta</td><td><TeX>\theta</TeX></td></tr>
-                <tr><td>\Theta <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Theta</TeX></td></tr>
-                <tr><td>iota</td><td><TeX>\iota</TeX></td></tr>
-                <tr><td>kappa</td><td><TeX>\kappa</TeX></td></tr>
-                <tr><td>lambda</td><td><TeX>\lambda</TeX></td></tr>
-                <tr><td>\Lambda <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Lambda</TeX></td></tr>
-                <tr><td>\mu <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\mu</TeX></td></tr>
-                <tr><td>\nu <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\nu</TeX></td></tr>
-                </tbody>
-            </table>
-            </div>
-            <div style={{float:"left"}}>
-            <table>
-                <thead>
-                <tr><th style={{textAlign:"left"}}>Type this...</th><th style={{textAlign:"left"}}>For Symbol&nbsp;&nbsp;&nbsp;</th></tr>
-                </thead>
-                <tbody>
-                <tr><td>xi</td><td><TeX>\xi</TeX></td></tr>
-                <tr><td>\Xi <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Xi</TeX></td></tr>
-                <tr><td>pi</td><td><TeX>\pi</TeX></td></tr>
-                <tr><td>\Pi <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Pi</TeX></td></tr>
-                <tr><td>rho</td><td><span ref="exampleStaticMath4">\rho</span></td></tr>
-                <tr><td>\varrho <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\varrho</TeX></td></tr>
-                <tr><td>sigma</td><td><TeX>\sigma</TeX></td></tr>
-                <tr><td>\Sigma <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Sigma</TeX></td></tr>
-                <tr><td>tau</td><td><TeX>\tau</TeX></td></tr>
-                <tr><td>upsilon</td><td><TeX>\upsilon</TeX></td></tr>
-                <tr><td>\Upsilon <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Upsilon</TeX></td></tr>
-                <tr><td>\phi <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\phi</TeX></td></tr>
-                <tr><td>\Phi <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Phi</TeX></td></tr>
-                <tr><td>\chi <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\chi</TeX></td></tr>
-                <tr><td>\psi <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\psi</TeX></td></tr>
-                <tr><td>\Psi <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Psi</TeX></td></tr>
-                <tr><td>omega</td><td><TeX>\omega</TeX></td></tr>
-                <tr><td>\Omega <input type="submit" disabled="disabled" value="Enter"/></td><td><TeX>\Omega</TeX></td></tr>
-                </tbody>
-            </table>
-            </div>
-            </div>
-            <br/>
-            Many other symbols from Latex are available as well with a 
-            backslash prefix, see here for more symbol codes&nbsp;
-            <a href="https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols"
-               target="_blank" rel="noopener noreferrer">Latex symbols</a>
-            </div>
-        );
-    },
-    componentDidMount: function() {
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath2));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath3));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath4));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath5));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath6));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath7));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath8));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath9));
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.exampleStaticMath10));
-    }
-});
+        {toType:"+", tex:"+"},
+        {toType:"-", tex:"-"},
+        {toType:"* (asterisk)", tex:"\\cdot"},
+        {toType:"\\div [Enter]", tex:"\\div"},
+        {toType:"pi", tex:"\\pi"},
+        {toType:"sqrt", tex:"\\sqrt{x}", editorCommands: input => {
+            input.cmd("\\sqrt");
+        }},
+        {toType:"\\nthroot [Enter]", tex:"\\sqrt[y]{x}", editorCommands: input => {
+            input.cmd("\\nthroot").focus();
+        }},
+        {toType:"log", tex:"\\log"},
+        {toType:"ln", tex:"\\ln"},
+        {toType:"log_b", tex:"\\log_b", editorCommands: input => {
+                input.typedText("log_");
+                input.keystroke("Right");
+                input.typedText("(");
+                input.keystroke("Left");
+                input.keystroke("Left");
+        }},
+        {toType:"| (shift backslash)", tex:"\\left|x\\right|", editorCommands: input => {
+                input.typedText("|");
+        }},
+        /* () => [<TeX key="abs" style={symbStyle}>\left|x\right|</TeX>, "\\left|x\\right|"], */
+        {toType:">", tex:">"},
+        {toType:">=", tex:"\\ge"},
+        {toType:"<", tex:"<"},
+        {toType:"<=", tex:"\\le"},
+        {toType:"\\approx [Enter]", tex:"\\approx"},
+        {toType:"_ (underscore)", tex:"A_b", description: "subscript"},
+        {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power"},
+        {toType:"\\pm [Enter]", tex:"\\pm"},
+        {toType:"\\degree [Enter]", tex:"\\degree"},
+        {toType:"\\angle [Enter]", tex:"\\angle"},
+    ],
+    SET_THEORY : [
+        {toType:"forall", tex:"\\forall"},
+        {toType:"therefore", tex:"\\therefore"},
+        {toType:"\\in [Enter]", tex:"\\in"},
+        {toType:"\\notin [Enter]", tex:"\\notin"},
+        {toType:"\\nexists", tex:"\\nexists"},
+        {toType:"\\exists", tex:"\\exists"},
+        {toType:"\\neg", tex:"\\neg"},
+        {toType:"\\lor", tex:"\\lor"},
+        {toType:"\\land", tex:"\\land"},
+        {toType:"\\to [Enter]", tex:"\\to"},
+        {toType:"\\gets [Enter]", tex:"\\gets"},
+        {toType:"union", tex:"\\cup"},
+        {toType:"\\intersect [Enter]", tex:"\\cap"},
+        {toType:"subset", tex:"\\subset"},
+        {toType:"\\subseteq [Enter]", tex:"\\subseteq"},
+        {toType:"\\superset [Enter]", tex:"\\supset"},
+        {toType:"\\superseteq [Enter]", tex:"\\supseteq"},
+    ],
+    CALC : [
+        {toType:"int", tex:"\\int"},
+        {toType:"' (single quote)", tex:"'"},
+        {toType:"\\oint [Enter]", tex:"\\oint"},
+        {toType:"\\partial [Enter]", tex:"\\partial"},
+        {toType:"sum", tex:"\\sum"},
+        {toType:"\\infinity [Enter]", tex:"\\infty"},
+    ],
+    GREEK : [
+        {toType:"alpha", tex:"\\alpha"},
+        {toType:"beta", tex:"\\beta"},
+        {toType:"gamma", tex:"\\gamma"},
+        {toType:"\\Gamma [Enter]", tex:"\\Gamma"},
+        {toType:"delta", tex:"\\delta"},
+        {toType:"\\Delta [Enter]", tex:"\\Delta"},
+        {toType:"epsilon", tex:"\\epsilon"},
+        {toType:"digamma", tex:"\\digamma"},
+        {toType:"zeta", tex:"\\zeta"},
+        {toType:"eta", tex:"\\eta"},
+        {toType:"theta", tex:"\\theta"},
+        {toType:"\\Theta [Enter]", tex:"\\Theta"},
+        {toType:"iota", tex:"\\iota"},
+        {toType:"kappa", tex:"\\kappa"},
+        {toType:"lambda", tex:"\\lambda"},
+        {toType:"\\Lambda [Enter]", tex:"\\Lambda"},
+        {toType:"\\mu [Enter]", tex:"\\mu"},
+        {toType:"\\nu [Enter]", tex:"\\nu"},
+        {toType:"xi", tex:"\\xi"},
+        {toType:"\\Xi [Enter]", tex:"\\Xi"},
+        {toType:"pi", tex:"\\pi"},
+        {toType:"\\Pi [Enter]", tex:"\\Pi"},
+        {toType:"rho", tex:"\\rho"},
+        {toType:"\\varrho [Enter]", tex:"\\varrho"},
+        {toType:"sigma", tex:"\\sigma"},
+        {toType:"\\Sigma [Enter]", tex:"\\Sigma"},
+        {toType:"tau", tex:"\\tau"},
+        {toType:"upsilon", tex:"\\upsilon"},
+        {toType:"\\Upsilon [Enter]", tex:"\\Upsilon"},
+        {toType:"\\phi [Enter]", tex:"\\phi"},
+        {toType:"\\Phi [Enter]", tex:"\\Phi"},
+        {toType:"\\chi [Enter]", tex:"\\chi"},
+        {toType:"\\psi [Enter]", tex:"\\psi"},
+        {toType:"\\Psi [Enter]", tex:"\\Psi"},
+        {toType:"omega", tex:"\\omega"},
+        {toType:"\\Omega [Enter]", tex:"\\Omega"},
+    ]
+};
 
 export {
-    MathEditorHelp
+    symbolGroups
 };

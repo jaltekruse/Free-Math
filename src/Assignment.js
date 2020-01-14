@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom';
 import './App.css';
 import Problem from './Problem.js';
 import { problemListReducer } from './Problem.js';
-import { MathEditorHelp } from './MathEditorHelpModal.js';
 import Button from './Button.js';
 
 var MathQuill = window.MathQuill;
@@ -15,6 +14,8 @@ const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var PROBLEMS = 'PROBLEMS';
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
+
+var BUTTON_GROUP = 'BUTTON_GROUP';
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
@@ -31,13 +32,6 @@ function assignmentReducer(state, action) {
 }
 
 var Assignment = createReactClass({
-    getInitialState () {
-            return { showModal: false };
-    },
-
-    toggleModal() {
-        this.setState({ showModal: !this.state.showModal});
-    },
     render: function() {
 
         return (
@@ -45,16 +39,20 @@ var Assignment = createReactClass({
             <div>
             {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
                 return (
-                  <Problem value={problem} key={problemIndex} id={problemIndex}/>
+                  <Problem value={problem} key={problemIndex}
+                    id={problemIndex} buttonGroup={this.props.value[BUTTON_GROUP]}
+                    />
                 );
-            })}
+            }.bind(this))}
             </div>
             <Button text="Add Problem" onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }} />
             <br />
             <br />
             <br />
+            {/* Replaced by better onscreen math keyboard with shortcuts in
+                the title text of the buttons
             <Button onClick={this.toggleModal} text={this.state.showModal ? "Hide Symbol List" : "Show Available Symbol List" } />
-            {this.state.showModal ? <MathEditorHelp /> : null }
+                this.state.showModal ? <MathEditorHelp /> : null */}
         </div>
       )
     },

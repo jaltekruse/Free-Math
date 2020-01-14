@@ -32,6 +32,9 @@ var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 
+var SET_KEYBOARD_BUTTON_GROUP = 'SET_KEYBOARD_BUTTON_GROUP';
+var BUTTON_GROUP = 'BUTTON_GROUP';
+
 // used to swap out the entire content of the document, for opening
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
@@ -116,13 +119,20 @@ function rootReducer(state, action) {
         return {
             ...assignmentReducer(),
             "DOC_ID" : genID(),
+            BUTTON_GROUP : 'BASIC',
             APP_MODE : EDIT_ASSIGNMENT
         };
     } else if (action.type === "SET_GLOBAL_STATE") {
-        return action.newState;
+        return {...action.newState,
+            BUTTON_GROUP : 'BASIC',
+        };
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
+        }
+    } else if (action.type === SET_KEYBOARD_BUTTON_GROUP) {
+        return { ...state,
+                 BUTTON_GROUP : action[BUTTON_GROUP]
         }
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
@@ -142,7 +152,8 @@ function rootReducer(state, action) {
         return {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
-            "DOC_ID" : genID() 
+            "DOC_ID" : genID() ,
+            BUTTON_GROUP : 'BASIC'
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {

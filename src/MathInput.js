@@ -4,12 +4,23 @@ import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import _ from 'underscore';
 import TeX from './TeX.js';
+import { symbolGroups } from './MathEditorHelpModal.js';
+import Button from './Button.js';
+import MathQuillStatic from './MathQuillStatic.js';
 var MathQuill = window.MathQuill;
 
 // TeX button from Persus
 var prettyBig = { fontSize: "150%" };
 var slightlyBig = { fontSize: "120%" };
 var symbStyle = { fontSize: "130%" };
+
+var SET_KEYBOARD_BUTTON_GROUP = 'SET_KEYBOARD_BUTTON_GROUP';
+var BUTTON_GROUP = 'BUTTON_GROUP';
+var CALC = 'CALC';
+var BASIC = 'BASIC';
+var SET_THEORY = 'SET_THEORY';
+var GREEK = 'GREEK';
+
 
 // These are functions because we want to generate a new component for each use
 // on the page rather than reusing an instance (which will cause an error).
@@ -140,7 +151,8 @@ var buttonSetsType = PropTypes.arrayOf(
 var TexButtons = createReactClass({
     propTypes: {
         sets: buttonSetsType.isRequired,
-        onInsert: PropTypes.func.isRequired
+        onInsert: PropTypes.func.isRequired,
+        buttonGroup: PropTypes.string.isRequired
     },
 
     render: function() {
@@ -153,17 +165,29 @@ var TexButtons = createReactClass({
 
         var buttons = _.map(sortedButtonSets, setName => buttonSets[setName]);
 
-        var buttonRows = _.map(buttons, row => row.map(symbGen => {
+
+        var buttonRows = _.map(symbolGroups[this.props.buttonGroup], symbol => {
             // create a (component, thing we should send to mathquill) pair
-            var symbol = symbGen(this.props);
-            return <button onClick={() => this.props.onInsert(symbol[1])}
+            return <button onClick={() => {
+                            var toInsert = symbol.tex;
+                            if (_(symbol.editorCommands).isFunction()) {
+                                toInsert = symbol.editorCommands;
+                            } else if (toInsert === undefined) {
+                                toInsert = symbol.mqStatic;
+                            }
+                            this.props.onInsert(toInsert)
+                           }}
                            className="tex-button"
-                           key={symbol[0].key}
+                           key={symbol.tex ? symbol.tex : symbol.mqStatic}
                            tabIndex={-1}
+                           title={symbol.toType}
                            type="button">
-                {symbol[0]}
+                {symbol.tex ?
+                    <TeX>{symbol.tex}</TeX>
+                    :
+                    <MathQuillStatic tex={symbol.mqStatic} />}
             </button>;
-        }));
+        });
 
         var buttonPopup = _.map(buttonRows, (row, i) => {
             return <div className="clearfix tex-button-row"
@@ -173,10 +197,21 @@ var TexButtons = createReactClass({
         });
 
         return <div className={`${this.props.className} preview-measure`}>
+            <Button text="Basic" onClick={
+                function() { window.store.dispatch(
+                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : BASIC });}}/>
+            <Button text="Set Theory and Logic" onClick={
+                function() { window.store.dispatch(
+                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : SET_THEORY });}}/>
+            <Button text="Calculus" onClick={
+                function() { window.store.dispatch(
+                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : CALC });}}/>
+            <Button text="Greek" onClick={
+                function() { window.store.dispatch(
+                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : GREEK });}}/>
             {buttonPopup}
         </div>;
     },
-
     statics: {
         buttonSets,
         buttonSetsType
@@ -197,7 +232,8 @@ const MathInput = createReactClass({
         onBlur: PropTypes.func,
         onChange: PropTypes.func,
         onSubmit: PropTypes.func,
-        styles: PropTypes.object
+        styles: PropTypes.object,
+        buttonGroup: PropTypes.string
     },
 
     render: function() {
@@ -215,7 +251,8 @@ const MathInput = createReactClass({
                 sets={this.props.buttonSets}
                 className="math-input-buttons absolute"
                 convertDotToTimes={this.props.convertDotToTimes}
-                onInsert={this.insert} />;
+                onInsert={this.insert}
+                buttonGroup={this.props.buttonGroup} />;
         }
 
         return <div style={{display: 'inline-block'}}>
