@@ -120,93 +120,33 @@ export function readSingleFile(evt, discardDataWarning) {
     }
 }
 
-var AssignmentEditorMenubar = createReactClass({
+var GoogleClassroomSubmissionSelector = createReactClass({
     componentDidMount: function() {
-        const saveCallback = function(onSuccessCallback = function() {}) {
-            var assignment = JSON.stringify(
-                        { PROBLEMS : makeBackwardsCompatible(
-                                     this.props.value)[PROBLEMS]
-                        }
-            );
-            assignment = new Blob([assignment], {type: 'application/json'});
-            var googleId = this.props.value[GOOGLE_ID];
-            if (googleId) {
-                console.log("update in google drive:" + googleId);
-                window.updateFileWithBinaryContent(
-                    this.props.value[ASSIGNMENT_NAME] + '.math',
-                    assignment,
-                    googleId,
-                    'application/json',
-                    function() {
+    },
+    listClasses: function() {
+        window.listGoogeClassroomCourses(function(response) {
+            if (response.courses.length == 1) {
+                var classList = response;
+                var classInfo = response.courses[0];
+                window.listGoogeClassroomAssignments(classInfo.id,
+                    function(response) {
                         window.store.dispatch(
-                            { type : SET_GOOGLE_DRIVE_STATE,
-                                GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        onSuccessCallback();
+                            { type : SET_GOOGLE_CLASS_LIST,
+                              GOOGLE_CLASS_LIST :
+                                classList,
+                              GOOGLE_SELECTED_CLASS : classInfo.id,
+                              GOOGLE_SELECTED_CLASS_NAME : classInfo.name,
+                              GOOGLE_ASSIGNMENT_LIST : response
+                            });
                     }
                 );
             } else {
-                window.createFileWithBinaryContent(
-                    this.props.value[ASSIGNMENT_NAME] + '.math',
-                    assignment,
-                    'application/json',
-                    function(driveFileId) {
-                        window.store.dispatch({type : SET_GOOGLE_ID,
-                            GOOGLE_ID: driveFileId,
-                        });
-                        window.store.dispatch(
-                            { type : SET_GOOGLE_DRIVE_STATE,
-                                GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        onSuccessCallback();
-                    }
-                );
+                window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                    GOOGLE_CLASS_LIST : response});
             }
-        }.bind(this);
-        const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
-        window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
-            saveCallback, function(){/* TODO - on sign in error*/})
-
-        const submitToClassroomCallback = function() {
-            // save the file to Drive first
-            saveCallback(function() {
-                window.listGoogeClassroomCourses(function(response) {
-                    if (response.courses.length == 1) {
-                        var classList = response;
-                        var classInfo = response.courses[0];
-                        window.listGoogeClassroomAssignments(classInfo.id,
-                            function(response) {
-                                window.store.dispatch(
-                                    { type : SET_GOOGLE_CLASS_LIST,
-                                      GOOGLE_CLASS_LIST :
-                                        classList,
-                                      GOOGLE_SELECTED_CLASS : classInfo.id,
-                                      GOOGLE_SELECTED_CLASS_NAME : classInfo.name,
-                                      GOOGLE_ASSIGNMENT_LIST : response
-                                    });
-                            }
-                        );
-                    } else {
-                        window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                            GOOGLE_CLASS_LIST : response});
-                    }
-                });
-            });
-        }.bind(this);
-
-        const submitToClassroom = ReactDOM.findDOMNode(this.refs.submitToClassroom)
-        window.gapi.auth2.getAuthInstance().attachClickHandler(submitToClassroom, {},
-            submitToClassroomCallback, function(){/* TODO - on sign in error*/})
+        });
     },
     render: function() {
-        const responseGoogle = (response) => {
-            console.log(response);
-        }
-        var saveStateMsg = '';
-        var googleId = this.props.value[GOOGLE_ID];
-        if (googleId) {
-            var state = this.props.value[GOOGLE_DRIVE_STATE];
-            if (state === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
-            else if (state === SAVING) saveStateMsg = "Saving in Drive...";
-        }
         var rootState = this.props.value;
 
         const courseList = function() {
@@ -357,35 +297,110 @@ var AssignmentEditorMenubar = createReactClass({
             );
         };
         return (
-            <div className="menuBar">
-                <FreeMathModal
-                    showModal={rootState[GOOGLE_CLASS_LIST]}
-                    content={(
-                        <div style={{"align-items": "center"}}>
-                            <CloseButton type="submit" text="&#10005;" title="Close"
-                                         onClick={
-                                            function() {
-                                                // this closes the modal
-                                                window.store.dispatch(
-                                                    { type : SET_GOOGLE_CLASS_LIST,
-                                                      GOOGLE_CLASS_LIST : undefined});
-                                            }
-                                         }
-                            />
-                            { (rootState[GOOGLE_CLASS_LIST] === undefined ||
-                                rootState[GOOGLE_SELECTED_CLASS] !== undefined ||
-                                rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined) ? null :
-                                courseList()
-                            }
-                            {(rootState[GOOGLE_SELECTED_CLASS] === undefined ||
-                                rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined)? null :
-                                assignmentList()
-                            }
-                            {rootState[GOOGLE_SELECTED_ASSIGNMENT] === undefined ? null :
-                               courseWorkList()
-                            }
-                        </div>)}
+            <FreeMathModal
+                showModal={rootState[GOOGLE_CLASS_LIST]}
+                content={(
+                    <div style={{"align-items": "center"}}>
+                        <CloseButton type="submit" text="&#10005;" title="Close"
+                                     onClick={
+                                        function() {
+                                            // this closes the modal
+                                            window.store.dispatch(
+                                                { type : SET_GOOGLE_CLASS_LIST,
+                                                  GOOGLE_CLASS_LIST : undefined});
+                                        }
+                                     }
+                        />
+                        { (rootState[GOOGLE_CLASS_LIST] === undefined ||
+                            rootState[GOOGLE_SELECTED_CLASS] !== undefined ||
+                            rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined) ? null :
+                            courseList()
+                        }
+                        {(rootState[GOOGLE_SELECTED_CLASS] === undefined ||
+                            rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined)? null :
+                            assignmentList()
+                        }
+                        {rootState[GOOGLE_SELECTED_ASSIGNMENT] === undefined ? null :
+                           courseWorkList()
+                        }
+                    </div>)}
                 />
+        );
+    }
+});
+
+
+var AssignmentEditorMenubar = createReactClass({
+    componentDidMount: function() {
+        const saveCallback = function(onSuccessCallback = function() {}) {
+            var assignment = JSON.stringify(
+                        { PROBLEMS : makeBackwardsCompatible(
+                                     this.props.value)[PROBLEMS]
+                        }
+            );
+            assignment = new Blob([assignment], {type: 'application/json'});
+            var googleId = this.props.value[GOOGLE_ID];
+            if (googleId) {
+                console.log("update in google drive:" + googleId);
+                window.updateFileWithBinaryContent(
+                    this.props.value[ASSIGNMENT_NAME] + '.math',
+                    assignment,
+                    googleId,
+                    'application/json',
+                    function() {
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_DRIVE_STATE,
+                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        onSuccessCallback();
+                    }
+                );
+            } else {
+                window.createFileWithBinaryContent(
+                    this.props.value[ASSIGNMENT_NAME] + '.math',
+                    assignment,
+                    'application/json',
+                    function(driveFileId) {
+                        window.store.dispatch({type : SET_GOOGLE_ID,
+                            GOOGLE_ID: driveFileId,
+                        });
+                        window.store.dispatch(
+                            { type : SET_GOOGLE_DRIVE_STATE,
+                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        onSuccessCallback();
+                    }
+                );
+            }
+        }.bind(this);
+        const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
+            saveCallback, function(){/* TODO - on sign in error*/})
+
+        const submitToClassroomCallback = function() {
+            // save the file to Drive first
+            saveCallback(function() {
+                this.refs.submissionSelector.listClasses();
+            }.bind(this));
+        }.bind(this);
+
+        const submitToClassroom = ReactDOM.findDOMNode(this.refs.submitToClassroom)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(submitToClassroom, {},
+            submitToClassroomCallback, function(){/* TODO - on sign in error*/})
+    },
+    render: function() {
+        const responseGoogle = (response) => {
+            console.log(response);
+        }
+        var saveStateMsg = '';
+        var googleId = this.props.value[GOOGLE_ID];
+        if (googleId) {
+            var state = this.props.value[GOOGLE_DRIVE_STATE];
+            if (state === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
+            else if (state === SAVING) saveStateMsg = "Saving in Drive...";
+        }
+        var rootState = this.props.value;
+        return (
+            <div className="menuBar">
+                <GoogleClassroomSubmissionSelector value={this.props.value} ref="submissionSelector"/>
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
