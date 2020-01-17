@@ -328,6 +328,10 @@ http://mozilla.org/MPL/2.0/
         xhr.send();
     }
 
+    // TODO - most of the time users will want to overwrite their previous work, but this currently
+    // just adds a new file to their submission each time
+    // it would be best to push users towards opening their previous submission, as soon as we know
+    // one is associated with their assignment they are trying to work on
     function modifyGoogeClassroomSubmission(
         courseId, courseWorkId, submissionId, driveFileId, callback, errorCallback = function(){}) {
 

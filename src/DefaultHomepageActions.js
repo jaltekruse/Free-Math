@@ -336,7 +336,7 @@ const UserActions = createReactClass({
                     <HtmlButton
                         className="fm-button"
                         title="Create new Google Classroom assignment"
-                        ref="newClassroomAssignment"
+                        ref="createClassroomAssignment"
                         onClick={function(){}}
                         content={(
                                 <div style={{display: "inline-block"}}>
