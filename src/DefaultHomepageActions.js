@@ -97,7 +97,6 @@ const UserActions = createReactClass({
         const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
             function() {
-                // TODO - tie into auth in componentDidMount
                 window.listGoogeClassroomCourses(function(response) {
                     this.setState({GOOGLE_CLASS_LIST : response});
                     // TODO - make this safe when no classes
@@ -218,9 +217,10 @@ const UserActions = createReactClass({
                                     }.bind(this)}
                     />
                     <div><b>Create Assignment</b></div>
-                    <div>Class</div>
+                    <br />
+                    Class &nbsp;&nbsp;
                     {this.state['GOOGLE_CLASS_LIST'] === undefined ? null :
-                        (<div><select onChange={
+                        (<select onChange={
                             function(event) {
                                 this.setState({courseId: event.target.value});
                             }.bind(this)}
@@ -232,16 +232,19 @@ const UserActions = createReactClass({
                                     )
                                 })
                             }
-                        </select><br/>
-                        </div>)
+                        </select>
+                        )
                     }
                     {/* TODO - required field validation */}
                     {/* TODO - add due date*/}
-                    Title* <input type="text"
+                    <br />
+                    <br />
+                    Title * &nbsp;<input type="text"
                        value={this.state.assignmentName}
                        onChange={function(evt) {
                                 this.setState({assignmentName: evt.target.value});
                        }.bind(this)}/><br />
+                    <br />
                     Description<br />
                     <textarea
                        value={this.state.assignmentDescription}
