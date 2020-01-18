@@ -91,6 +91,7 @@ var Problem = createReactClass({
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
         var showTutorial = this.props.value[SHOW_TUTORIAL];
+        var buttonGroup = this.props.buttonGroup;
         if (score === '') {
             scoreClass = 'show-complete-div';
         } else if (score === possiblePoints) {
@@ -196,6 +197,7 @@ var Problem = createReactClass({
                                     key={stepIndex} buttonsVisible='focused' styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
                                     buttonSets={['trig', 'prealgebra',
                                                  'logarithms', 'calculus']}
+                                    buttonGroup={buttonGroup}
                                     stepIndex={stepIndex}
                                     problemIndex={problemIndex} value={step[CONTENT]} onChange={
                                         function(value) {
