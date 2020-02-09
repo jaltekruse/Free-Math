@@ -385,8 +385,8 @@ const UserActions = createReactClass({
                         <br />
                     <small> Select a zip file full of student work, these are generated
                             when downloading files from your LMS in bulk.&nbsp;
-                        <a href="https://www.wikihow.com/Make-a-Zip-File">
-                            More info on zip files
+                        <a href="gettingStarted.html">
+                            LMS Integration Info
                         </a>
                     </small>
                         <br />
@@ -678,6 +678,9 @@ const DefaultHomepageActions = createReactClass({
                              }}>
 
 		    <div style={{"padding":"0px 100px 0px 100px"}}>
+                    <p>
+                        <a className="lightLink" href="privacyPolicy.html">Privacy Policy</a>
+                    </p>
                     <small>
                         Free Math is free software: you can redistribute it and/or modify
                         it under the terms of the GNU General Public License as published by

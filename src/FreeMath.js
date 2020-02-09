@@ -52,6 +52,8 @@ var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+var SET_KEYBOARD_BUTTON_GROUP = 'SET_KEYBOARD_BUTTON_GROUP';
+var BUTTON_GROUP = 'BUTTON_GROUP';
 
 // used to swap out the entire content of the document, for opening
 // a document from a file
@@ -233,10 +235,13 @@ function rootReducer(state, action) {
             "DOC_ID" : genID(),
             PENDING_SAVES : 0,
             GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY,
+            BUTTON_GROUP : 'BASIC',
             APP_MODE : EDIT_ASSIGNMENT
         };
     } else if (action.type === "SET_GLOBAL_STATE") {
-        return action.newState;
+        return {...action.newState,
+            BUTTON_GROUP : 'BASIC',
+        };
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
@@ -261,6 +266,10 @@ function rootReducer(state, action) {
         };
         console.log(ret);
         return ret;
+    } else if (action.type === SET_KEYBOARD_BUTTON_GROUP) {
+        return { ...state,
+                 BUTTON_GROUP : action[BUTTON_GROUP]
+        }
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
         // TODO - get similar assignment list from comparing the assignments
@@ -285,7 +294,8 @@ function rootReducer(state, action) {
             ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
             PENDING_SAVES : 0,
             GOOGLE_DRIVE_STATE : ALL_SAVED,
-            "DOC_ID" : genID()
+            "DOC_ID" : genID(),
+            BUTTON_GROUP : 'BASIC'
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
