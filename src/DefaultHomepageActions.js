@@ -461,6 +461,9 @@ const DefaultHomepageActions = createReactClass({
                              }}>
 
 		    <div style={{"padding":"0px 100px 0px 100px"}}>
+                    <p>
+                        <a className="lightLink" herf="privacyPolicy.html">Privacy Policy</a>
+                    </p>
                     <small>
                         Free Math is free software: you can redistribute it and/or modify
                         it under the terms of the GNU General Public License as published by
