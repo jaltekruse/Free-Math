@@ -16,6 +16,8 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 // used to swap out the entire content of the document, for opening
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
+var UNDO_STACK = 'UNDO_STACK';
+var REDO_STACK = 'REDO_STACK';
 
 function saveAssignment() {
     var atLeastOneProblemNumberNotSet = false;
@@ -33,10 +35,25 @@ function saveAssignment() {
         }
     }
 
-    var blob = new Blob([JSON.stringify({
-        PROBLEMS : makeBackwardsCompatible(window.store.getState())[PROBLEMS]})],
+    var blob =
+        new Blob([
+            JSON.stringify({
+            PROBLEMS : removeUndoRedoHistory(
+                        makeBackwardsCompatible(
+                            window.store.getState()
+                        )
+                    )[PROBLEMS]
+            })],
         {type: "text/plain;charset=utf-8"});
     saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
+}
+
+function removeUndoRedoHistory(globalState) {
+    globalState[PROBLEMS].forEach(function (problem) {
+        problem[UNDO_STACK] = [];
+        problem[REDO_STACK] = [];
+    });
+    return globalState;
 }
 
 function removeExtension(filename) {
