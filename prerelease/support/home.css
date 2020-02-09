@@ -8,7 +8,7 @@ Copied from persus project
   box-sizing: border-box;
   margin-top: 5px;
   padding: 2px;
-  width: 201px;
+  width: 701px;
 }
 .math-input-buttons.absolute {
   left: -2px;
@@ -284,11 +284,26 @@ a {
   color: mediumblue;
   text-decoration: none;
 }
+
 a:hover {
   color: black;
   color: orange;
 }
 a:active {
+  color: #400;
+}
+
+a.lightLink {
+  color: white;
+  text-decoration: none;
+}
+
+a.lightLink:hover {
+  color: black;
+  color: orange;
+}
+
+a.lightLink:active {
   color: #400;
 }
 ul {

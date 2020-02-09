@@ -84,90 +84,141 @@
         //pre.appendChild(textContent);
       }
 
-    function listGoogeClassroomCourses(callback, errorcallback = function(){}) {
+    function downloadAllGoogeClassroomSubmissions(driveFolderId, callback, errorCallback = function(){}) {
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
 
         var accessToken = gapi.auth.getToken().access_token;
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open('get', 'https://classroom.googleapis.com/v1/courses');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-            console.log(xhr);
-            if (xhr.status == 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    callback(response);
-                } catch (e) {
-                    console.log(e);
-                    alert("Error reading google's response:" + xhr.responseText);
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
                 }
             } else {
-                alert(xhr.responseText);
+                // ignore other events for request still in progress
             }
         };
         xhr.send();
     }
 
-    function listGoogeClassroomAssignments(courseId, callback, errorcallback = function(){}) {
+    function listGoogeClassroomCourses(callback, errorCallback = function(){}) {
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
 
         var accessToken = gapi.auth.getToken().access_token;
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://classroom.googleapis.com/v1/courses');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
+    }
+
+    function listGoogeClassroomAssignments(courseId, callback, errorCallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
         xhr.open('get', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-            console.log(xhr);
-            if (xhr.status == 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    callback(response);
-                } catch (e) {
-                    console.log(e);
-                    alert("Error reading google's response:" + xhr.responseText);
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
                 }
             } else {
-                alert(xhr.responseText);
+                // ignore other events for request still in progress
             }
         };
         xhr.send();
     }
 
-    function listGoogeClassroomSubmissions(courseId, courseWorkId, callback, errorcallback = function(){}) {
+    function listGoogeClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
 
         var accessToken = gapi.auth.getToken().access_token;
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open('get', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                     courseWorkId + '/studentSubmissions');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-            console.log(xhr);
-            if (xhr.status == 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    callback(response);
-                } catch (e) {
-                    console.log(e);
-                    alert("Error reading google's response:" + xhr.responseText);
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
                 }
             } else {
-                alert(xhr.responseText);
+                // ignore other events for request still in progress
             }
         };
         xhr.send();
     }
 
+    // TODO - most of the time users will want to overwrite their previous work, but this currently
+    // just adds a new file to their submission each time
+    // it would be best to push users towards opening their previous submission, as soon as we know
+    // one is associated with their assignment they are trying to work on
     function modifyGoogeClassroomSubmission(
-        courseId, courseWorkId, submissionId, driveFileId, callback, errorcallback = function(){}) {
+        courseId, courseWorkId, submissionId, driveFileId, callback, errorCallback = function(){}) {
 
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
@@ -175,22 +226,27 @@
         }
 
         var accessToken = gapi.auth.getToken().access_token;
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open('post', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                     courseWorkId + '/studentSubmissions/' + submissionId + ':modifyAttachments');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-            console.log(xhr);
-            if (xhr.status == 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    callback(response);
-                } catch (e) {
-                    console.log(e);
-                    alert("Error reading google's response:" + xhr.responseText);
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback(this);
                 }
             } else {
-                alert(xhr.responseText);
+                // ignore other events for request still in progress
             }
         };
         var payload = {
@@ -207,7 +263,7 @@
     }
 
     function createGoogeClassroomAssignment(
-        courseId, title, description, callback, errorcallback = function(){}) {
+        courseId, title, description, callback, errorCallback = function(){}) {
 
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
@@ -215,21 +271,26 @@
         }
 
         var accessToken = gapi.auth.getToken().access_token;
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open('post', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-            console.log(xhr);
-            if (xhr.status == 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    callback(response);
-                } catch (e) {
-                    console.log(e);
-                    alert("Error reading google's response:" + xhr.responseText);
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
                 }
             } else {
-                alert(xhr.responseText);
+                // ignore other events for request still in progress
             }
         };
         // TODO - add due date
@@ -286,17 +347,20 @@
                     }
                     xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
                     xhr.onload = function() {
-                      console.log(xhr);
-                      console.log(xhr.response);
-                      if (xhr.status == 200) {
-                        callback(xhr.response, fileId);
-                      } else {
-                        alert("Something went wrong: " + xhr.status);
-                      }
+                        console.log(this);
+                        if (this.readyState === 4) {
+                            if (this.status == 200) {
+                                callback(this.response, fileId);
+                            } else {
+                                alert("Something went wrong: " + this.status);
+                            }
+                        } else {
+                            // ignore other events for request still in progress
+                        }
                     };
                     xhr.onerror = function() {
-                      console.log(xhr);
-                      alert("Something went wrong: " + xhr.status);
+                      console.log(this);
+                      alert("Something went wrong: " + this.status);
                     };
                     xhr.send();
                   } else {
@@ -321,11 +385,11 @@
         var payload = new FormData();
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
         payload.append('file', content);
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open('put', 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-          console.log(this);
+            console.log(this);
             if (this.readyState === 4) {
                 if (this.status == 200) {
                     callback();
@@ -349,22 +413,26 @@
         var payload = new FormData();
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
         payload.append('file', content);
-        xhr = new XMLHttpRequest();
+        var xhr = new XMLHttpRequest();
         xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
-            console.log(xhr);
-            if (xhr.status == 200) {
-                try {
-                    var response = JSON.parse(xhr.responseText);
-                    callback(response.id);
-                } catch (e) {
-                    console.log(e);
-                    alert("Error reading google's response:" + xhr.responseText);
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        var response = JSON.parse(this.responseText);
+                        callback(response.id);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    alert(this.responseText);
                 }
             } else {
-                alert(xhr.responseText);
+                // ignore other events for request still in progress
             }
         };
         xhr.send(payload);
-      }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><link href="static/css/main.5e339757.css" rel="stylesheet"></head><body style="margin-top:40px"><div id="root"></div><script type="text/javascript" src="static/js/main.260e7e7e.js"></script></body></html>
+      }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><link href="static/css/main.5e339757.css" rel="stylesheet"></head><body style="margin-top:40px"><div id="root"></div><script type="text/javascript" src="static/js/main.092e0fc9.js"></script></body></html>
