@@ -193,8 +193,8 @@ const UserActions = createReactClass({
                         <br />
                     <small> Select a zip file full of student work, these are generated
                             when downloading files from your LMS in bulk.&nbsp;
-                        <a href="https://www.wikihow.com/Make-a-Zip-File">
-                            More info on zip files
+                        <a href="gettingStarted.html">
+                            LMS Integration Info
                         </a>
                     </small>
                         <br />
