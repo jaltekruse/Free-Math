@@ -180,7 +180,7 @@ var TexButtons = createReactClass({
                            className="tex-button"
                            key={symbol.tex ? symbol.tex : symbol.mqStatic}
                            tabIndex={-1}
-                           title={symbol.toType}
+                           title={"keyboard shortcut: " + symbol.toType }
                            type="button">
                 {symbol.tex ?
                     <TeX>{symbol.tex}</TeX>
