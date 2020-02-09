@@ -351,6 +351,7 @@ const UserActions = createReactClass({
                                 </div>
                         )} /><br />
                     Grade Assignments <br />
+                    {/*
                     <HtmlButton
                         className="fm-button"
                         title="Submit assignment to Google Classroom"
@@ -366,7 +367,7 @@ const UserActions = createReactClass({
                                             alt="Google logo"
                                             height="16px"/>
                                 </div>
-                        )} /> <br />
+                        )} /> <br /> */}
                         <HtmlButton
                             className="fm-button"
                             ref="teacherDriveOpen"
