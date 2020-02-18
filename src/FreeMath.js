@@ -353,7 +353,7 @@ var FreeMath = createReactClass({
         );
     } else if (this.props.value[APP_MODE] === MODE_CHOOSER) {
         return (
-            <DefaultHomepageActions />
+            <DefaultHomepageActions value={this.props.value}/>
         );
     } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
         return (

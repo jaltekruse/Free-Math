@@ -11,7 +11,7 @@ import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
 import { LightButton, HtmlButton } from './Button.js';
 import { studentSubmissionsZip, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
-import { readSingleFile, openAssignment } from './AssignmentEditorMenubar.js';
+import { readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import JSZip from 'jszip';
 
 var MathQuill = window.MathQuill;
@@ -106,12 +106,14 @@ const UserActions = createReactClass({
                 }.bind(this));
             }.bind(this)
         );
-        const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment);
-        window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
-            function() {
 
-            }.bind(this)
-        );
+        const gradeClassroomAssignmentCallback = function() {
+            this.refs.submissionSelector.listClasses();
+        }.bind(this);
+
+        const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
+            gradeClassroomAssignmentCallback, function(){/* TODO - on sign in error*/})
 
     },
     closeSpinner() {
@@ -135,6 +137,12 @@ const UserActions = createReactClass({
             studentSubmissionsZip(evt);
             this.closeSpinner();
         }.bind(this);
+
+        var openDriveAssignments = function(assignment) {
+            window.loadStudentDocsFromZip = loadStudentDocsFromZip;
+            window.downloadClassAssignmentFiles(
+                assignment.assignment.studentWorkFolder.id, function(response) {});
+        }
 
         var recoverAutoSaveCallback = function(docName) {
             // turn on confirmation dialog upon navigation away
@@ -193,6 +201,10 @@ const UserActions = createReactClass({
                     "marginLeft":"auto",
                     "marginRight": "auto"
             }}>
+            <GoogleClassroomSubmissionSelector
+                value={this.props.value}
+                selectAssignmentCallback={openDriveAssignments}
+                ref="submissionSelector"/>
             <FreeMathModal
                 showModal={this.state.showModal}
                 content={(
@@ -546,7 +558,7 @@ const DefaultHomepageActions = createReactClass({
             </button>
             </div>
             </div>
-            <UserActions />
+            <UserActions value={this.props.value}/>
             </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />

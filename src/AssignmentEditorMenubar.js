@@ -4,7 +4,7 @@ import createReactClass from 'create-react-class';
 import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
-import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import { loadStudentDocsFromZip, makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
@@ -137,6 +137,39 @@ export function readSingleFile(evt, discardDataWarning) {
     }
 }
 
+
+function submitAssignment(submission, selectedClass, selectedAssignment, googleId) {
+    window.modifyGoogeClassroomSubmission(
+        selectedClass,
+        selectedAssignment,
+        submission.id, googleId,
+        function(response) {
+            console.log(response);
+            // clear the class list to stop showing the modal
+            window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                GOOGLE_CLASS_LIST : undefined});
+            alert('Successfully submitted to classroom.');
+        },
+        function(errorXhr) {
+            if (errorXhr.status == 403) {
+                alert('This assignment was not created using Free Math, ' +
+                      'and google only allows 3rd party apps like Free Math ' +
+                      'to edit assignments that they create.\n\n' +
+                      'Your document has been saved in your Google Drive, you will ' +
+                      'need to go to Google Classroom and attach the file to the ' +
+                      'assignment yourself.');
+            } else {
+                alert('Save Failed.');
+            }
+
+            // in the case of error also close the modal
+            // and make them select a different class/assignment
+            window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                GOOGLE_CLASS_LIST : undefined});
+        }
+    );
+}
+
 var GoogleClassroomSubmissionSelector = createReactClass({
     componentDidMount: function() {
     },
@@ -165,6 +198,8 @@ var GoogleClassroomSubmissionSelector = createReactClass({
     },
     render: function() {
         var rootState = this.props.value;
+        var selectSubmissionCallback = this.props.selectSubmissionCallback;
+        var selectAssignmentCallback = this.props.selectAssignmentCallback;
 
         const courseList = function() {
             return (<div>
@@ -195,38 +230,6 @@ var GoogleClassroomSubmissionSelector = createReactClass({
             </div>)
         };
 
-        const submitAssignment = function(submission, selectedClass, selectedAssignment) {
-            window.modifyGoogeClassroomSubmission(
-                selectedClass,
-                selectedAssignment,
-                submission.id, rootState[GOOGLE_ID],
-                function(response) {
-                    console.log(response);
-                    // clear the class list to stop showing the modal
-                    window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                        GOOGLE_CLASS_LIST : undefined});
-                    alert('Successfully submitted to classroom.');
-                },
-                function(errorXhr) {
-                    if (errorXhr.status == 403) {
-                        alert('This assignment was not created using Free Math, ' +
-                              'and google only allows 3rd party apps like Free Math ' +
-                              'to edit assignments that they create.\n\n' +
-                              'Your document has been saved in your Google Drive, you will ' +
-                              'need to go to Google Classroom and attach the file to the ' +
-                              'assignment yourself.');
-                    } else {
-                        alert('Save Failed.');
-                    }
-
-                    // in the case of error also close the modal
-                    // and make them select a different class/assignment
-                    window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                        GOOGLE_CLASS_LIST : undefined});
-                }
-            );
-        }
-
         const listSubmissionsSubmitIfOnlyOne = function(assignment) {
             window.listGoogeClassroomSubmissions(
                 rootState[GOOGLE_SELECTED_CLASS],
@@ -251,9 +254,10 @@ var GoogleClassroomSubmissionSelector = createReactClass({
                               GOOGLE_SELECTED_ASSIGNMENT_NAME: assignment.title,
                               GOOGLE_COURSEWORK_LIST : response
                             });
-                        submitAssignment(submission,
+                        selectSubmissionCallback(submission,
                                         rootState[GOOGLE_SELECTED_CLASS],
-                                        assignment.id);
+                                        assignment.id,
+                                        rootState[GOOGLE_ID]);
                     } else {
                         window.store.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
@@ -281,7 +285,11 @@ var GoogleClassroomSubmissionSelector = createReactClass({
                                     <Button text={assignment.title}
                                         onClick={
                                             function() {
-                                                listSubmissionsSubmitIfOnlyOne(assignment);
+                                                if (selectAssignmentCallback) {
+                                                    selectAssignmentCallback(assignment);
+                                                } else {
+                                                    listSubmissionsSubmitIfOnlyOne(assignment);
+                                                }
                                             }
                                         }
                                     />)
@@ -301,9 +309,10 @@ var GoogleClassroomSubmissionSelector = createReactClass({
                                     <Button text={submission.creationTime}
                                         onClick={function() {
                                             // TODO - auto save doc to drive before doing this
-                                            submitAssignment(submission,
+                                            selectSubmissionCallback(submission,
                                                             rootState[GOOGLE_SELECTED_CLASS],
-                                                            rootState[GOOGLE_SELECTED_ASSIGNMENT]
+                                                            rootState[GOOGLE_SELECTED_ASSIGNMENT],
+                                                            rootState[GOOGLE_ID]
                                             );
                                         }}
                                     />
@@ -349,6 +358,9 @@ var GoogleClassroomSubmissionSelector = createReactClass({
 
 var AssignmentEditorMenubar = createReactClass({
     componentDidMount: function() {
+        // TODO - problem with onSuccessCallback when canceling and re-opening dialog to submit
+        // might have been manifesting a different bug leaving out a callback in functions doing
+        // the actual requests to google in index.html
         const saveCallback = function(onSuccessCallback = function() {}) {
             var assignment = JSON.stringify(
                         { PROBLEMS : makeBackwardsCompatible(
@@ -415,9 +427,18 @@ var AssignmentEditorMenubar = createReactClass({
             else if (state === SAVING) saveStateMsg = "Saving in Drive...";
         }
         var rootState = this.props.value;
+        var selectSubmissionCallback = function(submission, selectedClass, selectedAssignment, googleId) {
+            submitAssignment(submission,
+                            selectedClass,
+                            selectedAssignment,
+                            googleId);
+        }
         return (
             <div className="menuBar">
-                <GoogleClassroomSubmissionSelector value={this.props.value} ref="submissionSelector"/>
+                <GoogleClassroomSubmissionSelector
+                    value={this.props.value}
+                    selectSubmissionCallback={selectSubmissionCallback}
+                    ref="submissionSelector"/>
                 <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
@@ -475,4 +496,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export {AssignmentEditorMenubar as default, removeExtension };
+export {AssignmentEditorMenubar as default, removeExtension, GoogleClassroomSubmissionSelector };

@@ -136,6 +136,9 @@ http://mozilla.org/MPL/2.0/
 
       var APP_ID = 'quickstart-1561689319732';
 
+      // TODO FIXME HACKS
+      var loadStudentDocsFromZip = function() {}
+
       /**
        *  Initializes the API client library and sets up sign-in state
        *  listeners.
@@ -311,6 +314,7 @@ http://mozilla.org/MPL/2.0/
             if (this.readyState === 4) {
                 if (this.status == 200) {
                     try {
+                        console.log(this.responseText);
                         var response = JSON.parse(this.responseText);
                         callback(response);
                     } catch (e) {
@@ -326,6 +330,94 @@ http://mozilla.org/MPL/2.0/
             }
         };
         xhr.send();
+    }
+
+    function listFilesInFolder(folderId, callback, errorCallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        
+        xhr.open('get', 'https://www.googleapis.com/drive/v2/files/' + folderId + '/children');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        //xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        console.log(this.responseText);
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
+    }
+
+    function doStuff(response) {
+        console.log(response);
+        downloadFile(response.res, true, function(data) {
+            setTimeout(function() {
+                loadStudentDocsFromZip(data, "temp", response.res);
+            }.bind(this), 50);
+        });
+    }
+
+    function downloadClassAssignmentFiles(folderId, callback, errorCallback = function(){} ) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        var url = 'https://script.google.com/macros/s/AKfycbx_WIQz1e4fg8YFWq-SOGstwZrEu-eDrsU9EB2jnxPCxF2sHoQ/exec?folderid=' + 
+                    folderId + '&callback=?';
+        $.getJSON( url, 
+            function( returnValue ){
+                console.log(response);
+                callback(response);
+            });
+
+        /*
+        xhr.open('get', url);
+        //xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        console.log(this.responseText);
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
+        */
     }
 
     // TODO - most of the time users will want to overwrite their previous work, but this currently
