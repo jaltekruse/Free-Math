@@ -537,45 +537,64 @@ http://mozilla.org/MPL/2.0/
           picker.setVisible(true);
       }
 
-    function downloadFile(fileId, isBinary, callback) {
-        gapi.client.request({
-            'path': '/drive/v2/files/'+fileId,
-            'method': 'GET',
-            callback: function (file, responsetxt){
-                  if (file.downloadUrl) {
-                    var accessToken = gapi.auth.getToken().access_token;
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', file.downloadUrl);
-                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
-                    if (isBinary) {
-                        xhr.overrideMimeType('text\/plain; charset=x-user-defined');
-                    } else {
-                        xhr.overrideMimeType('text\/plain; charset=utf8');
-                    }
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-                    xhr.onload = function() {
-                        console.log(this);
-                        if (this.readyState === 4) {
-                            if (this.status == 200) {
-                                callback(this.response, fileId);
-                            } else {
-                                alert("Something went wrong: " + this.status);
-                            }
-                        } else {
-                            // ignore other events for request still in progress
-                        }
-                    };
-                    xhr.onerror = function() {
-                      console.log(this);
-                      alert("Something went wrong: " + this.status);
-                    };
-                    xhr.send();
-                  } else {
-                      console.log(file);
-                      alert("Error opening file from Drive. Note Free Math only opens files it creates itself.");
-                  }
+    function directDownloadFile(fileMeta, fileId, isBinary, callback) {
+        if (fileMeta.downloadUrl) {
+            var accessToken = gapi.auth.getToken().access_token;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', fileMeta.downloadUrl);
+            // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+            if (isBinary) {
+                xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+            } else {
+                xhr.overrideMimeType('text\/plain; charset=utf8');
             }
-        });
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.onload = function() {
+                console.log(this);
+                if (this.readyState === 4) {
+                    if (this.status == 200) {
+                        callback(this.response, fileId);
+                    } else {
+                        alert("Something went wrong: " + this.status);
+                    }
+                } else {
+                    // ignore other events for request still in progress
+                }
+            };
+            xhr.onerror = function() {
+              console.log(this);
+              alert("Something went wrong: " + this.status);
+            };
+            xhr.send();
+        } else {
+            console.log(fileMeta);
+            alert("Error opening file from Drive. Note Free Math only opens files it creates itself.");
+        }
+    }
+
+    function downloadFile(fileId, isBinary, callback) {
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://www.googleapis.com/drive/v2/files/'+fileId);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                try {
+                    var file = JSON.parse(this.responseText);
+                    directDownloadFile(file, fileId, isBinary, callback);
+                    } catch (e) {
+                        console.log(e);
+                        alert("error reading google's response:" + this.responsetext);
+                    }
+                } else {
+                    alert(this.responsetext);
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
       }
 
       var updateFileWithBinaryContent = function(name, content, googleId,
@@ -632,10 +651,10 @@ http://mozilla.org/MPL/2.0/
                         callback(response.id);
                     } catch (e) {
                         console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
+                        alert("error reading google's response:" + this.responsetext);
                     }
                 } else {
-                    alert(this.responseText);
+                    alert(this.responsetext);
                 }
             } else {
                 // ignore other events for request still in progress

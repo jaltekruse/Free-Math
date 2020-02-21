@@ -189,13 +189,6 @@ var TexButtons = createReactClass({
             </button>;
         });
 
-        var buttonPopup = _.map(buttonRows, (row, i) => {
-            return <div className="clearfix tex-button-row"
-                        key={this.props.sets[i]}>
-                {row}
-            </div>;
-        });
-
         return <div className={`${this.props.className} preview-measure`}>
             <Button text="Basic" onClick={
                 function() { window.store.dispatch(
@@ -209,7 +202,9 @@ var TexButtons = createReactClass({
             <Button text="Greek" onClick={
                 function() { window.store.dispatch(
                         { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : GREEK });}}/>
-            {buttonPopup}
+            <div>
+                {buttonRows}
+            </div>
         </div>;
     },
     statics: {
