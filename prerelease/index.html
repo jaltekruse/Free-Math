@@ -21,6 +21,9 @@
 
       var APP_ID = 'quickstart-1561689319732';
 
+      // TODO FIXME HACKS
+      var loadStudentDocsFromZip = function() {}
+
       /**
        *  Initializes the API client library and sets up sign-in state
        *  listeners.
@@ -196,6 +199,7 @@
             if (this.readyState === 4) {
                 if (this.status == 200) {
                     try {
+                        console.log(this.responseText);
                         var response = JSON.parse(this.responseText);
                         callback(response);
                     } catch (e) {
@@ -211,6 +215,94 @@
             }
         };
         xhr.send();
+    }
+
+    function listFilesInFolder(folderId, callback, errorCallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        
+        xhr.open('get', 'https://www.googleapis.com/drive/v2/files/' + folderId + '/children');
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        //xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        console.log(this.responseText);
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
+    }
+
+    function doStuff(response) {
+        console.log(response);
+        downloadFile(response.res, true, function(data) {
+            setTimeout(function() {
+                loadStudentDocsFromZip(data, "temp", response.res);
+            }.bind(this), 50);
+        });
+    }
+
+    function downloadClassAssignmentFiles(folderId, callback, errorCallback = function(){} ) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        var url = 'https://script.google.com/macros/s/AKfycbx_WIQz1e4fg8YFWq-SOGstwZrEu-eDrsU9EB2jnxPCxF2sHoQ/exec?folderid=' + 
+                    folderId + '&callback=?';
+        $.getJSON( url, 
+            function( returnValue ){
+                console.log(response);
+                callback(response);
+            });
+
+        /*
+        xhr.open('get', url);
+        //xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
+        xhr.onload = function() {
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        console.log(this.responseText);
+                        var response = JSON.parse(this.responseText);
+                        callback(response);
+                    } catch (e) {
+                        console.log(e);
+                        alert("Error reading google's response:" + this.responseText);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback();
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
+        */
     }
 
     // TODO - most of the time users will want to overwrite their previous work, but this currently
@@ -330,45 +422,64 @@
           picker.setVisible(true);
       }
 
-    function downloadFile(fileId, isBinary, callback) {
-        gapi.client.request({
-            'path': '/drive/v2/files/'+fileId,
-            'method': 'GET',
-            callback: function (file, responsetxt){
-                  if (file.downloadUrl) {
-                    var accessToken = gapi.auth.getToken().access_token;
-                    var xhr = new XMLHttpRequest();
-                    xhr.open('GET', file.downloadUrl);
-                    // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
-                    if (isBinary) {
-                        xhr.overrideMimeType('text\/plain; charset=x-user-defined');
-                    } else {
-                        xhr.overrideMimeType('text\/plain; charset=utf8');
-                    }
-                    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-                    xhr.onload = function() {
-                        console.log(this);
-                        if (this.readyState === 4) {
-                            if (this.status == 200) {
-                                callback(this.response, fileId);
-                            } else {
-                                alert("Something went wrong: " + this.status);
-                            }
-                        } else {
-                            // ignore other events for request still in progress
-                        }
-                    };
-                    xhr.onerror = function() {
-                      console.log(this);
-                      alert("Something went wrong: " + this.status);
-                    };
-                    xhr.send();
-                  } else {
-                      console.log(file);
-                      alert("Error opening file from Drive. Note Free Math only opens files it creates itself.");
-                  }
+    function directDownloadFile(fileMeta, fileId, isBinary, callback) {
+        if (fileMeta.downloadUrl) {
+            var accessToken = gapi.auth.getToken().access_token;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', fileMeta.downloadUrl);
+            // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+            if (isBinary) {
+                xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+            } else {
+                xhr.overrideMimeType('text\/plain; charset=utf8');
             }
-        });
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.onload = function() {
+                console.log(this);
+                if (this.readyState === 4) {
+                    if (this.status == 200) {
+                        callback(this.response, fileId);
+                    } else {
+                        alert("Something went wrong: " + this.status);
+                    }
+                } else {
+                    // ignore other events for request still in progress
+                }
+            };
+            xhr.onerror = function() {
+              console.log(this);
+              alert("Something went wrong: " + this.status);
+            };
+            xhr.send();
+        } else {
+            console.log(fileMeta);
+            alert("Error opening file from Drive. Note Free Math only opens files it creates itself.");
+        }
+    }
+
+    function downloadFile(fileId, isBinary, callback) {
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open('get', 'https://www.googleapis.com/drive/v2/files/'+fileId);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                try {
+                    var file = JSON.parse(this.responseText);
+                    directDownloadFile(file, fileId, isBinary, callback);
+                    } catch (e) {
+                        console.log(e);
+                        alert("error reading google's response:" + this.responsetext);
+                    }
+                } else {
+                    alert(this.responsetext);
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.send();
       }
 
       var updateFileWithBinaryContent = function(name, content, googleId,
@@ -425,14 +536,14 @@
                         callback(response.id);
                     } catch (e) {
                         console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
+                        alert("error reading google's response:" + this.responsetext);
                     }
                 } else {
-                    alert(this.responseText);
+                    alert(this.responsetext);
                 }
             } else {
                 // ignore other events for request still in progress
             }
         };
         xhr.send(payload);
-      }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><link href="static/css/main.5e339757.css" rel="stylesheet"></head><body style="margin-top:40px"><div id="root"></div><script type="text/javascript" src="static/js/main.092e0fc9.js"></script></body></html>
+      }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><link href="static/css/main.5e339757.css" rel="stylesheet"></head><body style="margin-top:40px"><div id="root"></div><script type="text/javascript" src="static/js/main.674baffa.js"></script></body></html>
