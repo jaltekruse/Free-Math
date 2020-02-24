@@ -134,8 +134,7 @@ const UserActions = createReactClass({
 
             window.location.hash = '';
             document.body.scrollTop = document.documentElement.scrollTop = 0;
-            studentSubmissionsZip(evt);
-            this.closeSpinner();
+            studentSubmissionsZip(evt, function() {this.closeSpinner()}.bind(this));
         }.bind(this);
 
         var openDriveAssignments = function(assignment) {
@@ -366,7 +365,7 @@ const UserActions = createReactClass({
                     <HtmlButton
                         className="fm-button"
                         title="Submit assignment to Google Classroom"
-                        onClick={function() {}}
+                        onClick={function() {} /* action assigned in didMount to hook into google auth */}
                         ref="gradeClassroomAssignment"
                         content={(
                                 <div style={{display: "inline-block"}}>
@@ -383,7 +382,7 @@ const UserActions = createReactClass({
                             className="fm-button"
                             ref="teacherDriveOpen"
                             title="Open zip file of student assignments from Google Drive"
-                            onClick={function(){}}
+                            onClick={function(){} /* action assigned in didMount to hook into google auth */}
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>

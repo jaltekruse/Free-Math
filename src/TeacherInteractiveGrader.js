@@ -815,7 +815,7 @@ function makeBackwardsCompatible(newDoc) {
     return newDoc;
 }
 
-function loadStudentDocsFromZip(content, filename, googleId = false) {
+function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
     var new_zip = new JSZip();
     try {
         new_zip.load(content);
@@ -868,12 +868,13 @@ function loadStudentDocsFromZip(content, filename, googleId = false) {
     } catch (e) {
         // TODO - try to open a single student doc
         alert("Error opening file, you should be opening a zip file full of Free Math documents.");
+        onFailure();
         return;
     }
 }
 
 // open zip file full of student assignments for grading
-function studentSubmissionsZip(evt) {
+function studentSubmissionsZip(evt, onFailure = function() {}) {
     // reset scroll location from previous view of student docs
     window.location.hash = '';
     var f = evt.target.files[0];
@@ -882,11 +883,12 @@ function studentSubmissionsZip(evt) {
         var r = new FileReader();
         r.onload = function(e) {
             var content = e.target.result;
-            loadStudentDocsFromZip(content, f.name);
+            loadStudentDocsFromZip(content, f.name, onFailure);
         }
         r.readAsArrayBuffer(f);
     } else {
         alert("Failed to load file");
+        onFailure();
     }
 }
 
