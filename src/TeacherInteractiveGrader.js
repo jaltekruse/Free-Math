@@ -809,8 +809,66 @@ function makeBackwardsCompatible(newDoc) {
     return newDoc;
 }
 
+function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
+    var new_zip = new JSZip();
+    try {
+        new_zip.load(content);
+
+        var allStudentWork = [];
+
+        var failureCount = 0;
+        var badFiles = [];
+        // you now have every files contained in the loaded zip
+        for (var file in new_zip.files) {
+            // don't get properties from prototype
+            if (new_zip.files.hasOwnProperty(file)) {
+                // extra directory added when zipping files on mac
+                // TODO - check for other things to filter out from zip
+                // files created on other platforms
+                if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                // check the extension is .math
+                // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+                if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+                // filter out directories which are part of this list
+                if (new_zip.file(file) === null) continue;
+                try {
+                    var fileContents = new_zip.file(file).asText();
+                    // how is this behaviring differrntly than JSOn.parse()?!?!
+                    //var assignmentData = window.$.parseJSON(fileContents);
+                    fileContents = fileContents.trim();
+                    var assignmentData = JSON.parse(fileContents);
+                    assignmentData = convertToCurrentFormat(assignmentData);
+                    allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                } catch (e) {
+                    console.log("failed to parse file: " + file);
+                    console.log(e);
+                    failureCount++;
+                    badFiles.push(file);
+                }
+            }
+        }
+        if (failureCount > 0) {
+            alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+        }
+        // TODO - add back answer key
+        var aggregatedWork = aggregateStudentWork(allStudentWork);
+        console.log("@@@@@@ opened docs");
+        console.log(aggregatedWork);
+        window.store.dispatch(
+            { type : SET_ASSIGNMENTS_TO_GRADE,
+              GOOGLE_ID : googleId,
+              NEW_STATE :
+                {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
+    } catch (e) {
+        // TODO - try to open a single student doc
+        alert("Error opening file, you should be opening a zip file full of Free Math documents.");
+        onFailure();
+        return;
+    }
+}
+
 // open zip file full of student assignments for grading
-function studentSubmissionsZip(evt) {
+function studentSubmissionsZip(evt, onFailure = function() {}) {
     // reset scroll location from previous view of student docs
     window.location.hash = '';
     var f = evt.target.files[0];
@@ -819,52 +877,12 @@ function studentSubmissionsZip(evt) {
         var r = new FileReader();
         r.onload = function(e) {
             var content = e.target.result;
-
-            var new_zip = new JSZip();
-            // more files !
-            new_zip.load(content);
-
-            var allStudentWork = [];
-
-            // you now have every files contained in the loaded zip
-            for (var file in new_zip.files) {
-                // don't get properties from prototype
-                if (new_zip.files.hasOwnProperty(file)) {
-                    // extra directory added when zipping files on mac
-                    // TODO - check for other things to filter out from zip
-                    // files created on other platforms
-                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
-                    // check the extension is .math
-                    // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
-                    if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
-                    // filter out directories which are part of this list
-                    if (new_zip.file(file) === null) continue;
-                    try {
-                        var fileContents = new_zip.file(file).asText();
-                        // how is this behaviring differrntly than JSOn.parse()?!?!
-                        //var assignmentData = window.$.parseJSON(fileContents);
-                        fileContents = fileContents.trim();
-                        var assignmentData = JSON.parse(fileContents);
-                        assignmentData = convertToCurrentFormat(assignmentData);
-                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
-                    } catch (e) {
-                        console.log("failed to parse file: " + file);
-                        console.log(e);
-                    }
-                }
-            }
-            // TODO - add back answer key
-            var aggregatedWork = aggregateStudentWork(allStudentWork);
-            console.log("@@@@@@ opened docs");
-            console.log(aggregatedWork);
-            window.store.dispatch(
-                { type : SET_ASSIGNMENTS_TO_GRADE,
-                  NEW_STATE :
-                    {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(f.name)}});
+            loadStudentDocsFromZip(content, f.name, onFailure);
         }
         r.readAsArrayBuffer(f);
     } else {
         alert("Failed to load file");
+        onFailure();
     }
 }
 
