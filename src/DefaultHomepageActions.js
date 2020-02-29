@@ -108,13 +108,20 @@ const UserActions = createReactClass({
         );
 
         const gradeClassroomAssignmentCallback = function() {
-            this.refs.submissionSelector.listClasses();
+            this.refs.teacherAssignmentSelector.listClasses();
         }.bind(this);
 
         const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
             gradeClassroomAssignmentCallback, function(){/* TODO - on sign in error*/})
 
+        const openSubmissionCallback = function() {
+            this.refs.studentSubmissionSelector.listClasses();
+        }.bind(this);
+
+        const openClassroomSubmission = ReactDOM.findDOMNode(this.refs.openClassroomSubmission)
+        window.gapi.auth2.getAuthInstance().attachClickHandler(openClassroomSubmission , {},
+            openSubmissionCallback, function(){/* TODO - on sign in error*/})
     },
     closeSpinner() {
         this.setState({ showModal: false });
@@ -141,6 +148,19 @@ const UserActions = createReactClass({
             window.loadStudentDocsFromZip = loadStudentDocsFromZip;
             window.downloadClassAssignmentFiles(
                 assignment.assignment.studentWorkFolder.id, function(response) {});
+        }
+
+        var openStudentSubmission = function(submission, selectedClass, selectedAssignment) {
+            console.log("QWERQWEQWER");
+            console.log(submission);
+            var fileDownloadedCallback = function(name, content, driveFileId) {
+                openAssignment(content, name, false, driveFileId)
+                // turn on confirmation dialog upon navigation away
+                window.onbeforeunload = checkAllSaved;
+                window.location.hash = '';
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            }
+            window.downloadFile(submission, false, fileDownloadedCallback);
         }
 
         var recoverAutoSaveCallback = function(docName) {
@@ -202,8 +222,12 @@ const UserActions = createReactClass({
             }}>
             <GoogleClassroomSubmissionSelector
                 value={this.props.value}
+                selectSubmissionCallback={openStudentSubmission}
+                ref="studentSubmissionSelector"/>
+            <GoogleClassroomSubmissionSelector
+                value={this.props.value}
                 selectAssignmentCallback={openDriveAssignments}
-                ref="submissionSelector"/>
+                ref="teacherAssignmentSelector"/>
             <FreeMathModal
                 showModal={this.state.showModal}
                 content={(
@@ -295,6 +319,23 @@ const UserActions = createReactClass({
                         /><br />
                         Open Assignment &nbsp;&nbsp;&nbsp;
                         <br />
+
+                        <HtmlButton
+                            className="fm-button"
+                            title="Open assignment from Google Classroom"
+                            onClick={function() {} /* action assigned in didMount to hook into google auth */}
+                            ref="openClassroomSubmission"
+                            content={(
+                                    <div style={{display: "inline-block"}}>
+                                        <div style={{float: "left", paddingTop: "2px"}}>
+                                            Open Classroom Assignment&nbsp;
+                                        </div>
+                                         <img style={{paddingTop: "1px"}}
+                                                src="images/google_classroom_small.png"
+                                                alt="Google Classroom logo"
+                                                height="16px"/>
+                                    </div>
+                            )} /> <br />
                         <HtmlButton
                             className="fm-button"
                             ref="studentDriveOpen"
@@ -364,7 +405,7 @@ const UserActions = createReactClass({
                     Grade Assignments <br />
                     <HtmlButton
                         className="fm-button"
-                        title="Submit assignment to Google Classroom"
+                        title="Grade assignment from Google Classroom"
                         onClick={function() {} /* action assigned in didMount to hook into google auth */}
                         ref="gradeClassroomAssignment"
                         content={(
@@ -374,24 +415,24 @@ const UserActions = createReactClass({
                                     </div>
                                      <img style={{paddingTop: "1px"}}
                                             src="images/google_classroom_small.png"
-                                            alt="Google logo"
+                                            alt="Google Classroom logo"
                                             height="16px"/>
                                 </div>
                         )} /> <br />
-                        <HtmlButton
-                            className="fm-button"
-                            ref="teacherDriveOpen"
-                            title="Open zip file of student assignments from Google Drive"
-                            onClick={function(){} /* action assigned in didMount to hook into google auth */}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                            src="images/google_drive_small_logo.png"
-                                            alt="google logo" />
-                                    </div>
-                            )} />
-                        <br />
+                    <HtmlButton
+                        className="fm-button"
+                        ref="teacherDriveOpen"
+                        title="Open zip file of student assignments from Google Drive"
+                        onClick={function(){} /* action assigned in didMount to hook into google auth */}
+                        content={(
+                                <div style={{display: "inline-block"}}>
+                                    <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
+                                     <img style={{paddingTop: "2px"}}
+                                        src="images/google_drive_small_logo.png"
+                                        alt="google logo" />
+                                </div>
+                        )} />
+                    <br />
                     <input type="file" onChange={openAssignments}/>
                         <br />
                     <small> Select a zip file full of student work, these are generated

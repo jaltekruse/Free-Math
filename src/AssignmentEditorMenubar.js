@@ -138,16 +138,14 @@ export function readSingleFile(evt, discardDataWarning) {
 }
 
 
-function submitAssignment(submission, selectedClass, selectedAssignment, googleId) {
+function submitAssignment(submission, selectedClass, selectedAssignment, googleId, afterSuccessCallback) {
     window.modifyGoogeClassroomSubmission(
         selectedClass,
         selectedAssignment,
         submission.id, googleId,
         function(response) {
             console.log(response);
-            // clear the class list to stop showing the modal
-            window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                GOOGLE_CLASS_LIST : undefined});
+            afterSuccessCallback();
             alert('Successfully submitted to classroom.');
         },
         function(errorXhr) {
@@ -161,19 +159,26 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             } else {
                 alert('Save Failed.');
             }
-
-            // in the case of error also close the modal
-            // and make them select a different class/assignment
-            window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                GOOGLE_CLASS_LIST : undefined});
         }
     );
 }
 
 var GoogleClassroomSubmissionSelector = createReactClass({
+    getInitialState () {
+        return {
+            showModal: false
+        };
+    },
     componentDidMount: function() {
     },
+    close() {
+        this.setState({ showModal: false });
+    },
+    open() {
+        this.setState({ showModal: true });
+    },
     listClasses: function() {
+        this.open();
         window.listGoogeClassroomCourses(function(response) {
             if (response.courses.length == 1) {
                 var classList = response;
@@ -200,6 +205,10 @@ var GoogleClassroomSubmissionSelector = createReactClass({
         var rootState = this.props.value;
         var selectSubmissionCallback = this.props.selectSubmissionCallback;
         var selectAssignmentCallback = this.props.selectAssignmentCallback;
+        console.log("submission");
+        console.log(selectSubmissionCallback);
+        console.log("assignent");
+        console.log(selectAssignmentCallback);
 
         const courseList = function() {
             return (<div>
@@ -324,30 +333,44 @@ var GoogleClassroomSubmissionSelector = createReactClass({
         };
         return (
             <FreeMathModal
-                showModal={rootState[GOOGLE_CLASS_LIST]}
+                showModal={this.state.showModal}
                 content={(
                     <div style={{"align-items": "center"}}>
                         <CloseButton type="submit" text="&#10005;" title="Close"
                                      onClick={
                                         function() {
                                             // this closes the modal
-                                            window.store.dispatch(
-                                                { type : SET_GOOGLE_CLASS_LIST,
-                                                  GOOGLE_CLASS_LIST : undefined});
-                                        }
+                                            this.close();
+                                        }.bind(this)
                                      }
                         />
-                        { (rootState[GOOGLE_CLASS_LIST] === undefined ||
-                            rootState[GOOGLE_SELECTED_CLASS] !== undefined ||
-                            rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined) ? null :
-                            courseList()
-                        }
-                        {(rootState[GOOGLE_SELECTED_CLASS] === undefined ||
-                            rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined)? null :
-                            assignmentList()
-                        }
-                        {rootState[GOOGLE_SELECTED_ASSIGNMENT] === undefined ? null :
-                           courseWorkList()
+                        {
+                            function() {
+                                if (rootState[GOOGLE_CLASS_LIST] !== undefined) {
+                                    if (rootState[GOOGLE_SELECTED_CLASS] !== undefined) {
+                                        if (rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined) {
+                                            return courseWorkList()
+                                        } else {
+                                            return assignmentList()
+                                        }
+                                    } else {
+                                        return courseList()
+                                    }
+                                } else {
+                                    return (
+                                        <div style={{"align-items": "center"}}>
+                                            <img style={{
+                                                "display": "flex",
+                                                "marginLeft":"auto",
+                                                "marginRight": "auto"
+                                                 }}
+                                                 src="images/Ajax-loader.gif" /><br />
+                                            Downloading from google...
+                                        </div>
+                                    );
+                                }
+
+                            }()
                         }
                     </div>)}
                 />
@@ -431,7 +454,8 @@ var AssignmentEditorMenubar = createReactClass({
             submitAssignment(submission,
                             selectedClass,
                             selectedAssignment,
-                            googleId);
+                            googleId,
+                            function() {this.close();});
         }
         return (
             <div className="menuBar">
