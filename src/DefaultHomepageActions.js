@@ -26,6 +26,10 @@ var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
+var APP_MODE = 'APP_MODE';
+var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+
 export function render() {
     window.MathQuill = MathQuill.getInterface(1);
     ReactDOM.render(
@@ -55,16 +59,22 @@ const UserActions = createReactClass({
             this.openSpinner();
 
             window.location.hash = '';
+            window.history.replaceState("teacher", "Grade Assignments", "/?grading");
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             studentSubmissionsZip(evt);
         }.bind(this);
 
-        var recoverAutoSaveCallback = function(docName) {
+        var recoverAutoSaveCallback = function(docName, appMode) {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = function() {
                     return true;
             };
             window.location.hash = '';
+            if (appMode === EDIT_ASSIGNMENT) {
+                window.history.replaceState("student", "Edit Assignment", "/?student");
+            } else if (appMode === GRADE_ASSIGNMENTS) {
+                window.history.replaceState("teacher", "Grade Assignments", "/?grading");
+            }
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             var recovered = JSON.parse(window.localStorage.getItem(docName));
             window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
@@ -143,6 +153,7 @@ const UserActions = createReactClass({
                                         return true;
                                 };
                                 window.location.hash = '';
+                                window.history.replaceState("student", "Edit Assignment", "/?student");
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
                             }}
@@ -156,6 +167,7 @@ const UserActions = createReactClass({
                                         return true;
                                 };
                                 window.location.hash = '';
+                                window.history.replaceState("student", "Edit Assignment", "/?student");
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
@@ -170,7 +182,7 @@ const UserActions = createReactClass({
                                         <div key={docName}>
                                             <Button type="submit" text="Open"
                                                     onClick={function() {
-                                                        recoverAutoSaveCallback(docName)}
+                                                        recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
                                                     } />
                                             <Button type="submit" text="Delete"
                                                     onClick={function() {
@@ -205,7 +217,7 @@ const UserActions = createReactClass({
                             return (
                             <div key={docName}>
                                 <Button text="Open" onClick={
-                                    function() {recoverAutoSaveCallback(docName)}} />
+                                    function() {recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}} />
                                 <Button text="Delete" onClick={
                                     function() {deleteAutoSaveCallback(docName)}}
                                 />
@@ -312,6 +324,7 @@ const DefaultHomepageActions = createReactClass({
                     };
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    window.history.replaceState("demo", "Edit Assignment", "/?student_demo");
                     window.store.dispatch({type : "NEW_ASSIGNMENT"});
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
@@ -322,6 +335,7 @@ const DefaultHomepageActions = createReactClass({
                 onClick={function() {
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    window.history.replaceState("teacher", "Grade Assignments", "/?demo_grading");
                     window.store.dispatch(demoGradingAction);
                 }}
             >
