@@ -16,6 +16,7 @@ var PROBLEMS = 'PROBLEMS';
 var ADD_PROBLEM = 'ADD_PROBLEM';
 
 var BUTTON_GROUP = 'BUTTON_GROUP';
+var STEPS = 'STEPS';
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
@@ -45,7 +46,12 @@ var Assignment = createReactClass({
                 );
             }.bind(this))}
             </div>
-            <Button text="Add Problem" onClick={function() { window.store.dispatch({ type : ADD_PROBLEM}); }} />
+            <Button text="Add Problem" onClick={function() { 
+                var probs = this.props.value[PROBLEMS];
+                var lastProb = probs[probs.length - 1];
+                window.ga('send', 'event', 'Actions', 'edit', 
+                    'Add Problem - last problem steps = ', lastProb[STEPS].length);
+                window.store.dispatch({ type : ADD_PROBLEM}); }.bind(this)} />
             <br />
             <br />
             <br />

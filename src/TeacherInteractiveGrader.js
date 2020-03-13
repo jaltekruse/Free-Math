@@ -603,8 +603,12 @@ function areExpressionsSimilar(expression1, expression2) {
 // SIMILAR_ASSIGNMENT_SETS : [ [ "jason", "emma", "matt"], ["jim", "tim"] ],
 // PROBLEMS : { "1.a" : {
 //      "POSSIBLE_POINTS : 3,
-//      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
-//                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
+//      "UNIQUE_ANSWERS" : [ 
+//              { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE",
+//                STUDENT_WORK : [ 
+//                      { STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
+//                             STEPS : [ { CONTENT : "2x=14"},
+//                                       { CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
 function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparator = areExpressionsSimilar) {
     var aggregatedWork = {};
     // used to simplify filling in a flag for missing work if a student does not do a problem
