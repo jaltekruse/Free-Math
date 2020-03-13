@@ -61,7 +61,7 @@ const UserActions = createReactClass({
             window.location.hash = '';
             window.history.replaceState("teacher", "Grade Assignments", "/?grading");
             document.body.scrollTop = document.documentElement.scrollTop = 0;
-            studentSubmissionsZip(evt);
+            studentSubmissionsZip(evt, function() {this.closeSpinner()}.bind(this));
         }.bind(this);
 
         var recoverAutoSaveCallback = function(docName, appMode) {
