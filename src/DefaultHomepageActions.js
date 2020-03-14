@@ -389,9 +389,8 @@ const DefaultHomepageActions = createReactClass({
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
                 </div>
-                <div style={{"width" : "100%", "margin":"100px 0px 100px 0px",
+                <div style={{"width" : "100%", "margin":"100px 0px 20px 0px",
                              "padding":"50px 0px 50px 0px",
-                             "marginBottom": "100px",
                              "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
                              }}>
 		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
@@ -424,13 +423,39 @@ const DefaultHomepageActions = createReactClass({
                                        }.bind(this)}/>
                                 <input style={{margin:"10px", fontSize: "20px", height:"30px"}} type="submit"
                                        value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
-                                       className="fm-button-light"/>
+                                       className="fm-button-light" onClick={function() {
+                                            window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
+                                }} />
                             </h3>
 	            </div>
 	            </div>
 		    </form>
 		    </div>
 		</div>
+                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
+                    <h2>Spread the Word</h2>
+                    <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
+                    <br />
+                    <div>
+                        <a href="https://www.facebook.com/sharer/sharer.php?kid_directed_site=1&u=https%3A%2F%2Ffreemathapp.org%2F&display=popup&ref=plugin&src=share_button" target="_blank" rel="noopener noreferrer" onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'facebook');
+                        }}>
+                            <img alt="facebook" src="images/facebook.png" style={{"height": "50px"}}></img></a>&nbsp;
+                        <a href="https://twitter.com/intent/tweet?text=Free%20Math%20%20-%20bringing%20simple%20freeform%20digital%20math%20assignments%20to%20the%20world%27s%20classrooms.&tw_p=tweetbutton&url=https://freemathapp.org&via=freemathapp" target="_blank" rel="noopener noreferrer" onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'twitter');
+                        }}>
+                            <img alt="twitter" src="images/twitter.png" style={{"height": "50px"}}></img></a>&nbsp;
+                        <a href="https://www.reddit.com/r/freemath" target="_blank" rel="noopener noreferrer" 
+                           onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'reddit');
+                        }}>
+                            <img alt="reddit" src="images/snoo.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                        <a href="https://www.pinterest.com/pin/create/button/?url=https://freemathapp.org&media=https://freemathapp.org/images/grading_screenshot.png" target="_blank" rel="noopener noreferrer"  onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'pinterest');
+                        }}>
+                            <img alt="pinterest" src="images/pinterest.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                    </div>
+                </div>
                 <div className="homepage-center"
                      style={{width:"70%", height: "0",
                              position:"relative", padding:"0px 0px 39.375% 0px"}}>
@@ -461,6 +486,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
                 <div style={{"align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>
+                <br />
                 <br />
                 <div style={{float:"none", display:"inline-block"}}>
                     <div className="homepage-center-mobile homepage-left">
