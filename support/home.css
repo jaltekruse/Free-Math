@@ -75,7 +75,7 @@ h1 small {
 }
 
 .homepage-headline {
-    max-width: 850px;
+    max-width: 875px;
     padding: 100px 2vw 100px 2vw;
     /* this is necesary to prevent the padding from adding to thw width */
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
