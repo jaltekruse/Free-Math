@@ -389,6 +389,48 @@ const DefaultHomepageActions = createReactClass({
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
                 </div>
+                <div style={{"width" : "100%", "margin":"100px 0px 100px 0px",
+                             "padding":"50px 0px 50px 0px",
+                             "marginBottom": "100px",
+                             "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
+                             }}>
+		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
+			<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"
+                              method="post" id="mc-embedded-subscribe-form"
+                              name="mc-embedded-subscribe-form" className="validate"
+                              target="_blank" style={{paddingLeft:"0px"}} noValidate>
+                        <div id="mc_embed_signup_scroll">
+                        <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
+                            <input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea"
+                                   tabIndex="-1" value=""/>
+                        </div>
+
+                        <div style={{overflow: "hidden"}}>
+                            <label htmlFor="mce-EMAIL">
+                                <h2 style={{"display":"inline", color: "#eee"}}>
+                                    Subscribe for Updates <br />
+                                </h2>
+                            </label>
+                            <h3>
+                                <p style={{color: "#eee", fontSize: "25px"}}>
+                                    Join our e-mail list to find out first about new features and updates to the site.
+                                </p>
+                                <input type="email" name="EMAIL" className="email" size="25" 
+                                       id="mce-EMAIL" placeholder="  email address"
+                                       style={{"border": "0px", fontSize: "25px"}}
+                                       value={this.state.emailString}
+                                       onChange={function(evt) {
+                                                this.setState({emailString : evt.target.value});
+                                       }.bind(this)}/>
+                                <input style={{margin:"10px", fontSize: "20px", height:"30px"}} type="submit"
+                                       value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
+                                       className="fm-button-light"/>
+                            </h3>
+	            </div>
+	            </div>
+		    </form>
+		    </div>
+		</div>
                 <div className="homepage-center"
                      style={{width:"70%", height: "0",
                              position:"relative", padding:"0px 0px 39.375% 0px"}}>
@@ -412,46 +454,6 @@ const DefaultHomepageActions = createReactClass({
                          alt="moodle logo"
                          src="images/blackboard.png"/>
                 </div> 
-                <div style={{"width" : "100%", "margin":"100px 0px 100px 0px",
-                             "padding":"50px 0px 50px 0px",
-                             "marginBottom": "100px",
-                             "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
-                             }}>
-		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
-			<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"
-                              method="post" id="mc-embedded-subscribe-form"
-                              name="mc-embedded-subscribe-form" className="validate"
-                              target="_blank" style={{paddingLeft:"0px"}} noValidate>
-                        <div id="mc_embed_signup_scroll">
-                        <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
-                            <input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea"
-                                   tabIndex="-1" value=""/>
-                        </div>
-
-                        <div style={{overflow: "hidden"}}>
-                            <label htmlFor="mce-EMAIL">
-                                <h2 style={{"display":"inline", color: "#eee"}}>
-                                    Subscribe for Updates <br />
-                                </h2>
-                            </label>
-                            <p style={{color: "#eee"}}>
-                                Join our e-mail list to find out first about new features and updates to the site.
-                            </p>
-                            <input type="email" name="EMAIL" className="email" size="25" 
-                                   id="mce-EMAIL" placeholder="  email address"
-                                   style={{"border": "0px"}}
-                                   value={this.state.emailString}
-                                   onChange={function(evt) {
-                                            this.setState({emailString : evt.target.value});
-                                   }.bind(this)}/>
-                        <input style={{margin:"10px"}} type="submit"
-                           value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
-                           className="fm-button-light"/>
-	            </div>
-	            </div>
-		    </form>
-		    </div>
-		</div>
                 <div className="homepage-center-mobile homepage-only-on-mobile">
                     <h2> Windows Computers, Chromebooks and Macs Currently Supported </h2>
                         <p> It looks like you are on a mobile device, please save the link and visit on
