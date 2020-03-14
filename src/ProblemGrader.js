@@ -96,6 +96,7 @@ var ProblemGrader = createReactClass({
                                 if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
                                     alert("Possible points must be a number");
                                 } else {
+                                    window.ga('send', 'event', 'Actions', 'edit', 'Edit possible points');
                                     window.store.dispatch(
                                         { type : SET_PROBLEM_POSSIBLE_POINTS,
                                           PROBLEM_NUMBER : problemNumber});

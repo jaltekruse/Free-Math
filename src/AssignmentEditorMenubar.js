@@ -20,6 +20,7 @@ var UNDO_STACK = 'UNDO_STACK';
 var REDO_STACK = 'REDO_STACK';
 
 function saveAssignment() {
+    window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
     var atLeastOneProblemNumberNotSet = false;
     window.store.getState()[PROBLEMS].forEach(function(problem, index, array) {
         if (problem[PROBLEM_NUMBER].trim() === "") {
@@ -27,6 +28,7 @@ function saveAssignment() {
         }
     });
     if (atLeastOneProblemNumberNotSet) {
+        window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
         if (! window.confirm("At least one problem is missing a problem number. "
                             + "These are needed for your teacher to grade your "
                             + "assignment effectively. It is reccomended you "
@@ -100,6 +102,7 @@ export function readSingleFile(evt, discardDataWarning) {
                     openAssignment(contents, f.name, discardDataWarning);
                 } catch (e) {
                     console.log(e);
+                    window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
                     alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
                 }
         }

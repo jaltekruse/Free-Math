@@ -36,6 +36,7 @@ const GradingMenuBar = createReactClass({
                         />&nbsp;&nbsp;
                         <LightButton text="Save Graded" onClick={
                             function() {
+                                window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -43,6 +44,7 @@ const GradingMenuBar = createReactClass({
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.ga('send', 'event', 'Actions', 'edit', 'Open similar doc check');
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -50,6 +52,7 @@ const GradingMenuBar = createReactClass({
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.ga('send', 'event', 'Actions', 'edit', 'View Grades');
                                 window.store.dispatch({type : SET_TO_VIEW_GRADES});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

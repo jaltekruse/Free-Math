@@ -564,6 +564,7 @@ function areExpressionsSimilar(expression1, expression2) {
             // if parsing or comparison fails, do nothing, assume they are not similar
             // "matches" is already set to false above
             console.log("failed to compare 2 expressions");
+            window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
             console.log(expression1);
             console.log(expression2);
             console.log(e);
@@ -853,7 +854,11 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
         }
         if (failureCount > 0) {
             alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+            window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
+            window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
         }
+
+        window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
         // TODO - add back answer key
         var aggregatedWork = aggregateStudentWork(allStudentWork);
         console.log("@@@@@@ opened docs");
@@ -866,6 +871,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
     } catch (e) {
         // TODO - try to open a single student doc
         alert("Error opening file, you should be opening a zip file full of Free Math documents.");
+        window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
         onFailure();
         return;
     }
@@ -885,6 +891,7 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
         }
         r.readAsArrayBuffer(f);
     } else {
+        window.ga('send', 'exception', { 'exDescription' : 'error opening docs to grade' } );
         alert("Failed to load file");
         onFailure();
     }
@@ -1093,6 +1100,8 @@ const TeacherInteractiveGrader = createReactClass({
                 problemNum = labels[activePoints[0]["_index"]];
             }
             problemNum = problemNum.replace("Problem ", "");
+            window.ga('send', 'event', 'Actions', 'edit', 
+                'Change problem being graded');
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
             // TODO - not working correctly after making users grade single problem at a time

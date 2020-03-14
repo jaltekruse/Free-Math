@@ -128,29 +128,38 @@ var Problem = createReactClass({
                                      window.store.dispatch({ type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
                     </div>
                     <div style={{float:'left', height: "100%", marginRight:"10px"}}>
-                        <small>Problem Number</small><br /><input type="text" size="3" value={probNumber} className="problem-number" onChange={
-                        function(evt) { window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
-                                        NEW_PROBLEM_NUMBER : evt.target.value}) }}/> <br />
-                        <Button text="Next Step (Enter)" onClick={
+                        <div style={{marginLeft:"10px"}}>
+                            <small>Problem Number</small><br />
+                            <input type="text" size="3"
+                                   value={probNumber} className="problem-number"
+                                   onChange={
+                                        function(evt) {
+                                            window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
+                                                    NEW_PROBLEM_NUMBER : evt.target.value}) }}
+                            /> <br />
+                        </div>
+                        <Button text="Next Step (Enter)" style={{width: "125px"}} onClick={
                             function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <Button text="New Blank Step" onClick={
+                        <Button text="New Blank Step" style={{width: "125px"}} onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
                             }}/> <br/>
-                        <Button text="Undo" onClick={
+                        <Button text="Undo" style={{width: "55px"}} onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : UNDO, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <Button text="Redo" onClick={
+                        <Button text="Redo" style={{width: "55px"}} onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
                             }}/> <br />
-                        <Button type="submit" text="Clone Problem"
-                                        title="Make a copy of this work, useful if you need to reference it while trying another solution path." onClick={
-                        function() { window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
+                        <Button type="submit" style={{width: "125px"}} text="Clone Problem"
+                                title="Make a copy of this work, useful if you need to reference it while trying another solution path."
+                                onClick={function() { 
+                                    window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
+                        />
                     </div>
                         <div style={{float:'left', maxWidth:"85%"}} className="equation-list">
                         Type math here<br />

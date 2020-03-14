@@ -157,8 +157,7 @@ const SolutionGrader = createReactClass({
 
         var globalState = window.store.getState();
         var groupSize = globalState[PROBLEMS][problemNumber][UNIQUE_ANSWERS][solutionClassIndex][STUDENT_WORK].length;
-        window.ga('send', 'event', 'Actions', 'edit', 
-            'Apply Score to All', groupSize);
+        window.ga('send', 'event', 'Actions', 'edit', 'Apply Score to All', groupSize);
         // TODO - check if any unique grades have been applied to student solutions other than this one in
         // this solution class
         // if not, just send the action through, otherwise prompt a warning about losing grades
