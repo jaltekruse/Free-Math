@@ -439,8 +439,8 @@ const DefaultHomepageActions = createReactClass({
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         gesture="media"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div className="homepage-wrapper homepage-center">
-                    <h2>Integrates with Your Favorite LMS<br /><br /></h2>
+                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
+                    <h2>Integrates with Your Favorite LMS<br /></h2>
                     <img style={{margin : "20px"}}
                          alt="google classroom logo"
                          src="images/google_classroom.png"/>
