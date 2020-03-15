@@ -40,7 +40,8 @@ export function render() {
 
 const UserActions = createReactClass({
     getInitialState () {
-        return { showModal: false };
+        return { showModal: false,
+                 showActionsMobile: false};
     },
 
     closeSpinner() {
@@ -267,14 +268,13 @@ const DefaultHomepageActions = createReactClass({
         var halfScreenStyle= {
             width:"44%",
             height: "auto",
-            float: "left",
             borderRadius:"3px",
-            margin:"1% 1% 10% 3%",
-            padding:"2%",
+            margin:"5px 5px 40px 5px",
+            padding:"10px"
         }
         var demoButtonStyle = {
             ...halfScreenStyle,
-            width:"350px",
+            width:"175px",
             borderRadius:"60px",
             "text-align": "center",
         };
@@ -335,9 +335,8 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Student Demo</h3>
             </button>
-            <br />
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     window.location.hash = '';
@@ -357,11 +356,25 @@ const DefaultHomepageActions = createReactClass({
                     zoomOutMobile();
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 
+                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Teacher Demo</h3> 
             </button>
             </div>
+            <div className="homepage-only-on-mobile">
+                <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+                    onClick={function() {
+                        this.setState({"showActionsMobile": true}); 
+                    }.bind(this)}
+                >
+                    <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>More Actions</h3> 
+                </button>
             </div>
-            <UserActions />
+            </div>
+            <div className="homepage-only-on-mobile" >
+                {this.state.showActionsMobile ? <UserActions /> : null }
+            </div>
+            <div className="homepage-disappear-mobile">
+                <UserActions />
+            </div>
             </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />
