@@ -46,6 +46,10 @@ var Assignment = createReactClass({
                 );
             }.bind(this))}
             </div>
+            <div className="homepage-only-on-mobile answer-incorrect" style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
+                Note: Limited demo experience available on mobile, visit on your computer for the full experience.
+            </div>
+            <br />
             <Button text="Add Problem" onClick={function() { 
                 var probs = this.props.value[PROBLEMS];
                 var lastProb = probs[probs.length - 1];

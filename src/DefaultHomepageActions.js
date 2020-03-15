@@ -110,14 +110,15 @@ const UserActions = createReactClass({
             }
         }
         var halfScreenStyle= {
-            width:"42%",
+            width:"44%",
             height: "auto",
+            float: "left",
             borderRadius:"3px",
             margin:"5px 5px 5px 5px",
             padding:"20px",
         }
         var divStyle = {
-                ...halfScreenStyle,
+            ...halfScreenStyle,
             border:"1px solid #cfcfcf",
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
@@ -145,7 +146,7 @@ const UserActions = createReactClass({
                     </div>)}
             />
             <div style={{display:"inline-block", width:"100%"}}>
-            <div className="homepage-center">
+            <div className="homepage-center-mobile">
                 <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
                         New Assignment &nbsp;&nbsp;&nbsp;
@@ -204,7 +205,6 @@ const UserActions = createReactClass({
                                 browser, save to your device as soon as 
                                 possible</p>) : null}
                 </div>
-                <br />
                 <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                     Grade Assignments <input type="file" onChange={openAssignments}/>
@@ -268,8 +268,9 @@ const DefaultHomepageActions = createReactClass({
         var halfScreenStyle= {
             width:"44%",
             height: "auto",
+            float: "left",
             borderRadius:"3px",
-            margin:"5px 5px 40px 5px",
+            margin:"5px 5px 10px 5px",
             padding:"10px"
         }
         var demoButtonStyle = {
@@ -344,21 +345,12 @@ const DefaultHomepageActions = createReactClass({
                     window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
                     window.history.replaceState("teacher", "Grade Assignments", "/?demo_grading");
                     window.store.dispatch(demoGradingAction);
-                    function zoomOutMobile() {
-                      var viewport = document.querySelector('meta[name="viewport"]');
-
-                      if ( viewport ) {
-                        //viewport.content = "initial-scale=0.1";
-                        //viewport.content = "width=1200";
-                      }
-                    }
-
-                    zoomOutMobile();
                 }}
             >
                 <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Teacher Demo</h3> 
             </button>
             </div>
+            {/*
             <div className="homepage-only-on-mobile">
                 <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                     onClick={function() {
@@ -368,6 +360,7 @@ const DefaultHomepageActions = createReactClass({
                     <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>More Actions</h3> 
                 </button>
             </div>
+            */}
             </div>
             <div className="homepage-only-on-mobile" >
                 {this.state.showActionsMobile ? <UserActions /> : null }
@@ -506,7 +499,7 @@ const DefaultHomepageActions = createReactClass({
                 <div className="homepage-center-mobile homepage-only-on-mobile">
                     <h2> Windows Computers, Chromebooks and Macs Currently Supported </h2>
                         <p> It looks like you are on a mobile device, please save the link and visit on
-                            one of your larger devices to try out the demo. </p>
+                            one of your larger devices for the full exprience. </p>
                 </div>
                 <div style={{"align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>
