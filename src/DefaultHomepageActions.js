@@ -111,7 +111,6 @@ const UserActions = createReactClass({
         var halfScreenStyle= {
             width:"42%",
             height: "auto",
-            float: "left",
             borderRadius:"3px",
             margin:"5px 5px 5px 5px",
             padding:"20px",
@@ -145,8 +144,8 @@ const UserActions = createReactClass({
                     </div>)}
             />
             <div style={{display:"inline-block", width:"100%"}}>
-            <div>
-                <div style={divStyle}>
+            <div className="homepage-center">
+                <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
                         New Assignment &nbsp;&nbsp;&nbsp;
                         <Button type="submit" text="Create" onClick={
@@ -204,7 +203,8 @@ const UserActions = createReactClass({
                                 browser, save to your device as soon as 
                                 possible</p>) : null}
                 </div>
-                <div style={{...divStyle, "float": "right"}}>
+                <br />
+                <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                     Grade Assignments <input type="file" onChange={openAssignments}/>
                         <br />
@@ -269,8 +269,8 @@ const DefaultHomepageActions = createReactClass({
             height: "auto",
             float: "left",
             borderRadius:"3px",
-            margin:"5px 5px 40px 5px",
-            padding:"10px",
+            margin:"1% 1% 10% 3%",
+            padding:"2%",
         }
         var demoButtonStyle = {
             ...halfScreenStyle,
@@ -318,7 +318,7 @@ const DefaultHomepageActions = createReactClass({
                 <h1 className="homepage-center homepage-headline">
                     Give your students feedback, meaningfully and efficiently.
                 </h1>
-            <div className="homepage-disappear-mobile">
+            <div>
             <div className="homepage-center">
             <div style={{"padding":"0px 0px 30px 0px"}}>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
@@ -337,6 +337,7 @@ const DefaultHomepageActions = createReactClass({
             >
                 <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
             </button>
+            <br />
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     window.location.hash = '';
@@ -344,6 +345,16 @@ const DefaultHomepageActions = createReactClass({
                     window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
                     window.history.replaceState("teacher", "Grade Assignments", "/?demo_grading");
                     window.store.dispatch(demoGradingAction);
+                    function zoomOutMobile() {
+                      var viewport = document.querySelector('meta[name="viewport"]');
+
+                      if ( viewport ) {
+                        //viewport.content = "initial-scale=0.1";
+                        //viewport.content = "width=1200";
+                      }
+                    }
+
+                    zoomOutMobile();
                 }}
             >
                 <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 

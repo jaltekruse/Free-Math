@@ -870,6 +870,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
     } catch (e) {
         // TODO - try to open a single student doc
+        console.log(e);
         alert("Error opening file, you should be opening a zip file full of Free Math documents.");
         window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
         onFailure();
