@@ -1060,17 +1060,17 @@ const TeacherInteractiveGrader = createReactClass({
         var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
         var labels = [];
         var numberUniqueAnswersData = {
-            label: "Number unique answers",
+            label: "Unique Answers",
             backgroundColor: "blue",
             data: []
         };
         var largestAnswerGroups = {
-            label: "Largest answer group size",
+            label: "Largest Group",
             backgroundColor: "green",
             data: []
         };
         var averageAnswerGroups = {
-            label: "Average answer group size",
+            label: "Average Group",
             backgroundColor: "purple",
             data: []
         };
@@ -1110,6 +1110,7 @@ const TeacherInteractiveGrader = createReactClass({
             //window.location.hash = "#grade_problem";
         };
         Chart.defaults.global.defaultFontColor = '#010101';
+        Chart.defaults.global.defaultFontSize = 16;
         chart = new Chart(chart.getContext('2d'), {
             type: 'bar',
             data: {
@@ -1124,7 +1125,7 @@ const TeacherInteractiveGrader = createReactClass({
                         }
                     }]
                 },
-                onClick: onClickFunc
+                onClick: onClickFunc,
             }
         });
       },
@@ -1139,7 +1140,7 @@ const TeacherInteractiveGrader = createReactClass({
                 <br />
                 <h3>To see student responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
-                <canvas ref="chart" width="400" height="50"></canvas>
+                <canvas ref="chart" width="400" height="70"></canvas>
                 <div className="homepage-only-on-mobile answer-incorrect" >
                     Note: Limited demo experience available on mobile, visit on your computer for the full experience.
                 </div>
