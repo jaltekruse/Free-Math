@@ -322,7 +322,7 @@ const DefaultHomepageActions = createReactClass({
             <div>
             <div className="homepage-center">
             <div style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+            <button className="fm-button homepage-disappear-mobile" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
