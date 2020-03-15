@@ -111,6 +111,13 @@ h1 small {
         padding: 100px 0px 0px 0px;
         display: inline-block;
     }
+
+    .gradingPage {
+       transform: scale(0.5);
+       transform-origin: 0 0;
+       width:200%;
+      display: inline-block;
+    }
 }
 
 @media (min-width: 851px) {
