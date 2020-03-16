@@ -81,20 +81,11 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var SOFT_RED = '#FFDEDE';
 var GREEN = '#2cff72';
 
-var Problem = createReactClass({
-
-    handleStepChange: function(event) {
-      this.setState({value: event.target.value});
-    },
+var ScoreBox = createReactClass({
     render: function() {
-        var probNumber = this.props.value[PROBLEM_NUMBER];
-        var probList = this.props.probList;
-        var problemIndex = this.props.id;
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
-        var showTutorial = this.props.value[SHOW_TUTORIAL];
-        var buttonGroup = this.props.buttonGroup;
         if (score === '') {
             scoreClass = 'show-complete-div';
         } else if (score === possiblePoints) {
@@ -112,9 +103,33 @@ var Problem = createReactClass({
             scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
         return (
             <div>
+                {  
+                    score !== undefined
+                        ? (<div className={scoreClass}><b>{scoreMessage}</b></div>)
+                        : null
+                }
+            </div>
+        );
+    }
+});
+
+var Problem = createReactClass({
+
+    handleStepChange: function(event) {
+      this.setState({value: event.target.value});
+    },
+    render: function() {
+        var probNumber = this.props.value[PROBLEM_NUMBER];
+        var probList = this.props.probList;
+        var problemIndex = this.props.id;
+        var showTutorial = this.props.value[SHOW_TUTORIAL];
+        var buttonGroup = this.props.buttonGroup;
+        var score = this.props.value[SCORE];
+        return (
+            <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
-                <div style={{width:"200", height:"100%",float:"left"}}>
-                    {   score !== undefined ? (<div className={scoreClass}><b>{scoreMessage}</b></div>)
+                <div style={{width:"200", height:"100%",float:"left"}}> 
+                    {   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                            : null
                     }
                     {   this.props.value[FEEDBACK] !== undefined
@@ -608,4 +623,4 @@ function problemListReducer(probList, action) {
     }
 }
 
-export { Problem as default, problemReducer, problemListReducer };
+export { Problem as default, ScoreBox, problemReducer, problemListReducer };

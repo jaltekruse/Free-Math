@@ -34,6 +34,7 @@ var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var PROBLEMS = 'PROBLEMS';
+var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 
 var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
 var SIMILAR_ASSIGNMENT_SETS = "SIMILAR_ASSIGNMENT_SETS";
@@ -759,7 +760,9 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
-    return convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+    var ret = convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+    ret[CURRENT_PROBLEM] = 0;
+    return ret;
 }
 
 function convertToCurrentFormatFromAlpha(possiblyOldDoc) {

@@ -3,6 +3,7 @@ import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import './App.css';
 import Problem from './Problem.js';
+import { ScoreBox } from './Problem.js';
 import { problemListReducer } from './Problem.js';
 import Button from './Button.js';
 
@@ -75,10 +76,13 @@ var Assignment = createReactClass({
                     label = "[Need to Set a Problem Number]";
                 }
                 return (
+                    <div style={{display: "inline-block"}}>
+                    <ScoreBox value={problem} />
                     <Button text={label} key={problemIndex} id={problemIndex} onClick={
                         function() {
                             window.store.dispatch(
                                 {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
+                    </div>
                 );
             }.bind(this))}
             <Button text="Add Problem" style={{backgroundColor: "#008000"}} onClick={function() { 

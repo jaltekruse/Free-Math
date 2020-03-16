@@ -152,6 +152,7 @@ function rootReducer(state, action) {
         return {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
+            CURRENT_PROBLEM : 0,
             "DOC_ID" : genID() ,
             BUTTON_GROUP : 'BASIC'
         };
