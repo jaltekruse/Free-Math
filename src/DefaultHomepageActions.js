@@ -275,7 +275,7 @@ const DefaultHomepageActions = createReactClass({
         }
         var demoButtonStyle = {
             ...halfScreenStyle,
-            width:"175px",
+            width:"350px",
             borderRadius:"60px",
             "text-align": "center",
         };
@@ -336,7 +336,7 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Student Demo</h3>
+                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
@@ -347,7 +347,7 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Teacher Demo</h3> 
+                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 
             </button>
             </div>
             {/*
