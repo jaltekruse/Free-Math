@@ -17,14 +17,35 @@ var ADD_PROBLEM = 'ADD_PROBLEM';
 
 var BUTTON_GROUP = 'BUTTON_GROUP';
 var STEPS = 'STEPS';
+var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
+var PROBLEM_INDEX  = 'PROBLEM_INDEX';
+var SET_CURRENT_PROBLEM = 'SET_CURRENT_PROBLEM';
+var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
+var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
     if (state === undefined) {
         return {
             ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+            CURRENT_PROBLEM: 0,
             PROBLEMS : problemListReducer(undefined, action)
         };
+    } else if (action.type === SET_CURRENT_PROBLEM) {
+        return { ...state,
+                 CURRENT_PROBLEM: action[PROBLEM_INDEX]
+        };
+    } else if (action.type === REMOVE_PROBLEM) {
+        return { ...state,
+                 PROBLEMS : problemListReducer(state[PROBLEMS], action),
+                 CURRENT_PROBLEM: Math.max(0, state[CURRENT_PROBLEM] - 1)
+        };
+    } else if (action.type === ADD_PROBLEM) {
+        return { ...state,
+                 PROBLEMS : problemListReducer(state[PROBLEMS], action),
+                 CURRENT_PROBLEM: state[PROBLEMS].length
+        };
+
     } else {
         return { ...state,
                  PROBLEMS : problemListReducer(state[PROBLEMS], action)
@@ -34,30 +55,45 @@ function assignmentReducer(state, action) {
 
 var Assignment = createReactClass({
     render: function() {
-
+        var addProblem = function() {
+            var probs = this.props.value[PROBLEMS];
+            var lastProb = probs[probs.length - 1];
+            window.ga('send', 'event', 'Actions', 'edit', 
+                'Add Problem - last problem steps = ', lastProb[STEPS].length);
+            window.store.dispatch({ type : ADD_PROBLEM});
+        }.bind(this);
         return (
         <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 30px 30px"}}>
             <div>
+            Problem List&nbsp;&nbsp;
             {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
+                var probNum = problem[PROBLEM_NUMBER];
+                var label;
+                if (probNum.trim() !== '') {
+                    label = "Problem " + probNum;
+                } else {
+                    label = "[Need to Set a Problem Number]";
+                }
                 return (
-                  <Problem value={problem} key={problemIndex}
-                    id={problemIndex} buttonGroup={this.props.value[BUTTON_GROUP]}
-                    />
+                    <Button text={label} key={problemIndex} id={problemIndex} onClick={
+                        function() {
+                            window.store.dispatch(
+                                {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
                 );
             }.bind(this))}
+            <Button text="Add Problem" style={{backgroundColor: "#008000"}} onClick={function() { 
+                addProblem();
+            }}/>
+
+            <Problem value={this.props.value[PROBLEMS][this.props.value[CURRENT_PROBLEM]]}
+                     id={this.props.value[CURRENT_PROBLEM]}
+                     buttonGroup={this.props.value[BUTTON_GROUP]}
+                     probList={this.props.value[PROBLEMS]}
+            />
             </div>
             <div className="answer-incorrect homepage-only-on-mobile" style={{"float":"left", padding:"10px", margin: "10px"}}>
                 Note: Limited demo experience available on mobile, visit on your computer for the full experience.
             </div>
-            <br />
-            <Button text="Add Problem" onClick={function() { 
-                var probs = this.props.value[PROBLEMS];
-                var lastProb = probs[probs.length - 1];
-                window.ga('send', 'event', 'Actions', 'edit', 
-                    'Add Problem - last problem steps = ', lastProb[STEPS].length);
-                window.store.dispatch({ type : ADD_PROBLEM}); }.bind(this)} />
-            <br />
-            <br />
             <br />
             {/* Replaced by better onscreen math keyboard with shortcuts in
                 the title text of the buttons

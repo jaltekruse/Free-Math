@@ -8,7 +8,7 @@ import Button from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
-import { studentSubmissionsZip } from './TeacherInteractiveGrader.js';
+import { studentSubmissionsZip, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 
 var MathQuill = window.MathQuill;
@@ -72,15 +72,17 @@ const UserActions = createReactClass({
                     return true;
             };
             window.location.hash = '';
+            var recovered = JSON.parse(window.localStorage.getItem(docName));
             if (appMode === EDIT_ASSIGNMENT) {
+                recovered = convertToCurrentFormat(recovered);
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
                 window.history.replaceState("student", "Edit Assignment", "/?student");
             } else if (appMode === GRADE_ASSIGNMENTS) {
+                // TODO - NEED a convert to current format here!!
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');
                 window.history.replaceState("teacher", "Grade Assignments", "/?grading");
             }
             document.body.scrollTop = document.documentElement.scrollTop = 0;
-            var recovered = JSON.parse(window.localStorage.getItem(docName));
             window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
         };
         var deleteAutoSaveCallback = function(docName) {

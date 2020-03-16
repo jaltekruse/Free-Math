@@ -26,6 +26,8 @@ var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
 var CLONE_PROBLEM = 'CLONE_PROBLEM';
 
+var PROBLEM_INDEX  = 'PROBLEM_INDEX';
+
 // this action expects:
 // PROBLEM_INDEX - for which problem to change
 // NEW_PROBLEM_NUMBER - string with problem number, not a numberic
@@ -86,6 +88,7 @@ var Problem = createReactClass({
     },
     render: function() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
+        var probList = this.props.probList;
         var problemIndex = this.props.id;
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
@@ -124,8 +127,15 @@ var Problem = createReactClass({
                 <div>
                     <div>
                         <CloseButton type="submit" text="&#10005;" title="Delete problem" onClick={
-                        function() { if (!window.confirm("Delete problem?")) { return; }
-                                     window.store.dispatch({ type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
+                        function() {
+                            if (probList.length === 1) {
+                                alert("Cannot delete the only problem in a document.");
+                                return;
+                            }
+                            if (!window.confirm("Delete problem?")) { return; }
+                            window.store.dispatch(
+                                { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
+                        }}/>
                     </div>
                     <div style={{float:'left', height: "100%", marginRight:"10px"}}>
                         <div style={{marginLeft:"10px"}}>
@@ -240,7 +250,7 @@ var Problem = createReactClass({
             {showTutorial ?
                 (<div><div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-                    <span>Add another problem to your document. Copy a problem
+                    <span>Scroll to the top of the page and another problem to your document. Copy a problem
                           out of your assignment on the first line, and solve it as you did above.</span>
                 </div>
                 <div className="answer-partially-correct"
@@ -550,7 +560,7 @@ function problemListReducer(probList, action) {
     if (action.type === ADD_DEMO_PROBLEM) {
         if (probList.length === 1 && probList[0][STEPS][0][CONTENT] === "") {
 
-            return [{ PROBLEM_NUMBER : "",
+            return [{ PROBLEM_NUMBER : "1",
                  STEPS : [{
                      STEP_ID : genID(), CONTENT : "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}"}],
                  UNDO_STACK : [], REDO_STACK : [],
@@ -565,19 +575,20 @@ function problemListReducer(probList, action) {
             problemReducer(undefined, action)
         ];
     } else if (action.type === REMOVE_PROBLEM) {
+        if (probList.length == 1) return probList;
         return [
-            ...probList.slice(0, action.PROBLEM_INDEX),
-            ...probList.slice(action.PROBLEM_INDEX + 1)
+            ...probList.slice(0, action[PROBLEM_INDEX]),
+            ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else if (action.type === CLONE_PROBLEM) {
         var newProb = {
-            ...probList[action.PROBLEM_INDEX],
-            PROBLEM_NUMBER : probList[action.PROBLEM_INDEX][PROBLEM_NUMBER] + ' - copy'
+            ...probList[action[PROBLEM_INDEX]],
+            PROBLEM_NUMBER : probList[action[PROBLEM_INDEX]][PROBLEM_NUMBER] + ' - copy'
         };
         return [
-            ...probList.slice(0, action.PROBLEM_INDEX + 1),
+            ...probList.slice(0, action[PROBLEM_INDEX] + 1),
             newProb,
-            ...probList.slice(action.PROBLEM_INDEX + 1)
+            ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else if (action.type === SET_PROBLEM_NUMBER ||
                action.type === EDIT_STEP ||
@@ -588,9 +599,9 @@ function problemListReducer(probList, action) {
                action.type === INSERT_STEP_ABOVE ||
                action.type === NEW_STEP) {
         return [
-            ...probList.slice(0, action.PROBLEM_INDEX),
-            problemReducer(probList[action.PROBLEM_INDEX], action),
-            ...probList.slice(action.PROBLEM_INDEX + 1)
+            ...probList.slice(0, action[PROBLEM_INDEX]),
+            problemReducer(probList[action[PROBLEM_INDEX]], action),
+            ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else {
         return probList;
