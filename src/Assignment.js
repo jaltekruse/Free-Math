@@ -69,7 +69,6 @@ var Assignment = createReactClass({
         return (
         <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 30px 30px"}}>
             <div>
-            Problem List&nbsp;&nbsp;
             {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
@@ -79,29 +78,39 @@ var Assignment = createReactClass({
                     label = "[Need to Set a Problem Number]";
                 }
                 return (
-                    <div style={{display: "inline-block", marginRight: "15px"}}>
+                    <div style={{
+                        'float' : 'left',
+                        '-webkit-box-align': 'center',
+                        'align-items': 'center',
+                        'display': 'flex',
+                        'flex-direction': 'column',
+                        'text-align': 'center',
+                        'margin-right': '15px',
+                        marginRight: "15px"}}>
                     <ScoreBox value={problem} />
-                    <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                        className={(problemIndex === this.props.value[CURRENT_PROBLEM] ? 
-                                        "fm-button-selected " : "") + 
-                                  "fm-button-left fm-button"}
-                        onClick={function() {
-                            window.store.dispatch(
-                                {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
-                    <Button text="&#10005;" title="Delete problem" key={problemIndex + " close"}
-                        className={(problemIndex === this.props.value[CURRENT_PROBLEM] ? 
-                                        "fm-button-selected " : "") + 
-                                  "fm-button-right fm-button"}
-                        onClick={
-                            function() {
-                                if (this.props.value[PROBLEMS].length === 1) {
-                                    alert("Cannot delete the only problem in a document.");
-                                    return;
-                                }
-                                if (!window.confirm("Delete problem?")) { return; }
+                    <div>
+                        <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
+                            className={(problemIndex === this.props.value[CURRENT_PROBLEM] ? 
+                                            "fm-button-selected " : "") + 
+                                      "fm-button-left fm-button"}
+                            onClick={function() {
                                 window.store.dispatch(
-                                    { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
-                        }.bind(this)}/>
+                                    {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
+                        <Button text="&#10005;" title="Delete problem" key={problemIndex + " close"}
+                            className={(problemIndex === this.props.value[CURRENT_PROBLEM] ? 
+                                            "fm-button-selected " : "") + 
+                                      "fm-button-right fm-button"}
+                            onClick={
+                                function() {
+                                    if (this.props.value[PROBLEMS].length === 1) {
+                                        alert("Cannot delete the only problem in a document.");
+                                        return;
+                                    }
+                                    if (!window.confirm("Delete problem?")) { return; }
+                                    window.store.dispatch(
+                                        { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
+                            }.bind(this)}/>
+                    </div>
                     </div>
                 );
             }.bind(this))}
