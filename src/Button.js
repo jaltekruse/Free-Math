@@ -19,9 +19,10 @@ var Button = createReactClass({
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
+        const className = this.props.className ? this.props.className : "fm-button";
         return (
             <button
-                className="fm-button"
+                className={className}
                 style={{...unselectable, ...style}}
                 onClick={function() {
                      onClick();

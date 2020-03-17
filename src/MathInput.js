@@ -197,18 +197,30 @@ var TexButtons = createReactClass({
         });
 
         return <div className={`${this.props.className} preview-measure`}>
-            <Button text="Basic" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : BASIC });}}/>
-            <Button text="Set Theory and Logic" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : SET_THEORY });}}/>
-            <Button text="Calculus" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : CALC });}}/>
-            <Button text="Greek" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : GREEK });}}/>
+            <Button text="Basic"
+                    style={this.props.buttonGroup === BASIC ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : BASIC });}}/>
+            <Button text="Set Theory and Logic"
+                    style={this.props.buttonGroup === SET_THEORY ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : SET_THEORY });}}/>
+            <Button text="Calculus"
+                    style={this.props.buttonGroup === CALC ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : CALC });}}/>
+            <Button text="Greek"
+                    style={this.props.buttonGroup === GREEK ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : GREEK });}}/>
             {buttonPopup}
         </div>;
     },

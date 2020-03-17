@@ -140,27 +140,6 @@ var Problem = createReactClass({
                     }
                 </div>
                 <div>
-                    {/* <div>
-                        <CloseButton type="submit" text="&#10005;" title="Delete problem" onClick={
-                        function() {
-                            if (probList.length === 1) {
-                                alert("Cannot delete the only problem in a document.");
-                                return;
-                            }
-                            if (!window.confirm("Delete problem?")) { return; }
-                            window.store.dispatch(
-                                { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
-                        }}/>
-
-                        {showTutorial ?
-                            (<div className="answer-partially-correct"
-                                 style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                                <span>You can delete a problem here.</span>
-                            </div>) :
-                            null
-                        }
-                    </div>
-                    */}
                     <div style={{float:'left', height: "100%", marginRight:"10px"}}>
                         <div style={{marginLeft:"10px"}}>
                             <small>Problem Number</small><br />
