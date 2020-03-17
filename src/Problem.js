@@ -140,7 +140,7 @@ var Problem = createReactClass({
                     }
                 </div>
                 <div>
-                    <div>
+                    {/* <div>
                         <CloseButton type="submit" text="&#10005;" title="Delete problem" onClick={
                         function() {
                             if (probList.length === 1) {
@@ -151,7 +151,16 @@ var Problem = createReactClass({
                             window.store.dispatch(
                                 { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
                         }}/>
+
+                        {showTutorial ?
+                            (<div className="answer-partially-correct"
+                                 style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                                <span>You can delete a problem here.</span>
+                            </div>) :
+                            null
+                        }
                     </div>
+                    */}
                     <div style={{float:'left', height: "100%", marginRight:"10px"}}>
                         <div style={{marginLeft:"10px"}}>
                             <small>Problem Number</small><br />
@@ -201,14 +210,14 @@ var Problem = createReactClass({
                                 {showTutorial && stepIndex === 0 ? 
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Click this expression, then press enter.</span>
                                     </div>
                                 </div>) : null}
                                 {showTutorial && stepIndex === 1 ? 
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Edit this line to show part of the work for 
                                               simplifying this expression, then press enter again.</span>
                                     </div>
@@ -216,7 +225,7 @@ var Problem = createReactClass({
                                 {showTutorial && stepIndex === 2 ? 
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Repeat until you have reached your solution on
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
@@ -263,17 +272,12 @@ var Problem = createReactClass({
                 </div>
             </div>
             {showTutorial ?
-                (<div><div className="answer-partially-correct"
-                      style={{display:"inline-block", padding:"10px", margin: "10px"}}>
+                (<div>
+                    <div className="answer-partially-correct"
+                      style={{display:"inline-block", padding:"5px", margin: "5px"}}>
                     <span>Scroll to the top of the page and another problem to your document. Copy a problem
                           out of your assignment on the first line, and solve it as you did above.</span>
-                </div>
-                <div className="answer-partially-correct"
-                      style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-                    <span>You can delete the demo problem above with the
-                    <CloseButton style={{display:"inline-block", "float": "none"}} text="&#10005;" onClick={function(){}}/>
-                    button in the upper right.</span>
-                </div>
+                    </div>
                 </div>
                 ) : null}
             </div>
@@ -575,9 +579,9 @@ function problemListReducer(probList, action) {
     if (action.type === ADD_DEMO_PROBLEM) {
         if (probList.length === 1 && probList[0][STEPS][0][CONTENT] === "") {
 
-            return [{ PROBLEM_NUMBER : "1",
+            return [{ PROBLEM_NUMBER : "Demo",
                  STEPS : [{
-                     STEP_ID : genID(), CONTENT : "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}"}],
+                     STEP_ID : genID(), CONTENT : "4+2-3\\left(1+2\\right)"}],
                  UNDO_STACK : [], REDO_STACK : [],
                  SHOW_TUTORIAL : true
                  }];

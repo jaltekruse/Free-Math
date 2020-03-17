@@ -58,6 +58,11 @@ end of styles copied form perseus
     margin-right: auto;
 }
 
+/* Hide the confusing "no file chosen" text on chrome*/
+input[type='file'] {
+  color: transparent;
+}
+
 h1 {
   font-size: 3.6em;
 }
@@ -420,7 +425,7 @@ div.problem-container {
     border:1px solid #bfbfbf;
     background-color:white;
     margin: 15px 15px 15px 15px;
-    padding: 15px 15px 130px 15px;
+    padding: 15px 15px 30px 15px;
     box-shadow: 0 5px 3px -3px #cfcfcf;
     min-width: 50%;
 }

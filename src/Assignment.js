@@ -6,6 +6,7 @@ import Problem from './Problem.js';
 import { ScoreBox } from './Problem.js';
 import { problemListReducer } from './Problem.js';
 import Button from './Button.js';
+import { CloseButton } from './Button.js';
 
 var MathQuill = window.MathQuill;
 
@@ -23,6 +24,8 @@ var PROBLEM_INDEX  = 'PROBLEM_INDEX';
 var SET_CURRENT_PROBLEM = 'SET_CURRENT_PROBLEM';
 var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
+
+var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
@@ -76,18 +79,36 @@ var Assignment = createReactClass({
                     label = "[Need to Set a Problem Number]";
                 }
                 return (
-                    <div style={{display: "inline-block"}}>
+                    <div style={{display: "inline-block", marginRight: "15px"}}>
                     <ScoreBox value={problem} />
                     <Button text={label} key={problemIndex} id={problemIndex} onClick={
                         function() {
                             window.store.dispatch(
                                 {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
+
+                    <CloseButton type="submit" text="&#10005;" title="Delete problem" onClick={
+                    function() {
+                        if (this.props.value[PROBLEMS].length === 1) {
+                            alert("Cannot delete the only problem in a document.");
+                            return;
+                        }
+                        if (!window.confirm("Delete problem?")) { return; }
+                        window.store.dispatch(
+                            { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
+                    }.bind(this)}/>
                     </div>
                 );
             }.bind(this))}
             <Button text="Add Problem" style={{backgroundColor: "#008000"}} onClick={function() { 
                 addProblem();
             }}/>
+            {this.props.value[PROBLEMS][this.props.value[CURRENT_PROBLEM]][SHOW_TUTORIAL] ? 
+                (<div className="answer-partially-correct"
+                     style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                    <span>Work saves to the Downloads folder on your device.</span>
+                </div>) :
+                null
+            }
 
             <Problem value={this.props.value[PROBLEMS][this.props.value[CURRENT_PROBLEM]]}
                      id={this.props.value[CURRENT_PROBLEM]}
