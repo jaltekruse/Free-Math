@@ -180,6 +180,10 @@ const UserActions = createReactClass({
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
                         <br />
+                        <span style={{fontSize: "15px"}}>
+                                Select a Free Math file you previously saved, or one that your teacher
+                                returned to you after grading.
+                        </span>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
                             (<h4>Recovered Assignments</h4>) : null }
@@ -211,12 +215,14 @@ const UserActions = createReactClass({
                     <h3>Teachers</h3>
                     Grade Assignments <input type="file" onChange={openAssignments}/>
                         <br />
-                    <small> Select a zip file full of student work, these are generated
-                            when downloading files from your LMS in bulk.&nbsp;
+                    <span style={{fontSize: "15px"}}>
+                            Select a zip file full of student files. Zip files are generated
+                            when downloading assignment files from your LMS in bulk.
+                        <br />
                         <a href="gettingStarted.html">
                             LMS Integration Info
                         </a>
-                    </small>
+                    </span>
                         <br />
                     { (recoveredTeacherDocs.length > 0) ?
                         (<h4>Recovered Grading Sessions</h4>) : null }
@@ -485,16 +491,16 @@ const DefaultHomepageActions = createReactClass({
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
                 <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
                     <h2>Integrates with Your Favorite LMS<br /></h2>
-                    <img style={{margin : "20px"}}
+                    <img style={{margin : "20px", height : "200px"}}
                          alt="google classroom logo"
                          src="images/google_classroom.png"/>
-                    <img style={{margin : "20px"}}
+                    <img style={{margin : "20px", height : "200px"}}
                          alt="canvas logo"
                          src="images/canvas.png"/>
-                    <img style={{margin : "20px"}}
+                    <img style={{margin : "20px", height : "200px"}}
                          alt="moodle logo"
                          src="images/moodle.png"/>
-                    <img style={{margin : "20px"}}
+                    <img style={{margin : "20px", height : "200px"}}
                          alt="moodle logo"
                          src="images/blackboard.png"/>
                 </div> 
