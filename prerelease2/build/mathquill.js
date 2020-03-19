@@ -166,7 +166,10 @@ var P = (function(prototype, ownProperty, undefined) {
     // set the constructor property on the prototype, for convenience
     proto.constructor = C;
 
-    C.extend = function(def) { return P(C, def); }
+    C.mixin = function(def) {
+      Bare[prototype] = C[prototype] = P(C, def)[prototype];
+      return C;
+    }
 
     return (C.open = function(def) {
       extensions = {};
@@ -231,6 +234,8 @@ function prayDirection(dir) {
  * jQuery features that don't work on $:
  *   - jQuery.*, like jQuery.ajax, obviously (Pjs doesn't and shouldn't
  *                                            copy constructor properties)
+ *        - TODO - look this up, I don't quite understand what it is saying
+ *                 how is the method ajax a constructor property?
  *
  *   - jQuery(function), the shortcut for `jQuery(document).ready(function)`,
  *     because `jQuery.fn.init` is idiosyncratic and Pjs doing, essentially,
@@ -1184,6 +1189,211 @@ function RootBlockMixin(_) {
     this.controller.handle('edit');
   };
 }
+var Parser = P(function(_, super_, Parser) {
+  // The Parser object is a wrapper for a parser function.
+  // Externally, you use one to parse a string by calling
+  //   var result = SomeParser.parse('Me Me Me! Parse Me!');
+  // You should never call the constructor, rather you should
+  // construct your Parser from the base parsers and the
+  // parser combinator methods.
+
+  function parseError(stream, message) {
+    if (stream) {
+      stream = "'"+stream+"'";
+    }
+    else {
+      stream = 'EOF';
+    }
+
+    throw 'Parse Error: '+message+' at '+stream;
+  }
+
+  _.init = function(body) { this._ = body; };
+
+  _.parse = function(stream) {
+    return this.skip(eof)._(''+stream, success, parseError);
+
+    function success(stream, result) { return result; }
+  };
+
+  // -*- primitive combinators -*- //
+  _.or = function(alternative) {
+    pray('or is passed a parser', alternative instanceof Parser);
+
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      return self._(stream, onSuccess, failure);
+
+      function failure(newStream) {
+        return alternative._(stream, onSuccess, onFailure);
+      }
+    });
+  };
+
+  _.then = function(next) {
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      return self._(stream, success, onFailure);
+
+      function success(newStream, result) {
+        var nextParser = (next instanceof Parser ? next : next(result));
+        pray('a parser is returned', nextParser instanceof Parser);
+        return nextParser._(newStream, onSuccess, onFailure);
+      }
+    });
+  };
+
+  // -*- optimized iterative combinators -*- //
+  _.many = function() {
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var xs = [];
+      while (self._(stream, success, failure));
+      return onSuccess(stream, xs);
+
+      function success(newStream, x) {
+        stream = newStream;
+        xs.push(x);
+        return true;
+      }
+
+      function failure() {
+        return false;
+      }
+    });
+  };
+
+  _.times = function(min, max) {
+    if (arguments.length < 2) max = min;
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var xs = [];
+      var result = true;
+      var failure;
+
+      for (var i = 0; i < min; i += 1) {
+        result = self._(stream, success, firstFailure);
+        if (!result) return onFailure(stream, failure);
+      }
+
+      for (; i < max && result; i += 1) {
+        result = self._(stream, success, secondFailure);
+      }
+
+      return onSuccess(stream, xs);
+
+      function success(newStream, x) {
+        xs.push(x);
+        stream = newStream;
+        return true;
+      }
+
+      function firstFailure(newStream, msg) {
+        failure = msg;
+        stream = newStream;
+        return false;
+      }
+
+      function secondFailure(newStream, msg) {
+        return false;
+      }
+    });
+  };
+
+  // -*- higher-level combinators -*- //
+  _.result = function(res) { return this.then(succeed(res)); };
+  _.atMost = function(n) { return this.times(0, n); };
+  _.atLeast = function(n) {
+    var self = this;
+    return self.times(n).then(function(start) {
+      return self.many().map(function(end) {
+        return start.concat(end);
+      });
+    });
+  };
+
+  _.map = function(fn) {
+    return this.then(function(result) { return succeed(fn(result)); });
+  };
+
+  _.skip = function(two) {
+    return this.then(function(result) { return two.result(result); });
+  };
+
+  // -*- primitive parsers -*- //
+  var string = this.string = function(str) {
+    var len = str.length;
+    var expected = "expected '"+str+"'";
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var head = stream.slice(0, len);
+
+      if (head === str) {
+        return onSuccess(stream.slice(len), head);
+      }
+      else {
+        return onFailure(stream, expected);
+      }
+    });
+  };
+
+  var regex = this.regex = function(re) {
+    pray('regexp parser is anchored', re.toString().charAt(1) === '^');
+
+    var expected = 'expected '+re;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var match = re.exec(stream);
+
+      if (match) {
+        var result = match[0];
+        return onSuccess(stream.slice(result.length), result);
+      }
+      else {
+        return onFailure(stream, expected);
+      }
+    });
+  };
+
+  var succeed = Parser.succeed = function(result) {
+    return Parser(function(stream, onSuccess) {
+      return onSuccess(stream, result);
+    });
+  };
+
+  var fail = Parser.fail = function(msg) {
+    return Parser(function(stream, _, onFailure) {
+      return onFailure(stream, msg);
+    });
+  };
+
+  var letter = Parser.letter = regex(/^[a-z]/i);
+  var letters = Parser.letters = regex(/^[a-z]*/i);
+  var digit = Parser.digit = regex(/^[0-9]/);
+  var digits = Parser.digits = regex(/^[0-9]*/);
+  var whitespace = Parser.whitespace = regex(/^\s+/);
+  var optWhitespace = Parser.optWhitespace = regex(/^\s*/);
+
+  var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
+    if (!stream) return onFailure(stream, 'expected any character');
+
+    return onSuccess(stream.slice(1), stream.charAt(0));
+  });
+
+  var all = Parser.all = Parser(function(stream, onSuccess, onFailure) {
+    return onSuccess('', stream);
+  });
+
+  var eof = Parser.eof = Parser(function(stream, onSuccess, onFailure) {
+    if (stream) return onFailure(stream, 'expected EOF');
+
+    return onSuccess(stream, stream);
+  });
+});
 /*************************************************
  * Sane Keyboard Events Shim
  *
@@ -1438,390 +1648,16 @@ var saneKeyboardEvents = (function() {
     };
   };
 }());
-var Parser = P(function(_, super_, Parser) {
-  // The Parser object is a wrapper for a parser function.
-  // Externally, you use one to parse a string by calling
-  //   var result = SomeParser.parse('Me Me Me! Parse Me!');
-  // You should never call the constructor, rather you should
-  // construct your Parser from the base parsers and the
-  // parser combinator methods.
-
-  function parseError(stream, message) {
-    if (stream) {
-      stream = "'"+stream+"'";
-    }
-    else {
-      stream = 'EOF';
-    }
-
-    throw 'Parse Error: '+message+' at '+stream;
-  }
-
-  _.init = function(body) { this._ = body; };
-
-  _.parse = function(stream) {
-    return this.skip(eof)._(''+stream, success, parseError);
-
-    function success(stream, result) { return result; }
-  };
-
-  // -*- primitive combinators -*- //
-  _.or = function(alternative) {
-    pray('or is passed a parser', alternative instanceof Parser);
-
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      return self._(stream, onSuccess, failure);
-
-      function failure(newStream) {
-        return alternative._(stream, onSuccess, onFailure);
-      }
-    });
-  };
-
-  _.then = function(next) {
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      return self._(stream, success, onFailure);
-
-      function success(newStream, result) {
-        var nextParser = (next instanceof Parser ? next : next(result));
-        pray('a parser is returned', nextParser instanceof Parser);
-        return nextParser._(newStream, onSuccess, onFailure);
-      }
-    });
-  };
-
-  // -*- optimized iterative combinators -*- //
-  _.many = function() {
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var xs = [];
-      while (self._(stream, success, failure));
-      return onSuccess(stream, xs);
-
-      function success(newStream, x) {
-        stream = newStream;
-        xs.push(x);
-        return true;
-      }
-
-      function failure() {
-        return false;
-      }
-    });
-  };
-
-  _.times = function(min, max) {
-    if (arguments.length < 2) max = min;
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var xs = [];
-      var result = true;
-      var failure;
-
-      for (var i = 0; i < min; i += 1) {
-        result = self._(stream, success, firstFailure);
-        if (!result) return onFailure(stream, failure);
-      }
-
-      for (; i < max && result; i += 1) {
-        result = self._(stream, success, secondFailure);
-      }
-
-      return onSuccess(stream, xs);
-
-      function success(newStream, x) {
-        xs.push(x);
-        stream = newStream;
-        return true;
-      }
-
-      function firstFailure(newStream, msg) {
-        failure = msg;
-        stream = newStream;
-        return false;
-      }
-
-      function secondFailure(newStream, msg) {
-        return false;
-      }
-    });
-  };
-
-  // -*- higher-level combinators -*- //
-  _.result = function(res) { return this.then(succeed(res)); };
-  _.atMost = function(n) { return this.times(0, n); };
-  _.atLeast = function(n) {
-    var self = this;
-    return self.times(n).then(function(start) {
-      return self.many().map(function(end) {
-        return start.concat(end);
-      });
-    });
-  };
-
-  _.map = function(fn) {
-    return this.then(function(result) { return succeed(fn(result)); });
-  };
-
-  _.skip = function(two) {
-    return this.then(function(result) { return two.result(result); });
-  };
-
-  // -*- primitive parsers -*- //
-  var string = this.string = function(str) {
-    var len = str.length;
-    var expected = "expected '"+str+"'";
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var head = stream.slice(0, len);
-
-      if (head === str) {
-        return onSuccess(stream.slice(len), head);
-      }
-      else {
-        return onFailure(stream, expected);
-      }
-    });
-  };
-
-  var regex = this.regex = function(re) {
-    pray('regexp parser is anchored', re.toString().charAt(1) === '^');
-
-    var expected = 'expected '+re;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var match = re.exec(stream);
-
-      if (match) {
-        var result = match[0];
-        return onSuccess(stream.slice(result.length), result);
-      }
-      else {
-        return onFailure(stream, expected);
-      }
-    });
-  };
-
-  var succeed = Parser.succeed = function(result) {
-    return Parser(function(stream, onSuccess) {
-      return onSuccess(stream, result);
-    });
-  };
-
-  var fail = Parser.fail = function(msg) {
-    return Parser(function(stream, _, onFailure) {
-      return onFailure(stream, msg);
-    });
-  };
-
-  var letter = Parser.letter = regex(/^[a-z]/i);
-  var letters = Parser.letters = regex(/^[a-z]*/i);
-  var digit = Parser.digit = regex(/^[0-9]/);
-  var digits = Parser.digits = regex(/^[0-9]*/);
-  var whitespace = Parser.whitespace = regex(/^\s+/);
-  var optWhitespace = Parser.optWhitespace = regex(/^\s*/);
-
-  var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
-    if (!stream) return onFailure(stream, 'expected any character');
-
-    return onSuccess(stream.slice(1), stream.charAt(0));
-  });
-
-  var all = Parser.all = Parser(function(stream, onSuccess, onFailure) {
-    return onSuccess('', stream);
-  });
-
-  var eof = Parser.eof = Parser(function(stream, onSuccess, onFailure) {
-    if (stream) return onFailure(stream, 'expected EOF');
-
-    return onSuccess(stream, stream);
-  });
-});
-// Parser MathBlock
-var latexMathParser = (function() {
-  function commandToBlock(cmd) { // can also take in a Fragment
-    var block = MathBlock();
-    cmd.adopt(block, 0, 0);
-    return block;
-  }
-  function joinBlocks(blocks) {
-    var firstBlock = blocks[0] || MathBlock();
-
-    for (var i = 1; i < blocks.length; i += 1) {
-      blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);
-    }
-
-    return firstBlock;
-  }
-
-  var string = Parser.string;
-  var regex = Parser.regex;
-  var letter = Parser.letter;
-  var any = Parser.any;
-  var optWhitespace = Parser.optWhitespace;
-  var succeed = Parser.succeed;
-  var fail = Parser.fail;
-
-  // Parsers yielding either MathCommands, or Fragments of MathCommands
-  //   (either way, something that can be adopted by a MathBlock)
-  var variable = letter.map(function(c) { return Letter(c); });
-  var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
-
-  var controlSequence =
-    regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
-    .or(string('\\').then(
-      regex(/^[a-z]+/i)
-      .or(regex(/^\s+/).result(' '))
-      .or(any)
-    )).then(function(ctrlSeq) {
-      var cmdKlass = LatexCmds[ctrlSeq];
-
-      if (cmdKlass) {
-        return cmdKlass(ctrlSeq).parser();
-      }
-      else {
-        return fail('unknown command: \\'+ctrlSeq);
-      }
-    })
-  ;
-
-  var command =
-    controlSequence
-    .or(variable)
-    .or(symbol)
-  ;
-
-  // Parsers yielding MathBlocks
-  var mathGroup = string('{').then(function() { return mathSequence; }).skip(string('}'));
-  var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
-  var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
-
-  var optMathBlock =
-    string('[').then(
-      mathBlock.then(function(block) {
-        return block.join('latex') !== ']' ? succeed(block) : fail();
-      })
-      .many().map(joinBlocks).skip(optWhitespace)
-    ).skip(string(']'))
-  ;
-
-  var latexMath = mathSequence;
-
-  latexMath.block = mathBlock;
-  latexMath.optBlock = optMathBlock;
-  return latexMath;
-})();
+/***********************************************
+ * Export math in a human-readable text format
+ * As you can see, only half-baked so far.
+ **********************************************/
 
 Controller.open(function(_, super_) {
-  _.exportLatex = function() {
-    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
-  };
-  _.writeLatex = function(latex) {
-    var cursor = this.notify('edit').cursor;
-
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-    console.log(block);
-
-    if (block && !block.isEmpty()) {
-      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
-      var jQ = block.jQize();
-      jQ.insertBefore(cursor.jQ);
-      cursor[L] = block.ends[R];
-      block.finalizeInsert(cursor.options, cursor);
-      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
-      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
-      cursor.parent.bubble('reflow');
-    }
-
-    return this;
-  };
-  _.renderLatexMath = function(latex) {
-    var root = this.root, cursor = this.cursor;
-
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-
-    console.log(block);
-    root.eachChild('postOrder', 'dispose');
-    root.ends[L] = root.ends[R] = 0;
-
-    if (block) {
-      block.children().adopt(root, 0, 0);
-    }
-
-    var jQ = root.jQ;
-
-    if (block) {
-      var html = block.join('html');
-      jQ.html(html);
-      root.jQize(jQ.children());
-      root.finalizeInsert(cursor.options);
-    }
-    else {
-      jQ.empty();
-    }
-
-    delete cursor.selection;
-    cursor.insAtRightEnd(root);
-  };
-  _.renderLatexText = function(latex) {
-    var root = this.root, cursor = this.cursor;
-
-    root.jQ.children().slice(1).remove();
-    root.eachChild('postOrder', 'dispose');
-    root.ends[L] = root.ends[R] = 0;
-    delete cursor.selection;
-    cursor.show().insAtRightEnd(root);
-
-    var regex = Parser.regex;
-    var string = Parser.string;
-    var eof = Parser.eof;
-    var all = Parser.all;
-
-    // Parser RootMathCommand
-    var mathMode = string('$').then(latexMathParser)
-      // because TeX is insane, math mode doesn't necessarily
-      // have to end.  So we allow for the case that math mode
-      // continues to the end of the stream.
-      .skip(string('$').or(eof))
-      .map(function(block) {
-        // HACK FIXME: this shouldn't have to have access to cursor
-        var rootMathCommand = RootMathCommand(cursor);
-
-        rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ends[L];
-        block.children().adopt(rootMathBlock, 0, 0);
-
-        return rootMathCommand;
-      })
-    ;
-
-    var escapedDollar = string('\\$').result('$');
-    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
-    var latexText = mathMode.or(textChar).many();
-    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
-
-    console.log(commands);
-    if (commands) {
-      for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(root, root.ends[R], 0);
-      }
-
-      root.jQize().appendTo(root.jQ);
-
-      root.finalizeInsert(cursor.options);
-    }
+  _.exportText = function() {
+    return this.root.foldChildren('', function(text, child) {
+      return text + child.text();
+    });
   };
 });
 Controller.open(function(_) {
@@ -1879,18 +1715,6 @@ Controller.open(function(_) {
  * I'm not even sure there aren't other troublesome calls to .focus() or
  * .blur(), so this is TODO for now.
  */
-/***********************************************
- * Export math in a human-readable text format
- * As you can see, only half-baked so far.
- **********************************************/
-
-Controller.open(function(_, super_) {
-  _.exportText = function() {
-    return this.root.foldChildren('', function(text, child) {
-      return text + child.text();
-    });
-  };
-});
 /*****************************************
  * Deals with the browser DOM events from
  * interaction with the typist.
@@ -2178,118 +2002,182 @@ Controller.open(function(_) {
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
 });
-/*********************************************
- * Manage the MathQuill instance's textarea
- * (as owned by the Controller)
- ********************************************/
+// Parser MathBlock
+var latexMathParser = (function() {
+  function commandToBlock(cmd) { // can also take in a Fragment
+    var block = MathBlock();
+    cmd.adopt(block, 0, 0);
+    return block;
+  }
+  function joinBlocks(blocks) {
+    var firstBlock = blocks[0] || MathBlock();
 
-Controller.open(function(_) {
-  Options.p.substituteTextarea = function() {
-    return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
-               'spellcheck=false x-palm-disable-ste-all=true />')[0];
-  };
-  _.createTextarea = function() {
-    var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
-      textarea = this.options.substituteTextarea();
-    if (!textarea.nodeType) {
-      throw 'substituteTextarea() must return a DOM element, got ' + textarea;
-    }
-    textarea = this.textarea = $(textarea).appendTo(textareaSpan);
-
-    var ctrlr = this;
-    ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
-  };
-  _.selectionChanged = function() {
-    var ctrlr = this;
-    forceIERedraw(ctrlr.container[0]);
-
-    // throttle calls to setTextareaSelection(), because setting textarea.value
-    // and/or calling textarea.select() can have anomalously bad performance:
-    // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
-    if (ctrlr.textareaSelectionTimeout === undefined) {
-      ctrlr.textareaSelectionTimeout = setTimeout(function() {
-        ctrlr.setTextareaSelection();
-      });
-    }
-  };
-  _.setTextareaSelection = function() {
-    this.textareaSelectionTimeout = undefined;
-    var latex = '';
-    if (this.cursor.selection) {
-      latex = this.cursor.selection.join('latex');
-      if (this.options.statelessClipboard) {
-        // FIXME: like paste, only this works for math fields; should ask parent
-        latex = '$' + latex + '$';
-      }
-    }
-    this.selectFn(latex);
-  };
-  _.staticMathTextareaEvents = function() {
-    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
-      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
-
-    this.container.prepend(jQuery('<span class="mq-selectable">')
-      .text('$'+ctrlr.exportLatex()+'$'));
-    ctrlr.blurred = true;
-    textarea.bind('cut paste', false)
-    .bind('copy', function() { ctrlr.setTextareaSelection(); })
-    .focus(function() { ctrlr.blurred = false; }).blur(function() {
-      if (cursor.selection) cursor.selection.clear();
-      setTimeout(detach); //detaching during blur explodes in WebKit
-    });
-    function detach() {
-      textareaSpan.detach();
-      ctrlr.blurred = true;
+    for (var i = 1; i < blocks.length; i += 1) {
+      blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);
     }
 
-    ctrlr.selectFn = function(text) {
-      textarea.val(text);
-      if (text) textarea.select();
-    };
-  };
-  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
-  _.editablesTextareaEvents = function() {
-    var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+    return firstBlock;
+  }
 
-    var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
-    this.selectFn = function(text) { keyboardEventsShim.select(text); };
-    this.container.prepend(textareaSpan);
-    this.focusBlurEvents();
-  };
-  _.typedText = function(ch) {
-    if (ch === '\n') return this.handle('enter');
-    var cursor = this.notify().cursor;
-    cursor.parent.write(cursor, ch);
-    this.scrollHoriz();
-  };
-  _.cut = function() {
-    var ctrlr = this, cursor = ctrlr.cursor;
-    if (cursor.selection) {
-      setTimeout(function() {
-        ctrlr.notify('edit'); // deletes selection if present
-        cursor.parent.bubble('reflow');
-      });
-    }
-  };
-  _.copy = function() {
-    this.setTextareaSelection();
-  };
-  _.paste = function(text) {
-    // TODO: document `statelessClipboard` config option in README, after
-    // making it work like it should, that is, in both text and math mode
-    // (currently only works in math fields, so worse than pointless, it
-    //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
-    //  cut/copied LaTeX)
-    if (this.options.statelessClipboard) {
-      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
-        text = text.slice(1, -1);
+  var string = Parser.string;
+  var regex = Parser.regex;
+  var letter = Parser.letter;
+  var any = Parser.any;
+  var optWhitespace = Parser.optWhitespace;
+  var succeed = Parser.succeed;
+  var fail = Parser.fail;
+
+  // Parsers yielding either MathCommands, or Fragments of MathCommands
+  //   (either way, something that can be adopted by a MathBlock)
+  var variable = letter.map(function(c) { return Letter(c); });
+  var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
+
+  var controlSequence =
+    regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
+    .or(string('\\').then(
+      regex(/^[a-z]+/i)
+      .or(regex(/^\s+/).result(' '))
+      .or(any)
+    )).then(function(ctrlSeq) {
+      var cmdKlass = LatexCmds[ctrlSeq];
+
+      if (cmdKlass) {
+        return cmdKlass(ctrlSeq).parser();
       }
       else {
-        text = '\\text{'+text+'}';
+        return fail('unknown command: \\'+ctrlSeq);
       }
+    })
+  ;
+
+  var command =
+    controlSequence
+    .or(variable)
+    .or(symbol)
+  ;
+
+  // Parsers yielding MathBlocks
+  var mathGroup = string('{').then(function() { return mathSequence; }).skip(string('}'));
+  var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
+  var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
+
+  var optMathBlock =
+    string('[').then(
+      mathBlock.then(function(block) {
+        return block.join('latex') !== ']' ? succeed(block) : fail();
+      })
+      .many().map(joinBlocks).skip(optWhitespace)
+    ).skip(string(']'))
+  ;
+
+  var latexMath = mathSequence;
+
+  latexMath.block = mathBlock;
+  latexMath.optBlock = optMathBlock;
+  return latexMath;
+})();
+
+Controller.open(function(_, super_) {
+  _.exportLatex = function() {
+    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+  };
+  _.writeLatex = function(latex) {
+    var cursor = this.notify('edit').cursor;
+
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+
+    if (block && !block.isEmpty()) {
+      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
+      var jQ = block.jQize();
+      jQ.insertBefore(cursor.jQ);
+      cursor[L] = block.ends[R];
+      block.finalizeInsert(cursor.options, cursor);
+      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
+      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
+      cursor.parent.bubble('reflow');
     }
-    // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
-    this.writeLatex(text).cursor.show();
+
+    return this;
+  };
+  _.renderLatexMath = function(latex) {
+    var root = this.root, cursor = this.cursor;
+
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+
+    root.eachChild('postOrder', 'dispose');
+    root.ends[L] = root.ends[R] = 0;
+
+    if (block) {
+      block.children().adopt(root, 0, 0);
+    }
+
+    var jQ = root.jQ;
+
+    if (block) {
+      var html = block.join('html');
+      jQ.html(html);
+      root.jQize(jQ.children());
+      root.finalizeInsert(cursor.options);
+    }
+    else {
+      jQ.empty();
+    }
+
+    delete cursor.selection;
+    cursor.insAtRightEnd(root);
+  };
+  _.renderLatexText = function(latex) {
+    var root = this.root, cursor = this.cursor;
+
+    root.jQ.children().slice(1).remove();
+    root.eachChild('postOrder', 'dispose');
+    root.ends[L] = root.ends[R] = 0;
+    delete cursor.selection;
+    cursor.show().insAtRightEnd(root);
+
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var eof = Parser.eof;
+    var all = Parser.all;
+
+    // Parser RootMathCommand
+    var mathMode = string('$').then(latexMathParser)
+      // because TeX is insane, math mode doesn't necessarily
+      // have to end.  So we allow for the case that math mode
+      // continues to the end of the stream.
+      .skip(string('$').or(eof))
+      .map(function(block) {
+        // HACK FIXME: this shouldn't have to have access to cursor
+        var rootMathCommand = RootMathCommand(cursor);
+
+        rootMathCommand.createBlocks();
+        var rootMathBlock = rootMathCommand.ends[L];
+        block.children().adopt(rootMathBlock, 0, 0);
+
+        return rootMathCommand;
+      })
+    ;
+
+    var escapedDollar = string('\\$').result('$');
+    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
+    var latexText = mathMode.or(textChar).many();
+    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+
+    if (commands) {
+      for (var i = 0; i < commands.length; i += 1) {
+        commands[i].adopt(root, root.ends[R], 0);
+      }
+
+      root.jQize().appendTo(root.jQ);
+
+      root.finalizeInsert(cursor.options);
+    }
   };
 });
 /********************************************************
@@ -2417,6 +2305,120 @@ Controller.open(function(_) {
       }
     }
     this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy}, 100);
+  };
+});
+/*********************************************
+ * Manage the MathQuill instance's textarea
+ * (as owned by the Controller)
+ ********************************************/
+
+Controller.open(function(_) {
+  Options.p.substituteTextarea = function() {
+    return $('<textarea style="font-size:100px" autocapitalize=off autocomplete=off autocorrect=off ' +
+               'spellcheck=false x-palm-disable-ste-all=true />')[0];
+  };
+  _.createTextarea = function() {
+    var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
+      textarea = this.options.substituteTextarea();
+    if (!textarea.nodeType) {
+      throw 'substituteTextarea() must return a DOM element, got ' + textarea;
+    }
+    textarea = this.textarea = $(textarea).appendTo(textareaSpan);
+
+    var ctrlr = this;
+    ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
+  };
+  _.selectionChanged = function() {
+    var ctrlr = this;
+    forceIERedraw(ctrlr.container[0]);
+
+    // throttle calls to setTextareaSelection(), because setting textarea.value
+    // and/or calling textarea.select() can have anomalously bad performance:
+    // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
+    if (ctrlr.textareaSelectionTimeout === undefined) {
+      ctrlr.textareaSelectionTimeout = setTimeout(function() {
+        ctrlr.setTextareaSelection();
+      });
+    }
+  };
+  _.setTextareaSelection = function() {
+    this.textareaSelectionTimeout = undefined;
+    var latex = '';
+    if (this.cursor.selection) {
+      latex = this.cursor.selection.join('latex');
+      if (this.options.statelessClipboard) {
+        // FIXME: like paste, only this works for math fields; should ask parent
+        latex = '$' + latex + '$';
+      }
+    }
+    this.selectFn(latex);
+  };
+  _.staticMathTextareaEvents = function() {
+    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
+      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+
+    this.container.prepend(jQuery('<span class="mq-selectable">')
+      .text('$'+ctrlr.exportLatex()+'$'));
+    ctrlr.blurred = true;
+    textarea.bind('cut paste', false)
+    .bind('copy', function() { ctrlr.setTextareaSelection(); })
+    .focus(function() { ctrlr.blurred = false; }).blur(function() {
+      if (cursor.selection) cursor.selection.clear();
+      setTimeout(detach); //detaching during blur explodes in WebKit
+    });
+    function detach() {
+      textareaSpan.detach();
+      ctrlr.blurred = true;
+    }
+
+    ctrlr.selectFn = function(text) {
+      textarea.val(text);
+      if (text) textarea.select();
+    };
+  };
+  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
+  _.editablesTextareaEvents = function() {
+    var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+
+    var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
+    this.selectFn = function(text) { keyboardEventsShim.select(text); };
+    this.container.prepend(textareaSpan);
+    this.focusBlurEvents();
+  };
+  _.typedText = function(ch) {
+    if (ch === '\n') return this.handle('enter');
+    var cursor = this.notify().cursor;
+    cursor.parent.write(cursor, ch);
+    this.scrollHoriz();
+  };
+  _.cut = function() {
+    var ctrlr = this, cursor = ctrlr.cursor;
+    if (cursor.selection) {
+      setTimeout(function() {
+        ctrlr.notify('edit'); // deletes selection if present
+        cursor.parent.bubble('reflow');
+      });
+    }
+  };
+  _.copy = function() {
+    this.setTextareaSelection();
+  };
+  _.paste = function(text) {
+    // TODO: document `statelessClipboard` config option in README, after
+    // making it work like it should, that is, in both text and math mode
+    // (currently only works in math fields, so worse than pointless, it
+    //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
+    //  cut/copied LaTeX)
+    if (this.options.statelessClipboard) {
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
+      }
+      else {
+        text = '\\text{'+text+'}';
+      }
+    }
+    // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
+    this.writeLatex(text).cursor.show();
   };
 });
 /*************************************************
@@ -2767,6 +2769,8 @@ var BinaryOperator = P(Symbol, function(_, super_) {
  * Children and parent of MathCommand's. Basically partitions all the
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
+ *
+ * What does this meean?
  */
 var MathBlock = P(MathElement, function(_, super_) {
   _.join = function(methodName) {
@@ -3377,872 +3381,6 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
   };
 });
 
-/***************************
- * Commands and Operators.
- **************************/
-
-var scale, // = function(jQ, x, y) { ... }
-//will use a CSS 2D transform to scale the jQuery-wrapped HTML elements,
-//or the filter matrix transform fallback for IE 5.5-8, or gracefully degrade to
-//increasing the fontSize to match the vertical Y scaling factor.
-
-//ideas from http://github.com/louisremi/jquery.transform.js
-//see also http://msdn.microsoft.com/en-us/library/ms533014(v=vs.85).aspx
-
-  forceIERedraw = noop,
-  div = document.createElement('div'),
-  div_style = div.style,
-  transformPropNames = {
-    transform:1,
-    WebkitTransform:1,
-    MozTransform:1,
-    OTransform:1,
-    msTransform:1
-  },
-  transformPropName;
-
-for (var prop in transformPropNames) {
-  if (prop in div_style) {
-    transformPropName = prop;
-    break;
-  }
-}
-
-if (transformPropName) {
-  scale = function(jQ, x, y) {
-    jQ.css(transformPropName, 'scale('+x+','+y+')');
-  };
-}
-else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.com/laughinghan/mathquill/wiki/Transforms
-  forceIERedraw = function(el){ el.className = el.className; };
-  scale = function(jQ, x, y) { //NOTE: assumes y > x
-    x /= (1+(y-1)/2);
-    jQ.css('fontSize', y + 'em');
-    if (!jQ.hasClass('mq-matrixed-container')) {
-      jQ.addClass('mq-matrixed-container')
-      .wrapInner('<span class="mq-matrixed"></span>');
-    }
-    var innerjQ = jQ.children()
-    .css('filter', 'progid:DXImageTransform.Microsoft'
-        + '.Matrix(M11=' + x + ",SizingMethod='auto expand')"
-    );
-    function calculateMarginRight() {
-      jQ.css('marginRight', (innerjQ.width()-1)*(x-1)/x + 'px');
-    }
-    calculateMarginRight();
-    var intervalId = setInterval(calculateMarginRight);
-    $(window).load(function() {
-      clearTimeout(intervalId);
-      calculateMarginRight();
-    });
-  };
-}
-else {
-  scale = function(jQ, x, y) {
-    jQ.css('fontSize', y + 'em');
-  };
-}
-
-var Style = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, tagName, attrs) {
-    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
-  };
-});
-
-//fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
-LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
-LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
-LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"');
-LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
-//text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
-LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
-LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
-LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-both"');
-LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"');
-LatexCmds.dot = P(MathCommand, function(_, super_) {
-    _.init = function() {
-        super_.init.call(this, '\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
-            + '<span class="mq-dot-recurring">&#x2d9;</span>'
-            + '<span class="mq-empty-box">&0</span>'
-            + '</span></span>'
-        );
-    };
-});
-
-// `\textcolor{color}{math}` will apply a color to the given math content, where
-// `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
-// [Mozilla docs][], or [W3C spec][]).
-//
-// [SitePoint docs]: http://reference.sitepoint.com/css/colorvalues
-// [Mozilla docs]: https://developer.mozilla.org/en-US/docs/CSS/color_value#Values
-// [W3C spec]: http://dev.w3.org/csswg/css3-color/#colorunits
-var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
-  _.setColor = function(color) {
-    this.color = color;
-    this.htmlTemplate =
-      '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
-  };
-  _.latex = function() {
-    return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
-  };
-  _.parser = function() {
-    var self = this;
-    var optWhitespace = Parser.optWhitespace;
-    var string = Parser.string;
-    var regex = Parser.regex;
-
-    return optWhitespace
-      .then(string('{'))
-      .then(regex(/^[#\w\s.,()%-]*/))
-      .skip(string('}'))
-      .then(function(color) {
-        self.setColor(color);
-        return super_.parser.call(self);
-      })
-    ;
-  };
-  _.isStyleBlock = function() {
-    return true;
-  };
-});
-
-// Very similar to the \textcolor command, but will add the given CSS class.
-// Usage: \class{classname}{math}
-// Note regex that whitelists valid CSS classname characters:
-// https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
-var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
-  _.parser = function() {
-    var self = this, string = Parser.string, regex = Parser.regex;
-    return Parser.optWhitespace
-      .then(string('{'))
-      .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
-      .skip(string('}'))
-      .then(function(cls) {
-        self.cls = cls || '';
-        self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
-        return super_.parser.call(self);
-      })
-    ;
-  };
-  _.latex = function() {
-    return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
-  };
-  _.isStyleBlock = function() {
-    return true;
-  };
-});
-
-var SupSub = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '_{...}^{...}';
-  _.createLeftOf = function(cursor) {
-    if (!this.replacedFragment && !cursor[L] && cursor.options.supSubsRequireOperand) return;
-    return super_.createLeftOf.apply(this, arguments);
-  };
-  _.contactWeld = function(cursor) {
-    // Look on either side for a SupSub, if one is found compare my
-    // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
-    // then call .addBlock() on it with my block; if I have one that
-    // it also has, then insert my block's children into its block,
-    // unless my block has none, in which case insert the cursor into
-    // its block (and not mine, I'm about to remove myself) in the case
-    // I was just typed.
-    // TODO: simplify
-
-    // equiv. to [L, R].forEach(function(dir) { ... });
-    for (var dir = L; dir; dir = (dir === L ? R : false)) {
-      if (this[dir] instanceof SupSub) {
-        // equiv. to 'sub sup'.split(' ').forEach(function(supsub) { ... });
-        for (var supsub = 'sub'; supsub; supsub = (supsub === 'sub' ? 'sup' : false)) {
-          var src = this[supsub], dest = this[dir][supsub];
-          if (!src) continue;
-          if (!dest) this[dir].addBlock(src.disown());
-          else if (!src.isEmpty()) { // ins src children at -dir end of dest
-            src.jQ.children().insAtDirEnd(-dir, dest.jQ);
-            var children = src.children().disown();
-            var pt = Point(dest, children.ends[R], dest.ends[L]);
-            if (dir === L) children.adopt(dest, dest.ends[R], 0);
-            else children.adopt(dest, 0, dest.ends[L]);
-          }
-          else var pt = Point(dest, 0, dest.ends[L]);
-          this.placeCursor = (function(dest, src) { // TODO: don't monkey-patch
-            return function(cursor) { cursor.insAtDirEnd(-dir, dest || src); };
-          }(dest, src));
-        }
-        this.remove();
-        if (cursor && cursor[L] === this) {
-          if (dir === R && pt) {
-            pt[L] ? cursor.insRightOf(pt[L]) : cursor.insAtLeftEnd(pt.parent);
-          }
-          else cursor.insRightOf(this[dir]);
-        }
-        break;
-      }
-    }
-  };
-  Options.p.charsThatBreakOutOfSupSub = '';
-  _.finalizeTree = function() {
-    this.ends[L].write = function(cursor, ch) {
-      if (cursor.options.autoSubscriptNumerals && this === this.parent.sub) {
-        if (ch === '_') return;
-        var cmd = this.chToCmd(ch, cursor.options);
-        if (cmd instanceof Symbol) cursor.deleteSelection();
-        else cursor.clearSelection().insRightOf(this.parent);
-        return cmd.createLeftOf(cursor.show());
-      }
-      if (cursor[L] && !cursor[R] && !cursor.selection
-          && cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
-        cursor.insRightOf(this.parent);
-      }
-      MathBlock.p.write.apply(this, arguments);
-    };
-  };
-  _.moveTowards = function(dir, cursor, updown) {
-    if (cursor.options.autoSubscriptNumerals && !this.sup) {
-      cursor.insDirOf(dir, this);
-    }
-    else super_.moveTowards.apply(this, arguments);
-  };
-  _.deleteTowards = function(dir, cursor) {
-    if (cursor.options.autoSubscriptNumerals && this.sub) {
-      var cmd = this.sub.ends[-dir];
-      if (cmd instanceof Symbol) cmd.remove();
-      else if (cmd) cmd.deleteTowards(dir, cursor.insAtDirEnd(-dir, this.sub));
-
-      // TODO: factor out a .removeBlock() or something
-      if (this.sub.isEmpty()) {
-        this.sub.deleteOutOf(L, cursor.insAtLeftEnd(this.sub));
-        if (this.sup) cursor.insDirOf(-dir, this);
-        // Note `-dir` because in e.g. x_1^2| want backspacing (leftward)
-        // to delete the 1 but to end up rightward of x^2; with non-negated
-        // `dir` (try it), the cursor appears to have gone "through" the ^2.
-      }
-    }
-    else super_.deleteTowards.apply(this, arguments);
-  };
-  _.latex = function() {
-    function latex(prefix, block) {
-      var l = block && block.latex();
-      return block ? prefix + (l.length === 1 ? l : '{' + (l || ' ') + '}') : '';
-    }
-    return latex('_', this.sub) + latex('^', this.sup);
-  };
-  _.addBlock = function(block) {
-    if (this.supsub === 'sub') {
-      this.sup = this.upInto = this.sub.upOutOf = block;
-      block.adopt(this, this.sub, 0).downOutOf = this.sub;
-      block.jQ = $('<span class="mq-sup"/>').append(block.jQ.children())
-        .attr(mqBlockId, block.id).prependTo(this.jQ);
-    }
-    else {
-      this.sub = this.downInto = this.sup.downOutOf = block;
-      block.adopt(this, 0, this.sup).upOutOf = this.sup;
-      block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
-        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('mq-sup-only'));
-      this.jQ.append('<span style="display:inline-block;width:0">&#8203;</span>');
-    }
-    // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
-    for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
-      cmd[supsub].deleteOutOf = function(dir, cursor) {
-        cursor.insDirOf((this[dir] ? -dir : dir), this.parent);
-        if (!this.isEmpty()) {
-          var end = this.ends[dir];
-          this.children().disown()
-            .withDirAdopt(dir, cursor.parent, cursor[dir], cursor[-dir])
-            .jQ.insDirOf(-dir, cursor.jQ);
-          cursor[-dir] = end;
-        }
-        cmd.supsub = oppositeSupsub;
-        delete cmd[supsub];
-        delete cmd[updown+'Into'];
-        cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
-        delete cmd[oppositeSupsub].deleteOutOf;
-        if (supsub === 'sub') $(cmd.jQ.addClass('mq-sup-only')[0].lastChild).remove();
-        this.remove();
-      };
-    }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
-  };
-});
-
-function insLeftOfMeUnlessAtEnd(cursor) {
-  // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
-  // ancestor cmd is at the end of every ancestor block
-  var cmd = this.parent, ancestorCmd = cursor;
-  do {
-    if (ancestorCmd[R]) return cursor.insLeftOf(cmd);
-    ancestorCmd = ancestorCmd.parent.parent;
-  } while (ancestorCmd !== cmd);
-  cursor.insRightOf(cmd);
-}
-
-LatexCmds.subscript =
-LatexCmds._ = P(SupSub, function(_, super_) {
-  _.supsub = 'sub';
-  _.htmlTemplate =
-      '<span class="mq-supsub mq-non-leaf">'
-    +   '<span class="mq-sub">&0</span>'
-    +   '<span style="display:inline-block;width:0">&#8203;</span>'
-    + '</span>'
-  ;
-  _.textTemplate = [ '_' ];
-  _.finalizeTree = function() {
-    this.downInto = this.sub = this.ends[L];
-    this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
-    super_.finalizeTree.call(this);
-  };
-});
-
-LatexCmds.superscript =
-LatexCmds.supscript =
-LatexCmds['^'] = P(SupSub, function(_, super_) {
-  _.supsub = 'sup';
-  _.htmlTemplate =
-      '<span class="mq-supsub mq-non-leaf mq-sup-only">'
-    +   '<span class="mq-sup">&0</span>'
-    + '</span>'
-  ;
-  _.textTemplate = [ '^' ];
-  _.finalizeTree = function() {
-    this.upInto = this.sup = this.ends[R];
-    this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
-    super_.finalizeTree.call(this);
-  };
-  _.reflow = function() {
-     var $block = this.jQ;//mq-supsub
-
-     var h = $block.prev().innerHeight() ;
-     h *= 0.6 ;
-
-     $block.css( 'vertical-align',  h + 'px' ) ;
-
-  } ;
-});
-
-var SummationNotation = P(MathCommand, function(_, super_) {
-  _.init = function(ch, html) {
-    var htmlTemplate =
-      '<span class="mq-large-operator mq-non-leaf">'
-    +   '<span class="mq-to"><span>&1</span></span>'
-    +   '<big>'+html+'</big>'
-    +   '<span class="mq-from"><span>&0</span></span>'
-    + '</span>'
-    ;
-    Symbol.prototype.init.call(this, ch, htmlTemplate);
-  };
-  _.createLeftOf = function(cursor) {
-    super_.createLeftOf.apply(this, arguments);
-    if (cursor.options.sumStartsWithNEquals) {
-      Letter('n').createLeftOf(cursor);
-      Equality().createLeftOf(cursor);
-    }
-  };
-  _.latex = function() {
-    function simplify(latex) {
-      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
-    }
-    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
-      '^' + simplify(this.ends[R].latex());
-  };
-  _.parser = function() {
-    var string = Parser.string;
-    var optWhitespace = Parser.optWhitespace;
-    var succeed = Parser.succeed;
-    var block = latexMathParser.block;
-
-    var self = this;
-    var blocks = self.blocks = [ MathBlock(), MathBlock() ];
-    for (var i = 0; i < blocks.length; i += 1) {
-      blocks[i].adopt(self, self.ends[R], 0);
-    }
-
-    return optWhitespace.then(string('_').or(string('^'))).then(function(supOrSub) {
-      var child = blocks[supOrSub === '_' ? 0 : 1];
-      return block.then(function(block) {
-        block.children().adopt(child, child.ends[R], 0);
-        return succeed(self);
-      });
-    }).many().result(self);
-  };
-  _.finalizeTree = function() {
-    this.downInto = this.ends[L];
-    this.upInto = this.ends[R];
-    this.ends[L].upOutOf = this.ends[R];
-    this.ends[R].downOutOf = this.ends[L];
-  };
-});
-
-LatexCmds['\u2211'] =
-LatexCmds.sum =
-LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
-
-LatexCmds['\u220f'] =
-LatexCmds.prod =
-LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
-
-LatexCmds.coprod =
-LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
-
-LatexCmds['\u222b'] =
-LatexCmds['int'] =
-LatexCmds.integral = P(SummationNotation, function(_, super_) {
-  _.init = function() {
-    var htmlTemplate =
-      '<span class="mq-int mq-non-leaf">'
-    +   '<big>&int;</big>'
-    +   '<span class="mq-supsub mq-non-leaf">'
-    +     '<span class="mq-sup"><span class="mq-sup-inner">&1</span></span>'
-    +     '<span class="mq-sub">&0</span>'
-    +     '<span style="display:inline-block;width:0">&#8203</span>'
-    +   '</span>'
-    + '</span>'
-    ;
-    Symbol.prototype.init.call(this, '\\int ', htmlTemplate);
-  };
-  // FIXME: refactor rather than overriding
-  _.createLeftOf = MathCommand.p.createLeftOf;
-});
-
-var Fraction =
-LatexCmds.frac =
-LatexCmds.dfrac =
-LatexCmds.cfrac =
-LatexCmds.fraction = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\frac';
-  _.htmlTemplate =
-      '<span class="mq-fraction mq-non-leaf">'
-    +   '<span class="mq-numerator">&0</span>'
-    +   '<span class="mq-denominator">&1</span>'
-    +   '<span style="display:inline-block;width:0">&#8203;</span>'
-    + '</span>'
-  ;
-  _.textTemplate = ['(', ')/(', ')'];
-  _.finalizeTree = function() {
-    this.upInto = this.ends[R].upOutOf = this.ends[L];
-    this.downInto = this.ends[L].downOutOf = this.ends[R];
-  };
-});
-
-var LiveFraction =
-LatexCmds.over =
-CharCmds['/'] = P(Fraction, function(_, super_) {
-  _.createLeftOf = function(cursor) {
-    if (!this.replacedFragment) {
-      var leftward = cursor[L];
-      while (leftward &&
-        !(
-          leftward instanceof BinaryOperator ||
-          leftward instanceof (LatexCmds.text || noop) ||
-          leftward instanceof SummationNotation ||
-          leftward.ctrlSeq === '\\ ' ||
-          /^[,;:]$/.test(leftward.ctrlSeq)
-        ) //lookbehind for operator
-      ) leftward = leftward[L];
-
-      if (leftward instanceof SummationNotation && leftward[R] instanceof SupSub) {
-        leftward = leftward[R];
-        if (leftward[R] instanceof SupSub && leftward[R].ctrlSeq != leftward.ctrlSeq)
-          leftward = leftward[R];
-      }
-
-      if (leftward !== cursor[L]) {
-        this.replaces(Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
-        cursor[L] = leftward;
-      }
-    }
-    super_.createLeftOf.call(this, cursor);
-  };
-});
-
-var SquareRoot =
-LatexCmds.sqrt =
-LatexCmds['\u221a'] = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\sqrt';
-  _.htmlTemplate =
-      '<span class="mq-non-leaf">'
-    +   '<span class="mq-scaled mq-sqrt-prefix">&radic;</span>'
-    +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
-    + '</span>'
-  ;
-  _.textTemplate = ['sqrt(', ')'];
-  _.parser = function() {
-    return latexMathParser.optBlock.then(function(optBlock) {
-      return latexMathParser.block.map(function(block) {
-        var nthroot = NthRoot();
-        nthroot.blocks = [ optBlock, block ];
-        optBlock.adopt(nthroot, 0, 0);
-        block.adopt(nthroot, optBlock, 0);
-        return nthroot;
-      });
-    }).or(super_.parser.call(this));
-  };
-  _.reflow = function() {
-    var block = this.ends[R].jQ;
-    scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
-  };
-});
-
-//LatexCmds.hat  = bind(Style, '\\hat', 'span', 'class="mq-non-leaf mq-overline"');
-
-var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\hat';
-  _.htmlTemplate =
-      '<span class="mq-non-leaf">'
-    +   '<span class="mq-scaled mq-hat-prefix">^</span>'
-    +   '<span class="mq-scaled mq-hat-stem">&0</span>'
-    + '</span>'
-  ;
-  _.textTemplate = ['hat(', ')'];
-});
-
-var NthRoot =
-LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
-  _.htmlTemplate =
-      '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
-    + '<span class="mq-scaled">'
-    +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
-    +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
-    + '</span>'
-  ;
-  _.textTemplate = ['sqrt[', '](', ')'];
-  _.latex = function() {
-    return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
-  };
-});
-
-var DiacriticAbove = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, symbol, textTemplate) {
-    var htmlTemplate =
-      '<span class="mq-non-leaf">'
-      +   '<span class="mq-diacritic-above">'+symbol+'</span>'
-      +   '<span class="mq-diacritic-stem">&0</span>'
-      + '</span>'
-    ;
-
-    super_.init.call(this, ctrlSeq, htmlTemplate, textTemplate);
-  };
-});
-LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
-LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
-
-function DelimsMixin(_, super_) {
-  _.jQadd = function() {
-    super_.jQadd.apply(this, arguments);
-    this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
-    this.contentjQ = this.jQ.children(':eq(1)');
-  };
-  _.reflow = function() {
-    var height = this.contentjQ.outerHeight()
-                 / parseFloat(this.contentjQ.css('fontSize'));
-    scale(this.delimjQs, min(1 + .2*(height - 1), 1.2), 1.2*height);
-  };
-}
-
-// Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
-//   first typed as one-sided bracket with matching "ghost" bracket at
-//   far end of current block, until you type an opposing one
-var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
-  _.init = function(side, open, close, ctrlSeq, end) {
-    super_.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
-    this.side = side;
-    this.sides = {};
-    this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };
-    this.sides[R] = { ch: close, ctrlSeq: end };
-  };
-  _.numBlocks = function() { return 1; };
-  _.html = function() { // wait until now so that .side may
-    this.htmlTemplate = // be set by createLeftOf or parser
-        '<span class="mq-non-leaf">'
-      +   '<span class="mq-scaled mq-paren'+(this.side === R ? ' mq-ghost' : '')+'">'
-      +     this.sides[L].ch
-      +   '</span>'
-      +   '<span class="mq-non-leaf">&0</span>'
-      +   '<span class="mq-scaled mq-paren'+(this.side === L ? ' mq-ghost' : '')+'">'
-      +     this.sides[R].ch
-      +   '</span>'
-      + '</span>'
-    ;
-    return super_.html.call(this);
-  };
-  _.latex = function() {
-    return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
-  };
-  _.matchBrack = function(opts, expectedSide, node) {
-    // return node iff it's a matching 1-sided bracket of expected side (if any)
-    return node instanceof Bracket && node.side && node.side !== -expectedSide
-      && (!opts.restrictMismatchedBrackets
-        || OPP_BRACKS[this.sides[this.side].ch] === node.sides[node.side].ch
-        || { '(': ']', '[': ')' }[this.sides[L].ch] === node.sides[R].ch) && node;
-  };
-  _.closeOpposing = function(brack) {
-    brack.side = 0;
-    brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
-    brack.delimjQs.eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
-      .removeClass('mq-ghost').html(this.sides[this.side].ch);
-  };
-  _.createLeftOf = function(cursor) {
-    if (!this.replacedFragment) { // unless wrapping seln in brackets,
-        // check if next to or inside an opposing one-sided bracket
-      var opts = cursor.options;
-      if (this.sides[L].ch === '|') { // check both sides if I'm a pipe
-        var brack = this.matchBrack(opts, R, cursor[R])
-                 || this.matchBrack(opts, L, cursor[L])
-                 || this.matchBrack(opts, 0, cursor.parent.parent);
-      }
-      else {
-        var brack = this.matchBrack(opts, -this.side, cursor[-this.side])
-                 || this.matchBrack(opts, -this.side, cursor.parent.parent);
-      }
-    }
-    if (brack) {
-      var side = this.side = -brack.side; // may be pipe with .side not yet set
-      this.closeOpposing(brack);
-      if (brack === cursor.parent.parent && cursor[side]) { // move the stuff between
-        Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
-          .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
-          .jQ.insDirOf(side, brack.jQ);
-      }
-      brack.bubble('reflow');
-    }
-    else {
-      brack = this, side = brack.side;
-      if (brack.replacedFragment) brack.side = 0; // wrapping seln, don't be one-sided
-      else if (cursor[-side]) { // elsewise, auto-expand so ghost is at far end
-        brack.replaces(Fragment(cursor[-side], cursor.parent.ends[-side], side));
-        cursor[-side] = 0;
-      }
-      super_.createLeftOf.call(brack, cursor);
-    }
-    if (side === L) cursor.insAtLeftEnd(brack.ends[L]);
-    else cursor.insRightOf(brack);
-  };
-  _.placeCursor = noop;
-  _.unwrap = function() {
-    this.ends[L].children().disown().adopt(this.parent, this, this[R])
-      .jQ.insertAfter(this.jQ);
-    this.remove();
-  };
-  _.deleteSide = function(side, outward, cursor) {
-    var parent = this.parent, sib = this[side], farEnd = parent.ends[side];
-
-    if (side === this.side) { // deleting non-ghost of one-sided bracket, unwrap
-      this.unwrap();
-      sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
-      return;
-    }
-
-    var opts = cursor.options, wasSolid = !this.side;
-    this.side = -side;
-    // if deleting like, outer close-brace of [(1+2)+3} where inner open-paren
-    if (this.matchBrack(opts, side, this.ends[L].ends[this.side])) { // is ghost,
-      this.closeOpposing(this.ends[L].ends[this.side]); // then become [1+2)+3
-      var origEnd = this.ends[L].ends[side];
-      this.unwrap();
-      if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
-      sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
-    }
-    else { // if deleting like, inner close-brace of ([1+2}+3) where outer
-      if (this.matchBrack(opts, side, this.parent.parent)) { // open-paren is
-        this.parent.parent.closeOpposing(this); // ghost, then become [1+2+3)
-        this.parent.parent.unwrap();
-      } // else if deleting outward from a solid pair, unwrap
-      else if (outward && wasSolid) {
-        this.unwrap();
-        sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
-        return;
-      }
-      else { // else deleting just one of a pair of brackets, become one-sided
-        this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
-                             ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
-        this.delimjQs.removeClass('mq-ghost')
-          .eq(side === L ? 0 : 1).addClass('mq-ghost').html(this.sides[side].ch);
-      }
-      if (sib) { // auto-expand so ghost is at far end
-        var origEnd = this.ends[L].ends[side];
-        Fragment(sib, farEnd, -side).disown()
-          .withDirAdopt(-side, this.ends[L], origEnd, 0)
-          .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('mq-empty'));
-        if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
-        cursor.insDirOf(-side, sib);
-      } // didn't auto-expand, cursor goes just outside or just inside parens
-      else (outward ? cursor.insDirOf(side, this)
-                    : cursor.insAtDirEnd(side, this.ends[L]));
-    }
-  };
-  _.deleteTowards = function(dir, cursor) {
-    this.deleteSide(-dir, false, cursor);
-  };
-  _.finalizeTree = function() {
-    this.ends[L].deleteOutOf = function(dir, cursor) {
-      this.parent.deleteSide(dir, true, cursor);
-    };
-    // FIXME HACK: after initial creation/insertion, finalizeTree would only be
-    // called if the paren is selected and replaced, e.g. by LiveFraction
-    this.finalizeTree = this.intentionalBlur = function() {
-      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('mq-ghost');
-      this.side = 0;
-    };
-  };
-  _.siblingCreated = function(opts, dir) { // if something typed between ghost and far
-    if (dir === -this.side) this.finalizeTree(); // end of its block, solidify
-  };
-});
-
-var OPP_BRACKS = {
-  '(': ')',
-  ')': '(',
-  '[': ']',
-  ']': '[',
-  '{': '}',
-  '}': '{',
-  '\\{': '\\}',
-  '\\}': '\\{',
-  '&lang;': '&rang;',
-  '&rang;': '&lang;',
-  '\\langle ': '\\rangle ',
-  '\\rangle ': '\\langle ',
-  '|': '|',
-  '\\lVert ' : '\\rVert ',
-  '\\rVert ' : '\\lVert ',
-};
-
-function bindCharBracketPair(open, ctrlSeq) {
-  var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
-  CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
-  CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
-}
-bindCharBracketPair('(');
-bindCharBracketPair('[');
-bindCharBracketPair('{', '\\{');
-LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
-LatexCmds.lVert = bind(Bracket, L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
-LatexCmds.rVert = bind(Bracket, R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
-
-LatexCmds.left = P(MathCommand, function(_) {
-  _.parser = function() {
-    var regex = Parser.regex;
-    var string = Parser.string;
-    var succeed = Parser.succeed;
-    var optWhitespace = Parser.optWhitespace;
-
-    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle\b|\\lVert\b)/))
-      .then(function(ctrlSeq) {
-        var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
-	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
-	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
-        return latexMathParser.then(function (block) {
-          return string('\\right').skip(optWhitespace)
-            .then(regex(/^(?:[\])|]|\\\}|\\rangle\b|\\rVert\b)/)).map(function(end) {
-              var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
-	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
-	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
-              var cmd = Bracket(0, open, close, ctrlSeq, end);
-              cmd.blocks = [ block ];
-              block.adopt(cmd, 0, 0);
-              return cmd;
-            })
-          ;
-        });
-      })
-    ;
-  };
-});
-
-LatexCmds.right = P(MathCommand, function(_) {
-  _.parser = function() {
-    return Parser.fail('unmatched \\right');
-  };
-});
-
-var Binomial =
-LatexCmds.binom =
-LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
-  _.ctrlSeq = '\\binom';
-  _.htmlTemplate =
-      '<span class="mq-non-leaf">'
-    +   '<span class="mq-paren mq-scaled">(</span>'
-    +   '<span class="mq-non-leaf">'
-    +     '<span class="mq-array mq-non-leaf">'
-    +       '<span>&0</span>'
-    +       '<span>&1</span>'
-    +     '</span>'
-    +   '</span>'
-    +   '<span class="mq-paren mq-scaled">)</span>'
-    + '</span>'
-  ;
-  _.textTemplate = ['choose(',',',')'];
-});
-
-var Choose =
-LatexCmds.choose = P(Binomial, function(_) {
-  _.createLeftOf = LiveFraction.prototype.createLeftOf;
-});
-
-LatexCmds.editable = // backcompat with before cfd3620 on #233
-LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\MathQuillMathField';
-  _.htmlTemplate =
-      '<span class="mq-editable-field">'
-    +   '<span class="mq-root-block">&0</span>'
-    + '</span>'
-  ;
-  _.parser = function() {
-    var self = this,
-      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
-    return string('[').then(regex(/^[a-z][a-z0-9]*/i)).skip(string(']'))
-      .map(function(name) { self.name = name; }).or(succeed())
-      .then(super_.parser.call(self));
-  };
-  _.finalizeTree = function(options) {
-    var ctrlr = Controller(this.ends[L], this.jQ, options);
-    ctrlr.KIND_OF_MQ = 'MathField';
-    ctrlr.editable = true;
-    ctrlr.createTextarea();
-    ctrlr.editablesTextareaEvents();
-    ctrlr.cursor.insAtRightEnd(ctrlr.root);
-    RootBlockMixin(ctrlr.root);
-  };
-  _.registerInnerField = function(innerFields, MathField) {
-    innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
-  };
-  _.latex = function(){ return this.ends[L].latex(); };
-  _.text = function(){ return this.ends[L].text(); };
-});
-
-// Embed arbitrary things
-// Probably the closest DOM analogue would be an iframe?
-// From MathQuill's perspective, it's a Symbol, it can be
-// anywhere and the cursor can go around it but never in it.
-// Create by calling public API method .dropEmbedded(),
-// or by calling the global public API method .registerEmbed()
-// and rendering LaTeX like \embed{registeredName} (see test).
-var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
-  _.setOptions = function(options) {
-    function noop () { return ""; }
-    this.text = options.text || noop;
-    this.htmlTemplate = options.htmlString || "";
-    this.latex = options.latex || noop;
-    return this;
-  };
-  _.parser = function() {
-    var self = this,
-      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
-    return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
-      .then(function(name) {
-        // the chars allowed in the optional data block are arbitrary other than
-        // excluding curly braces and square brackets (which'd be too confusing)
-        return string('[').then(regex(/^[-\w\s]*/)).skip(string(']'))
-          .or(succeed()).map(function(data) {
-            return self.setOptions(EMBEDS[name](data));
-          })
-        ;
-      })
-    ;
-  };
-});
 /************************************
  * Symbols for Advanced Mathematics
  ***********************************/
@@ -4315,9 +3453,8 @@ LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
   bind(BinaryOperator,'\\not\\supseteq ','&#8841;');
 
-// TODO - the output of none of these parse
+
 //the canonical sets of numbers
-/*
 LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
   bind(VanillaSymbol,'\\mathbb{N}','&#8469;');
 
@@ -4344,7 +3481,6 @@ LatexCmds.complexplane = LatexCmds.Complexplane = LatexCmds.ComplexPlane =
 
 LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaternions =
   bind(VanillaSymbol,'\\mathbb{H}','&#8461;');
-  */
 
 //spacing
 LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
@@ -4475,9 +3611,8 @@ LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;'
 LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
 LatexCmds.hbar = bind(VanillaSymbol,'\\hbar ','&#8463;');
 
-// output does not parse
-//LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
-//  bind(VanillaSymbol,'\\text\\AA ','&#8491;');
+LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
+  bind(VanillaSymbol,'\\text\\AA ','&#8491;');
 
 LatexCmds.ring = LatexCmds.circ = LatexCmds.circle =
   bind(VanillaSymbol,'\\circ ','&#8728;');
@@ -5100,6 +4235,870 @@ LatexCmds['\u00f7'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
 CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~');
+/***************************
+ * Commands and Operators.
+ **************************/
+
+var scale, // = function(jQ, x, y) { ... }
+//will use a CSS 2D transform to scale the jQuery-wrapped HTML elements,
+//or the filter matrix transform fallback for IE 5.5-8, or gracefully degrade to
+//increasing the fontSize to match the vertical Y scaling factor.
+
+//ideas from http://github.com/louisremi/jquery.transform.js
+//see also http://msdn.microsoft.com/en-us/library/ms533014(v=vs.85).aspx
+
+  forceIERedraw = noop,
+  div = document.createElement('div'),
+  div_style = div.style,
+  transformPropNames = {
+    transform:1,
+    WebkitTransform:1,
+    MozTransform:1,
+    OTransform:1,
+    msTransform:1
+  },
+  transformPropName;
+
+for (var prop in transformPropNames) {
+  if (prop in div_style) {
+    transformPropName = prop;
+    break;
+  }
+}
+
+if (transformPropName) {
+  scale = function(jQ, x, y) {
+    jQ.css(transformPropName, 'scale('+x+','+y+')');
+  };
+}
+else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.com/laughinghan/mathquill/wiki/Transforms
+  forceIERedraw = function(el){ el.className = el.className; };
+  scale = function(jQ, x, y) { //NOTE: assumes y > x
+    x /= (1+(y-1)/2);
+    jQ.css('fontSize', y + 'em');
+    if (!jQ.hasClass('mq-matrixed-container')) {
+      jQ.addClass('mq-matrixed-container')
+      .wrapInner('<span class="mq-matrixed"></span>');
+    }
+    var innerjQ = jQ.children()
+    .css('filter', 'progid:DXImageTransform.Microsoft'
+        + '.Matrix(M11=' + x + ",SizingMethod='auto expand')"
+    );
+    function calculateMarginRight() {
+      jQ.css('marginRight', (innerjQ.width()-1)*(x-1)/x + 'px');
+    }
+    calculateMarginRight();
+    var intervalId = setInterval(calculateMarginRight);
+    $(window).load(function() {
+      clearTimeout(intervalId);
+      calculateMarginRight();
+    });
+  };
+}
+else {
+  scale = function(jQ, x, y) {
+    jQ.css('fontSize', y + 'em');
+  };
+}
+
+var Style = P(MathCommand, function(_, super_) {
+  _.init = function(ctrlSeq, tagName, attrs) {
+    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
+  };
+});
+
+//fonts
+LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
+LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
+LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
+LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"');
+LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
+//text-decoration
+LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
+LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
+LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-both"');
+LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"');
+LatexCmds.dot = P(MathCommand, function(_, super_) {
+    _.init = function() {
+        super_.init.call(this, '\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
+            + '<span class="mq-dot-recurring">&#x2d9;</span>'
+            + '<span class="mq-empty-box">&0</span>'
+            + '</span></span>'
+        );
+    };
+});
+
+// `\textcolor{color}{math}` will apply a color to the given math content, where
+// `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
+// [Mozilla docs][], or [W3C spec][]).
+//
+// [SitePoint docs]: http://reference.sitepoint.com/css/colorvalues
+// [Mozilla docs]: https://developer.mozilla.org/en-US/docs/CSS/color_value#Values
+// [W3C spec]: http://dev.w3.org/csswg/css3-color/#colorunits
+var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
+  _.setColor = function(color) {
+    this.color = color;
+    this.htmlTemplate =
+      '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
+  };
+  _.latex = function() {
+    return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
+  };
+  _.parser = function() {
+    var self = this;
+    var optWhitespace = Parser.optWhitespace;
+    var string = Parser.string;
+    var regex = Parser.regex;
+
+    return optWhitespace
+      .then(string('{'))
+      .then(regex(/^[#\w\s.,()%-]*/))
+      .skip(string('}'))
+      .then(function(color) {
+        self.setColor(color);
+        return super_.parser.call(self);
+      })
+    ;
+  };
+  _.isStyleBlock = function() {
+    return true;
+  };
+});
+
+// Very similar to the \textcolor command, but will add the given CSS class.
+// Usage: \class{classname}{math}
+// Note regex that whitelists valid CSS classname characters:
+// https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
+var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
+  _.parser = function() {
+    var self = this, string = Parser.string, regex = Parser.regex;
+    return Parser.optWhitespace
+      .then(string('{'))
+      .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
+      .skip(string('}'))
+      .then(function(cls) {
+        self.cls = cls || '';
+        self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
+        return super_.parser.call(self);
+      })
+    ;
+  };
+  _.latex = function() {
+    return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
+  };
+  _.isStyleBlock = function() {
+    return true;
+  };
+});
+
+var SupSub = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '_{...}^{...}';
+  _.createLeftOf = function(cursor) {
+    if (!this.replacedFragment && !cursor[L] && cursor.options.supSubsRequireOperand) return;
+    return super_.createLeftOf.apply(this, arguments);
+  };
+  _.contactWeld = function(cursor) {
+    // Look on either side for a SupSub, if one is found compare my
+    // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
+    // then call .addBlock() on it with my block; if I have one that
+    // it also has, then insert my block's children into its block,
+    // unless my block has none, in which case insert the cursor into
+    // its block (and not mine, I'm about to remove myself) in the case
+    // I was just typed.
+    // TODO: simplify
+
+    // equiv. to [L, R].forEach(function(dir) { ... });
+    for (var dir = L; dir; dir = (dir === L ? R : false)) {
+      if (this[dir] instanceof SupSub) {
+        // equiv. to 'sub sup'.split(' ').forEach(function(supsub) { ... });
+        for (var supsub = 'sub'; supsub; supsub = (supsub === 'sub' ? 'sup' : false)) {
+          var src = this[supsub], dest = this[dir][supsub];
+          if (!src) continue;
+          if (!dest) this[dir].addBlock(src.disown());
+          else if (!src.isEmpty()) { // ins src children at -dir end of dest
+            src.jQ.children().insAtDirEnd(-dir, dest.jQ);
+            var children = src.children().disown();
+            var pt = Point(dest, children.ends[R], dest.ends[L]);
+            if (dir === L) children.adopt(dest, dest.ends[R], 0);
+            else children.adopt(dest, 0, dest.ends[L]);
+          }
+          else var pt = Point(dest, 0, dest.ends[L]);
+          this.placeCursor = (function(dest, src) { // TODO: don't monkey-patch
+            return function(cursor) { cursor.insAtDirEnd(-dir, dest || src); };
+          }(dest, src));
+        }
+        this.remove();
+        if (cursor && cursor[L] === this) {
+          if (dir === R && pt) {
+            pt[L] ? cursor.insRightOf(pt[L]) : cursor.insAtLeftEnd(pt.parent);
+          }
+          else cursor.insRightOf(this[dir]);
+        }
+        break;
+      }
+    }
+  };
+  Options.p.charsThatBreakOutOfSupSub = '';
+  _.finalizeTree = function() {
+    this.ends[L].write = function(cursor, ch) {
+      if (cursor.options.autoSubscriptNumerals && this === this.parent.sub) {
+        if (ch === '_') return;
+        var cmd = this.chToCmd(ch, cursor.options);
+        if (cmd instanceof Symbol) cursor.deleteSelection();
+        else cursor.clearSelection().insRightOf(this.parent);
+        return cmd.createLeftOf(cursor.show());
+      }
+      if (cursor[L] && !cursor[R] && !cursor.selection
+          && cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
+        cursor.insRightOf(this.parent);
+      }
+      MathBlock.p.write.apply(this, arguments);
+    };
+  };
+  _.moveTowards = function(dir, cursor, updown) {
+    if (cursor.options.autoSubscriptNumerals && !this.sup) {
+      cursor.insDirOf(dir, this);
+    }
+    else super_.moveTowards.apply(this, arguments);
+  };
+  _.deleteTowards = function(dir, cursor) {
+    if (cursor.options.autoSubscriptNumerals && this.sub) {
+      var cmd = this.sub.ends[-dir];
+      if (cmd instanceof Symbol) cmd.remove();
+      else if (cmd) cmd.deleteTowards(dir, cursor.insAtDirEnd(-dir, this.sub));
+
+      // TODO: factor out a .removeBlock() or something
+      if (this.sub.isEmpty()) {
+        this.sub.deleteOutOf(L, cursor.insAtLeftEnd(this.sub));
+        if (this.sup) cursor.insDirOf(-dir, this);
+        // Note `-dir` because in e.g. x_1^2| want backspacing (leftward)
+        // to delete the 1 but to end up rightward of x^2; with non-negated
+        // `dir` (try it), the cursor appears to have gone "through" the ^2.
+      }
+    }
+    else super_.deleteTowards.apply(this, arguments);
+  };
+  _.latex = function() {
+    function latex(prefix, block) {
+      var l = block && block.latex();
+      return block ? prefix + (l.length === 1 ? l : '{' + (l || ' ') + '}') : '';
+    }
+    return latex('_', this.sub) + latex('^', this.sup);
+  };
+  _.addBlock = function(block) {
+    if (this.supsub === 'sub') {
+      this.sup = this.upInto = this.sub.upOutOf = block;
+      block.adopt(this, this.sub, 0).downOutOf = this.sub;
+      block.jQ = $('<span class="mq-sup"/>').append(block.jQ.children())
+        .attr(mqBlockId, block.id).prependTo(this.jQ);
+    }
+    else {
+      this.sub = this.downInto = this.sup.downOutOf = block;
+      block.adopt(this, 0, this.sup).upOutOf = this.sup;
+      block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
+        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('mq-sup-only'));
+      this.jQ.append('<span style="display:inline-block;width:0">&#8203;</span>');
+    }
+    // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
+    for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
+      cmd[supsub].deleteOutOf = function(dir, cursor) {
+        cursor.insDirOf((this[dir] ? -dir : dir), this.parent);
+        if (!this.isEmpty()) {
+          var end = this.ends[dir];
+          this.children().disown()
+            .withDirAdopt(dir, cursor.parent, cursor[dir], cursor[-dir])
+            .jQ.insDirOf(-dir, cursor.jQ);
+          cursor[-dir] = end;
+        }
+        cmd.supsub = oppositeSupsub;
+        delete cmd[supsub];
+        delete cmd[updown+'Into'];
+        cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
+        delete cmd[oppositeSupsub].deleteOutOf;
+        if (supsub === 'sub') $(cmd.jQ.addClass('mq-sup-only')[0].lastChild).remove();
+        this.remove();
+      };
+    }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
+  };
+});
+
+function insLeftOfMeUnlessAtEnd(cursor) {
+  // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
+  // ancestor cmd is at the end of every ancestor block
+  var cmd = this.parent, ancestorCmd = cursor;
+  do {
+    if (ancestorCmd[R]) return cursor.insLeftOf(cmd);
+    ancestorCmd = ancestorCmd.parent.parent;
+  } while (ancestorCmd !== cmd);
+  cursor.insRightOf(cmd);
+}
+
+LatexCmds.subscript =
+LatexCmds._ = P(SupSub, function(_, super_) {
+  _.supsub = 'sub';
+  _.htmlTemplate =
+      '<span class="mq-supsub mq-non-leaf">'
+    +   '<span class="mq-sub">&0</span>'
+    +   '<span style="display:inline-block;width:0">&#8203;</span>'
+    + '</span>'
+  ;
+  _.textTemplate = [ '_' ];
+  _.finalizeTree = function() {
+    this.downInto = this.sub = this.ends[L];
+    this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
+    super_.finalizeTree.call(this);
+  };
+});
+
+LatexCmds.superscript =
+LatexCmds.supscript =
+LatexCmds['^'] = P(SupSub, function(_, super_) {
+  _.supsub = 'sup';
+  _.htmlTemplate =
+      '<span class="mq-supsub mq-non-leaf mq-sup-only">'
+    +   '<span class="mq-sup">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = [ '^' ];
+  _.finalizeTree = function() {
+    this.upInto = this.sup = this.ends[R];
+    this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
+    super_.finalizeTree.call(this);
+  };
+  _.reflow = function() {
+     var $block = this.jQ;//mq-supsub
+
+     var h = $block.prev().innerHeight() ;
+     h *= 0.6 ;
+
+     $block.css( 'vertical-align',  h + 'px' ) ;
+
+  } ;
+});
+
+var SummationNotation = P(MathCommand, function(_, super_) {
+  _.init = function(ch, html) {
+    var htmlTemplate =
+      '<span class="mq-large-operator mq-non-leaf">'
+    +   '<span class="mq-to"><span>&1</span></span>'
+    +   '<big>'+html+'</big>'
+    +   '<span class="mq-from"><span>&0</span></span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, ch, htmlTemplate);
+  };
+  _.createLeftOf = function(cursor) {
+    super_.createLeftOf.apply(this, arguments);
+    if (cursor.options.sumStartsWithNEquals) {
+      Letter('n').createLeftOf(cursor);
+      Equality().createLeftOf(cursor);
+    }
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
+      '^' + simplify(this.ends[R].latex());
+  };
+  _.parser = function() {
+    var string = Parser.string;
+    var optWhitespace = Parser.optWhitespace;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    var self = this;
+    var blocks = self.blocks = [ MathBlock(), MathBlock() ];
+    for (var i = 0; i < blocks.length; i += 1) {
+      blocks[i].adopt(self, self.ends[R], 0);
+    }
+
+    return optWhitespace.then(string('_').or(string('^'))).then(function(supOrSub) {
+      var child = blocks[supOrSub === '_' ? 0 : 1];
+      return block.then(function(block) {
+        block.children().adopt(child, child.ends[R], 0);
+        return succeed(self);
+      });
+    }).many().result(self);
+  };
+  _.finalizeTree = function() {
+    this.downInto = this.ends[L];
+    this.upInto = this.ends[R];
+    this.ends[L].upOutOf = this.ends[R];
+    this.ends[R].downOutOf = this.ends[L];
+  };
+});
+
+LatexCmds['\u2211'] =
+LatexCmds.sum =
+LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
+
+LatexCmds['\u220f'] =
+LatexCmds.prod =
+LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
+
+LatexCmds.coprod =
+LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
+
+LatexCmds['\u222b'] =
+LatexCmds['int'] =
+LatexCmds.integral = P(SummationNotation, function(_, super_) {
+  _.init = function() {
+    var htmlTemplate =
+      '<span class="mq-int mq-non-leaf">'
+    +   '<big>&int;</big>'
+    +   '<span class="mq-supsub mq-non-leaf">'
+    +     '<span class="mq-sup"><span class="mq-sup-inner">&1</span></span>'
+    +     '<span class="mq-sub">&0</span>'
+    +     '<span style="display:inline-block;width:0">&#8203</span>'
+    +   '</span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, '\\int ', htmlTemplate);
+  };
+  // FIXME: refactor rather than overriding
+  _.createLeftOf = MathCommand.p.createLeftOf;
+});
+
+var Fraction =
+LatexCmds.frac =
+LatexCmds.dfrac =
+LatexCmds.cfrac =
+LatexCmds.fraction = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\frac';
+  _.htmlTemplate =
+      '<span class="mq-fraction mq-non-leaf">'
+    +   '<span class="mq-numerator">&0</span>'
+    +   '<span class="mq-denominator">&1</span>'
+    +   '<span style="display:inline-block;width:0">&#8203;</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['(', ')/(', ')'];
+  _.finalizeTree = function() {
+    this.upInto = this.ends[R].upOutOf = this.ends[L];
+    this.downInto = this.ends[L].downOutOf = this.ends[R];
+  };
+});
+
+var LiveFraction =
+LatexCmds.over =
+CharCmds['/'] = P(Fraction, function(_, super_) {
+  _.createLeftOf = function(cursor) {
+    if (!this.replacedFragment) {
+      var leftward = cursor[L];
+      while (leftward &&
+        !(
+          leftward instanceof BinaryOperator ||
+          leftward instanceof (LatexCmds.text || noop) ||
+          leftward instanceof SummationNotation ||
+          leftward.ctrlSeq === '\\ ' ||
+          /^[,;:]$/.test(leftward.ctrlSeq)
+        ) //lookbehind for operator
+      ) leftward = leftward[L];
+
+      if (leftward instanceof SummationNotation && leftward[R] instanceof SupSub) {
+        leftward = leftward[R];
+        if (leftward[R] instanceof SupSub && leftward[R].ctrlSeq != leftward.ctrlSeq)
+          leftward = leftward[R];
+      }
+
+      if (leftward !== cursor[L]) {
+        this.replaces(Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
+        cursor[L] = leftward;
+      }
+    }
+    super_.createLeftOf.call(this, cursor);
+  };
+});
+
+var SquareRoot =
+LatexCmds.sqrt =
+LatexCmds['\u221a'] = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\sqrt';
+  _.htmlTemplate =
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-scaled mq-sqrt-prefix">&radic;</span>'
+    +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['sqrt(', ')'];
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var nthroot = NthRoot();
+        nthroot.blocks = [ optBlock, block ];
+        optBlock.adopt(nthroot, 0, 0);
+        block.adopt(nthroot, optBlock, 0);
+        return nthroot;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.reflow = function() {
+    var block = this.ends[R].jQ;
+    scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
+  };
+});
+
+var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\hat';
+  _.htmlTemplate =
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-hat-prefix">^</span>'
+    +   '<span class="mq-hat-stem">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['hat(', ')'];
+});
+
+var NthRoot =
+LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
+  _.htmlTemplate =
+      '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
+    + '<span class="mq-scaled">'
+    +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
+    +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['sqrt[', '](', ')'];
+  _.latex = function() {
+    return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
+  };
+});
+
+var DiacriticAbove = P(MathCommand, function(_, super_) {
+  _.init = function(ctrlSeq, symbol, textTemplate) {
+    var htmlTemplate =
+      '<span class="mq-non-leaf">'
+      +   '<span class="mq-diacritic-above">'+symbol+'</span>'
+      +   '<span class="mq-diacritic-stem">&0</span>'
+      + '</span>'
+    ;
+
+    super_.init.call(this, ctrlSeq, htmlTemplate, textTemplate);
+  };
+});
+LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
+LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
+
+function DelimsMixin(_, super_) {
+  _.jQadd = function() {
+    super_.jQadd.apply(this, arguments);
+    this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
+    this.contentjQ = this.jQ.children(':eq(1)');
+  };
+  _.reflow = function() {
+    var height = this.contentjQ.outerHeight()
+                 / parseFloat(this.contentjQ.css('fontSize'));
+    scale(this.delimjQs, min(1 + .2*(height - 1), 1.2), 1.2*height);
+  };
+}
+
+// Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
+//   first typed as one-sided bracket with matching "ghost" bracket at
+//   far end of current block, until you type an opposing one
+var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
+  _.init = function(side, open, close, ctrlSeq, end) {
+    super_.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
+    this.side = side;
+    this.sides = {};
+    this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };
+    this.sides[R] = { ch: close, ctrlSeq: end };
+  };
+  _.numBlocks = function() { return 1; };
+  _.html = function() { // wait until now so that .side may
+    this.htmlTemplate = // be set by createLeftOf or parser
+        '<span class="mq-non-leaf">'
+      +   '<span class="mq-scaled mq-paren'+(this.side === R ? ' mq-ghost' : '')+'">'
+      +     this.sides[L].ch
+      +   '</span>'
+      +   '<span class="mq-non-leaf">&0</span>'
+      +   '<span class="mq-scaled mq-paren'+(this.side === L ? ' mq-ghost' : '')+'">'
+      +     this.sides[R].ch
+      +   '</span>'
+      + '</span>'
+    ;
+    return super_.html.call(this);
+  };
+  _.latex = function() {
+    return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
+  };
+  _.matchBrack = function(opts, expectedSide, node) {
+    // return node iff it's a matching 1-sided bracket of expected side (if any)
+    return node instanceof Bracket && node.side && node.side !== -expectedSide
+      && (!opts.restrictMismatchedBrackets
+        || OPP_BRACKS[this.sides[this.side].ch] === node.sides[node.side].ch
+        || { '(': ']', '[': ')' }[this.sides[L].ch] === node.sides[R].ch) && node;
+  };
+  _.closeOpposing = function(brack) {
+    brack.side = 0;
+    brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
+    brack.delimjQs.eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
+      .removeClass('mq-ghost').html(this.sides[this.side].ch);
+  };
+  _.createLeftOf = function(cursor) {
+    if (!this.replacedFragment) { // unless wrapping seln in brackets,
+        // check if next to or inside an opposing one-sided bracket
+      var opts = cursor.options;
+      if (this.sides[L].ch === '|') { // check both sides if I'm a pipe
+        var brack = this.matchBrack(opts, R, cursor[R])
+                 || this.matchBrack(opts, L, cursor[L])
+                 || this.matchBrack(opts, 0, cursor.parent.parent);
+      }
+      else {
+        var brack = this.matchBrack(opts, -this.side, cursor[-this.side])
+                 || this.matchBrack(opts, -this.side, cursor.parent.parent);
+      }
+    }
+    if (brack) {
+      var side = this.side = -brack.side; // may be pipe with .side not yet set
+      this.closeOpposing(brack);
+      if (brack === cursor.parent.parent && cursor[side]) { // move the stuff between
+        Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
+          .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
+          .jQ.insDirOf(side, brack.jQ);
+      }
+      brack.bubble('reflow');
+    }
+    else {
+      brack = this, side = brack.side;
+      if (brack.replacedFragment) brack.side = 0; // wrapping seln, don't be one-sided
+      else if (cursor[-side]) { // elsewise, auto-expand so ghost is at far end
+        brack.replaces(Fragment(cursor[-side], cursor.parent.ends[-side], side));
+        cursor[-side] = 0;
+      }
+      super_.createLeftOf.call(brack, cursor);
+    }
+    if (side === L) cursor.insAtLeftEnd(brack.ends[L]);
+    else cursor.insRightOf(brack);
+  };
+  _.placeCursor = noop;
+  _.unwrap = function() {
+    this.ends[L].children().disown().adopt(this.parent, this, this[R])
+      .jQ.insertAfter(this.jQ);
+    this.remove();
+  };
+  _.deleteSide = function(side, outward, cursor) {
+    var parent = this.parent, sib = this[side], farEnd = parent.ends[side];
+
+    if (side === this.side) { // deleting non-ghost of one-sided bracket, unwrap
+      this.unwrap();
+      sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
+      return;
+    }
+
+    var opts = cursor.options, wasSolid = !this.side;
+    this.side = -side;
+    // if deleting like, outer close-brace of [(1+2)+3} where inner open-paren
+    if (this.matchBrack(opts, side, this.ends[L].ends[this.side])) { // is ghost,
+      this.closeOpposing(this.ends[L].ends[this.side]); // then become [1+2)+3
+      var origEnd = this.ends[L].ends[side];
+      this.unwrap();
+      if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
+      sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
+    }
+    else { // if deleting like, inner close-brace of ([1+2}+3) where outer
+      if (this.matchBrack(opts, side, this.parent.parent)) { // open-paren is
+        this.parent.parent.closeOpposing(this); // ghost, then become [1+2+3)
+        this.parent.parent.unwrap();
+      } // else if deleting outward from a solid pair, unwrap
+      else if (outward && wasSolid) {
+        this.unwrap();
+        sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
+        return;
+      }
+      else { // else deleting just one of a pair of brackets, become one-sided
+        this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
+                             ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
+        this.delimjQs.removeClass('mq-ghost')
+          .eq(side === L ? 0 : 1).addClass('mq-ghost').html(this.sides[side].ch);
+      }
+      if (sib) { // auto-expand so ghost is at far end
+        var origEnd = this.ends[L].ends[side];
+        Fragment(sib, farEnd, -side).disown()
+          .withDirAdopt(-side, this.ends[L], origEnd, 0)
+          .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('mq-empty'));
+        if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
+        cursor.insDirOf(-side, sib);
+      } // didn't auto-expand, cursor goes just outside or just inside parens
+      else (outward ? cursor.insDirOf(side, this)
+                    : cursor.insAtDirEnd(side, this.ends[L]));
+    }
+  };
+  _.deleteTowards = function(dir, cursor) {
+    this.deleteSide(-dir, false, cursor);
+  };
+  _.finalizeTree = function() {
+    this.ends[L].deleteOutOf = function(dir, cursor) {
+      this.parent.deleteSide(dir, true, cursor);
+    };
+    // FIXME HACK: after initial creation/insertion, finalizeTree would only be
+    // called if the paren is selected and replaced, e.g. by LiveFraction
+    this.finalizeTree = this.intentionalBlur = function() {
+      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('mq-ghost');
+      this.side = 0;
+    };
+  };
+  _.siblingCreated = function(opts, dir) { // if something typed between ghost and far
+    if (dir === -this.side) this.finalizeTree(); // end of its block, solidify
+  };
+});
+
+var OPP_BRACKS = {
+  '(': ')',
+  ')': '(',
+  '[': ']',
+  ']': '[',
+  '{': '}',
+  '}': '{',
+  '\\{': '\\}',
+  '\\}': '\\{',
+  '&lang;': '&rang;',
+  '&rang;': '&lang;',
+  '\\langle ': '\\rangle ',
+  '\\rangle ': '\\langle ',
+  '|': '|',
+  '\\lVert ' : '\\rVert ',
+  '\\rVert ' : '\\lVert ',
+};
+
+function bindCharBracketPair(open, ctrlSeq) {
+  var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
+  CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
+  CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
+}
+bindCharBracketPair('(');
+bindCharBracketPair('[');
+bindCharBracketPair('{', '\\{');
+LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+LatexCmds.lVert = bind(Bracket, L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
+LatexCmds.rVert = bind(Bracket, R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
+
+LatexCmds.left = P(MathCommand, function(_) {
+  _.parser = function() {
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var succeed = Parser.succeed;
+    var optWhitespace = Parser.optWhitespace;
+
+    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle\b|\\lVert\b)/))
+      .then(function(ctrlSeq) {
+        var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
+	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
+	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
+        return latexMathParser.then(function (block) {
+          return string('\\right').skip(optWhitespace)
+            .then(regex(/^(?:[\])|]|\\\}|\\rangle\b|\\rVert\b)/)).map(function(end) {
+              var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
+	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
+	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
+              var cmd = Bracket(0, open, close, ctrlSeq, end);
+              cmd.blocks = [ block ];
+              block.adopt(cmd, 0, 0);
+              return cmd;
+            })
+          ;
+        });
+      })
+    ;
+  };
+});
+
+LatexCmds.right = P(MathCommand, function(_) {
+  _.parser = function() {
+    return Parser.fail('unmatched \\right');
+  };
+});
+
+var Binomial =
+LatexCmds.binom =
+LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
+  _.ctrlSeq = '\\binom';
+  _.htmlTemplate =
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-paren mq-scaled">(</span>'
+    +   '<span class="mq-non-leaf">'
+    +     '<span class="mq-array mq-non-leaf">'
+    +       '<span>&0</span>'
+    +       '<span>&1</span>'
+    +     '</span>'
+    +   '</span>'
+    +   '<span class="mq-paren mq-scaled">)</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['choose(',',',')'];
+});
+
+var Choose =
+LatexCmds.choose = P(Binomial, function(_) {
+  _.createLeftOf = LiveFraction.prototype.createLeftOf;
+});
+
+LatexCmds.editable = // backcompat with before cfd3620 on #233
+LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\MathQuillMathField';
+  _.htmlTemplate =
+      '<span class="mq-editable-field">'
+    +   '<span class="mq-root-block">&0</span>'
+    + '</span>'
+  ;
+  _.parser = function() {
+    var self = this,
+      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
+    return string('[').then(regex(/^[a-z][a-z0-9]*/i)).skip(string(']'))
+      .map(function(name) { self.name = name; }).or(succeed())
+      .then(super_.parser.call(self));
+  };
+  _.finalizeTree = function(options) {
+    var ctrlr = Controller(this.ends[L], this.jQ, options);
+    ctrlr.KIND_OF_MQ = 'MathField';
+    ctrlr.editable = true;
+    ctrlr.createTextarea();
+    ctrlr.editablesTextareaEvents();
+    ctrlr.cursor.insAtRightEnd(ctrlr.root);
+    RootBlockMixin(ctrlr.root);
+  };
+  _.registerInnerField = function(innerFields, MathField) {
+    innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
+  };
+  _.latex = function(){ return this.ends[L].latex(); };
+  _.text = function(){ return this.ends[L].text(); };
+});
+
+// Embed arbitrary things
+// Probably the closest DOM analogue would be an iframe?
+// From MathQuill's perspective, it's a Symbol, it can be
+// anywhere and the cursor can go around it but never in it.
+// Create by calling public API method .dropEmbedded(),
+// or by calling the global public API method .registerEmbed()
+// and rendering LaTeX like \embed{registeredName} (see test).
+var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
+  _.setOptions = function(options) {
+    function noop () { return ""; }
+    this.text = options.text || noop;
+    this.htmlTemplate = options.htmlString || "";
+    this.latex = options.latex || noop;
+    return this;
+  };
+  _.parser = function() {
+    var self = this,
+      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
+    return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
+      .then(function(name) {
+        // the chars allowed in the optional data block are arbitrary other than
+        // excluding curly braces and square brackets (which'd be too confusing)
+        return string('[').then(regex(/^[-\w\s]*/)).skip(string(']'))
+          .or(succeed()).map(function(data) {
+            return self.setOptions(EMBEDS[name](data));
+          })
+        ;
+      })
+    ;
+  };
+});
 var MQ1 = getInterface(1);
 for (var key in MQ1) (function(key, val) {
   if (typeof val === 'function') {
