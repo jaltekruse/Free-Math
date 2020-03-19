@@ -58,6 +58,11 @@ end of styles copied form perseus
     margin-right: auto;
 }
 
+/* Hide the confusing "no file chosen" text on chrome*/
+input[type='file'] {
+  color: transparent;
+}
+
 h1 {
   font-size: 3.6em;
 }
@@ -169,14 +174,13 @@ h1 small {
 
 .fm-button {
   border: 2px solid transparent;
-  padding: 0.25rem 0.5rem;
-  margin: 0.25rem;
+  padding: 4px 8px;
+  margin: 4px;
   background-color: #0d57bf;
   color: #f1f1f1;
   border-radius: 15px;
   font-size: 12px;
   font-weight: 600;
-  box-shadow: 0 5px 3px -3px #cfcfcf
 }
 
 .fm-button:hover
@@ -192,6 +196,59 @@ h1 small {
 
 .fm-button:active {
   transform: scale(0.99);
+}
+
+
+.fm-button-left {
+  border: 2px solid transparent;
+  padding: 4px 4px 4px 8px;
+  margin-left: 4px;
+  margin-right: 0px;
+  background-color: #0d57bf;
+  color: #f1f1f1;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fm-button-left:focus {
+  border-left: 2px solid #ffa535;
+  border-top: 2px solid #ffa535;
+  border-top: 2px solid #ffa535;
+  outline:0;
+}
+
+.fm-button-right {
+  border: 2px solid transparent;
+  padding: 4px 8px 4px 4px;
+  margin-right: 4px;
+  margin-left: 0px;
+  background-color: #0d57bf;
+  color: #f1f1f1;
+  border-top-right-radius: 15px;
+  border-bottom-right-radius: 15px;
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fm-button-left:focus {
+  border-right: 2px solid #ffa535;
+  border-top: 2px solid #ffa535;
+  border-top: 2px solid #ffa535;
+  outline:0;
+}
+
+.fm-button-selected {
+  background-color: #052d66
+}
+
+.fm-button-selected:hover {
+  background-color: #011024
 }
 
 .fm-close-button {
@@ -420,7 +477,7 @@ div.problem-container {
     border:1px solid #bfbfbf;
     background-color:white;
     margin: 15px 15px 15px 15px;
-    padding: 15px 15px 130px 15px;
+    padding: 15px 15px 30px 15px;
     box-shadow: 0 5px 3px -3px #cfcfcf;
     min-width: 50%;
 }
