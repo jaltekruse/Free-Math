@@ -6,7 +6,7 @@ import Problem from './Problem.js';
 import { ScoreBox } from './Problem.js';
 import { problemListReducer } from './Problem.js';
 import Button from './Button.js';
-import { CloseButton } from './Button.js';
+import { CloseButton, HtmlButton } from './Button.js';
 
 var MathQuill = window.MathQuill;
 
@@ -96,7 +96,7 @@ var Assignment = createReactClass({
                             onClick={function() {
                                 window.store.dispatch(
                                     {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
-                        <Button text="&#10005;" title="Delete problem" key={problemIndex + " close"}
+                        <HtmlButton text="&#10005;" title="Delete problem" key={problemIndex + " close"}
                             className={(problemIndex === this.props.value[CURRENT_PROBLEM] ? 
                                             "fm-button-selected " : "") + 
                                       "fm-button-right fm-button"}
@@ -106,10 +106,12 @@ var Assignment = createReactClass({
                                         alert("Cannot delete the only problem in a document.");
                                         return;
                                     }
-                                    if (!window.confirm("Delete problem?")) { return; }
+                                    if (!window.confirm("Are you sure you want to delete this problem?")) { return; }
                                     window.store.dispatch(
                                         { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
-                            }.bind(this)}/>
+                            }.bind(this)}
+                            content={(<img src="images/close.png" alt="x"/>)}
+                        />
                     </div>
                     </div>
                 );
