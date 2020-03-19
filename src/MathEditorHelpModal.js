@@ -8,14 +8,12 @@ var MathQuill = window.MathQuill;
 
 const symbolGroups = {
     BASIC : [
-        /* TODO - trouble getting this to work right
-        {toType:"/ (slash)", mqStatic:"\\frac{a}{b}", description:"fraction", editorCommands: input => {
-            input.keystroke("/");
-        }},
-        */
         {toType:"+", tex:"+"},
         {toType:"-", tex:"-"},
         {toType:"* (asterisk)", tex:"\\cdot"},
+        {toType:"/ (slash)", tex:"\\frac{a}{b}", description:"fraction", editorCommands: input => {
+            input.typedText("/");
+        }},
         {toType:"\\div [Enter]", tex:"\\div"},
         {toType:"pi", tex:"\\pi"},
         {toType:"sqrt", tex:"\\sqrt{x}", editorCommands: input => {
