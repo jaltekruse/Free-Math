@@ -3,7 +3,7 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
-import { CloseButton } from './Button.js';
+import { HtmlButton, CloseButton } from './Button.js';
 import { genID } from './FreeMath.js';
 
 // to implement undo/redo and index for the last step
@@ -209,7 +209,10 @@ var Problem = createReactClass({
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
                                 <div style={{"float":"left","display":"inline-block"}}>
-                                <Button text='+ &#8593;' title='Insert step above'
+                                <HtmlButton title='Insert step above'
+                                    content={(
+                                        <img src="images/add_above.png" alt="x"/>
+                                    )}
                                     onClick={function(value) {
                                         window.store.dispatch(
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,

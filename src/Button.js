@@ -93,7 +93,7 @@ var CloseButton = createReactClass({
                 }}
                 title={title}
             >
-            {this.props.text}
+            <img src="images/close_dark.png" alt="x"/>
             </button>
         );
   }
