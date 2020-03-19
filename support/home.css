@@ -174,8 +174,8 @@ h1 small {
 
 .fm-button {
   border: 2px solid transparent;
-  padding: 0.25rem 0.5rem;
-  margin: 0.25rem;
+  padding: 4px 8px;
+  margin: 4px;
   background-color: #0d57bf;
   color: #f1f1f1;
   border-radius: 15px;
@@ -201,9 +201,9 @@ h1 small {
 
 .fm-button-left {
   border: 2px solid transparent;
-  padding: 0.25rem 0.5rem;
-  margin-left: 0.25rem;
-  margin-right: 0rem;
+  padding: 4px 4px 4px 8px;
+  margin-left: 4px;
+  margin-right: 0px;
   background-color: #0d57bf;
   color: #f1f1f1;
   border-top-left-radius: 15px;
@@ -223,9 +223,9 @@ h1 small {
 
 .fm-button-right {
   border: 2px solid transparent;
-  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
-  margin-right: 0.25rem;
-  margin-left: 0rem;
+  padding: 4px 8px 4px 4px;
+  margin-right: 4px;
+  margin-left: 0px;
   background-color: #0d57bf;
   color: #f1f1f1;
   border-top-right-radius: 15px;
