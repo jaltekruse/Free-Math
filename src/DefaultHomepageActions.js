@@ -60,7 +60,6 @@ const UserActions = createReactClass({
             this.openSpinner();
 
             window.location.hash = '';
-            window.history.replaceState("teacher", "Grade Assignments", "/?grading");
             window.ga('send', 'event', 'Actions', 'open', 'Grade Assignments');
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             studentSubmissionsZip(evt, function() {this.closeSpinner()}.bind(this));
@@ -76,11 +75,9 @@ const UserActions = createReactClass({
             if (appMode === EDIT_ASSIGNMENT) {
                 recovered = convertToCurrentFormat(recovered);
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
-                window.history.replaceState("student", "Edit Assignment", "/?student");
             } else if (appMode === GRADE_ASSIGNMENTS) {
                 // TODO - NEED a convert to current format here!!
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');
-                window.history.replaceState("teacher", "Grade Assignments", "/?grading");
             }
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
@@ -160,7 +157,6 @@ const UserActions = createReactClass({
                                 };
                                 window.location.hash = '';
                                 window.ga('send', 'event', 'Actions', 'open', 'New Assignment');
-                                window.history.replaceState("student", "Edit Assignment", "/?student");
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
                             }}
@@ -175,7 +171,6 @@ const UserActions = createReactClass({
                                 };
                                 window.location.hash = '';
                                 window.ga('send', 'event', 'Actions', 'open', 'Open Assignment');
-                                window.history.replaceState("student", "Edit Assignment", "/?student");
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
@@ -339,7 +334,6 @@ const DefaultHomepageActions = createReactClass({
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
                     window.ga('send', 'event', 'Demos', 'open', 'Student Demo');
-                    window.history.replaceState("demo", "Edit Assignment", "/?student_demo");
                     window.store.dispatch({type : "NEW_ASSIGNMENT"});
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
@@ -351,7 +345,6 @@ const DefaultHomepageActions = createReactClass({
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
                     window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
-                    window.history.replaceState("teacher", "Grade Assignments", "/?demo_grading");
                     window.store.dispatch(demoGradingAction);
                 }}
             >
