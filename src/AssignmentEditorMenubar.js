@@ -23,30 +23,43 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 var UNDO_STACK = 'UNDO_STACK';
 var REDO_STACK = 'REDO_STACK';
 
-function saveAssignment() {
-    window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
+function validateProblemNumbers(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
-    window.store.getState()[PROBLEMS].forEach(function(problem, index, array) {
+    var allNumbers = {};
+    allProblems.forEach(function(problem, index, array) {
+        if (allNumbers[problem[PROBLEM_NUMBER].trim()]) {
+            atLeastOneProblemNumberNotSet = true;
+        }
+        allNumbers[problem[PROBLEM_NUMBER].trim()] = true;
         if (problem[PROBLEM_NUMBER].trim() === "") {
             atLeastOneProblemNumberNotSet = true;
         }
     });
+    return atLeastOneProblemNumberNotSet;
+}
+
+function saveAssignment() {
+    window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
+    var atLeastOneProblemNumberNotSet = validateProblemNumbers(window.store.getState()[PROBLEMS]);
     if (atLeastOneProblemNumberNotSet) {
         window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
-        if (! window.confirm("At least one problem is missing a problem number. "
-                            + "These are needed for your teacher to grade your "
-                            + "assignment effectively. It is reccomended you "
-                            + "cancel the save and fill them in.")) {
-            return;
-        }
+        window.alert("Cannot save, a problem number is mising or two or more " +
+                     "problems have the same number.");
+        return;
     }
-
+    var allProblems = window.store.getState()[PROBLEMS];
+    allProblems.forEach(function(problem, index, array) {
+        // trim the numbers to avoid extra groups while grading
+        problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
+    });
+    var overallState = window.store.getState();
+    overallState[PROBLEMS] = allProblems;
     var blob =
         new Blob([
             JSON.stringify({
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
-                            window.store.getState()
+                           overallState 
                         )
                     )[PROBLEMS]
             })],
@@ -140,4 +153,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export {AssignmentEditorMenubar as default, removeExtension };
+export {AssignmentEditorMenubar as default, removeExtension, validateProblemNumbers};
