@@ -320,7 +320,9 @@ const DefaultHomepageActions = createReactClass({
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
-                    Give your students feedback, meaningfully and efficiently.
+                    Give your students feedback,
+                    <br />
+                    meaningfully and efficiently.
                 </h1>
             <div>
             <div className="homepage-center">
