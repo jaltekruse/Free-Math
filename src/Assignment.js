@@ -85,7 +85,7 @@ var Assignment = createReactClass({
                             this.setState({showModal: false});
                         }.bind(this)} />
                         <iframe title="Free Math Video"
-                            src="https://www.youtube.com/embed/xkXb6HD261Y?ecver=2"
+                            src="https://www.youtube.com/embed/x6EiDUYJx_s"
                             allowFullScreen frameBorder="0"
                             gesture="media"
                             style={{width:"600px", height:"400px", display:"block"}}></iframe>
@@ -146,7 +146,7 @@ var Assignment = createReactClass({
             {probList[currProblem][SHOW_TUTORIAL] ? 
                 (<div style={{float: "right", display:"inline-block"}}>
 
-                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                    <Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
                         onClick={function() {
                             this.setState({showModal: true});
