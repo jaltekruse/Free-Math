@@ -88,7 +88,7 @@ h1 small {
     box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
-@media (max-width: 850px) {
+@media (max-width: 950px) {
     .homepage-disappear-mobile {
         display:none
     }
@@ -116,9 +116,13 @@ h1 small {
         padding: 100px 0px 0px 0px;
         display: inline-block;
     }
+    .grading-menubar-spacer {
+        height: 60px;
+        display: block
+    }
 }
 
-@media (min-width: 851px) {
+@media (min-width: 951px) {
     .homepage-only-on-mobile {
         display:none
     }
