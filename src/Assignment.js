@@ -165,9 +165,6 @@ var Assignment = createReactClass({
                      probList={probList}
             />
             </div>
-            <div className="answer-incorrect homepage-only-on-mobile" style={{"float":"left", padding:"10px", margin: "10px"}}>
-                Note: Limited demo experience available on mobile, visit on your computer for the full experience.
-            </div>
             <br />
             {/* Replaced by better onscreen math keyboard with shortcuts in
                 the title text of the buttons

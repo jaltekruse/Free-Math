@@ -122,15 +122,7 @@ const UserActions = createReactClass({
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
         return (
-            <div style={{
-                    "max-width": "900px",
-                    "-webkit-box-align": "center",
-                    "align-items": "center",
-                    "display": "flex",
-                    "flex-direction": "column",
-                    "marginLeft":"auto",
-                    "marginRight": "auto"
-            }}>
+            <div className="homepage-user-actions">
             <FreeMathModal
                 showModal={this.state.showModal}
                 content={(
@@ -368,9 +360,7 @@ const DefaultHomepageActions = createReactClass({
             <div className="homepage-only-on-mobile" >
                 {this.state.showActionsMobile ? <UserActions /> : null }
             </div>
-            <div className="homepage-disappear-mobile">
-                <UserActions />
-            </div>
+            <UserActions />
             </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />

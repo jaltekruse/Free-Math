@@ -120,6 +120,13 @@ h1 small {
         height: 60px;
         display: block
     }
+    div.problem-editor-buttons {
+        width: 100%;
+    }
+
+    div.homepage-user-actions {
+        align-items: center;
+    }
 }
 
 @media (min-width: 951px) {
@@ -151,6 +158,18 @@ h1 small {
         padding: 200px 0px 0px 0px;
         display: inline-block;
         width: 100%
+    }
+    div.problem-editor-buttons {
+        width: 150px;
+    }
+    div.homepage-user-actions {
+        max-width: 900px;
+        -webkit-box-align: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        margin-right: auto
     }
 }
 

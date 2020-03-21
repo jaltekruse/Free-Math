@@ -140,8 +140,9 @@ var Problem = createReactClass({
                     }
                 </div>
                 <div>
-                    <div style={{float:'left', height: "100%", marginRight:"10px"}}>
-                        <div style={{marginLeft:"10px"}}>
+                    <div className="problem-editor-buttons"
+                         style={{float:'left', height: "100%", marginRight:"10px"}}>
+                        <div style={{display:"block", marginLeft:"10px"}}>
                             <small>Problem Number</small><br />
                             <input type="text" size="3"
                                    value={probNumber} className="problem-number"
@@ -152,12 +153,12 @@ var Problem = createReactClass({
                             /> <br />
                         </div>
                         <Button text="Next Step (Enter)" style={{width: "125px"}} onClick={
-                            function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
+                            function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/>
                         <Button text="New Blank Step" style={{width: "125px"}} onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
-                            }}/> <br/>
+                            }}/>
                         <Button text="Undo" style={{width: "55px"}} onClick={
                             function() {
                                 window.store.dispatch(
@@ -167,7 +168,7 @@ var Problem = createReactClass({
                             function() {
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
-                            }}/> <br />
+                            }}/>
                         <Button type="submit" style={{width: "125px"}} text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() { 

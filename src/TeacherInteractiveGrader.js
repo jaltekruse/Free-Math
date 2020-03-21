@@ -1182,9 +1182,6 @@ const TeacherInteractiveGrader = createReactClass({
                 <h3>To see student responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
                 <canvas ref="chart" width="400" height="70"></canvas>
-                <div className="homepage-only-on-mobile answer-incorrect" style={{padding: "5px"}}>
-                    Note: Limited demo experience available on mobile, visit on your computer for the full experience.
-                </div>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
