@@ -145,8 +145,11 @@ var Assignment = createReactClass({
             }}/>
             {probList[currProblem][SHOW_TUTORIAL] ? 
                 (<div style={{float: "right", display:"inline-block"}}>
-                    <Button text="Reopen demo video" style={{backgroundColor: "#dc0031"}} onClick={function() { 
-                        this.setState({showModal: true});
+
+                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                        title="Reopen Demo Video"
+                        onClick={function() {
+                            this.setState({showModal: true});
                     }.bind(this)}/>
                     <div className="answer-partially-correct"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
