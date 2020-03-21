@@ -9,9 +9,13 @@ import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
+import { CloseButton } from './Button.js';
+import FreeMathModal from './Modal.js';
 import { removeExtension } from './AssignmentEditorMenubar.js';
 
 var KAS = window.KAS;
+
+var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
@@ -1058,9 +1062,7 @@ const AllProblemGraders = createReactClass({
     }
 });
 
-const TeacherInteractiveGrader = createReactClass({
-    componentDidMount() {
-        var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
+function setupGraph(gradingOverview, chart) {
         var labels = [];
         var numberUniqueAnswersData = {
             label: "Unique Answers",
@@ -1084,18 +1086,17 @@ const TeacherInteractiveGrader = createReactClass({
             largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
-        var chart = ReactDOM.findDOMNode(this.refs.chart);
         var onClickFunc = function(evt) {
             var activePoints = chart.getElementsAtEvent(evt);
             var problemNum;
             if (!activePoints || activePoints.length === 0) {
                 // TODO - this could be better, collision isn't quite right once the text labels
                 // are tight enough they start displaying at an angle.
-                let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
-                let yScale = this.chart.scales['y-axis-0'];
+                let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
+                let yScale = chart.scales['y-axis-0'];
                 if (yScale.getValueForPixel(mousePoint.y) < 0) {
-                    let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
-                    let xScale = this.chart.scales['x-axis-0'];
+                    let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
+                    let xScale = chart.scales['x-axis-0'];
                     problemNum = xScale.ticks[xScale.getValueForPixel(mousePoint.x)];
                 } else {
                     return;
@@ -1131,16 +1132,50 @@ const TeacherInteractiveGrader = createReactClass({
                 onClick: onClickFunc,
             }
         });
+}
+
+const TeacherInteractiveGrader = createReactClass({
+    componentDidMount() {
+        setupGraph(
+            window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],
+            ReactDOM.findDOMNode(this.refs.chart));
       },
+    getInitialState () {
+        /* note the modal shows immediately when viewing the student demo,
+         * but not for opening an assignment */
+        return { showModal: true }
+    },
     render: function() {
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-
+        var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
+                <FreeMathModal
+                    showModal={showTutorial && this.state.showModal}
+                    content={(
+                        <div width="750px">
+                            <CloseButton onClick={function() {
+                                this.setState({showModal: false});
+                            }.bind(this)} />
+                            <iframe title="Free Math Video"
+                                src="https://www.youtube.com/embed/xkXb6HD261Y?ecver=2"
+                                allowFullScreen frameBorder="0"
+                                gesture="media"
+                                style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                        </div>
+                        )
+                    } />
+                {showTutorial ?
+                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                        title="Reopen Demo Video"
+                        onClick={function() {
+                            this.setState({showModal: true});
+                        }.bind(this)}/>
+                    ) : null}
                 <h3>To see student responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
                 <canvas ref="chart" width="400" height="70"></canvas>

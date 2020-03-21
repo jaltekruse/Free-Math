@@ -7,6 +7,7 @@ import { ScoreBox } from './Problem.js';
 import { problemListReducer } from './Problem.js';
 import Button from './Button.js';
 import { CloseButton, HtmlButton } from './Button.js';
+import FreeMathModal from './Modal.js';
 
 var MathQuill = window.MathQuill;
 
@@ -58,7 +59,14 @@ function assignmentReducer(state, action) {
 }
 
 var Assignment = createReactClass({
+    getInitialState () {
+        /* note the modal shows immediately when viewing the student demo,
+         * but not for opening an assignment */
+        return { showModal: true }
+    },
     render: function() {
+        var probList = this.props.value[PROBLEMS];
+        var currProblem = this.props.value[CURRENT_PROBLEM];
         var addProblem = function() {
             var probs = this.props.value[PROBLEMS];
             var lastProb = probs[probs.length - 1];
@@ -68,8 +76,24 @@ var Assignment = createReactClass({
         }.bind(this);
         return (
         <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 30px 30px"}}>
+            <FreeMathModal
+                showModal={this.state.showModal &&
+                            probList[currProblem][SHOW_TUTORIAL]}
+                content={(
+                    <div width="750px">
+                        <CloseButton onClick={function() {
+                            this.setState({showModal: false});
+                        }.bind(this)} />
+                        <iframe title="Free Math Video"
+                            src="https://www.youtube.com/embed/xkXb6HD261Y?ecver=2"
+                            allowFullScreen frameBorder="0"
+                            gesture="media"
+                            style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                    </div>
+                    )
+                } />
             <div>
-            {this.props.value[PROBLEMS].map(function(problem, problemIndex) {
+            {probList.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
                 if (probNum.trim() !== '') {
@@ -90,14 +114,14 @@ var Assignment = createReactClass({
                     <ScoreBox value={problem} />
                     <div>
                         <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                            className={(problemIndex === this.props.value[CURRENT_PROBLEM] ? 
+                            className={(problemIndex === currProblem ? 
                                             "fm-button-selected " : "") + 
                                       "fm-button-left fm-button"}
                             onClick={function() {
                                 window.store.dispatch(
                                     {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
                         <HtmlButton text="&#10005;" title="Delete problem" key={problemIndex + " close"}
-                            className={(problemIndex === this.props.value[CURRENT_PROBLEM] ? 
+                            className={(problemIndex === currProblem ? 
                                             "fm-button-selected " : "") + 
                                       "fm-button-right fm-button"}
                             onClick={
@@ -119,18 +143,26 @@ var Assignment = createReactClass({
             <Button text="Add Problem" style={{backgroundColor: "#008000"}} onClick={function() { 
                 addProblem();
             }}/>
-            {this.props.value[PROBLEMS][this.props.value[CURRENT_PROBLEM]][SHOW_TUTORIAL] ? 
-                (<div className="answer-partially-correct"
+            {probList[currProblem][SHOW_TUTORIAL] ? 
+                (<div style={{float: "right", display:"inline-block"}}>
+
+                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                        title="Reopen Demo Video"
+                        onClick={function() {
+                            this.setState({showModal: true});
+                    }.bind(this)}/>
+                    <div className="answer-partially-correct"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                    <span>Work saves to the Downloads folder on your device.</span>
+                        <span>Work saves to the Downloads folder on your device.</span>
+                    </div>
                 </div>) :
                 null
             }
 
-            <Problem value={this.props.value[PROBLEMS][this.props.value[CURRENT_PROBLEM]]}
-                     id={this.props.value[CURRENT_PROBLEM]}
+            <Problem value={probList[currProblem]}
+                     id={currProblem}
                      buttonGroup={this.props.value[BUTTON_GROUP]}
-                     probList={this.props.value[PROBLEMS]}
+                     probList={probList}
             />
             </div>
             <div className="answer-incorrect homepage-only-on-mobile" style={{"float":"left", padding:"10px", margin: "10px"}}>
