@@ -91,13 +91,13 @@ h1 small {
     }
 
     .math-input-buttons {
-      background-color: rgba(255, 255, 255, 0.7);
+      background-color: rgba(255, 255, 255, 0.9);
       border-radius: 5px;
       border: 1px solid #ddd;
       box-sizing: border-box;
       margin-top: 5px;
       padding: 2px;
-      width: 301px;
+      width: 401px;
     }
     .homepage-disappear-mobile {
         display:none
