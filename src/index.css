@@ -129,11 +129,15 @@ h1 small {
     .homepage-wrapper {
         align-items: center;
         text-align: center;
-        padding: 100px 0px 0px 0px;
+        padding: 70px 0px 0px 0px;
         display: inline-block;
     }
     .menubar-spacer {
         height: 60px;
+        display: block
+    }
+    .menubar-spacer-small {
+        height: 30px;
         display: block
     }
     div.problem-editor-buttons {
