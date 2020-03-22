@@ -75,7 +75,7 @@ var Assignment = createReactClass({
             window.store.dispatch({ type : ADD_PROBLEM});
         }.bind(this);
         return (
-        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 30px 30px"}}>
+        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 400px 30px"}}>
             <FreeMathModal
                 showModal={this.state.showModal &&
                             probList[currProblem][SHOW_TUTORIAL]}
