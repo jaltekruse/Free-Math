@@ -17,7 +17,8 @@ const LogoHomeNav = createReactClass({
                 }}
             >
             <div style={{padding: "3px"}}>
-            <h3 style={{"display":"inline", color: "#eee", "fontFamily":"serif"}}>
+            <h3 className="freemath-logo" 
+                style={{"display":"inline", color: "#eee", "fontFamily":"serif"}}>
                 <span className="katex"><span className="katex-mathml">
                         <math><semantics><mrow><mtext>Free&nbsp;Math</mtext></mrow>
                         <annotation encoding="application/x-tex">{'\\text{Free Math}'}</annotation>
