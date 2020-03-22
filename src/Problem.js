@@ -220,7 +220,8 @@ var Problem = createReactClass({
                                               STEP_KEY : stepIndex});
                                 }}/>
                                 <MathInput 
-                                    key={stepIndex} buttonsVisible='focused' styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
+                                    key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
+                                    styles={{...styles, overflow: 'auto'}}
                                     buttonSets={['trig', 'prealgebra',
                                                  'logarithms', 'calculus']}
                                     buttonGroup={buttonGroup}

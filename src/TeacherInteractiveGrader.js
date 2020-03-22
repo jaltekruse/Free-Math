@@ -1156,7 +1156,7 @@ const TeacherInteractiveGrader = createReactClass({
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
-                <div className="grading-menubar-spacer"> </div>
+                <div className="menubar-spacer"> </div>
                 <FreeMathModal
                     showModal={showTutorial && this.state.showModal}
                     content={(

@@ -75,12 +75,12 @@ var Assignment = createReactClass({
             window.store.dispatch({ type : ADD_PROBLEM});
         }.bind(this);
         return (
-        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 400px 30px"}}>
+        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
             <FreeMathModal
                 showModal={this.state.showModal &&
                             probList[currProblem][SHOW_TUTORIAL]}
                 content={(
-                    <div width="750px">
+                    <div>
                         <CloseButton onClick={function() {
                             this.setState({showModal: false});
                         }.bind(this)} />
@@ -88,10 +88,12 @@ var Assignment = createReactClass({
                             src="https://www.youtube.com/embed/x6EiDUYJx_s"
                             allowFullScreen frameBorder="0"
                             gesture="media"
-                            style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                            className="tutorial-video"
+                            ></iframe>
                     </div>
                     )
                 } />
+            <div className="menubar-spacer"> </div>
             <div>
             {probList.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
