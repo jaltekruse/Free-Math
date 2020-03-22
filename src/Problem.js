@@ -1,5 +1,6 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
+import ReactDOM from 'react-dom';
 import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
@@ -12,6 +13,7 @@ import { genID } from './FreeMath.js';
 // step is added it moves to the end of the list as
 // the redo history in this case will be lost
 
+var FOCUSED_STEP = 'FOCUSED_STEP';
 // index in list
 var STEP_KEY = 'STEP_KEY';
 // long random identifier for a step, used as key for react list of steps
@@ -114,7 +116,23 @@ var ScoreBox = createReactClass({
 });
 
 var Problem = createReactClass({
-
+    componentDidUpdate: function(prevProps) {
+        console.log("update");
+        if (this.props.value[FOCUSED_STEP]) {
+            var domNode = ReactDOM.findDOMNode(this.refs["ref_" + this.props.value[FOCUSED_STEP]])
+            if (domNode) {
+                domNode.focus();
+            }
+            return;
+        }
+        if (prevProps[FOCUSED_STEP] == this.props[FOCUSED_STEP]) {
+            // don't mess with focus if its still on the same field
+            console.log("nothing");
+        } else {
+            console.log("focus");
+            ReactDOM.findDOMNode(this.refs["ref_" + this.props[FOCUSED_STEP]]).focus();
+        }
+    },
     handleStepChange: function(event) {
       this.setState({value: event.target.value});
     },
@@ -224,6 +242,7 @@ var Problem = createReactClass({
                                                  'logarithms', 'calculus']}
                                     buttonGroup={buttonGroup}
                                     stepIndex={stepIndex}
+                                    ref={"ref_" + stepIndex}
                                     problemIndex={problemIndex} value={step[CONTENT]} onChange={
                                         function(value) {
                                             window.store.dispatch({
@@ -513,9 +532,10 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                {...oldStep, STEP_ID : genID(), FOCUSED: true},
+                {...oldStep, STEP_ID : genID()},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
+            FOCUSED_STEP : STEP_KEY,
             UNDO_STACK : [
                 undoAction,
                 ...problem[UNDO_STACK]
