@@ -345,22 +345,26 @@ const DefaultHomepageActions = createReactClass({
                 <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 
             </button>
             </div>
-            {/*
+            {
             <div className="homepage-only-on-mobile">
                 <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                     onClick={function() {
-                        this.setState({"showActionsMobile": true}); 
+                        this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
                     }.bind(this)}
                 >
-                    <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>More Actions</h3> 
+                    <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>
+                        {this.state.showActionsMobile ? "Hide" : "More"} Actions
+                    </h3> 
                 </button>
             </div>
-            */}
+            }
             </div>
             <div className="homepage-only-on-mobile" >
                 {this.state.showActionsMobile ? <UserActions /> : null }
             </div>
-            <UserActions />
+            <div className="homepage-disappear-mobile" >
+                <UserActions />
+            </div>
             </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />

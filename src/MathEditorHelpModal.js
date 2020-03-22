@@ -8,12 +8,6 @@ var MathQuill = window.MathQuill;
 
 const symbolGroups = {
     BASIC : [
-        {toType:"Left Arrow Key", tex:"\\leftarrow", editorCommands: input => {
-                input.keystroke("Left");
-        }},
-        {toType:"Right Arrow Key", tex:"\\rightarrow", editorCommands: input => {
-                input.keystroke("Right");
-        }},
         {toType:"+", tex:"+"},
         {toType:"-", tex:"-"},
         {toType:"* (asterisk)", tex:"\\cdot"},

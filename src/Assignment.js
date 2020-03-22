@@ -93,8 +93,8 @@ var Assignment = createReactClass({
                     </div>
                     )
                 } />
-            <div className="menubar-spacer"> </div>
             <div>
+            <div className="menubar-spacer-small"> </div>
             {probList.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
