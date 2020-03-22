@@ -81,6 +81,15 @@ h1 small {
 
 @media (max-width: 950px) {
 
+    iframe.tutorial-video {
+        width: 400px;
+        height:300px;
+        display:block
+    }
+    .mathStepEditor {
+        max-width:350px
+    }
+
     .math-input-buttons {
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 5px;
@@ -123,7 +132,7 @@ h1 small {
         padding: 100px 0px 0px 0px;
         display: inline-block;
     }
-    .grading-menubar-spacer {
+    .menubar-spacer {
         height: 60px;
         display: block
     }
@@ -137,6 +146,14 @@ h1 small {
 }
 
 @media (min-width: 951px) {
+    iframe.tutorial-video {
+        width: 600px;
+        height:400px;
+        display:block
+    }
+    .mathStepEditor {
+        max-width:900px
+    }
     .math-input-buttons {
       background-color: rgba(255, 255, 255, 0.7);
       border-radius: 5px;
@@ -359,6 +376,7 @@ body {
 #body {
   padding: 1em;
 }
+
 p {
   font-size: 18px;
 }
