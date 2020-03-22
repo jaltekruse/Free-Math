@@ -2,12 +2,12 @@
 Copied from persus project
 */
 .math-input-buttons {
-  background-color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(240, 240, 240, 0.7);
   border-radius: 5px;
   border: 1px solid #ddd;
   box-sizing: border-box;
   margin-top: 5px;
-  padding: 2px;
+  padding: 10px;
   width: 701px;
 }
 .math-input-buttons.absolute {
@@ -63,6 +63,14 @@ input[type='file'] {
   color: transparent;
 }
 
+input[type='text'] {
+    padding: 5px
+}
+
+textarea {
+    padding: 5px
+}
+
 h1 {
   font-size: 3.6em;
 }
@@ -89,6 +97,13 @@ h1 small {
 }
 
 @media (max-width: 950px) {
+    .navBarElms{
+        padding: 7px 5px 5px 5px;
+        font-size: 25px
+    }
+    .freemath-logo {
+        font-size: 30px
+    }
     .homepage-disappear-mobile {
         display:none
     }
@@ -123,6 +138,13 @@ h1 small {
 }
 
 @media (min-width: 951px) {
+    .navBarElms{
+        padding: 7px 5px 5px 5px;
+    }
+    .freemath-logo {
+        font-size: 22px;
+        margin: 0;
+    }
     .homepage-only-on-mobile {
         display:none
     }
@@ -276,11 +298,6 @@ h1 small {
   outline: none;
 }
 
-.navBarElms{
-     padding: 7px 5px 5px 5px;
-}
-
-
 .menuBar{
     padding: 5px 5px 5px 5px;
     width:100%;
@@ -313,12 +330,8 @@ body {
   color: #222;
   /* background-color: #e7effd; */
   /* background-color: #92d1ff; */
-  margin-bottom: 0;
-  margin-left:0;
-  margin-right:0;
-  padding-left:0;
-  padding-right:0;
-  padding-bottom:0;
+  margin: 0;
+  padding: 0;
   line-height: 1.5
 }
 #body {
