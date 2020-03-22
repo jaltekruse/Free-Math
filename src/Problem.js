@@ -175,7 +175,7 @@ var Problem = createReactClass({
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
-                        <div style={{float:'left', maxWidth:"85%"}} className="equation-list">
+                        <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
                         Type math here<br />
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
