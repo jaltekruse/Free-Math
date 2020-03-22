@@ -166,10 +166,7 @@ var P = (function(prototype, ownProperty, undefined) {
     // set the constructor property on the prototype, for convenience
     proto.constructor = C;
 
-    C.mixin = function(def) {
-      Bare[prototype] = C[prototype] = P(C, def)[prototype];
-      return C;
-    }
+    C.extend = function(def) { return P(C, def); }
 
     return (C.open = function(def) {
       extensions = {};
@@ -234,8 +231,6 @@ function prayDirection(dir) {
  * jQuery features that don't work on $:
  *   - jQuery.*, like jQuery.ajax, obviously (Pjs doesn't and shouldn't
  *                                            copy constructor properties)
- *        - TODO - look this up, I don't quite understand what it is saying
- *                 how is the method ajax a constructor property?
  *
  *   - jQuery(function), the shortcut for `jQuery(document).ready(function)`,
  *     because `jQuery.fn.init` is idiosyncratic and Pjs doing, essentially,
@@ -843,6 +838,19 @@ var Cursor = P(Point, function(_) {
     }
     return seln;
   };
+  _.depth = function() {
+    var node = this;
+    var depth = 0;
+    while (node = node.parent) {
+      depth += (node instanceof MathBlock) ? 1 : 0;
+    }
+    return depth;
+  };
+  _.isTooDeep = function(offset) {
+    if (this.options.maxDepth !== undefined) {
+      return this.depth() + (offset || 0) > this.options.maxDepth;
+    }
+  };
 });
 
 var Selection = P(Fragment, function(_, super_) {
@@ -1081,7 +1089,7 @@ function getInterface(v) {
     };
     _.cmd = function(cmd) {
       var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
-      if (/^\\[a-z]+$/i.test(cmd)) {
+      if (/^\\[a-z]+$/i.test(cmd) && !cursor.isTooDeep()) {
         cmd = cmd.slice(1);
         var klass = LatexCmds[cmd];
         if (klass) {
@@ -1189,211 +1197,6 @@ function RootBlockMixin(_) {
     this.controller.handle('edit');
   };
 }
-var Parser = P(function(_, super_, Parser) {
-  // The Parser object is a wrapper for a parser function.
-  // Externally, you use one to parse a string by calling
-  //   var result = SomeParser.parse('Me Me Me! Parse Me!');
-  // You should never call the constructor, rather you should
-  // construct your Parser from the base parsers and the
-  // parser combinator methods.
-
-  function parseError(stream, message) {
-    if (stream) {
-      stream = "'"+stream+"'";
-    }
-    else {
-      stream = 'EOF';
-    }
-
-    throw 'Parse Error: '+message+' at '+stream;
-  }
-
-  _.init = function(body) { this._ = body; };
-
-  _.parse = function(stream) {
-    return this.skip(eof)._(''+stream, success, parseError);
-
-    function success(stream, result) { return result; }
-  };
-
-  // -*- primitive combinators -*- //
-  _.or = function(alternative) {
-    pray('or is passed a parser', alternative instanceof Parser);
-
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      return self._(stream, onSuccess, failure);
-
-      function failure(newStream) {
-        return alternative._(stream, onSuccess, onFailure);
-      }
-    });
-  };
-
-  _.then = function(next) {
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      return self._(stream, success, onFailure);
-
-      function success(newStream, result) {
-        var nextParser = (next instanceof Parser ? next : next(result));
-        pray('a parser is returned', nextParser instanceof Parser);
-        return nextParser._(newStream, onSuccess, onFailure);
-      }
-    });
-  };
-
-  // -*- optimized iterative combinators -*- //
-  _.many = function() {
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var xs = [];
-      while (self._(stream, success, failure));
-      return onSuccess(stream, xs);
-
-      function success(newStream, x) {
-        stream = newStream;
-        xs.push(x);
-        return true;
-      }
-
-      function failure() {
-        return false;
-      }
-    });
-  };
-
-  _.times = function(min, max) {
-    if (arguments.length < 2) max = min;
-    var self = this;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var xs = [];
-      var result = true;
-      var failure;
-
-      for (var i = 0; i < min; i += 1) {
-        result = self._(stream, success, firstFailure);
-        if (!result) return onFailure(stream, failure);
-      }
-
-      for (; i < max && result; i += 1) {
-        result = self._(stream, success, secondFailure);
-      }
-
-      return onSuccess(stream, xs);
-
-      function success(newStream, x) {
-        xs.push(x);
-        stream = newStream;
-        return true;
-      }
-
-      function firstFailure(newStream, msg) {
-        failure = msg;
-        stream = newStream;
-        return false;
-      }
-
-      function secondFailure(newStream, msg) {
-        return false;
-      }
-    });
-  };
-
-  // -*- higher-level combinators -*- //
-  _.result = function(res) { return this.then(succeed(res)); };
-  _.atMost = function(n) { return this.times(0, n); };
-  _.atLeast = function(n) {
-    var self = this;
-    return self.times(n).then(function(start) {
-      return self.many().map(function(end) {
-        return start.concat(end);
-      });
-    });
-  };
-
-  _.map = function(fn) {
-    return this.then(function(result) { return succeed(fn(result)); });
-  };
-
-  _.skip = function(two) {
-    return this.then(function(result) { return two.result(result); });
-  };
-
-  // -*- primitive parsers -*- //
-  var string = this.string = function(str) {
-    var len = str.length;
-    var expected = "expected '"+str+"'";
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var head = stream.slice(0, len);
-
-      if (head === str) {
-        return onSuccess(stream.slice(len), head);
-      }
-      else {
-        return onFailure(stream, expected);
-      }
-    });
-  };
-
-  var regex = this.regex = function(re) {
-    pray('regexp parser is anchored', re.toString().charAt(1) === '^');
-
-    var expected = 'expected '+re;
-
-    return Parser(function(stream, onSuccess, onFailure) {
-      var match = re.exec(stream);
-
-      if (match) {
-        var result = match[0];
-        return onSuccess(stream.slice(result.length), result);
-      }
-      else {
-        return onFailure(stream, expected);
-      }
-    });
-  };
-
-  var succeed = Parser.succeed = function(result) {
-    return Parser(function(stream, onSuccess) {
-      return onSuccess(stream, result);
-    });
-  };
-
-  var fail = Parser.fail = function(msg) {
-    return Parser(function(stream, _, onFailure) {
-      return onFailure(stream, msg);
-    });
-  };
-
-  var letter = Parser.letter = regex(/^[a-z]/i);
-  var letters = Parser.letters = regex(/^[a-z]*/i);
-  var digit = Parser.digit = regex(/^[0-9]/);
-  var digits = Parser.digits = regex(/^[0-9]*/);
-  var whitespace = Parser.whitespace = regex(/^\s+/);
-  var optWhitespace = Parser.optWhitespace = regex(/^\s*/);
-
-  var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
-    if (!stream) return onFailure(stream, 'expected any character');
-
-    return onSuccess(stream.slice(1), stream.charAt(0));
-  });
-
-  var all = Parser.all = Parser(function(stream, onSuccess, onFailure) {
-    return onSuccess('', stream);
-  });
-
-  var eof = Parser.eof = Parser(function(stream, onSuccess, onFailure) {
-    if (stream) return onFailure(stream, 'expected EOF');
-
-    return onSuccess(stream, stream);
-  });
-});
 /*************************************************
  * Sane Keyboard Events Shim
  *
@@ -1648,16 +1451,389 @@ var saneKeyboardEvents = (function() {
     };
   };
 }());
-/***********************************************
- * Export math in a human-readable text format
- * As you can see, only half-baked so far.
- **********************************************/
+var Parser = P(function(_, super_, Parser) {
+  // The Parser object is a wrapper for a parser function.
+  // Externally, you use one to parse a string by calling
+  //   var result = SomeParser.parse('Me Me Me! Parse Me!');
+  // You should never call the constructor, rather you should
+  // construct your Parser from the base parsers and the
+  // parser combinator methods.
+
+  function parseError(stream, message) {
+    if (stream) {
+      stream = "'"+stream+"'";
+    }
+    else {
+      stream = 'EOF';
+    }
+
+    throw 'Parse Error: '+message+' at '+stream;
+  }
+
+  _.init = function(body) { this._ = body; };
+
+  _.parse = function(stream) {
+    return this.skip(eof)._(''+stream, success, parseError);
+
+    function success(stream, result) { return result; }
+  };
+
+  // -*- primitive combinators -*- //
+  _.or = function(alternative) {
+    pray('or is passed a parser', alternative instanceof Parser);
+
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      return self._(stream, onSuccess, failure);
+
+      function failure(newStream) {
+        return alternative._(stream, onSuccess, onFailure);
+      }
+    });
+  };
+
+  _.then = function(next) {
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      return self._(stream, success, onFailure);
+
+      function success(newStream, result) {
+        var nextParser = (next instanceof Parser ? next : next(result));
+        pray('a parser is returned', nextParser instanceof Parser);
+        return nextParser._(newStream, onSuccess, onFailure);
+      }
+    });
+  };
+
+  // -*- optimized iterative combinators -*- //
+  _.many = function() {
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var xs = [];
+      while (self._(stream, success, failure));
+      return onSuccess(stream, xs);
+
+      function success(newStream, x) {
+        stream = newStream;
+        xs.push(x);
+        return true;
+      }
+
+      function failure() {
+        return false;
+      }
+    });
+  };
+
+  _.times = function(min, max) {
+    if (arguments.length < 2) max = min;
+    var self = this;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var xs = [];
+      var result = true;
+      var failure;
+
+      for (var i = 0; i < min; i += 1) {
+        result = self._(stream, success, firstFailure);
+        if (!result) return onFailure(stream, failure);
+      }
+
+      for (; i < max && result; i += 1) {
+        result = self._(stream, success, secondFailure);
+      }
+
+      return onSuccess(stream, xs);
+
+      function success(newStream, x) {
+        xs.push(x);
+        stream = newStream;
+        return true;
+      }
+
+      function firstFailure(newStream, msg) {
+        failure = msg;
+        stream = newStream;
+        return false;
+      }
+
+      function secondFailure(newStream, msg) {
+        return false;
+      }
+    });
+  };
+
+  // -*- higher-level combinators -*- //
+  _.result = function(res) { return this.then(succeed(res)); };
+  _.atMost = function(n) { return this.times(0, n); };
+  _.atLeast = function(n) {
+    var self = this;
+    return self.times(n).then(function(start) {
+      return self.many().map(function(end) {
+        return start.concat(end);
+      });
+    });
+  };
+
+  _.map = function(fn) {
+    return this.then(function(result) { return succeed(fn(result)); });
+  };
+
+  _.skip = function(two) {
+    return this.then(function(result) { return two.result(result); });
+  };
+
+  // -*- primitive parsers -*- //
+  var string = this.string = function(str) {
+    var len = str.length;
+    var expected = "expected '"+str+"'";
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var head = stream.slice(0, len);
+
+      if (head === str) {
+        return onSuccess(stream.slice(len), head);
+      }
+      else {
+        return onFailure(stream, expected);
+      }
+    });
+  };
+
+  var regex = this.regex = function(re) {
+    pray('regexp parser is anchored', re.toString().charAt(1) === '^');
+
+    var expected = 'expected '+re;
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var match = re.exec(stream);
+
+      if (match) {
+        var result = match[0];
+        return onSuccess(stream.slice(result.length), result);
+      }
+      else {
+        return onFailure(stream, expected);
+      }
+    });
+  };
+
+  var succeed = Parser.succeed = function(result) {
+    return Parser(function(stream, onSuccess) {
+      return onSuccess(stream, result);
+    });
+  };
+
+  var fail = Parser.fail = function(msg) {
+    return Parser(function(stream, _, onFailure) {
+      return onFailure(stream, msg);
+    });
+  };
+
+  var letter = Parser.letter = regex(/^[a-z]/i);
+  var letters = Parser.letters = regex(/^[a-z]*/i);
+  var digit = Parser.digit = regex(/^[0-9]/);
+  var digits = Parser.digits = regex(/^[0-9]*/);
+  var whitespace = Parser.whitespace = regex(/^\s+/);
+  var optWhitespace = Parser.optWhitespace = regex(/^\s*/);
+
+  var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
+    if (!stream) return onFailure(stream, 'expected any character');
+
+    return onSuccess(stream.slice(1), stream.charAt(0));
+  });
+
+  var all = Parser.all = Parser(function(stream, onSuccess, onFailure) {
+    return onSuccess('', stream);
+  });
+
+  var eof = Parser.eof = Parser(function(stream, onSuccess, onFailure) {
+    if (stream) return onFailure(stream, 'expected EOF');
+
+    return onSuccess(stream, stream);
+  });
+});
+// Parser MathBlock
+var latexMathParser = (function() {
+  function commandToBlock(cmd) { // can also take in a Fragment
+    var block = MathBlock();
+    cmd.adopt(block, 0, 0);
+    return block;
+  }
+  function joinBlocks(blocks) {
+    var firstBlock = blocks[0] || MathBlock();
+
+    for (var i = 1; i < blocks.length; i += 1) {
+      blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);
+    }
+
+    return firstBlock;
+  }
+
+  var string = Parser.string;
+  var regex = Parser.regex;
+  var letter = Parser.letter;
+  var any = Parser.any;
+  var optWhitespace = Parser.optWhitespace;
+  var succeed = Parser.succeed;
+  var fail = Parser.fail;
+
+  // Parsers yielding either MathCommands, or Fragments of MathCommands
+  //   (either way, something that can be adopted by a MathBlock)
+  var variable = letter.map(function(c) { return Letter(c); });
+  var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
+
+  var controlSequence =
+    regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
+    .or(string('\\').then(
+      regex(/^[a-z]+/i)
+      .or(regex(/^\s+/).result(' '))
+      .or(any)
+    )).then(function(ctrlSeq) {
+      var cmdKlass = LatexCmds[ctrlSeq];
+
+      if (cmdKlass) {
+        return cmdKlass(ctrlSeq).parser();
+      }
+      else {
+        return fail('unknown command: \\'+ctrlSeq);
+      }
+    })
+  ;
+
+  var command =
+    controlSequence
+    .or(variable)
+    .or(symbol)
+  ;
+
+  // Parsers yielding MathBlocks
+  var mathGroup = string('{').then(function() { return mathSequence; }).skip(string('}'));
+  var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
+  var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
+
+  var optMathBlock =
+    string('[').then(
+      mathBlock.then(function(block) {
+        return block.join('latex') !== ']' ? succeed(block) : fail();
+      })
+      .many().map(joinBlocks).skip(optWhitespace)
+    ).skip(string(']'))
+  ;
+
+  var latexMath = mathSequence;
+
+  latexMath.block = mathBlock;
+  latexMath.optBlock = optMathBlock;
+  return latexMath;
+})();
 
 Controller.open(function(_, super_) {
-  _.exportText = function() {
-    return this.root.foldChildren('', function(text, child) {
-      return text + child.text();
-    });
+  _.exportLatex = function() {
+    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+  };
+
+  optionProcessors.maxDepth = function(depth) {
+    return (typeof depth === 'number') ? depth : undefined;
+  };
+  _.writeLatex = function(latex) {
+    var cursor = this.notify('edit').cursor;
+
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+
+    if (block && !block.isEmpty() && block.prepareInsertionAt(cursor)) {
+      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
+      var jQ = block.jQize();
+      jQ.insertBefore(cursor.jQ);
+      cursor[L] = block.ends[R];
+      block.finalizeInsert(cursor.options, cursor);
+      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
+      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
+      cursor.parent.bubble('reflow');
+    }
+
+    return this;
+  };
+  _.renderLatexMath = function(latex) {
+    var root = this.root;
+    var cursor = this.cursor;
+    var options = cursor.options;
+    var jQ = root.jQ;
+
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+
+    root.eachChild('postOrder', 'dispose');
+    root.ends[L] = root.ends[R] = 0;
+
+    if (block && block.prepareInsertionAt(cursor)) {
+      block.children().adopt(root, 0, 0);
+      var html = block.join('html');
+      jQ.html(html);
+      root.jQize(jQ.children());
+      root.finalizeInsert(cursor.options);
+    }
+    else {
+      jQ.empty();
+    }
+
+    delete cursor.selection;
+    cursor.insAtRightEnd(root);
+  };
+  _.renderLatexText = function(latex) {
+    var root = this.root, cursor = this.cursor;
+
+    root.jQ.children().slice(1).remove();
+    root.eachChild('postOrder', 'dispose');
+    root.ends[L] = root.ends[R] = 0;
+    delete cursor.selection;
+    cursor.show().insAtRightEnd(root);
+
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var eof = Parser.eof;
+    var all = Parser.all;
+
+    // Parser RootMathCommand
+    var mathMode = string('$').then(latexMathParser)
+      // because TeX is insane, math mode doesn't necessarily
+      // have to end.  So we allow for the case that math mode
+      // continues to the end of the stream.
+      .skip(string('$').or(eof))
+      .map(function(block) {
+        // HACK FIXME: this shouldn't have to have access to cursor
+        var rootMathCommand = RootMathCommand(cursor);
+
+        rootMathCommand.createBlocks();
+        var rootMathBlock = rootMathCommand.ends[L];
+        block.children().adopt(rootMathBlock, 0, 0);
+
+        return rootMathCommand;
+      })
+    ;
+
+    var escapedDollar = string('\\$').result('$');
+    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
+    var latexText = mathMode.or(textChar).many();
+    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+
+    if (commands) {
+      for (var i = 0; i < commands.length; i += 1) {
+        commands[i].adopt(root, root.ends[R], 0);
+      }
+
+      root.jQize().appendTo(root.jQ);
+
+      root.finalizeInsert(cursor.options);
+    }
   };
 });
 Controller.open(function(_) {
@@ -1715,6 +1891,18 @@ Controller.open(function(_) {
  * I'm not even sure there aren't other troublesome calls to .focus() or
  * .blur(), so this is TODO for now.
  */
+/***********************************************
+ * Export math in a human-readable text format
+ * As you can see, only half-baked so far.
+ **********************************************/
+
+Controller.open(function(_, super_) {
+  _.exportText = function() {
+    return this.root.foldChildren('', function(text, child) {
+      return text + child.text();
+    });
+  };
+});
 /*****************************************
  * Deals with the browser DOM events from
  * interaction with the typist.
@@ -2002,182 +2190,118 @@ Controller.open(function(_) {
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
 });
-// Parser MathBlock
-var latexMathParser = (function() {
-  function commandToBlock(cmd) { // can also take in a Fragment
-    var block = MathBlock();
-    cmd.adopt(block, 0, 0);
-    return block;
-  }
-  function joinBlocks(blocks) {
-    var firstBlock = blocks[0] || MathBlock();
+/*********************************************
+ * Manage the MathQuill instance's textarea
+ * (as owned by the Controller)
+ ********************************************/
 
-    for (var i = 1; i < blocks.length; i += 1) {
-      blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);
+Controller.open(function(_) {
+  Options.p.substituteTextarea = function() {
+    return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
+               'spellcheck=false x-palm-disable-ste-all=true />')[0];
+  };
+  _.createTextarea = function() {
+    var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
+      textarea = this.options.substituteTextarea();
+    if (!textarea.nodeType) {
+      throw 'substituteTextarea() must return a DOM element, got ' + textarea;
+    }
+    textarea = this.textarea = $(textarea).appendTo(textareaSpan);
+
+    var ctrlr = this;
+    ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
+  };
+  _.selectionChanged = function() {
+    var ctrlr = this;
+    forceIERedraw(ctrlr.container[0]);
+
+    // throttle calls to setTextareaSelection(), because setting textarea.value
+    // and/or calling textarea.select() can have anomalously bad performance:
+    // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
+    if (ctrlr.textareaSelectionTimeout === undefined) {
+      ctrlr.textareaSelectionTimeout = setTimeout(function() {
+        ctrlr.setTextareaSelection();
+      });
+    }
+  };
+  _.setTextareaSelection = function() {
+    this.textareaSelectionTimeout = undefined;
+    var latex = '';
+    if (this.cursor.selection) {
+      latex = this.cursor.selection.join('latex');
+      if (this.options.statelessClipboard) {
+        // FIXME: like paste, only this works for math fields; should ask parent
+        latex = '$' + latex + '$';
+      }
+    }
+    this.selectFn(latex);
+  };
+  _.staticMathTextareaEvents = function() {
+    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
+      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+
+    this.container.prepend(jQuery('<span class="mq-selectable">')
+      .text('$'+ctrlr.exportLatex()+'$'));
+    ctrlr.blurred = true;
+    textarea.bind('cut paste', false)
+    .bind('copy', function() { ctrlr.setTextareaSelection(); })
+    .focus(function() { ctrlr.blurred = false; }).blur(function() {
+      if (cursor.selection) cursor.selection.clear();
+      setTimeout(detach); //detaching during blur explodes in WebKit
+    });
+    function detach() {
+      textareaSpan.detach();
+      ctrlr.blurred = true;
     }
 
-    return firstBlock;
-  }
+    ctrlr.selectFn = function(text) {
+      textarea.val(text);
+      if (text) textarea.select();
+    };
+  };
+  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
+  _.editablesTextareaEvents = function() {
+    var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-  var string = Parser.string;
-  var regex = Parser.regex;
-  var letter = Parser.letter;
-  var any = Parser.any;
-  var optWhitespace = Parser.optWhitespace;
-  var succeed = Parser.succeed;
-  var fail = Parser.fail;
-
-  // Parsers yielding either MathCommands, or Fragments of MathCommands
-  //   (either way, something that can be adopted by a MathBlock)
-  var variable = letter.map(function(c) { return Letter(c); });
-  var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
-
-  var controlSequence =
-    regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
-    .or(string('\\').then(
-      regex(/^[a-z]+/i)
-      .or(regex(/^\s+/).result(' '))
-      .or(any)
-    )).then(function(ctrlSeq) {
-      var cmdKlass = LatexCmds[ctrlSeq];
-
-      if (cmdKlass) {
-        return cmdKlass(ctrlSeq).parser();
+    var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
+    this.selectFn = function(text) { keyboardEventsShim.select(text); };
+    this.container.prepend(textareaSpan);
+    this.focusBlurEvents();
+  };
+  _.typedText = function(ch) {
+    if (ch === '\n') return this.handle('enter');
+    var cursor = this.notify().cursor;
+    cursor.parent.write(cursor, ch);
+    this.scrollHoriz();
+  };
+  _.cut = function() {
+    var ctrlr = this, cursor = ctrlr.cursor;
+    if (cursor.selection) {
+      setTimeout(function() {
+        ctrlr.notify('edit'); // deletes selection if present
+        cursor.parent.bubble('reflow');
+      });
+    }
+  };
+  _.copy = function() {
+    this.setTextareaSelection();
+  };
+  _.paste = function(text) {
+    // TODO: document `statelessClipboard` config option in README, after
+    // making it work like it should, that is, in both text and math mode
+    // (currently only works in math fields, so worse than pointless, it
+    //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
+    //  cut/copied LaTeX)
+    if (this.options.statelessClipboard) {
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
       }
       else {
-        return fail('unknown command: \\'+ctrlSeq);
+        text = '\\text{'+text+'}';
       }
-    })
-  ;
-
-  var command =
-    controlSequence
-    .or(variable)
-    .or(symbol)
-  ;
-
-  // Parsers yielding MathBlocks
-  var mathGroup = string('{').then(function() { return mathSequence; }).skip(string('}'));
-  var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
-  var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
-
-  var optMathBlock =
-    string('[').then(
-      mathBlock.then(function(block) {
-        return block.join('latex') !== ']' ? succeed(block) : fail();
-      })
-      .many().map(joinBlocks).skip(optWhitespace)
-    ).skip(string(']'))
-  ;
-
-  var latexMath = mathSequence;
-
-  latexMath.block = mathBlock;
-  latexMath.optBlock = optMathBlock;
-  return latexMath;
-})();
-
-Controller.open(function(_, super_) {
-  _.exportLatex = function() {
-    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
-  };
-  _.writeLatex = function(latex) {
-    var cursor = this.notify('edit').cursor;
-
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-
-    if (block && !block.isEmpty()) {
-      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
-      var jQ = block.jQize();
-      jQ.insertBefore(cursor.jQ);
-      cursor[L] = block.ends[R];
-      block.finalizeInsert(cursor.options, cursor);
-      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
-      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
-      cursor.parent.bubble('reflow');
     }
-
-    return this;
-  };
-  _.renderLatexMath = function(latex) {
-    var root = this.root, cursor = this.cursor;
-
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-
-    root.eachChild('postOrder', 'dispose');
-    root.ends[L] = root.ends[R] = 0;
-
-    if (block) {
-      block.children().adopt(root, 0, 0);
-    }
-
-    var jQ = root.jQ;
-
-    if (block) {
-      var html = block.join('html');
-      jQ.html(html);
-      root.jQize(jQ.children());
-      root.finalizeInsert(cursor.options);
-    }
-    else {
-      jQ.empty();
-    }
-
-    delete cursor.selection;
-    cursor.insAtRightEnd(root);
-  };
-  _.renderLatexText = function(latex) {
-    var root = this.root, cursor = this.cursor;
-
-    root.jQ.children().slice(1).remove();
-    root.eachChild('postOrder', 'dispose');
-    root.ends[L] = root.ends[R] = 0;
-    delete cursor.selection;
-    cursor.show().insAtRightEnd(root);
-
-    var regex = Parser.regex;
-    var string = Parser.string;
-    var eof = Parser.eof;
-    var all = Parser.all;
-
-    // Parser RootMathCommand
-    var mathMode = string('$').then(latexMathParser)
-      // because TeX is insane, math mode doesn't necessarily
-      // have to end.  So we allow for the case that math mode
-      // continues to the end of the stream.
-      .skip(string('$').or(eof))
-      .map(function(block) {
-        // HACK FIXME: this shouldn't have to have access to cursor
-        var rootMathCommand = RootMathCommand(cursor);
-
-        rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ends[L];
-        block.children().adopt(rootMathBlock, 0, 0);
-
-        return rootMathCommand;
-      })
-    ;
-
-    var escapedDollar = string('\\$').result('$');
-    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
-    var latexText = mathMode.or(textChar).many();
-    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
-
-    if (commands) {
-      for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(root, root.ends[R], 0);
-      }
-
-      root.jQize().appendTo(root.jQ);
-
-      root.finalizeInsert(cursor.options);
-    }
+    // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
+    this.writeLatex(text).cursor.show();
   };
 });
 /********************************************************
@@ -2307,120 +2431,6 @@ Controller.open(function(_) {
     this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy}, 100);
   };
 });
-/*********************************************
- * Manage the MathQuill instance's textarea
- * (as owned by the Controller)
- ********************************************/
-
-Controller.open(function(_) {
-  Options.p.substituteTextarea = function() {
-    return $('<textarea style="font-size:100px" autocapitalize=off autocomplete=off autocorrect=off ' +
-               'spellcheck=false x-palm-disable-ste-all=true />')[0];
-  };
-  _.createTextarea = function() {
-    var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
-      textarea = this.options.substituteTextarea();
-    if (!textarea.nodeType) {
-      throw 'substituteTextarea() must return a DOM element, got ' + textarea;
-    }
-    textarea = this.textarea = $(textarea).appendTo(textareaSpan);
-
-    var ctrlr = this;
-    ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
-  };
-  _.selectionChanged = function() {
-    var ctrlr = this;
-    forceIERedraw(ctrlr.container[0]);
-
-    // throttle calls to setTextareaSelection(), because setting textarea.value
-    // and/or calling textarea.select() can have anomalously bad performance:
-    // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
-    if (ctrlr.textareaSelectionTimeout === undefined) {
-      ctrlr.textareaSelectionTimeout = setTimeout(function() {
-        ctrlr.setTextareaSelection();
-      });
-    }
-  };
-  _.setTextareaSelection = function() {
-    this.textareaSelectionTimeout = undefined;
-    var latex = '';
-    if (this.cursor.selection) {
-      latex = this.cursor.selection.join('latex');
-      if (this.options.statelessClipboard) {
-        // FIXME: like paste, only this works for math fields; should ask parent
-        latex = '$' + latex + '$';
-      }
-    }
-    this.selectFn(latex);
-  };
-  _.staticMathTextareaEvents = function() {
-    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
-      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
-
-    this.container.prepend(jQuery('<span class="mq-selectable">')
-      .text('$'+ctrlr.exportLatex()+'$'));
-    ctrlr.blurred = true;
-    textarea.bind('cut paste', false)
-    .bind('copy', function() { ctrlr.setTextareaSelection(); })
-    .focus(function() { ctrlr.blurred = false; }).blur(function() {
-      if (cursor.selection) cursor.selection.clear();
-      setTimeout(detach); //detaching during blur explodes in WebKit
-    });
-    function detach() {
-      textareaSpan.detach();
-      ctrlr.blurred = true;
-    }
-
-    ctrlr.selectFn = function(text) {
-      textarea.val(text);
-      if (text) textarea.select();
-    };
-  };
-  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
-  _.editablesTextareaEvents = function() {
-    var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
-
-    var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
-    this.selectFn = function(text) { keyboardEventsShim.select(text); };
-    this.container.prepend(textareaSpan);
-    this.focusBlurEvents();
-  };
-  _.typedText = function(ch) {
-    if (ch === '\n') return this.handle('enter');
-    var cursor = this.notify().cursor;
-    cursor.parent.write(cursor, ch);
-    this.scrollHoriz();
-  };
-  _.cut = function() {
-    var ctrlr = this, cursor = ctrlr.cursor;
-    if (cursor.selection) {
-      setTimeout(function() {
-        ctrlr.notify('edit'); // deletes selection if present
-        cursor.parent.bubble('reflow');
-      });
-    }
-  };
-  _.copy = function() {
-    this.setTextareaSelection();
-  };
-  _.paste = function(text) {
-    // TODO: document `statelessClipboard` config option in README, after
-    // making it work like it should, that is, in both text and math mode
-    // (currently only works in math fields, so worse than pointless, it
-    //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
-    //  cut/copied LaTeX)
-    if (this.options.statelessClipboard) {
-      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
-        text = text.slice(1, -1);
-      }
-      else {
-        text = '\\text{'+text+'}';
-      }
-    }
-    // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
-    this.writeLatex(text).cursor.show();
-  };
-});
 /*************************************************
  * Abstract classes of math blocks and commands.
  ************************************************/
@@ -2448,6 +2458,43 @@ var MathElement = P(Node, function(_, super_) {
     if (self[R].siblingCreated) self[R].siblingCreated(options, L);
     if (self[L].siblingCreated) self[L].siblingCreated(options, R);
     self.bubble('reflow');
+  };
+  // If the maxDepth option is set, make sure
+  // deeply nested content is truncated. Just return
+  // false if the cursor is already too deep.
+  _.prepareInsertionAt = function(cursor) {
+    var maxDepth = cursor.options.maxDepth;
+    if (maxDepth !== undefined) {
+      var cursorDepth = cursor.depth();
+      if (cursorDepth > maxDepth) {
+        return false;
+      }
+      this.removeNodesDeeperThan(maxDepth-cursorDepth);
+    }
+    return true;
+  };
+  // Remove nodes that are more than `cutoff`
+  // blocks deep from this node.
+  _.removeNodesDeeperThan = function (cutoff) {
+    var depth = 0;
+    var queue = [[this, depth]];
+    var current;
+
+    // Do a breadth-first search of this node's descendants
+    // down to cutoff, removing anything deeper.
+    while (queue.length) {
+      current = queue.shift();
+      current[0].children().each(function (child) {
+        var i = (child instanceof MathBlock) ? 1 : 0;
+        depth = current[1]+i;
+
+        if (depth <= cutoff) {
+          queue.push([child, depth]);
+        } else {
+          (i ? child.children() : child).remove();
+        }
+      });
+    }
   };
 });
 
@@ -2501,6 +2548,8 @@ var MathCommand = P(MathElement, function(_, super_) {
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
+      cmd.placeCursor(cursor);
+      cmd.prepareInsertionAt(cursor);
     }
     cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
@@ -2708,7 +2757,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       if (text && cmd.textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
         return text + child_text.slice(1, -1) + cmd.textTemplate[i];
-      return text + child.text() + (cmd.textTemplate[i] || '');
+      return text + child_text + (cmd.textTemplate[i] || '');
     });
   };
 });
@@ -2769,8 +2818,6 @@ var BinaryOperator = P(Symbol, function(_, super_) {
  * Children and parent of MathCommand's. Basically partitions all the
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
- *
- * What does this meean?
  */
 var MathBlock = P(MathElement, function(_, super_) {
   _.join = function(methodName) {
@@ -2839,7 +2886,9 @@ var MathBlock = P(MathElement, function(_, super_) {
   _.write = function(cursor, ch) {
     var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
-    cmd.createLeftOf(cursor.show());
+    if (!cursor.isTooDeep()) {
+      cmd.createLeftOf(cursor.show());
+    }
   };
 
   _.focus = function() {
@@ -2857,14 +2906,17 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
 });
 
+Options.p.mouseEvents = true;
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;
     _.__mathquillify = function(opts, interfaceVersion) {
       this.config(opts);
       super_.__mathquillify.call(this, 'mq-math-mode');
-      this.__controller.delegateMouseEvents();
-      this.__controller.staticMathTextareaEvents();
+      if (this.__options.mouseEvents) {
+        this.__controller.delegateMouseEvents();
+        this.__controller.staticMathTextareaEvents();
+      }
       return this;
     };
     _.init = function() {
@@ -3711,6 +3763,28 @@ var SupSub = P(MathCommand, function(_, super_) {
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
   };
+  _.reflow = function() {
+    var $block = this.jQ ;//mq-supsub
+    var $prev = $block.prev() ;
+
+    if ( !$prev.length ) {
+        //we cant normalize it without having prev. element (which is base)
+        return ;
+    }
+
+    var $sup = $block.children( '.mq-sup' );//mq-supsub -> mq-sup
+    if ( $sup.length ) {
+        var sup_fontsize = parseInt( $sup.css('font-size') ) ;
+        var sup_bottom = $sup.offset().top + $sup.height() ;
+        //we want that superscript overlaps top of base on 0.7 of its font-size
+        //this way small superscripts like x^2 look ok, but big ones like x^(1/2/3) too
+        var needed = sup_bottom - $prev.offset().top  - 0.7*sup_fontsize ;
+        var cur_margin = parseInt( $sup.css('margin-bottom' ) ) ;
+        //we lift it up with margin-bottom
+        $sup.css( 'margin-bottom', cur_margin + needed ) ;
+    }
+  } ;
+
 });
 
 function insLeftOfMeUnlessAtEnd(cursor) {
@@ -3756,15 +3830,6 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
     super_.finalizeTree.call(this);
   };
-  _.reflow = function() {
-     var $block = this.jQ;//mq-supsub
-
-     var h = $block.prev().innerHeight() ;
-     h *= 0.6 ;
-
-     $block.css( 'vertical-align',  h + 'px' ) ;
-
-  } ;
 });
 
 var SummationNotation = P(MathCommand, function(_, super_) {
@@ -3893,7 +3958,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
           leftward = leftward[R];
       }
 
-      if (leftward !== cursor[L]) {
+      if (leftward !== cursor[L] && !cursor.isTooDeep(1)) {
         this.replaces(Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
         cursor[L] = leftward;
       }
@@ -4173,14 +4238,14 @@ LatexCmds.left = P(MathCommand, function(_) {
     var succeed = Parser.succeed;
     var optWhitespace = Parser.optWhitespace;
 
-    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle\b|\\lVert\b)/))
+    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle(?![a-zA-Z])|\\lVert(?![a-zA-Z]))/))
       .then(function(ctrlSeq) {
         var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
 	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
 	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
         return latexMathParser.then(function (block) {
           return string('\\right').skip(optWhitespace)
-            .then(regex(/^(?:[\])|]|\\\}|\\rangle\b|\\rVert\b)/)).map(function(end) {
+            .then(regex(/^(?:[\])|]|\\\}|\\rangle(?![a-zA-Z])|\\rVert(?![a-zA-Z]))/)).map(function(end) {
               var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
 	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
 	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
