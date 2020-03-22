@@ -143,7 +143,7 @@ var Problem = createReactClass({
                     <div style={{float:'left', height: "100%", marginRight:"10px"}}>
                         <div style={{marginLeft:"10px"}}>
                             <small>Problem Number</small><br />
-                            <input type="text" size="3"
+                            <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
                                    onChange={
                                         function(evt) {
@@ -208,7 +208,7 @@ var Problem = createReactClass({
                                         <span>Repeat until you have reached your solution on
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
-                                <div style={{"float":"left","display":"inline-block"}}>
+                                <div style={{"float":"left","display":"flex", alignItems: "center"}}>
                                 <HtmlButton title='Insert step above'
                                     content={(
                                         <img src="images/add_above.png" alt="x"/>
@@ -219,7 +219,8 @@ var Problem = createReactClass({
                                               STEP_KEY : stepIndex});
                                 }}/>
                                 <MathInput 
-                                    key={stepIndex} buttonsVisible='focused' styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
+                                    key={stepIndex} buttonsVisible='focused'
+                                    styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
                                     buttonSets={['trig', 'prealgebra',
                                                  'logarithms', 'calculus']}
                                     buttonGroup={buttonGroup}

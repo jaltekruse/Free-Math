@@ -108,6 +108,9 @@ const UserActions = createReactClass({
                 recoveredTeacherDocs.push(key);
             }
         }
+        recoveredStudentDocs.sort().reverse();
+        recoveredTeacherDocs.sort().reverse();
+
         var halfScreenStyle= {
             width:"44%",
             height: "auto",
