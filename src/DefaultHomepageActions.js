@@ -108,6 +108,8 @@ const UserActions = createReactClass({
                 recoveredTeacherDocs.push(key);
             }
         }
+        recoveredStudentDocs.sort();
+        recoveredTeacherDocs.sort();
         var halfScreenStyle= {
             width:"44%",
             height: "auto",
@@ -175,7 +177,6 @@ const UserActions = createReactClass({
                         { (recoveredStudentDocs.length > 0) ?
                             (<h4>Recovered Assignments</h4>) : null }
                         { (recoveredStudentDocs.length > 0) ?
-
                                 recoveredStudentDocs.map(function(docName, docIndex) {
                                     return (
                                         <div key={docName}>
@@ -353,7 +354,7 @@ const DefaultHomepageActions = createReactClass({
                     }.bind(this)}
                 >
                     <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>
-                        {this.state.showActionsMobile ? "Hide" : "More"} Actions
+                        {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
                     </h3> 
                 </button>
             </div>
