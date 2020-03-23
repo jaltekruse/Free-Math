@@ -144,7 +144,7 @@ var Problem = createReactClass({
                          style={{float:'left', height: "100%", marginRight:"10px"}}>
                         <div style={{display:"block", marginLeft:"10px"}}>
                             <small>Problem Number</small><br />
-                            <input type="text" size="3"
+                            <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
                                    onChange={
                                         function(evt) {
@@ -209,7 +209,7 @@ var Problem = createReactClass({
                                         <span>Repeat until you have reached your solution on
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
-                                <div style={{"float":"left","display":"inline-block"}}>
+                                <div style={{"float":"left","display":"flex", alignItems: "center"}}>
                                 <HtmlButton title='Insert step above'
                                     content={(
                                         <img src="images/add_above.png" alt="x"/>
@@ -237,6 +237,7 @@ var Problem = createReactClass({
                                     onSubmit={function() {
                                         window.store.dispatch(
                                             { type : NEW_STEP,
+                                              STEP_KEY : stepIndex,
                                               PROBLEM_INDEX : problemIndex});
                                     }}
                                 />
@@ -496,24 +497,26 @@ function problemReducer(problem, action) {
             REDO_STACK : []
         }
     } else if(action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
-        var oldLastStep;
+        var oldStep;
         if (action.type === NEW_STEP) {
-                oldLastStep = problem[STEPS][problem[STEPS].length - 1];
+                oldStep = problem[STEPS][action[STEP_KEY]];
         } else { // new blank step
-                oldLastStep = {CONTENT : ""};
+                oldStep = {CONTENT : ""};
         }
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : DELETE_STEP, STEP_KEY: problem[STEPS].length,
+                type : DELETE_STEP, STEP_KEY: action[STEP_KEY],
                 INVERSE_ACTION : {...action}
             }
         };
         let undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
-            STEPS : [ ...problem[STEPS],
-                      {...oldLastStep, STEP_ID : genID()}
+            STEPS : [
+                ...problem[STEPS].slice(0, action[STEP_KEY]),
+                {...oldStep, STEP_ID : genID(), FOCUSED: true},
+                ...problem[STEPS].slice(action[STEP_KEY])
             ],
             UNDO_STACK : [
                 undoAction,

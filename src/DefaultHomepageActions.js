@@ -108,8 +108,9 @@ const UserActions = createReactClass({
                 recoveredTeacherDocs.push(key);
             }
         }
-        recoveredStudentDocs.sort();
-        recoveredTeacherDocs.sort();
+        recoveredStudentDocs.sort().reverse();
+        recoveredTeacherDocs.sort().reverse();
+
         var halfScreenStyle= {
             width:"44%",
             height: "auto",
@@ -305,9 +306,17 @@ const DefaultHomepageActions = createReactClass({
                      className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
-                    <a href="gettingStarted.html" style={{color:"white", marginRight:"15px"}} >Getting Started</a>{' '}
-                    <a href="contact.html" style={{color:"white", marginRight:"15px"}} >Contact</a>{' '}
-                    <a href="faq.html" style={{color:"white"}} >FAQ</a>
+                    <a href="gettingStarted.html" 
+                        style={{color:"white", marginRight:"15px"}} >
+                        Getting Started
+                    </a>{' '}
+                    <a href="contact.html"
+                        style={{color:"white", marginRight:"15px"}} >
+                            Contact
+                    </a>{' '}
+                    <a href="faq.html" style={{color:"white"}} >
+                        FAQ
+                    </a>
                     </div>
                 </div>
             </div>

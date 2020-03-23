@@ -314,6 +314,7 @@ const MathInput = createReactClass({
             <div style={{...this.props.styles, display: 'inline-block'}}>
                 <span className={className}
                       ref="mathinput"
+                      style={{minWidth:'200px', padding:'5px', margin: '10px'}}
                       aria-label={this.props.labelText}
                       onFocus={this.handleFocus}
                       onBlur={this.handleBlur} />

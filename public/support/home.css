@@ -1,6 +1,15 @@
 /*
 Copied from persus project
 */
+.math-input-buttons {
+  background-color: rgba(240, 240, 240, 0.7);
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  margin-top: 5px;
+  padding: 10px;
+  width: 701px;
+}
 .math-input-buttons.absolute {
   left: -2px;
   position: absolute;
@@ -88,26 +97,6 @@ h1 small {
 }
 
 @media (max-width: 950px) {
-
-    iframe.tutorial-video {
-        width: 400px;
-        height:300px;
-        display:block
-    }
-    .mathStepEditor {
-        max-width:400px
-    }
-
-    .math-input-buttons {
-        background-color: rgba(240, 240, 240, 0.7);
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        box-sizing: border-box;
-        margin-top: 5px;
-        padding: 10px;
-        width: 401px;
-    }
-
     .navBarElms{
         padding: 7px 5px 5px 5px;
         font-size: 25px
@@ -125,64 +114,30 @@ h1 small {
     h2 {
         font-size: 35px
     }
-
     .homepage-center-mobile {
-        width: 100%;
-        -webkit-box-align: center;
-        align-items: center;
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        margin-left: auto;
-        margin-right: auto;
+        width: 100%;
+        display: inline-block;
+        float: none;
         padding: 0vw 2vw 10vw 2vw;
         /* this is necesary to prevent the padding from adding to thw width */
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
         box-sizing: border-box;         /* Opera/IE 8+ */
     }
-
     .homepage-wrapper {
         align-items: center;
         text-align: center;
-        padding: 70px 0px 0px 0px;
+        padding: 100px 0px 0px 0px;
         display: inline-block;
     }
-    .menubar-spacer {
+    .grading-menubar-spacer {
         height: 60px;
         display: block
-    }
-    .menubar-spacer-small {
-        height: 30px;
-        display: block
-    }
-    div.problem-editor-buttons {
-        width: 100%;
-    }
-
-    div.homepage-user-actions {
-        align-items: center;
     }
 }
 
 @media (min-width: 951px) {
-    iframe.tutorial-video {
-        width: 600px;
-        height:400px;
-        display:block
-    }
-    .mathStepEditor {
-        max-width:900px
-    }
-    .math-input-buttons {
-        background-color: rgba(240, 240, 240, 0.7);
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        box-sizing: border-box;
-        margin-top: 5px;
-        padding: 10px;
-        width: 701px;
-    }
     .navBarElms{
         padding: 7px 5px 5px 5px;
     }
@@ -218,18 +173,6 @@ h1 small {
         padding: 200px 0px 0px 0px;
         display: inline-block;
         width: 100%
-    }
-    div.problem-editor-buttons {
-        width: 150px;
-    }
-    div.homepage-user-actions {
-        max-width: 900px;
-        -webkit-box-align: center;
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        margin-left: auto;
-        margin-right: auto
     }
 }
 
@@ -394,7 +337,6 @@ body {
 #body {
   padding: 1em;
 }
-
 p {
   font-size: 18px;
 }
