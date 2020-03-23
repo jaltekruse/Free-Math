@@ -1151,8 +1151,6 @@ const TeacherInteractiveGrader = createReactClass({
         //        the most important to review problem first, rather than just the
         //        problems in order?
         var showTutorial = window.store.getState()[SHOW_TUTORIAL];
-        // change when teacher video is ready
-        showTutorial = false;//window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
@@ -1165,7 +1163,7 @@ const TeacherInteractiveGrader = createReactClass({
                                 this.setState({showModal: false});
                             }.bind(this)} />
                             <iframe title="Free Math Video"
-                                src="https://www.youtube.com/embed/xkXb6HD261Y?ecver=2"
+                                src="https://www.youtube.com/embed/L1TKoFo8M10?ecver=2"
                                 allowFullScreen frameBorder="0"
                                 gesture="media"
                                 style={{width:"600px", height:"400px", display:"block"}}></iframe>
