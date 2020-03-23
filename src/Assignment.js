@@ -140,22 +140,22 @@ var Assignment = createReactClass({
                     </div>
                 );
             }.bind(this))}
-            <Button text="Add Problem" style={{backgroundColor: "#008000"}} onClick={function() { 
+            <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() { 
                 addProblem();
             }}/>
             {probList[currProblem][SHOW_TUTORIAL] ? 
-                (<div style={{float: "right", display:"inline-block"}}>
-
-                    <Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
                         onClick={function() {
                             this.setState({showModal: true});
-                    }.bind(this)}/>
+                    }.bind(this)}/>) : null
+            }
+            {probList[currProblem][SHOW_TUTORIAL] ? 
+                (
                     <div className="answer-partially-correct"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
                         <span>Work saves to the Downloads folder on your device.</span>
-                    </div>
-                </div>) :
+                    </div>) :
                 null
             }
 
