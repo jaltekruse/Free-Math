@@ -143,7 +143,7 @@ var Problem = createReactClass({
                     <div className="problem-editor-buttons"
                          style={{float:'left', height: "100%", marginRight:"10px"}}>
                         <div style={{display:"block", marginLeft:"10px"}}>
-                            <small>Problem Number</small><br />
+                            <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
                                    onChange={
