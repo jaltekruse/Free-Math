@@ -99,7 +99,7 @@ h1 small {
     }
 
     .math-input-buttons {
-        background-color: rgba(240, 240, 240, 0.7);
+        background-color: rgba(245, 245, 245, 0.9);
         border-radius: 5px;
         border: 1px solid #ddd;
         box-sizing: border-box;
@@ -175,7 +175,7 @@ h1 small {
         max-width:900px
     }
     .math-input-buttons {
-        background-color: rgba(240, 240, 240, 0.7);
+        background-color: rgba(245, 245, 245, 0.9);
         border-radius: 5px;
         border: 1px solid #ddd;
         box-sizing: border-box;
