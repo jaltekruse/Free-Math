@@ -1163,7 +1163,7 @@ const TeacherInteractiveGrader = createReactClass({
                                 this.setState({showModal: false});
                             }.bind(this)} />
                             <iframe title="Free Math Video"
-                                src="https://www.youtube.com/embed/L1TKoFo8M10?ecver=2"
+                                src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
                                 allowFullScreen frameBorder="0"
                                 gesture="media"
                                 style={{width:"600px", height:"400px", display:"block"}}></iframe>
