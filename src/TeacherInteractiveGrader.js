@@ -1150,9 +1150,10 @@ const TeacherInteractiveGrader = createReactClass({
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         // change when teacher video is ready
-        showTutorial = false;//window.store.getState()[SHOW_TUTORIAL];
+        window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
@@ -1165,13 +1166,23 @@ const TeacherInteractiveGrader = createReactClass({
                                 this.setState({showModal: false});
                             }.bind(this)} />
                             <iframe title="Free Math Video"
-                                src="https://www.youtube.com/embed/xkXb6HD261Y?ecver=2"
+                                src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
                                 allowFullScreen frameBorder="0"
                                 gesture="media"
                                 style={{width:"600px", height:"400px", display:"block"}}></iframe>
                         </div>
                         )
                     } />
+                {browserIsIOS ? 
+                    (
+                        <div className="answer-incorrect"
+                         style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                                  be used to try out the experience, but you will need to visit the site on your Mac,
+                                  Widows PC, Chromebook or Android device to actually use the site.</span>
+                        </div>) :
+                    null
+                }
                 {showTutorial ?
                     (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"

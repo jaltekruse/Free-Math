@@ -14,6 +14,7 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 
 const GradingMenuBar = createReactClass({
     render: function() {
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
             assignmentName = "";
@@ -23,6 +24,9 @@ const GradingMenuBar = createReactClass({
                 <div className="nav" style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav /> 
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
+                        {/* Don't show option to save on iOS*/} 
+                        {!browserIsIOS ? 
+                        (<div>
                         Assignment Name &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
@@ -40,6 +44,8 @@ const GradingMenuBar = createReactClass({
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>) : null }
+
                         <LightButton text="Similar Doc Check" onClick={
                             function() {
                                 window.location.hash = '';

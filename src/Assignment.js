@@ -65,6 +65,10 @@ var Assignment = createReactClass({
         return { showModal: true }
     },
     render: function() {
+        // Microsoft injected the word iPhone in IE11's userAgent in order to try and fool
+        // Gmail somehow. Therefore we need to exclude it. More info about this here and here.
+        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         var probList = this.props.value[PROBLEMS];
         var currProblem = this.props.value[CURRENT_PROBLEM];
         var addProblem = function() {
@@ -152,11 +156,21 @@ var Assignment = createReactClass({
                             this.setState({showModal: true});
                     }.bind(this)}/>) : null
             }
-            {probList[currProblem][SHOW_TUTORIAL] ? 
+            {probList[currProblem][SHOW_TUTORIAL] && !browserIsIOS ? 
                 (
                     <div className="answer-partially-correct"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
                         <span>Work saves to the Downloads folder on your device.</span>
+                    </div>) :
+                null
+            }
+            {browserIsIOS ? 
+                (
+                    <div className="answer-incorrect"
+                     style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                        <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                              be used to try out the experience, but you will need to visit the site on your Mac,
+                              Widows PC, Chromebook or Android device to actually use the site.</span>
                     </div>) :
                 null
             }

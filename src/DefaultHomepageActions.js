@@ -298,6 +298,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             );
         };
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         return (
             <div>
             <div className="menuBar">
@@ -357,15 +358,26 @@ const DefaultHomepageActions = createReactClass({
             </div>
             {
             <div className="homepage-only-on-mobile">
-                <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
-                    onClick={function() {
-                        this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
-                    }.bind(this)}
-                >
-                    <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>
-                        {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
-                    </h3> 
-                </button>
+                {browserIsIOS ? 
+                    (
+                        <div className="answer-incorrect"
+                         style={{float: "right", display:"inline-block", width: "350px", padding:"5px", margin: "5px"}}>
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. The demos above can 
+                                  be used to try out the experience, but you will need to visit the site on your Mac,
+                                  Widows PC, Chromebook or Android device to actually use the site.</span>
+                        </div>) :
+                        (
+                            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+                                onClick={function() {
+                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
+                                }.bind(this)}
+                            >
+                                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>
+                                    {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
+                                </h3> 
+                            </button>
+                        )
+                }
             </div>
             }
             </div>
