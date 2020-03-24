@@ -26,7 +26,7 @@ const GradingMenuBar = createReactClass({
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
                         {/* Don't show option to save on iOS*/} 
                         {!browserIsIOS ? 
-                        (<div style={{display:"inline-block"}}>
+                        (<span>
                         Assignment Name &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
@@ -44,7 +44,7 @@ const GradingMenuBar = createReactClass({
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        </div>) : null }
+                        </span>) : null }
 
                         <LightButton text="Similar Doc Check" onClick={
                             function() {
