@@ -140,9 +140,10 @@ var Problem = createReactClass({
                     }
                 </div>
                 <div>
-                    <div style={{float:'left', height: "100%", marginRight:"10px"}}>
-                        <div style={{marginLeft:"10px"}}>
-                            <small>Problem Number</small><br />
+                    <div className="problem-editor-buttons"
+                         style={{float:'left', height: "100%", marginRight:"10px"}}>
+                        <div style={{display:"block", marginLeft:"10px"}}>
+                            <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
                                    onChange={
@@ -152,12 +153,12 @@ var Problem = createReactClass({
                             /> <br />
                         </div>
                         <Button text="Next Step (Enter)" style={{width: "125px"}} onClick={
-                            function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
+                            function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/>
                         <Button text="New Blank Step" style={{width: "125px"}} onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
-                            }}/> <br/>
+                            }}/>
                         <Button text="Undo" style={{width: "55px"}} onClick={
                             function() {
                                 window.store.dispatch(
@@ -167,14 +168,14 @@ var Problem = createReactClass({
                             function() {
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
-                            }}/> <br />
+                            }}/>
                         <Button type="submit" style={{width: "125px"}} text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() { 
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
-                        <div style={{float:'left', maxWidth:"85%"}} className="equation-list">
+                        <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
                         Type math here<br />
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
@@ -219,8 +220,8 @@ var Problem = createReactClass({
                                               STEP_KEY : stepIndex});
                                 }}/>
                                 <MathInput 
-                                    key={stepIndex} buttonsVisible='focused'
-                                    styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
+                                    key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
+                                    styles={{...styles, overflow: 'auto'}}
                                     buttonSets={['trig', 'prealgebra',
                                                  'logarithms', 'calculus']}
                                     buttonGroup={buttonGroup}

@@ -125,15 +125,7 @@ const UserActions = createReactClass({
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
         return (
-            <div style={{
-                    "max-width": "900px",
-                    "-webkit-box-align": "center",
-                    "align-items": "center",
-                    "display": "flex",
-                    "flex-direction": "column",
-                    "marginLeft":"auto",
-                    "marginRight": "auto"
-            }}>
+            <div className="homepage-user-actions">
             <FreeMathModal
                 showModal={this.state.showModal}
                 content={(
@@ -186,7 +178,6 @@ const UserActions = createReactClass({
                         { (recoveredStudentDocs.length > 0) ?
                             (<h4>Recovered Assignments</h4>) : null }
                         { (recoveredStudentDocs.length > 0) ?
-
                                 recoveredStudentDocs.map(function(docName, docIndex) {
                                     return (
                                         <div key={docName}>
@@ -307,6 +298,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             );
         };
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         return (
             <div>
             <div className="menuBar">
@@ -337,8 +329,8 @@ const DefaultHomepageActions = createReactClass({
                 </h1>
             <div>
             <div className="homepage-center">
-            <div style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button homepage-disappear-mobile" style={{...demoButtonStyle, "float" : "left"}} 
+            <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -364,22 +356,27 @@ const DefaultHomepageActions = createReactClass({
                 <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 
             </button>
             </div>
-            {/*
+            {
             <div className="homepage-only-on-mobile">
-                <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
-                    onClick={function() {
-                        this.setState({"showActionsMobile": true}); 
-                    }.bind(this)}
-                >
-                    <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>More Actions</h3> 
-                </button>
+                { ! browserIsIOS ? 
+                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+                             onClick={function() {
+                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
+                                }.bind(this)}
+                            >
+                                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>
+                                    {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
+                                </h3> 
+                            </button>
+                    ) : null
+                }
             </div>
-            */}
+            }
             </div>
             <div className="homepage-only-on-mobile" >
                 {this.state.showActionsMobile ? <UserActions /> : null }
             </div>
-            <div className="homepage-disappear-mobile">
+            <div className="homepage-disappear-mobile" >
                 <UserActions />
             </div>
             </div>
@@ -463,6 +460,37 @@ const DefaultHomepageActions = createReactClass({
 		    </form>
 		    </div>
 		</div>
+                { browserIsIOS ?
+                    (
+                    <div className="homepage-center-mobile">
+                        <h2> Windows PCs, Macs, Chromebooks, and Android devices Currently Supported </h2>
+                            <p> It looks like you are on a iOS device, please save the link and visit on
+                                one of the supported devices for the full exprience. </p>
+                    </div>
+                   ) : null }
+                <div className="homepage-center"
+                     style={{width:"70%", height: "0",
+                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        gesture="media"
+                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
+                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
+                    <h2>Integrates with Your Favorite LMS<br /></h2>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="google classroom logo"
+                         src="images/google_classroom.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="canvas logo"
+                         src="images/canvas.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="moodle logo"
+                         src="images/moodle.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="moodle logo"
+                         src="images/blackboard.png"/>
+                </div>
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
                     <h2>Spread the Word</h2>
                     <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
@@ -486,34 +514,6 @@ const DefaultHomepageActions = createReactClass({
                         }}>
                             <img alt="pinterest" src="images/pinterest.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
                     </div>
-                </div>
-                <div className="homepage-center"
-                     style={{width:"70%", height: "0",
-                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
-                <iframe title="Free Math Video"
-                        src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
-                        width="80%" height="auto" allowFullScreen frameBorder="0"
-                        gesture="media"
-                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
-                    <h2>Integrates with Your Favorite LMS<br /></h2>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="google classroom logo"
-                         src="images/google_classroom.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="canvas logo"
-                         src="images/canvas.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="moodle logo"
-                         src="images/moodle.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="moodle logo"
-                         src="images/blackboard.png"/>
-                </div> 
-                <div className="homepage-center-mobile homepage-only-on-mobile">
-                    <h2> Windows Computers, Chromebooks and Macs Currently Supported </h2>
-                        <p> It looks like you are on a mobile device, please save the link and visit on
-                            one of your larger devices for the full exprience. </p>
                 </div>
                 <div style={{"align-items": "center", "text-align": "center"}}>
                 <h2>Great for Many Areas of Math</h2>

@@ -131,22 +131,26 @@ export function readSingleFile(evt, discardDataWarning) {
 
 var AssignmentEditorMenubar = createReactClass({
   render: function() {
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         return (
             <div className="menuBar">
-                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-                    <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                    
+                    {!browserIsIOS ? 
+                    (<div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
                         Filename &nbsp;&nbsp;
-                        <input type="text" id="assignment-name-text" size="35" name="assignment name" value={this.props.value[ASSIGNMENT_NAME]} onChange={
-                            function(evt) {
-                                window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
-                            }}
+                        <input type="text" id="assignment-name-text" size="25"
+                               name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
+                               onChange={
+                                    function(evt) {
+                                        window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
+                                    }}
                         />&nbsp;&nbsp;
 
                         <LightButton text="Save" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
-                    </div>
+                    </div>) : null}
                 </div>
             </div>
         );

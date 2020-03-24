@@ -221,6 +221,49 @@ var TexButtons = createReactClass({
                 onClick={function() {
                             window.store.dispatch(
                                 { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : GREEK });}}/>
+
+            <div>Move Cursor
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                        onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Left");
+                        });
+                    }}>
+                    <TeX>{"\\leftarrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                        onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Right");
+                        });
+                    }}>
+                    <TeX>{"\\rightarrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                        onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Up");
+                        });
+                    }}>
+                    <TeX>{"\\uparrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                          onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Down");
+                        });
+                    }}>
+                    <TeX>{"\\downarrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none", width: "80px"}} 
+                          onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Backspace");
+                        });
+                    }}>
+                    Backspace
+                </button>
+            </div>
             {buttonPopup}
         </div>;
     },

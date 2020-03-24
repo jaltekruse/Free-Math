@@ -65,6 +65,10 @@ var Assignment = createReactClass({
         return { showModal: true }
     },
     render: function() {
+        // Microsoft injected the word iPhone in IE11's userAgent in order to try and fool
+        // Gmail somehow. Therefore we need to exclude it. More info about this here and here.
+        // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         var probList = this.props.value[PROBLEMS];
         var currProblem = this.props.value[CURRENT_PROBLEM];
         var addProblem = function() {
@@ -75,12 +79,12 @@ var Assignment = createReactClass({
             window.store.dispatch({ type : ADD_PROBLEM});
         }.bind(this);
         return (
-        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 30px 30px"}}>
+        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
             <FreeMathModal
                 showModal={this.state.showModal &&
                             probList[currProblem][SHOW_TUTORIAL]}
                 content={(
-                    <div width="750px">
+                    <div>
                         <CloseButton onClick={function() {
                             this.setState({showModal: false});
                         }.bind(this)} />
@@ -88,11 +92,13 @@ var Assignment = createReactClass({
                             src="https://www.youtube.com/embed/x6EiDUYJx_s"
                             allowFullScreen frameBorder="0"
                             gesture="media"
-                            style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                            className="tutorial-video"
+                            ></iframe>
                     </div>
                     )
                 } />
             <div>
+            <div className="menubar-spacer-small"> </div>
             {probList.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
@@ -150,11 +156,21 @@ var Assignment = createReactClass({
                             this.setState({showModal: true});
                     }.bind(this)}/>) : null
             }
-            {probList[currProblem][SHOW_TUTORIAL] ? 
+            {probList[currProblem][SHOW_TUTORIAL] && !browserIsIOS ? 
                 (
                     <div className="answer-partially-correct"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
                         <span>Work saves to the Downloads folder on your device.</span>
+                    </div>) :
+                null
+            }
+            {browserIsIOS ? 
+                (
+                    <div className="answer-incorrect"
+                     style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                        <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                              be used to try out the experience, but you will need to visit the site on your Mac,
+                              Widows PC, Chromebook or Android device to actually use the site.</span>
                     </div>) :
                 null
             }
@@ -164,9 +180,6 @@ var Assignment = createReactClass({
                      buttonGroup={this.props.value[BUTTON_GROUP]}
                      probList={probList}
             />
-            </div>
-            <div className="answer-incorrect homepage-only-on-mobile" style={{"float":"left", padding:"10px", margin: "10px"}}>
-                Note: Limited demo experience available on mobile, visit on your computer for the full experience.
             </div>
             <br />
             {/* Replaced by better onscreen math keyboard with shortcuts in

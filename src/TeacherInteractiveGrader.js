@@ -1150,11 +1150,12 @@ const TeacherInteractiveGrader = createReactClass({
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
-                <div className="grading-menubar-spacer"> </div>
+                <div className="menubar-spacer"> </div>
                 <FreeMathModal
                     showModal={showTutorial && this.state.showModal}
                     content={(
@@ -1170,6 +1171,16 @@ const TeacherInteractiveGrader = createReactClass({
                         </div>
                         )
                     } />
+                {browserIsIOS ? 
+                    (
+                        <div className="answer-incorrect"
+                         style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                                  be used to try out the experience, but you will need to visit the site on your Mac,
+                                  Widows PC, Chromebook or Android device to actually use the site.</span>
+                        </div>) :
+                    null
+                }
                 {showTutorial ?
                     (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
@@ -1180,9 +1191,6 @@ const TeacherInteractiveGrader = createReactClass({
                 <h3>To see student responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
                 <canvas ref="chart" width="400" height="70"></canvas>
-                <div className="homepage-only-on-mobile answer-incorrect" style={{padding: "5px"}}>
-                    Note: Limited demo experience available on mobile, visit on your computer for the full experience.
-                </div>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />

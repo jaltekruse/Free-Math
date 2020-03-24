@@ -195,16 +195,14 @@ var FreeMath = createReactClass({
 
     if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
         return (
-            <div className="gradingPage">
+            <div>
                 <AssignmentEditorMenubar value={this.props.value}/>
-                <div style={{display:"inline-block", width:"100%"}}>
-                    <Assignment value={this.props.value}/>
-                </div>
+                <Assignment value={this.props.value}/>
             </div>
         );
     } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
         return (
-            <div className="gradingPage">
+            <div>
                 <GradingMenuBar value={this.props.value} />
                 <TeacherInteractiveGrader value={this.props.value}/>
             </div>
