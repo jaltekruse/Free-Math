@@ -26,7 +26,7 @@ const GradingMenuBar = createReactClass({
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
                         {/* Don't show option to save on iOS*/} 
                         {!browserIsIOS ? 
-                        (<div>
+                        (<div style={{display:"inline-block"}}>
                         Assignment Name &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
