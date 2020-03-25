@@ -17,6 +17,7 @@ var symbStyle = { fontSize: "130%" };
 var SET_KEYBOARD_BUTTON_GROUP = 'SET_KEYBOARD_BUTTON_GROUP';
 var BUTTON_GROUP = 'BUTTON_GROUP';
 var CALC = 'CALC';
+var GEOMETRY = 'GEOMETRY';
 var BASIC = 'BASIC';
 var SET_THEORY = 'SET_THEORY';
 var GREEK = 'GREEK';
@@ -182,10 +183,14 @@ var TexButtons = createReactClass({
                            tabIndex={-1}
                            title={"keyboard shortcut: " + symbol.toType }
                            type="button">
-                {symbol.tex ?
-                    <TeX>{symbol.tex}</TeX>
-                    :
-                    <MathQuillStatic tex={symbol.mqStatic} />}
+                {/* MathQuillStatic compoent currenty doesn't work, closes keyboard, for now, just
+                    copying out the html from rendered mathquill as workaround*/}
+                {symbol.mqStatic ?
+                    <MathQuillStatic tex={symbol.mqStatic} />
+                    : (symbol.htmlComponent ?
+                        (symbol.htmlComponent)
+                        : <TeX>{symbol.tex}</TeX> )
+                    }
             </button>;
         });
 
@@ -203,6 +208,12 @@ var TexButtons = createReactClass({
                 onClick={function() {
                             window.store.dispatch(
                                 { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : BASIC });}}/>
+            <Button text="Geometry"
+                    style={this.props.buttonGroup === GEOMETRY ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : GEOMETRY});}}/>
             <Button text="Set Theory and Logic"
                     style={this.props.buttonGroup === SET_THEORY ? 
                                 { backgroundColor: "#052d66"} : {}}
