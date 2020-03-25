@@ -138,7 +138,9 @@ const symbolGroups = {
         {toType:"\\cong [Enter]", tex:"\\cong"},
         {toType:"\\perp [Enter]", tex:"\\perp"},
         {toType:"\\parallel [Enter]", tex:"\\parallel"},
+        /* not in MathQuill
         {toType:"\\approxeq [Enter]", tex:"\\approxeq"},
+        */
         {toType:"\\simeq [Enter]", tex:"\\simeq"},
         {toType:"\\sim [Enter]", tex:"\\sim"},
         // TODO - wrong symbol used for this in MathQuill

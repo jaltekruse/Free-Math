@@ -152,8 +152,9 @@ var Problem = createReactClass({
                                                     NEW_PROBLEM_NUMBER : evt.target.value}) }}
                             /> <br />
                         </div>
-                        <Button text="Next Step (Enter)" style={{width: "125px"}} onClick={
-                            function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/>
+                        <br />
+                        <small>Next Step - Enter Key</small>
+                        <br />
                         <Button text="New Blank Step" style={{width: "125px"}} onClick={
                             function() {
                                 window.store.dispatch(
@@ -498,11 +499,17 @@ function problemReducer(problem, action) {
         }
     } else if(action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
         var oldStep;
+        if (action[STEP_KEY] == undefined) {
+            action[STEP_KEY] = problem[STEPS].length - 1;
+        }
         if (action.type === NEW_STEP) {
                 oldStep = problem[STEPS][action[STEP_KEY]];
         } else { // new blank step
                 oldStep = {CONTENT : ""};
         }
+        // TODO - allow tracking the cursor, which box it is in
+        // for now this applies when the button is used instead of hitting enter
+        // while in the box, will always add to the end
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
@@ -514,7 +521,7 @@ function problemReducer(problem, action) {
         return {
             ...problem,
             STEPS : [
-                ...problem[STEPS].slice(0, action[STEP_KEY]),
+                ...problem[STEPS].slice(0, action[STEP_KEY] + 1),
                 {...oldStep, STEP_ID : genID(), FOCUSED: true},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
