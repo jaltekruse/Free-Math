@@ -196,13 +196,6 @@ var TexButtons = createReactClass({
             </button>;
         });
 
-        var buttonPopup = _.map(buttonRows, (row, i) => {
-            return <div className="clearfix tex-button-row"
-                        key={this.props.sets[i]}>
-                {row}
-            </div>;
-        });
-
         return <div className={`${this.props.className} preview-measure`}>
             <Button text="Basic"
                     style={this.props.buttonGroup === BASIC ? 
@@ -277,7 +270,7 @@ var TexButtons = createReactClass({
                     Backspace
                 </button>
             </div>
-            {buttonPopup}
+            {buttonRows}
         </div>;
     },
     statics: {

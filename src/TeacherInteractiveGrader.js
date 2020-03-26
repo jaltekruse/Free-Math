@@ -1008,7 +1008,7 @@ const GradesView = createReactClass({
                             for (var studentFileName in grades) {
                                 if (grades.hasOwnProperty(studentFileName)) {
                                     tableRows.push(
-                                    (<tr>
+                                    (<tr key={studentFileName}>
                                         <td>{studentFileName}</td>
                                         <td>{grades[studentFileName]}</td>
                                     </tr> ));
@@ -1173,7 +1173,6 @@ const TeacherInteractiveGrader = createReactClass({
                             <iframe title="Free Math Video"
                                 src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
                                 allowFullScreen frameBorder="0"
-                                gesture="media"
                                 style={{width:"600px", height:"400px", display:"block"}}></iframe>
                         </div>
                         )

@@ -100,10 +100,10 @@ const symbolGroups = {
         {toType:"\\overarc [Enter]", htmlComponent: 
             (<span className="mq-math-mode">
                 <span className="mq-selectable">{"\\overarc{AB}"}</span>
-                <span className="mq-root-block mq-hasCursor" mathquill-block-id="1271">
-                    <span className="mq-non-leaf mq-overarc" mathquill-command-id="1272" mathquill-block-id="1274">
-                        <var mathquill-command-id="1273">A</var>
-                        <var mathquill-command-id="1275">B</var>
+                <span className="mq-root-block mq-hasCursor">
+                    <span className="mq-non-leaf mq-overarc">
+                        <var>A</var>
+                        <var>B</var>
                     </span>
                 <span className="mq-cursor">​</span>
             </span></span>),

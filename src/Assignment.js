@@ -91,7 +91,6 @@ var Assignment = createReactClass({
                         <iframe title="Free Math Video"
                             src="https://www.youtube.com/embed/x6EiDUYJx_s"
                             allowFullScreen frameBorder="0"
-                            gesture="media"
                             className="tutorial-video"
                             ></iframe>
                     </div>
@@ -109,14 +108,14 @@ var Assignment = createReactClass({
                 }
                 return (
                     <div style={{
-                        'float' : 'left',
-                        '-webkit-box-align': 'center',
-                        'align-items': 'center',
-                        'display': 'flex',
-                        'flex-direction': 'column',
-                        'text-align': 'center',
-                        'margin-right': '15px',
-                        marginRight: "15px"}}>
+                        float : 'left',
+                        WebkitBoxAlign: 'center',
+                        alignItems: 'center',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        textAlign: 'center',
+                        marginRight: '15px'}}
+			key={"wrapper_" + problemIndex}>
                     <ScoreBox value={problem} />
                     <div>
                         <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}

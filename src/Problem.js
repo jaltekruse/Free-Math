@@ -127,7 +127,7 @@ var Problem = createReactClass({
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
-                <div style={{width:"200", height:"100%",float:"left"}}> 
+                <div style={{width:"200px", height:"100%",float:"left"}}> 
                     {   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                            : null
                     }

@@ -178,8 +178,8 @@ var FreeMath = createReactClass({
     // student mode rendering
     var wrapperDivStyle = {
         padding:"0px 30px 0px 30px",
-        "margin-left":"auto",
-        "margin-right": "auto",
+        marginLeft:"auto",
+        marginRight: "auto",
         height:"100%"
     };
     /*

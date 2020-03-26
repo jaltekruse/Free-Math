@@ -5,12 +5,12 @@ import createReactClass from 'create-react-class';
 // I think this is no longer needed now that I'm using a real button
 // instead of a div
 const unselectable = {
-    "-webkit-touch-callout": "none",
-    "-webkit-user-select": "none",
-    "-khtml-user-select": "none",
-    "-moz-user-select": "none",
-    "-ms-user-select": "none",
-    "user-select": "none"
+    WebkitTouchCallout: "none",
+    WebkitUserSelect: "none",
+    KhtmlUserSelect: "none",
+    MozUserSelect: "none",
+    msUserSelect: "none",
+    userSelect: "none"
 }
 
 var HtmlButton = createReactClass({

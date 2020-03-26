@@ -128,7 +128,7 @@ const UserActions = createReactClass({
             <FreeMathModal
                 showModal={this.state.showModal}
                 content={(
-                    <div style={{"align-items": "center"}}>
+                    <div style={{alignItems: "center"}}>
                         <img style={{
                             "display": "flex",
                             "marginLeft":"auto",
@@ -273,13 +273,13 @@ const DefaultHomepageActions = createReactClass({
             ...halfScreenStyle,
             width:"350px",
             borderRadius:"60px",
-            "text-align": "center",
+            textAlign: "center",
         };
         var wrapperDivStyle = {
             padding:"0px 0px 0px 0px",
-            "backgroundColor":"#ffffff",
-            "marginLeft":"auto",
-            "marginRight": "auto",
+            backgroundColor:"#ffffff",
+            marginLeft:"auto",
+            marginRight: "auto",
             //width:"1024px"
         };
 
@@ -342,7 +342,7 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
@@ -352,7 +352,7 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3> 
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3> 
             </button>
             </div>
             {
@@ -362,8 +362,7 @@ const DefaultHomepageActions = createReactClass({
                              onClick={function() {
                                     this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
                                 }.bind(this)}
-                            >
-                                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>
+                            >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
                                     {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
                                 </h3> 
                             </button>
@@ -405,20 +404,20 @@ const DefaultHomepageActions = createReactClass({
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
-                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
+                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
                     <br />
-                    <img style={{"width":"100%",
-                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                    <img style={{width:"100%",
+                                 boxShadow: "rgb(176, 177, 178) 0px 10px 50px"
                                }}
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
                 </div>
-                <div style={{"width" : "100%", "margin":"100px 0px 20px 0px",
-                             "padding":"50px 0px 50px 0px",
-                             "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
+                <div style={{width : "100%", margin:"100px 0px 20px 0px",
+                             padding:"50px 0px 50px 0px",
+                             background: "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
                              }}>
 		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
 			<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"
@@ -473,9 +472,8 @@ const DefaultHomepageActions = createReactClass({
                 <iframe title="Free Math Video"
                         src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
                         width="80%" height="auto" allowFullScreen frameBorder="0"
-                        gesture="media"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
+                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
                     <h2>Integrates with Your Favorite LMS<br /></h2>
                     <img style={{margin : "20px", height : "200px"}}
                          alt="google classroom logo"
@@ -514,7 +512,7 @@ const DefaultHomepageActions = createReactClass({
                             <img alt="pinterest" src="images/pinterest.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
                     </div>
                 </div>
-                <div style={{"align-items": "center", "text-align": "center"}}>
+                <div style={{alignItems: "center", textAlign: "center"}}>
                 <h2>Great for Many Areas of Math</h2>
                 <br />
                 <br />
