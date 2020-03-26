@@ -99,7 +99,6 @@ const StudentWork = createReactClass({
     render: function() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
-        var possiblePoints = this.props.possiblePoints;
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         return (

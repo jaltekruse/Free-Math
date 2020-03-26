@@ -120,7 +120,6 @@ var Problem = createReactClass({
     },
     render: function() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
-        var probList = this.props.probList;
         var problemIndex = this.props.id;
         var showTutorial = this.props.value[SHOW_TUTORIAL];
         var buttonGroup = this.props.buttonGroup;
@@ -499,7 +498,7 @@ function problemReducer(problem, action) {
         }
     } else if(action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
         var oldStep;
-        if (action[STEP_KEY] == undefined) {
+        if (typeof action[STEP_KEY] === 'undefined') {
             action[STEP_KEY] = problem[STEPS].length - 1;
         }
         if (action.type === NEW_STEP) {
@@ -588,7 +587,7 @@ function problemListReducer(probList, action) {
             problemReducer(undefined, action)
         ];
     } else if (action.type === REMOVE_PROBLEM) {
-        if (probList.length == 1) return probList;
+        if (probList.length === 1) return probList;
         return [
             ...probList.slice(0, action[PROBLEM_INDEX]),
             ...probList.slice(action[PROBLEM_INDEX] + 1)

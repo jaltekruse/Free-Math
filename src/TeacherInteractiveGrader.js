@@ -334,9 +334,9 @@ function findSimilarStudentAssignments(allStudentWork) {
                     : [];
 
                 // add if not in list
-                similarDocsToEach[assignment1[STUDENT_FILE]].indexOf(assignment2[STUDENT_FILE]) === -1
-                    ? similarDocsToEach[assignment1[STUDENT_FILE]].push(assignment2[STUDENT_FILE])
-                    : 0;
+                if (similarDocsToEach[assignment1[STUDENT_FILE]].indexOf(assignment2[STUDENT_FILE]) === -1) {
+                    similarDocsToEach[assignment1[STUDENT_FILE]].push(assignment2[STUDENT_FILE]);
+                }
             }
         });
     });
@@ -364,34 +364,41 @@ function findSimilarStudentAssignments(allStudentWork) {
         }
         return allSimilarityGroups;
     }
+
+    let pair;
+    let addedToOneGroup;
+
+    const addToGroupsIfNotPresent = function(group, index, array) {
+	var matchesAll = true;
+	// are both members of this pair already in this group, then skip comparing with
+	// everyone else
+	if (group.indexOf(pair[0]) !== -1 && group.indexOf(pair[1]) !== -1) {
+	    addedToOneGroup = true;
+	    return true;
+	}
+	for (let groupMember of group) {
+	    if ( (groupMember !== pair[0]
+		   && similarityScores[buildKey(groupMember, pair[0])] === undefined) ||
+		  (groupMember !== pair[1]
+		   && similarityScores[buildKey(groupMember, pair[1])] === undefined) ) {
+		matchesAll = false;
+		break;
+	    }
+	}
+	if (matchesAll) {
+	    // add if not in list
+	    if (group.indexOf(pair[0]) === -1) group.push(pair[0]);
+	    if (group.indexOf(pair[1]) === -1) group.push(pair[1]);
+	    addedToOneGroup = true;
+	}
+    };
+
     for (var similarPair in similarityScores) {
         if (similarityScores.hasOwnProperty(similarPair)) {
-            let pair = splitKey(similarPair);
-            var addedToOneGroup = false;
-            allSimilarityGroups.forEach(function(group, index, array) {
-                var matchesAll = true;
-                // are both members of this pair already in this group, then skip comparing with
-                // everyone else
-                if (group.indexOf(pair[0]) !== -1 && group.indexOf(pair[1]) !== -1) {
-                    addedToOneGroup = true;
-                    return true;
-                }
-                for (let groupMember of group) {
-                    if ( (groupMember !== pair[0]
-                           && similarityScores[buildKey(groupMember, pair[0])] === undefined) ||
-                          (groupMember !== pair[1]
-                           && similarityScores[buildKey(groupMember, pair[1])] === undefined) ) {
-                        matchesAll = false;
-                        break;
-                    }
-                }
-                if (matchesAll) {
-                    // add if not in list
-                    group.indexOf(pair[0]) === -1 ? group.push(pair[0]) : 0;
-                    group.indexOf(pair[1]) === -1 ? group.push(pair[1]) : 0;
-                    addedToOneGroup = true;
-                }
-            });
+            pair = splitKey(similarPair);
+            addedToOneGroup = false;
+	    /*ignore jslint start*/
+            allSimilarityGroups.forEach(addToGroupsIfNotPresent);
             if (!addedToOneGroup) {
                 allSimilarityGroups.push(pair);
             }

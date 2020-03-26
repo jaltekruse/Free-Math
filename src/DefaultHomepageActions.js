@@ -26,7 +26,6 @@ var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
-var APP_MODE = 'APP_MODE';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
 
@@ -135,7 +134,7 @@ const UserActions = createReactClass({
                             "marginLeft":"auto",
                             "marginRight": "auto"
                              }}
-                             src="images/Ajax-loader.gif" /><br />
+                             src="images/Ajax-loader.gif" alt="loading spinner" /><br />
                         Analyzing and grouping student work...
                     </div>)}
             />
@@ -488,7 +487,7 @@ const DefaultHomepageActions = createReactClass({
                          alt="moodle logo"
                          src="images/moodle.png"/>
                     <img style={{margin : "20px", height : "200px"}}
-                         alt="moodle logo"
+                         alt="blackboard logo"
                          src="images/blackboard.png"/>
                 </div>
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>

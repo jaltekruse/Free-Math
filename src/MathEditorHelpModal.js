@@ -1,10 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
-import ReactDOM from 'react-dom';
-import TeX from './TeX.js';
-import MathQuillStatic from './MathQuillStatic.js';
-
-var MathQuill = window.MathQuill;
 
 const symbolGroups = {
     BASIC : [

@@ -125,7 +125,8 @@ var Assignment = createReactClass({
                                       "fm-button-left fm-button"}
                             onClick={function() {
                                 window.store.dispatch(
-                                    {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}.bind(this)} />
+                                    {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}}
+                        />
                         <HtmlButton text="&#10005;" title="Delete problem" key={problemIndex + " close"}
                             className={(problemIndex === currProblem ? 
                                             "fm-button-selected " : "") + 
@@ -178,7 +179,6 @@ var Assignment = createReactClass({
             <Problem value={probList[currProblem]}
                      id={currProblem}
                      buttonGroup={this.props.value[BUTTON_GROUP]}
-                     probList={probList}
             />
             </div>
             <br />

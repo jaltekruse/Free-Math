@@ -11,10 +11,6 @@ var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 
-var PROBLEM_INDEX  = 'PROBLEM_INDEX';
-var SET_CURRENT_PROBLEM = 'SET_CURRENT_PROBLEM';
-var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
-
 // editing assignmnt mode actions
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 // used to swap out the entire content of the document, for opening
