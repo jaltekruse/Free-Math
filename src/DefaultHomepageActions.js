@@ -107,8 +107,12 @@ const UserActions = createReactClass({
                 recoveredTeacherDocs.push(key);
             }
         }
-        recoveredStudentDocs.sort().reverse();
-        recoveredTeacherDocs.sort().reverse();
+        recoveredStudentDocs = recoveredStudentDocs.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+        recoveredTeacherDocs = recoveredTeacherDocs.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
 
         var halfScreenStyle= {
             width:"44%",
