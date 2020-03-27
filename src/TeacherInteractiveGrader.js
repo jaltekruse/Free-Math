@@ -576,7 +576,7 @@ function areExpressionsSimilar(expression1, expression2) {
             // if parsing or comparison fails, do nothing, assume they are not similar
             // "matches" is already set to false above
             console.log("failed to compare 2 expressions");
-            window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
+            window.ga('send', 'exception', { 'exDescription' : 'failed while comparing expressions.' } );
             console.log(expression1);
             console.log(expression2);
             console.log(e);
