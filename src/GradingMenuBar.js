@@ -95,9 +95,15 @@ const GradingMenuBar = createReactClass({
                                     }}
                         />&nbsp;&nbsp;
                         {/* TODO - Don't show option to save to local device on iOS - {!browserIsIOS ?  */} 
-                        <LightButton text="Save to Non-iOS Device"
+                        <LightButton text="Save to Device"
                             className="fm-button-light"
                             style={{height:"26px"}}
+                            disabled={browserIsIOS}
+                            title={
+                                browserIsIOS ?
+                                    "Saving to your device does not work on iOS, " +
+                                    "you can still save to Google Drive or Google Classroom."
+                                    : "Save file to your device, will appear in your downloads folder."}
                             onClick={
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');

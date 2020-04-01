@@ -504,8 +504,16 @@ var AssignmentEditorMenubar = createReactClass({
                         />&nbsp;&nbsp;
 
                         {/* TODO - deactivate button on iOS - {!browserIsIOS ? */}
-                        <LightButton text="Save to non-iOS Device"
+
+                        <LightButton text="Save to Device"
+                            className="fm-button-light"
                             style={{height:"26px"}}
+                            disabled={browserIsIOS}
+                            title={
+                                browserIsIOS ?
+                                    "Saving to your device does not work on iOS, " +
+                                    "you can still save to Google Drive or Google Classroom."
+                                    : "Save file to your device, will appear in your downloads folder."}
                             onClick={
                                 function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
                         <HtmlButton
