@@ -40,6 +40,12 @@ var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 
 var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
 
+// only added here to navigate down the global state to count number of solutions a bulk apply
+// will impact
+var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
+var PROBLEMS = 'PROBLEMS';
+var STUDENT_WORK = "STUDENT_WORK";
+
 function singleSolutionReducer(state, action) {
     if (action.type === GRADE_SINGLE_SOLUTION) {
         // currently no validation here
@@ -93,7 +99,6 @@ const StudentWork = createReactClass({
     render: function() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
-        var possiblePoints = this.props.possiblePoints;
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         return (
@@ -148,6 +153,10 @@ const SolutionGrader = createReactClass({
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
+
+        var globalState = window.store.getState();
+        var groupSize = globalState[PROBLEMS][problemNumber][UNIQUE_ANSWERS][solutionClassIndex][STUDENT_WORK].length;
+        window.ga('send', 'event', 'Actions', 'edit', 'Apply Score to All', groupSize);
         // TODO - check if any unique grades have been applied to student solutions other than this one in
         // this solution class
         // if not, just send the action through, otherwise prompt a warning about losing grades

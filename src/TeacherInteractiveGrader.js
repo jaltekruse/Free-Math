@@ -9,10 +9,14 @@ import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
+import { CloseButton } from './Button.js';
+import FreeMathModal from './Modal.js';
 import { removeExtension } from './AssignmentEditorMenubar.js';
 import { checkAllSaved } from './DefaultHomepageActions.js';
 
 var KAS = window.KAS;
+
+var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
@@ -35,6 +39,7 @@ var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var PROBLEMS = 'PROBLEMS';
+var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 
 var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
 var SIMILAR_ASSIGNMENT_SETS = "SIMILAR_ASSIGNMENT_SETS";
@@ -330,9 +335,9 @@ function findSimilarStudentAssignments(allStudentWork) {
                     : [];
 
                 // add if not in list
-                similarDocsToEach[assignment1[STUDENT_FILE]].indexOf(assignment2[STUDENT_FILE]) === -1
-                    ? similarDocsToEach[assignment1[STUDENT_FILE]].push(assignment2[STUDENT_FILE])
-                    : 0;
+                if (similarDocsToEach[assignment1[STUDENT_FILE]].indexOf(assignment2[STUDENT_FILE]) === -1) {
+                    similarDocsToEach[assignment1[STUDENT_FILE]].push(assignment2[STUDENT_FILE]);
+                }
             }
         });
     });
@@ -360,34 +365,41 @@ function findSimilarStudentAssignments(allStudentWork) {
         }
         return allSimilarityGroups;
     }
+
+    let pair;
+    let addedToOneGroup;
+
+    const addToGroupsIfNotPresent = function(group, index, array) {
+	var matchesAll = true;
+	// are both members of this pair already in this group, then skip comparing with
+	// everyone else
+	if (group.indexOf(pair[0]) !== -1 && group.indexOf(pair[1]) !== -1) {
+	    addedToOneGroup = true;
+	    return true;
+	}
+	for (let groupMember of group) {
+	    if ( (groupMember !== pair[0]
+		   && similarityScores[buildKey(groupMember, pair[0])] === undefined) ||
+		  (groupMember !== pair[1]
+		   && similarityScores[buildKey(groupMember, pair[1])] === undefined) ) {
+		matchesAll = false;
+		break;
+	    }
+	}
+	if (matchesAll) {
+	    // add if not in list
+	    if (group.indexOf(pair[0]) === -1) group.push(pair[0]);
+	    if (group.indexOf(pair[1]) === -1) group.push(pair[1]);
+	    addedToOneGroup = true;
+	}
+    };
+
     for (var similarPair in similarityScores) {
         if (similarityScores.hasOwnProperty(similarPair)) {
-            let pair = splitKey(similarPair);
-            var addedToOneGroup = false;
-            allSimilarityGroups.forEach(function(group, index, array) {
-                var matchesAll = true;
-                // are both members of this pair already in this group, then skip comparing with
-                // everyone else
-                if (group.indexOf(pair[0]) !== -1 && group.indexOf(pair[1]) !== -1) {
-                    addedToOneGroup = true;
-                    return true;
-                }
-                for (let groupMember of group) {
-                    if ( (groupMember !== pair[0]
-                           && similarityScores[buildKey(groupMember, pair[0])] === undefined) ||
-                          (groupMember !== pair[1]
-                           && similarityScores[buildKey(groupMember, pair[1])] === undefined) ) {
-                        matchesAll = false;
-                        break;
-                    }
-                }
-                if (matchesAll) {
-                    // add if not in list
-                    group.indexOf(pair[0]) === -1 ? group.push(pair[0]) : 0;
-                    group.indexOf(pair[1]) === -1 ? group.push(pair[1]) : 0;
-                    addedToOneGroup = true;
-                }
-            });
+            pair = splitKey(similarPair);
+            addedToOneGroup = false;
+	    /*ignore jslint start*/
+            allSimilarityGroups.forEach(addToGroupsIfNotPresent);
             if (!addedToOneGroup) {
                 allSimilarityGroups.push(pair);
             }
@@ -570,6 +582,7 @@ function areExpressionsSimilar(expression1, expression2) {
             // if parsing or comparison fails, do nothing, assume they are not similar
             // "matches" is already set to false above
             console.log("failed to compare 2 expressions");
+            window.ga('send', 'exception', { 'exDescription' : 'failed while comparing expressions.' } );
             console.log(expression1);
             console.log(expression2);
             console.log(e);
@@ -609,8 +622,12 @@ function areExpressionsSimilar(expression1, expression2) {
 // SIMILAR_ASSIGNMENT_SETS : [ [ "jason", "emma", "matt"], ["jim", "tim"] ],
 // PROBLEMS : { "1.a" : {
 //      "POSSIBLE_POINTS : 3,
-//      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
-//                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
+//      "UNIQUE_ANSWERS" : [ 
+//              { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE",
+//                STUDENT_WORK : [ 
+//                      { STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
+//                             STEPS : [ { CONTENT : "2x=14"},
+//                                       { CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
 function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparator = areExpressionsSimilar) {
     var aggregatedWork = {};
     // used to simplify filling in a flag for missing work if a student does not do a problem
@@ -760,7 +777,9 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
-    return convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+    var ret = convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+    ret[CURRENT_PROBLEM] = 0;
+    return ret;
 }
 
 function convertToCurrentFormatFromAlpha(possiblyOldDoc) {
@@ -855,7 +874,11 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
         }
         if (failureCount > 0) {
             alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+            window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
+            window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
         }
+
+        window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
         // TODO - add back answer key
         var aggregatedWork = aggregateStudentWork(allStudentWork);
         console.log("@@@@@@ opened docs");
@@ -867,7 +890,9 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
     } catch (e) {
         // TODO - try to open a single student doc
+        console.log(e);
         alert("Error opening file, you should be opening a zip file full of Free Math documents.");
+        window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
         onFailure();
         return;
     }
@@ -887,6 +912,7 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
         }
         r.readAsArrayBuffer(f);
     } else {
+        window.ga('send', 'exception', { 'exDescription' : 'error opening docs to grade' } );
         alert("Failed to load file");
         onFailure();
     }
@@ -988,7 +1014,7 @@ const GradesView = createReactClass({
                             for (var studentFileName in grades) {
                                 if (grades.hasOwnProperty(studentFileName)) {
                                     tableRows.push(
-                                    (<tr>
+                                    (<tr key={studentFileName}>
                                         <td>{studentFileName}</td>
                                         <td>{grades[studentFileName]}</td>
                                     </tr> ));
@@ -1049,22 +1075,20 @@ const AllProblemGraders = createReactClass({
     }
 });
 
-const TeacherInteractiveGrader = createReactClass({
-    componentDidMount() {
-        var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
+function setupGraph(gradingOverview, chart) {
         var labels = [];
         var numberUniqueAnswersData = {
-            label: "Number unique answers",
+            label: "Unique Answers",
             backgroundColor: "blue",
             data: []
         };
         var largestAnswerGroups = {
-            label: "Largest answer group size",
+            label: "Largest Group",
             backgroundColor: "green",
             data: []
         };
         var averageAnswerGroups = {
-            label: "Average answer group size",
+            label: "Average Group",
             backgroundColor: "purple",
             data: []
         };
@@ -1075,18 +1099,17 @@ const TeacherInteractiveGrader = createReactClass({
             largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
-        var chart = ReactDOM.findDOMNode(this.refs.chart);
         var onClickFunc = function(evt) {
             var activePoints = chart.getElementsAtEvent(evt);
             var problemNum;
             if (!activePoints || activePoints.length === 0) {
                 // TODO - this could be better, collision isn't quite right once the text labels
                 // are tight enough they start displaying at an angle.
-                let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
-                let yScale = this.chart.scales['y-axis-0'];
+                let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
+                let yScale = chart.scales['y-axis-0'];
                 if (yScale.getValueForPixel(mousePoint.y) < 0) {
-                    let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
-                    let xScale = this.chart.scales['x-axis-0'];
+                    let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
+                    let xScale = chart.scales['x-axis-0'];
                     problemNum = xScale.ticks[xScale.getValueForPixel(mousePoint.x)];
                 } else {
                     return;
@@ -1095,10 +1118,13 @@ const TeacherInteractiveGrader = createReactClass({
                 problemNum = labels[activePoints[0]["_index"]];
             }
             problemNum = problemNum.replace("Problem ", "");
+            window.ga('send', 'event', 'Actions', 'edit', 
+                'Change problem being graded');
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
         };
         Chart.defaults.global.defaultFontColor = '#010101';
+        Chart.defaults.global.defaultFontSize = 16;
         chart = new Chart(chart.getContext('2d'), {
             type: 'bar',
             data: {
@@ -1131,19 +1157,64 @@ const TeacherInteractiveGrader = createReactClass({
                 }
             }
         });
+}
+
+const TeacherInteractiveGrader = createReactClass({
+    componentDidMount() {
+        setupGraph(
+            window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],
+            ReactDOM.findDOMNode(this.refs.chart));
       },
+    getInitialState () {
+        /* note the modal shows immediately when viewing the student demo,
+         * but not for opening an assignment */
+        return { showModal: true }
+    },
     render: function() {
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
+                <div className="menubar-spacer"> </div>
+                <FreeMathModal
+                    showModal={showTutorial && this.state.showModal}
+                    content={(
+                        <div width="750px">
+                            <CloseButton onClick={function() {
+                                this.setState({showModal: false});
+                            }.bind(this)} />
+                            <iframe title="Free Math Video"
+                                src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
+                                allowFullScreen frameBorder="0"
+                                style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                        </div>
+                        )
+                    } />
+                {browserIsIOS ? 
+                    (
+                        <div className="answer-incorrect"
+                         style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                                  be used to try out the experience, but you will need to visit the site on your Mac,
+                                  Widows PC, Chromebook or Android device to actually use the site.</span>
+                        </div>) :
+                    null
+                }
+                {showTutorial ?
+                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                        title="Reopen Demo Video"
+                        onClick={function() {
+                            this.setState({showModal: true});
+                        }.bind(this)}/>
+                    ) : null}
                 <h3>To see student responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
-                <canvas ref="chart" width="400" height="50"></canvas>
+                <canvas ref="chart" width="400" height="70"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />

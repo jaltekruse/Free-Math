@@ -17,6 +17,7 @@ var symbStyle = { fontSize: "130%" };
 var SET_KEYBOARD_BUTTON_GROUP = 'SET_KEYBOARD_BUTTON_GROUP';
 var BUTTON_GROUP = 'BUTTON_GROUP';
 var CALC = 'CALC';
+var GEOMETRY = 'GEOMETRY';
 var BASIC = 'BASIC';
 var SET_THEORY = 'SET_THEORY';
 var GREEK = 'GREEK';
@@ -160,10 +161,12 @@ var TexButtons = createReactClass({
         // Always show buttonSets in the same order. Note: Technically it's ok
         // for _.keys() to return the keys in an arbitrary order, but in
         // practice, they will be ordered as listed above.
+        /*
         var sortedButtonSets = _.sortBy(this.props.sets,
             (setName) => _.keys(buttonSets).indexOf(setName));
 
         var buttons = _.map(sortedButtonSets, setName => buttonSets[setName]);
+        */
 
 
         var buttonRows = _.map(symbolGroups[this.props.buttonGroup], symbol => {
@@ -182,29 +185,92 @@ var TexButtons = createReactClass({
                            tabIndex={-1}
                            title={"keyboard shortcut: " + symbol.toType }
                            type="button">
-                {symbol.tex ?
-                    <TeX>{symbol.tex}</TeX>
-                    :
-                    <MathQuillStatic tex={symbol.mqStatic} />}
+                {/* MathQuillStatic compoent currenty doesn't work, closes keyboard, for now, just
+                    copying out the html from rendered mathquill as workaround*/}
+                {symbol.mqStatic ?
+                    <MathQuillStatic tex={symbol.mqStatic} />
+                    : (symbol.htmlComponent ?
+                        (symbol.htmlComponent)
+                        : <TeX>{symbol.tex}</TeX> )
+                    }
             </button>;
         });
 
         return <div className={`${this.props.className} preview-measure`}>
-            <Button text="Basic" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : BASIC });}}/>
-            <Button text="Set Theory and Logic" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : SET_THEORY });}}/>
-            <Button text="Calculus" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : CALC });}}/>
-            <Button text="Greek" onClick={
-                function() { window.store.dispatch(
-                        { type : SET_KEYBOARD_BUTTON_GROUP, BUTTON_GROUP : GREEK });}}/>
-            <div>
-                {buttonRows}
+            <Button text="Basic"
+                    style={this.props.buttonGroup === BASIC ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : BASIC });}}/>
+            <Button text="Geometry"
+                    style={this.props.buttonGroup === GEOMETRY ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GEOMETRY});}}/>
+            <Button text="Set Theory and Logic"
+                    style={this.props.buttonGroup === SET_THEORY ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : SET_THEORY });}}/>
+            <Button text="Calculus"
+                    style={this.props.buttonGroup === CALC ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : CALC });}}/>
+            <Button text="Greek"
+                    style={this.props.buttonGroup === GREEK ? 
+                                { backgroundColor: "#052d66"} : {}}
+                onClick={function() {
+                            window.store.dispatch(
+                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GREEK });}}/>
+
+            <div>Move Cursor
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                        onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Left");
+                        });
+                    }}>
+                    <TeX>{"\\leftarrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                        onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Right");
+                        });
+                    }}>
+                    <TeX>{"\\rightarrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                        onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Up");
+                        });
+                    }}>
+                    <TeX>{"\\uparrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                          onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Down");
+                        });
+                    }}>
+                    <TeX>{"\\downarrow"}</TeX>
+                </button>
+                <button className="tex-button" style={{display: "inline-block", float: "none", width: "80px"}} 
+                          onClick={() => {
+                        this.props.onInsert(input => {
+                            input.keystroke("Backspace");
+                        });
+                    }}>
+                    Backspace
+                </button>
             </div>
+            {buttonRows}
         </div>;
     },
     statics: {
@@ -254,6 +320,7 @@ const MathInput = createReactClass({
             <div style={{...this.props.styles, display: 'inline-block'}}>
                 <span className={className}
                       ref="mathinput"
+                      style={{minWidth:'200px', padding:'5px', margin: '10px'}}
                       aria-label={this.props.labelText}
                       onFocus={this.handleFocus}
                       onBlur={this.handleBlur} />

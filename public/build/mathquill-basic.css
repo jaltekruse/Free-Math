@@ -486,6 +486,7 @@
   user-select: text;
   position: absolute;
   clip: rect(1em 1em 1em 1em);
+  font-size: 30px;
   -webkit-transform: scale(0);
   -moz-transform: scale(0);
   -ms-transform: scale(0);

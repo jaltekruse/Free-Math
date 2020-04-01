@@ -294,6 +294,7 @@ function rootReducer(state, action) {
             ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
             PENDING_SAVES : 0,
             GOOGLE_DRIVE_STATE : ALL_SAVED,
+            CURRENT_PROBLEM : 0,
             "DOC_ID" : genID(),
             BUTTON_GROUP : 'BASIC'
         };
@@ -320,8 +321,8 @@ var FreeMath = createReactClass({
     // student mode rendering
     var wrapperDivStyle = {
         padding:"0px 30px 0px 30px",
-        "margin-left":"auto",
-        "margin-right": "auto",
+        marginLeft:"auto",
+        marginRight: "auto",
         height:"100%"
     };
     /*
@@ -337,16 +338,14 @@ var FreeMath = createReactClass({
 
     if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
         return (
-            <div style={{wrapperDivStyle, width : "100%"}}>
+            <div>
                 <AssignmentEditorMenubar value={this.props.value}/>
-                <div style={{display:"inline-block", width:"100%"}}>
-                    <Assignment value={this.props.value}/>
-                </div>
+                <Assignment value={this.props.value}/>
             </div>
         );
     } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
         return (
-            <div style={{...wrapperDivStyle, width : "95%" }}>
+            <div>
                 <GradingMenuBar value={this.props.value} />
                 <TeacherInteractiveGrader value={this.props.value}/>
             </div>

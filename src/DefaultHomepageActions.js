@@ -10,7 +10,7 @@ import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
 import { LightButton, HtmlButton } from './Button.js';
-import { studentSubmissionsZip, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
+import { studentSubmissionsZip, convertToCurrentFormat, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import JSZip from 'jszip';
 
@@ -42,6 +42,9 @@ var ALL_SAVED = 'ALL_SAVED';
 var APP_MODE = 'APP_MODE';
 var MODE_CHOOSER = 'MODE_CHOOSER';
 
+var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+
 function checkAllSaved() {
     const appState = window.store.getState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
@@ -62,7 +65,8 @@ function render() {
 
 const UserActions = createReactClass({
     getInitialState () {
-        return { showModal: false };
+        return { showModal: false,
+                 showActionsMobile: false};
     },
     componentDidMount: function() {
         const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
@@ -134,12 +138,14 @@ const UserActions = createReactClass({
         this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : true });
     },
     render: function() {
+
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = checkAllSaved;
             this.openSpinner();
 
             window.location.hash = '';
+            window.ga('send', 'event', 'Actions', 'open', 'Grade Assignments');
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             studentSubmissionsZip(evt, function() {this.closeSpinner()}.bind(this));
         }.bind(this);
@@ -151,8 +157,6 @@ const UserActions = createReactClass({
         }
 
         var openStudentSubmission = function(submission, selectedClass, selectedAssignment) {
-            console.log("QWERQWEQWER");
-            console.log(submission);
             var fileDownloadedCallback = function(name, content, driveFileId) {
                 openAssignment(content, name, false, driveFileId)
                 // turn on confirmation dialog upon navigation away
@@ -163,12 +167,19 @@ const UserActions = createReactClass({
             window.downloadFile(submission, false, fileDownloadedCallback);
         }
 
-        var recoverAutoSaveCallback = function(docName) {
+        var recoverAutoSaveCallback = function(docName, appMode) {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = checkAllSaved;
             window.location.hash = '';
-            document.body.scrollTop = document.documentElement.scrollTop = 0;
             var recovered = JSON.parse(window.localStorage.getItem(docName));
+            if (appMode === EDIT_ASSIGNMENT) {
+                recovered = convertToCurrentFormat(recovered);
+                window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
+            } else if (appMode === GRADE_ASSIGNMENTS) {
+                // TODO - NEED a convert to current format here!!
+                window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');
+            }
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
             window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
         };
         var deleteAutoSaveCallback = function(docName) {
@@ -197,8 +208,15 @@ const UserActions = createReactClass({
                 recoveredTeacherDocs.push(key);
             }
         }
+        recoveredStudentDocs = recoveredStudentDocs.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+        recoveredTeacherDocs = recoveredTeacherDocs.sort(function (a, b) {
+            return a.toLowerCase().localeCompare(b.toLowerCase());
+        });
+
         var halfScreenStyle= {
-            width:"42%",
+            width:"44%",
             height: "auto",
             float: "left",
             borderRadius:"3px",
@@ -206,20 +224,12 @@ const UserActions = createReactClass({
             padding:"20px",
         }
         var divStyle = {
-                ...halfScreenStyle,
+            ...halfScreenStyle,
             border:"1px solid #cfcfcf",
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
         return (
-            <div style={{
-                    "max-width": "900px",
-                    "-webkit-box-align": "center",
-                    "align-items": "center",
-                    "display": "flex",
-                    "flex-direction": "column",
-                    "marginLeft":"auto",
-                    "marginRight": "auto"
-            }}>
+            <div className="homepage-user-actions">
             <GoogleClassroomSubmissionSelector
                 value={this.props.value}
                 selectSubmissionCallback={openStudentSubmission}
@@ -231,13 +241,13 @@ const UserActions = createReactClass({
             <FreeMathModal
                 showModal={this.state.showModal}
                 content={(
-                    <div style={{"align-items": "center"}}>
+                    <div style={{alignItems: "center"}}>
                         <img style={{
                             "display": "flex",
                             "marginLeft":"auto",
                             "marginRight": "auto"
                              }}
-                             src="images/Ajax-loader.gif" /><br />
+                             src="images/Ajax-loader.gif" alt="loading spinner" /><br />
                         Analyzing and grouping student work...
                     </div>)}
             />
@@ -304,8 +314,8 @@ const UserActions = createReactClass({
                 )}
             />
             <div style={{display:"inline-block", width:"100%"}}>
-            <div>
-                <div style={divStyle}>
+            <div className="homepage-center-mobile">
+                <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
                         New Assignment &nbsp;&nbsp;&nbsp;
                         <Button type="submit" text="Create" onClick={
@@ -313,6 +323,7 @@ const UserActions = createReactClass({
                                 // turn on confirmation dialog upon navigation away
                                 window.onbeforeunload = checkAllSaved;
                                 window.location.hash = '';
+                                window.ga('send', 'event', 'Actions', 'open', 'New Assignment');
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
                             }}
@@ -355,21 +366,25 @@ const UserActions = createReactClass({
                                 // turn on confirmation dialog upon navigation away
                                 window.onbeforeunload = checkAllSaved;
                                 window.location.hash = '';
+                                window.ga('send', 'event', 'Actions', 'open', 'Open Assignment');
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
                         <br />
+                        <span style={{fontSize: "15px"}}>
+                                Select a Free Math file you previously saved, or one that your teacher
+                                returned to you after grading.
+                        </span>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
                             (<h4>Recovered Assignments</h4>) : null }
                         { (recoveredStudentDocs.length > 0) ?
-
                                 recoveredStudentDocs.map(function(docName, docIndex) {
                                     return (
                                         <div key={docName}>
                                             <Button type="submit" text="Open"
                                                     onClick={function() {
-                                                        recoverAutoSaveCallback(docName)}
+                                                        recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
                                                     } />
                                             <Button type="submit" text="Delete"
                                                     onClick={function() {
@@ -386,7 +401,7 @@ const UserActions = createReactClass({
                                 browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
-                <div style={{...divStyle, "float": "right"}}>
+                <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                     <HtmlButton
                         className="fm-button"
@@ -435,12 +450,14 @@ const UserActions = createReactClass({
                     <br />
                     <input type="file" onChange={openAssignments}/>
                         <br />
-                    <small> Select a zip file full of student work, these are generated
-                            when downloading files from your LMS in bulk.&nbsp;
+                    <span style={{fontSize: "15px"}}>
+                            Select a zip file full of student files. Zip files are generated
+                            when downloading assignment files from your LMS in bulk.
+                        <br />
                         <a href="gettingStarted.html">
                             LMS Integration Info
                         </a>
-                    </small>
+                    </span>
                         <br />
                     { (recoveredTeacherDocs.length > 0) ?
                         (<h4>Recovered Grading Sessions</h4>) : null }
@@ -449,7 +466,7 @@ const UserActions = createReactClass({
                             return (
                             <div key={docName}>
                                 <Button text="Open" onClick={
-                                    function() {recoverAutoSaveCallback(docName)}} />
+                                    function() {recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}} />
                                 <Button text="Delete" onClick={
                                     function() {deleteAutoSaveCallback(docName)}}
                                 />
@@ -496,20 +513,20 @@ const DefaultHomepageActions = createReactClass({
             height: "auto",
             float: "left",
             borderRadius:"3px",
-            margin:"5px 5px 40px 5px",
-            padding:"10px",
+            margin:"5px 5px 10px 5px",
+            padding:"10px"
         }
         var demoButtonStyle = {
             ...halfScreenStyle,
             width:"350px",
             borderRadius:"60px",
-            "text-align": "center",
+            textAlign: "center",
         };
         var wrapperDivStyle = {
             padding:"0px 0px 0px 0px",
-            "backgroundColor":"#ffffff",
-            "marginLeft":"auto",
-            "marginRight": "auto",
+            backgroundColor:"#ffffff",
+            marginLeft:"auto",
+            marginRight: "auto",
             //width:"1024px"
         };
 
@@ -527,6 +544,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             );
         };
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
         return (
             <div>
             <div className="menuBar">
@@ -534,71 +552,76 @@ const DefaultHomepageActions = createReactClass({
                              marginRight:"auto", padding: "0 10px 0 10px"}}
                      className="nav">
                     <LogoHomeNav />
-                    <div className="navBarElms" style={{marginTop:"4px", float:"right"}}>
-                    {/* Now handled by auth tied directly into the "Open from" buttons, see componentDidMount()
-                    <HtmlButton
-                            className="fm-button-light"
-                            onClick={
-                                function() {window.handleAuthClick() }}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Connect to&nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                                src="images/google_small_logo.png"
-                                                alt="google logo" />
-                                    </div>
-                            )} />
-                    <HtmlButton
-                            className="fm-button-light"
-                            onClick={
-                                function() {window.handleSignoutClick() }}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Disconnect&nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                            src="images/google_small_logo.png"
-                                            alt="google logo" />
-                                    </div>
-                            )} />
-                    &nbsp;&nbsp;&nbsp;
-                    */}
-                    <a href="gettingStarted.html" style={{color:"white", marginRight:"15px"}} >Getting Started</a>{' '}
-                    <a href="contact.html" style={{color:"white", marginRight:"15px"}} >Contact</a>{' '}
-                    <a href="faq.html" style={{color:"white"}} >FAQ</a>
+                    <div className="navBarElms" style={{float:"right"}}>
+                    <a href="gettingStarted.html" 
+                        style={{color:"white", marginRight:"15px"}} >
+                        Getting Started
+                    </a>{' '}
+                    <a href="contact.html"
+                        style={{color:"white", marginRight:"15px"}} >
+                            Contact
+                    </a>{' '}
+                    <a href="faq.html" style={{color:"white"}} >
+                        FAQ
+                    </a>
                     </div>
                 </div>
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
-                    Give your students feedback, meaningfully and efficiently.
+                    Give your students feedback,
+                    <br />
+                    meaningfully and efficiently.
                 </h1>
-            <div className="homepage-disappear-mobile">
+            <div>
             <div className="homepage-center">
-            <div style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+            <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = checkAllSaved;
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    window.ga('send', 'event', 'Demos', 'open', 'Student Demo');
                     window.store.dispatch({type : "NEW_ASSIGNMENT"});
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3>
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3> 
             </button>
             </div>
+            {
+            <div className="homepage-only-on-mobile">
+                { ! browserIsIOS ? 
+                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+                             onClick={function() {
+                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
+                                }.bind(this)}
+                            >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
+                                    {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
+                                </h3> 
+                            </button>
+                    ) : null
+                }
             </div>
-            <UserActions value={this.props.value}/>
+            }
+            </div>
+            <div className="homepage-only-on-mobile" >
+                {this.state.showActionsMobile ? <UserActions value={this.props.value}/> : null }
+            </div>
+            <div className="homepage-disappear-mobile" >
+                <UserActions value={this.props.value}/>
+            </div>
             </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />
@@ -626,44 +649,20 @@ const DefaultHomepageActions = createReactClass({
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
-                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
+                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
                     <br />
-                    <img style={{"width":"100%",
-                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                    <img style={{width:"100%",
+                                 boxShadow: "rgb(176, 177, 178) 0px 10px 50px"
                                }}
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
                 </div>
-                <div className="homepage-center"
-                     style={{width:"70%", height: "0",
-                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
-                <iframe title="Free Math Video"
-                        src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
-                        width="80%" height="auto" allowFullScreen frameBorder="0"
-                        gesture="media"
-                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div className="homepage-wrapper homepage-center">
-                    <h2>Integrates with Your Favorite LMS<br /><br /></h2>
-                    <img style={{margin : "20px"}}
-                         alt="google classroom logo"
-                         src="images/google_classroom.png"/>
-                    <img style={{margin : "20px"}}
-                         alt="canvas logo"
-                         src="images/canvas.png"/>
-                    <img style={{margin : "20px"}}
-                         alt="moodle logo"
-                         src="images/moodle.png"/>
-                    <img style={{margin : "20px"}}
-                         alt="moodle logo"
-                         src="images/blackboard.png"/>
-                </div>
-                <div style={{"width" : "100%", "margin":"100px 0px 100px 0px",
-                             "padding":"50px 0px 50px 0px",
-                             "marginBottom": "100px",
-                             "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
+                <div style={{width : "100%", margin:"100px 0px 20px 0px",
+                             padding:"50px 0px 50px 0px",
+                             background: "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
                              }}>
 		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
 			<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"
@@ -682,31 +681,85 @@ const DefaultHomepageActions = createReactClass({
                                     Subscribe for Updates <br />
                                 </h2>
                             </label>
-                            <p style={{color: "#eee"}}>
-                                Join our e-mail list to find out first about new features and updates to the site.
-                            </p>
-                            <input type="email" name="EMAIL" className="email" size="25"
-                                   id="mce-EMAIL" placeholder="  email address"
-                                   style={{"border": "0px"}}
-                                   value={this.state.emailString}
-                                   onChange={function(evt) {
-                                            this.setState({emailString : evt.target.value});
-                                   }.bind(this)}/>
-                        <input style={{margin:"10px"}} type="submit"
-                           value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
-                           className="fm-button-light"/>
+                            <h3>
+                                <p style={{color: "#eee", fontSize: "25px"}}>
+                                    Join our e-mail list to find out first about new features and updates to the site.
+                                </p>
+                                <input type="email" name="EMAIL" className="email" size="25" 
+                                       id="mce-EMAIL" placeholder="  email address"
+                                       style={{"border": "0px", fontSize: "25px"}}
+                                       value={this.state.emailString}
+                                       onChange={function(evt) {
+                                                this.setState({emailString : evt.target.value});
+                                       }.bind(this)}/>
+                                <input style={{margin:"10px", fontSize: "20px", height:"30px"}} type="submit"
+                                       value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
+                                       className="fm-button-light" onClick={function() {
+                                            window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
+                                }} />
+                            </h3>
 	            </div>
 	            </div>
 		    </form>
 		    </div>
 		</div>
-                <div className="homepage-center-mobile homepage-only-on-mobile">
-                    <h2> Windows Computers, Chromebooks and Macs Currently Supported </h2>
-                        <p> It looks like you are on a mobile device, please save the link and visit on
-                            one of your larger devices to try out the demo. </p>
+                { browserIsIOS ?
+                    (
+                    <div className="homepage-center-mobile">
+                        <h2> Windows PCs, Macs, Chromebooks, and Android devices Currently Supported </h2>
+                            <p> It looks like you are on a iOS device, please save the link and visit on
+                                one of the supported devices for the full exprience. </p>
+                    </div>
+                   ) : null }
+                <div className="homepage-center"
+                     style={{width:"70%", height: "0",
+                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
+                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
+                    <h2>Integrates with Your Favorite LMS<br /></h2>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="google classroom logo"
+                         src="images/google_classroom.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="canvas logo"
+                         src="images/canvas.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="moodle logo"
+                         src="images/moodle.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="blackboard logo"
+                         src="images/blackboard.png"/>
                 </div>
-                <div style={{"align-items": "center", "text-align": "center"}}>
+                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
+                    <h2>Spread the Word</h2>
+                    <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
+                    <br />
+                    <div>
+                        <a href="https://www.facebook.com/sharer/sharer.php?kid_directed_site=1&u=https%3A%2F%2Ffreemathapp.org%2F&display=popup&ref=plugin&src=share_button" target="_blank" rel="noopener noreferrer" onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'facebook');
+                        }}>
+                            <img alt="facebook" src="images/facebook.png" style={{"height": "50px"}}></img></a>&nbsp;
+                        <a href="https://twitter.com/intent/tweet?text=Free%20Math%20%20-%20bringing%20simple%20freeform%20digital%20math%20assignments%20to%20the%20world%27s%20classrooms.&tw_p=tweetbutton&url=https://freemathapp.org&via=freemathapp" target="_blank" rel="noopener noreferrer" onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'twitter');
+                        }}>
+                            <img alt="twitter" src="images/twitter.png" style={{"height": "50px"}}></img></a>&nbsp;
+                        <a href="https://www.reddit.com/r/freemath" target="_blank" rel="noopener noreferrer" 
+                           onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'reddit');
+                        }}>
+                            <img alt="reddit" src="images/snoo.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                        <a href="https://www.pinterest.com/pin/create/button/?url=https://freemathapp.org&media=https://freemathapp.org/images/grading_screenshot.png" target="_blank" rel="noopener noreferrer"  onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'pinterest');
+                        }}>
+                            <img alt="pinterest" src="images/pinterest.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                    </div>
+                </div>
+                <div style={{alignItems: "center", textAlign: "center"}}>
                 <h2>Great for Many Areas of Math</h2>
+                <br />
                 <br />
                 <div style={{float:"none", display:"inline-block"}}>
                     <div className="homepage-center-mobile homepage-left">
