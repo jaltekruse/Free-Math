@@ -95,7 +95,10 @@ const GradingMenuBar = createReactClass({
                                     }}
                         />&nbsp;&nbsp;
                         {/* TODO - Don't show option to save to local device on iOS - {!browserIsIOS ?  */} 
-                        <LightButton text="Save to Device" onClick={
+                        <LightButton text="Save to Non-iOS Device"
+                            className="fm-button-light"
+                            style={{height:"26px"}}
+                            onClick={
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(window.store.getState());
@@ -103,6 +106,7 @@ const GradingMenuBar = createReactClass({
                         }/>&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
+                            style={{height:"26px"}}
                             ref="saveToDrive"
                             title="Save to Google Drive"
                             onClick={function() {}}
@@ -114,7 +118,10 @@ const GradingMenuBar = createReactClass({
                                                 alt="google logo" />
                                     </div>
                             )} />&nbsp;&nbsp;
-                        <LightButton text="Similar Docs" onClick={
+                        <LightButton text="Similar Docs"
+                            className="fm-button-light"
+                            style={{height:"26px"}}
+                            onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -122,7 +129,10 @@ const GradingMenuBar = createReactClass({
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
                         }/>&nbsp;&nbsp;
-                        <LightButton text="Grades" onClick={
+                        <LightButton text="Grades"
+                            className="fm-button-light"
+                            style={{height:"26px"}}
+                            onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;

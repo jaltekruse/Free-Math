@@ -504,10 +504,13 @@ var AssignmentEditorMenubar = createReactClass({
                         />&nbsp;&nbsp;
 
                         {/* TODO - deactivate button on iOS - {!browserIsIOS ? */}
-                        <LightButton text="Save to non-iOS Device" onClick={
-                            function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
+                        <LightButton text="Save to non-iOS Device"
+                            style={{height:"26px"}}
+                            onClick={
+                                function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
+                            style={{height:"26px"}}
                             ref="saveToDrive"
                             title="Save to Google Drive"
                             onClick={function() {}}
@@ -521,6 +524,7 @@ var AssignmentEditorMenubar = createReactClass({
                             )} />&nbsp;&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
+                            style={{height:"26px"}}
                             title="Submit assignment to Google Classroom"
                             onClick={function() {}}
                             ref="submitToClassroom"
@@ -530,9 +534,8 @@ var AssignmentEditorMenubar = createReactClass({
                                             Submit to Classroom&nbsp;
                                         </div>
                                          <img style={{paddingTop: "2px"}}
-                                                src="images/google_classroom_small.png"
-                                                alt="Google logo"
-                                                height="16px"/>
+                                                src="images/google_classroom_16_16.png"
+                                                alt="Google logo"/>
                                     </div>
                             )} />
                     </div>

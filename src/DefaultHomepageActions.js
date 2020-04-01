@@ -341,9 +341,8 @@ const UserActions = createReactClass({
                                             Open Classroom Assignment&nbsp;
                                         </div>
                                          <img style={{paddingTop: "1px"}}
-                                                src="images/google_classroom_small.png"
-                                                alt="Google Classroom logo"
-                                                height="16px"/>
+                                                src="images/google_classroom_16_16.png"
+                                                alt="Google Classroom logo"/>
                                     </div>
                             )} /> <br />
                         <HtmlButton
@@ -355,7 +354,7 @@ const UserActions = createReactClass({
                                         <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
                                          <img style={{paddingTop: "2px"}}
                                             src="images/google_drive_small_logo.png"
-                                            alt="google logo" />
+                                            alt="google drive logo" />
                                     </div>
                             )} />
                         <br />
@@ -409,9 +408,8 @@ const UserActions = createReactClass({
                                 <div style={{display: "inline-block"}}>
                                     <div style={{float: "left", paddingTop: "2px"}}>New Classroom Assignment&nbsp;</div>
                                      <img style={{paddingTop: "1px"}}
-                                            src="images/google_classroom_small.png"
-                                            alt="Google logo"
-                                            height="16px"/>
+                                            src="images/google_classroom_16_16.png"
+                                            alt="Google Classroom logo"/>
                                 </div>
                         )} /><br />
                     Grade Assignments <br />
@@ -425,9 +423,8 @@ const UserActions = createReactClass({
                                         Grade Classroom Assignment&nbsp;
                                     </div>
                                      <img style={{paddingTop: "1px"}}
-                                            src="images/google_classroom_small.png"
-                                            alt="Google Classroom logo"
-                                            height="16px"/>
+                                            src="images/google_classroom_16_16.png"
+                                            alt="Google Classroom logo"/>
                                 </div>
                         )} /> <br />
                     <HtmlButton
@@ -439,7 +436,7 @@ const UserActions = createReactClass({
                                     <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
                                      <img style={{paddingTop: "2px"}}
                                         src="images/google_drive_small_logo.png"
-                                        alt="google logo" />
+                                        alt="google drive logo" />
                                 </div>
                         )} />
                     <br />

@@ -20,7 +20,7 @@ var HtmlButton = createReactClass({
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
-        const className = this.props.className ? this.props.className : "fm-html-button fm-button";
+        const className = this.props.className ? this.props.className : "fm-button fm-html-button";
         return (
             <button
                 className={className}
@@ -63,9 +63,11 @@ var LightButton = createReactClass({
     render: function() {
         const onClick = this.props.onClick;
         const title = this.props.title;
+        const style =  this.props.style;
         const className = this.props.className ? this.props.className : "fm-button-light";
         return (
             <button
+                style={{...unselectable, ...style}}
                 className={className}
                 onClick={function() {
                     onClick();
