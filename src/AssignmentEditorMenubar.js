@@ -446,7 +446,7 @@ var AssignmentEditorMenubar = createReactClass({
         }.bind(this);
         const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
         window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
-            saveCallback, function(){/* TODO - on sign in error*/})
+            function(){saveCallback(function(){})}, function(){/* TODO - on sign in error*/})
 
         const submitToClassroomCallback = function() {
             // save the file to Drive first
