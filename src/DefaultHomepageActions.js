@@ -332,7 +332,6 @@ const UserActions = createReactClass({
                         <br />
 
                         <HtmlButton
-                            className="fm-button"
                             title="Open assignment from Google Classroom"
                             onClick={function() {} /* action assigned in didMount to hook into google auth */}
                             ref="openClassroomSubmission"
@@ -348,7 +347,6 @@ const UserActions = createReactClass({
                                     </div>
                             )} /> <br />
                         <HtmlButton
-                            className="fm-button"
                             ref="studentDriveOpen"
                             title="Open assignment from Google Drive"
                             onClick={/* contrlled by google auth in componentDidMount*/function(){}}
@@ -404,7 +402,6 @@ const UserActions = createReactClass({
                 <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                     <HtmlButton
-                        className="fm-button"
                         title="Create new Google Classroom assignment"
                         ref="createClassroomAssignment"
                         onClick={function(){}}
@@ -419,7 +416,6 @@ const UserActions = createReactClass({
                         )} /><br />
                     Grade Assignments <br />
                     <HtmlButton
-                        className="fm-button"
                         title="Grade assignment from Google Classroom"
                         onClick={function() {} /* action assigned in didMount to hook into google auth */}
                         ref="gradeClassroomAssignment"
@@ -435,7 +431,6 @@ const UserActions = createReactClass({
                                 </div>
                         )} /> <br />
                     <HtmlButton
-                        className="fm-button"
                         ref="teacherDriveOpen"
                         title="Open zip file of student assignments from Google Drive"
                         onClick={function(){} /* action assigned in didMount to hook into google auth */}

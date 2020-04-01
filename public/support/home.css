@@ -210,6 +210,10 @@ h1 small {
   font-weight: 600;
 }
 
+.fm-html-button {
+  padding: 2px 4px 0px 4px;
+}
+
 .fm-button:hover
 {
   cursor: pointer;
