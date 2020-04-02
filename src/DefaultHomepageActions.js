@@ -37,6 +37,11 @@ export function render() {
     );
 }
 
+function startsWith(str, maybePrefix) {
+    //https://stackoverflow.com/a/4579228
+    return str.lastIndexOf(maybePrefix, 0) === 0
+}
+
 const UserActions = createReactClass({
     getInitialState () {
         return { showModal: false,
@@ -101,9 +106,10 @@ const UserActions = createReactClass({
         var recoveredTeacherDocs = [];
         // recovered autoSaved docs
         for (var key in localStorage){
-            if (key.startsWith("auto save students")) {
+            if (startsWith(key,"auto save students")) {
+            //if (startsWith(key,"auto save students")) {
                 recoveredStudentDocs.push(key);
-            } else if (key.startsWith("auto save teachers")) {
+            } else if (startsWith(key, "auto save teachers")) {
                 recoveredTeacherDocs.push(key);
             }
         }
