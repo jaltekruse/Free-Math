@@ -12,6 +12,7 @@ import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension } from './AssignmentEditorMenubar.js';
+import { saveAs } from 'file-saver';
 
 var KAS = window.KAS;
 
@@ -76,6 +77,7 @@ var FEEDBACK = "FEEDBACK";
 var STUDENT_WORK = "STUDENT_WORK";
 var ANSWER = "ANSWER";
 var CONTENT = "CONTENT";
+var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 
 var SHOW_ALL = "SHOW_ALL";
 
@@ -522,10 +524,8 @@ function saveGradedStudentWork(gradedWork) {
             zip.file(filename, JSON.stringify(separatedAssignments[filename]));
         }
     }
-    var content = zip.generate();
-
-    window.location.href="data:application/zip;download:testing;base64," + content;
-    setTimeout(function() { window.onbeforeunload = function() { return true; }}, 500);
+    var blob = zip.generate({type: 'blob'});
+    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
 }
 
 // returns score out of total possible points that are specified in the answer key

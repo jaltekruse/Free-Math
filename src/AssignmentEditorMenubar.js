@@ -59,7 +59,8 @@ function saveAssignment() {
                         )
                     )[PROBLEMS]
             })],
-        {type: "text/plain;charset=utf-8"});
+        {type: "application/octet-stream"});
+        //{type: "text/plain;charset=utf-8"});
     saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
 }
 
