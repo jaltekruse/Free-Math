@@ -11,7 +11,7 @@ import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
-import { removeExtension } from './AssignmentEditorMenubar.js';
+import { removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
 
 var KAS = window.KAS;
@@ -851,13 +851,20 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
                 // filter out directories which are part of this list
                 if (new_zip.file(file) === null) continue;
                 try {
-                    var fileContents = new_zip.file(file).asText();
-                    // how is this behaviring differrntly than JSOn.parse()?!?!
-                    //var assignmentData = window.$.parseJSON(fileContents);
-                    fileContents = fileContents.trim();
-                    var assignmentData = JSON.parse(fileContents);
-                    assignmentData = convertToCurrentFormat(assignmentData);
-                    allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                    if (true) { // new path with pics
+                        var fileContents = new_zip.file(file).asArrayBuffer();
+                        var newDoc = openAssignment(fileContents, file, false);
+                        //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
+                    } else { // old path, should be handled by making method called above handle both cases for teacher and student case
+                        var fileContents = new_zip.file(file).asText();
+                        // how is this behaviring differrntly than JSOn.parse()?!?!
+                        //var assignmentData = window.$.parseJSON(fileContents);
+                        fileContents = fileContents.trim();
+                        var assignmentData = JSON.parse(fileContents);
+                        assignmentData = convertToCurrentFormat(assignmentData);
+                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                    }
                 } catch (e) {
                     console.log("failed to parse file: " + file);
                     console.log(e);

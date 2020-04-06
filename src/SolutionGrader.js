@@ -103,6 +103,8 @@ const StudentWork = createReactClass({
         var studentSolutionIndex = this.props.id;
         return (
             <div style={{float:"left"}} className="equation-list">
+                { data["IMG"] ?
+                        (<div><img src={data["IMG"]} /></div>) : null }
                 <br/>
                 {
                     data[STEPS].map(function(step, stepIndex) {
@@ -112,6 +114,7 @@ const StudentWork = createReactClass({
 
                     return (
                         <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
+
                             <div className="student-step-grader" style={{display: "inline-block"}}>
                             <TeX style={stepStyle} onClick={function() {
                                 window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,

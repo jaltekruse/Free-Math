@@ -203,7 +203,7 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
 */
 
 //function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
-export function openAssignment(content, filename, discardDataWarning) {
+function openAssignment(content, filename, discardDataWarning) {
     var new_zip = new JSZip();
     try {
         new_zip.load(content);
@@ -340,4 +340,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export {AssignmentEditorMenubar as default, removeExtension, validateProblemNumbers};
+export {AssignmentEditorMenubar as default, removeExtension, openAssignment, validateProblemNumbers};
