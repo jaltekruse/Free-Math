@@ -31,8 +31,11 @@ var ImageUploader = React.createClass({
                     var objUrl = window.URL.createObjectURL(imgFile);
                     var probNumber = this.props.value["PROBLEM_NUMBER"];
                     window.store.dispatch(
-                        { type : "SET_PROBLEM_IMG", "PROBLEM_INDEX" : this.props.problemIndex,
-                          "NEW_IMG" : objUrl})
+                        { type : "INSERT_STEP_ABOVE", "PROBLEM_INDEX" : this.props.problemIndex,
+                            STEP_KEY : 0, FORMAT: "IMG", CONTENT : objUrl});
+                    //window.store.dispatch(
+                    //    { type : "SET_PROBLEM_IMG", "PROBLEM_INDEX" : this.props.problemIndex,
+                    //      "NEW_IMG" : objUrl})
                 }.bind(this));
 	}
 });

@@ -45,6 +45,11 @@ var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
+var FORMAT = "FORMAT";
+var MATH = "MATH";
+var TEXT = "TEXT";
+var IMG = "IMG";
+
 var INSERT_STEP_ABOVE = 'INSERT_STEP_ABOVE';
 var NEW_STEP = 'NEW_STEP';
 var NEW_BLANK_STEP = 'NEW_BLANK_STEP';
@@ -222,28 +227,35 @@ var Problem = createReactClass({
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
                                 }}/>
-                                <MathInput 
-                                    key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
-                                    styles={{...styles, overflow: 'auto'}}
-                                    buttonSets={['trig', 'prealgebra',
-                                                 'logarithms', 'calculus']}
-                                    buttonGroup={buttonGroup}
-                                    stepIndex={stepIndex}
-                                    problemIndex={problemIndex} value={step[CONTENT]} onChange={
-                                        function(value) {
-                                            window.store.dispatch({
-                                            type : EDIT_STEP,
-                                            PROBLEM_INDEX : problemIndex,
-                                            STEP_KEY : stepIndex,
-                                            NEW_STEP_CONTENT : value});
-                                    }}
-                                    onSubmit={function() {
-                                        window.store.dispatch(
-                                            { type : NEW_STEP,
-                                              STEP_KEY : stepIndex,
-                                              PROBLEM_INDEX : problemIndex});
-                                    }}
-                                />
+
+                                { step[FORMAT] === IMG 
+                                    ?
+                                    (<div><img src={step[CONTENT]} />
+                                      <br /> Type your final answer below </div>)
+                                    : 
+                                    <MathInput 
+                                        key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
+                                        styles={{...styles, overflow: 'auto'}}
+                                        buttonSets={['trig', 'prealgebra',
+                                                     'logarithms', 'calculus']}
+                                        buttonGroup={buttonGroup}
+                                        stepIndex={stepIndex}
+                                        problemIndex={problemIndex} value={step[CONTENT]} onChange={
+                                            function(value) {
+                                                window.store.dispatch({
+                                                type : EDIT_STEP,
+                                                PROBLEM_INDEX : problemIndex,
+                                                STEP_KEY : stepIndex,
+                                                NEW_STEP_CONTENT : value});
+                                        }}
+                                        onSubmit={function() {
+                                            window.store.dispatch(
+                                                { type : NEW_STEP,
+                                                  STEP_KEY : stepIndex,
+                                                  PROBLEM_INDEX : problemIndex});
+                                        }}
+                                    />
+                                }
                                 <CloseButton text="&#10005;" title='Delete step' onClick={
                                     function(value) {
                                         window.store.dispatch(
@@ -463,6 +475,7 @@ function problemReducer(problem, action) {
             INVERSE_ACTION : {
                 type : INSERT_STEP_ABOVE, STEP_KEY: action[STEP_KEY],
                 CONTENT : problem[STEPS][action[STEP_KEY]][CONTENT],
+                FORMAT : problem[STEPS][action[STEP_KEY]][FORMAT],
                 INVERSE_ACTION : {...action}
             }
         };
@@ -481,9 +494,15 @@ function problemReducer(problem, action) {
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
         var newContent;
+        var newFormat = undefined;
         // non-blank inserations in the middle of work currently only used for undo/redo
         if (CONTENT in action) {
-           newContent = action[CONTENT]
+            newContent = action[CONTENT]
+            if (FORMAT in action) {
+                newFormat = action[FORMAT]
+            } else {
+                // default to no FORMAT, which is math
+            }
         } else {
             // this is the default produced by the button on the UI
             newContent = ""
@@ -500,7 +519,7 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : newContent, STEP_ID : genID()},
+                { CONTENT : newContent, FORMAT: newFormat, STEP_ID : genID()},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
             UNDO_STACK : [
