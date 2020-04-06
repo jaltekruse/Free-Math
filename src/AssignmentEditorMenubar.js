@@ -5,6 +5,7 @@ import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { LightButton } from './Button.js';
+import JSZip from 'jszip';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -34,7 +35,103 @@ function validateProblemNumbers(allProblems) {
     return atLeastOneProblemNumberNotSet;
 }
 
+/*
+function saveGradedStudentWork(gradedWork) {
+    if (gradedWork === undefined) {
+        console.log("no graded assignments to save");
+    }
+    // temporarily disable data loss warning
+    window.onbeforeunload = null;
+
+    var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
+    var filename;
+    for (filename in separatedAssignments) {
+        if (separatedAssignments.hasOwnProperty(filename)) {
+            separatedAssignments[filename] = makeBackwardsCompatible(separatedAssignments[filename]);
+        }
+    }
+    var zip = new JSZip();
+    for (filename in separatedAssignments) {
+        if (separatedAssignments.hasOwnProperty(filename)) {
+            zip.file(filename, JSON.stringify(separatedAssignments[filename]));
+        }
+    }
+    var blob = zip.generate({type: 'blob'});
+    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
+}
+*/
+
 function saveAssignment() {
+    window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
+    var atLeastOneProblemNumberNotSet = validateProblemNumbers(window.store.getState()[PROBLEMS]);
+    if (atLeastOneProblemNumberNotSet) {
+        window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
+        window.alert("Cannot save, a problem number is mising or two or more " +
+                     "problems have the same number.");
+        return;
+    }
+    var allProblems = window.store.getState()[PROBLEMS];
+    var zip = new JSZip();
+    allProblems = allProblems.map(function(problem, index, array) {
+        // trim the numbers to avoid extra groups while grading
+        problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
+        if (problem["IMG"]) {
+            // change image to refer to filename that will be generated, will be converted by to objectURL
+            // when being read back in
+            console.log("add image");
+            // simpler solution available in ES5
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', problem["IMG"], true);
+            problem["IMG"] = problem[PROBLEM_NUMBER] + "_img";
+            xhr.responseType = 'blob';
+            xhr.onload = function(e) {
+              if (this.status == 200) {
+                var imgBlob = this.response;
+                // myBlob is now the blob that the object URL pointed to.
+                var fr = new FileReader();
+                fr.addEventListener('load', function() {
+                    var data = this.result;
+                    zip.file(problem[PROBLEM_NUMBER] + "_img", data);
+                });
+                return fr.readAsArrayBuffer(imgBlob);
+              }
+            };
+            xhr.send();
+        }
+        console.log("modified problem:");
+        console.log(problem);
+        return problem;
+    });
+    var overallState = window.store.getState();
+    overallState[PROBLEMS] = allProblems;
+    var blob =
+        new Blob([
+            JSON.stringify({
+            PROBLEMS : removeUndoRedoHistory(
+                        makeBackwardsCompatible(
+                           overallState 
+                        )
+                    )[PROBLEMS]
+            })],
+        //{type: "application/octet-stream"});
+        {type: "text/plain;charset=utf-8"});
+
+        var fr = new FileReader();
+        fr.addEventListener('load', function () {
+            var data = this.result;
+            zip.file("mainDoc", data);
+            console.log("set timeout");
+            setTimeout(function() { 
+                var finalBlob = zip.generate({type: 'blob'});
+                saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
+            }, 2000);
+            // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
+            //success(this.result);
+        }, false);
+        return fr.readAsArrayBuffer(blob);
+}
+
+function saveAssignmentOld() {
     window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
     var atLeastOneProblemNumberNotSet = validateProblemNumbers(window.store.getState()[PROBLEMS]);
     if (atLeastOneProblemNumberNotSet) {
@@ -83,9 +180,96 @@ function removeExtension(filename) {
     return filename;
 }
 
+/*
+// open zip file full of student assignments for grading
+function studentSubmissionsZip(evt, onFailure = function() {}) {
+    // reset scroll location from previous view of student docs
+    window.location.hash = '';
+    var f = evt.target.files[0];
+
+    if (f) {
+        var r = new FileReader();
+        r.onload = function(e) {
+            var content = e.target.result;
+            loadStudentDocsFromZip(content, f.name, onFailure);
+        }
+        r.readAsArrayBuffer(f);
+    } else {
+        window.ga('send', 'exception', { 'exDescription' : 'error opening docs to grade' } );
+        alert("Failed to load file");
+        onFailure();
+    }
+}
+*/
+
+//function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
+export function openAssignment(content, filename, discardDataWarning) {
+    var new_zip = new JSZip();
+    try {
+        new_zip.load(content);
+
+        var allStudentWork = [];
+
+        var failureCount = 0;
+        var badFiles = [];
+        var images = {};
+        // you now have every files contained in the loaded zip
+        for (var file in new_zip.files) {
+            // don't get properties from prototype
+            if (new_zip.files.hasOwnProperty(file)) {
+                // extra directory added when zipping files on mac
+                // TODO - check for other things to filter out from zip
+                // files created on other platforms
+                if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                // check the extension is .math
+                // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+                //if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+                // filter out directories which are part of this list
+                if (new_zip.file(file) === null) continue;
+                try {
+                    if (file === "mainDoc") {
+                        var fileContents = new_zip.file(file).asText();
+                        var newDoc = JSON.parse(fileContents);
+                        // compatibility for old files, need to convert the old proerty names as
+                        // well as add the LAST_SHOWN_STEP
+                        newDoc = convertToCurrentFormat(newDoc);
+                    } else {
+                        // should be an image
+                        var fileContents = new_zip.file(file).asArrayBuffer();
+                        images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                    }
+                } catch (e) {
+                    console.log("failed to parse file: " + file);
+                    console.log(e);
+                }
+            }
+        }
+
+        newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, index, array) {
+            // trim the numbers to avoid extra groups while grading
+            if (typeof problem["IMG"] !== undefined) {
+                problem["IMG"] = images[problem["IMG"]];
+            }
+            return problem;
+        });
+
+        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS]});
+        window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
+
+    } catch (e) {
+        // TODO - try to open a single student doc
+        console.log(e);
+        alert("Error opening file, you should be opening a zip file full of Free Math documents.");
+        window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
+        //onFailure();
+        return;
+    }
+}
+
+
 // TODO - consider giving legacy docs an ID upon opening, allows auto-save to work properly when
 // opening older docs
-export function openAssignment(serializedDoc, filename, discardDataWarning) {
+function openAssignmentOld(serializedDoc, filename, discardDataWarning) {
     // this is now handled at a higher level, this is mostly triggered by onChange events of "file" input elements
     // if the user selects "cancel", I want them to be able to try re-opening again. If they pick the same file I
     // won't get on onChange event without resetting the value, and here I don't have a reference to the DOM element
@@ -120,7 +304,7 @@ export function readSingleFile(evt, discardDataWarning) {
                     alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
                 }
         }
-        r.readAsText(f);
+        r.readAsArrayBuffer(f);
     } else {
         alert("Failed to load file");
     }

@@ -178,7 +178,7 @@ var Problem = createReactClass({
                         />
                     </div>
                         <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
-                        Type math here or 
+                        Type math here or &nbsp;
                         <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
