@@ -253,8 +253,8 @@ export function openAssignment(content, filename, discardDataWarning) {
             return problem;
         });
 
-        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS]});
-        window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
+        newDoc[ASSIGNMENT_NAME] = removeExtension(filename);
+        return newDoc;
 
     } catch (e) {
         // TODO - try to open a single student doc
@@ -297,7 +297,9 @@ export function readSingleFile(evt, discardDataWarning) {
             r.onload = function(e) {
                 try {
                     var contents = e.target.result;
-                    openAssignment(contents, f.name, discardDataWarning);
+                    var newDoc = openAssignment(contents, f.name, discardDataWarning);
+                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS]});
+                    window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : newDoc[ASSIGNMENT_NAME]});
                 } catch (e) {
                     console.log(e);
                     window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
