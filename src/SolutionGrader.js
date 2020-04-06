@@ -82,9 +82,7 @@ function singleSolutionReducer(state, action) {
                  FEEDBACK : action[FEEDBACK] };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
         if (Number(state[SCORE]) > 0) {
-            var newScore = Math.round(
-                ( Number(state[SCORE]) / Number(action[OLD_POSSIBLE_POINTS]) )
-                * Number(action[POSSIBLE_POINTS]));
+            var newScore = scaleScore(state[SCORE], action[OLD_POSSIBLE_POINTS], action[POSSIBLE_POINTS]); 
             return { ...state,
                      SCORE : newScore };
         } else {
@@ -93,6 +91,11 @@ function singleSolutionReducer(state, action) {
     } else {
         return state;
     }
+}
+
+function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
+    return Math.round(
+        ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
 }
 
 const StudentWork = createReactClass({
@@ -296,4 +299,4 @@ const SolutionGrader = createReactClass({
     }
 });
 
-export { SolutionGrader as default, singleSolutionReducer};
+export { SolutionGrader as default, scaleScore, singleSolutionReducer};
