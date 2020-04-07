@@ -26,6 +26,7 @@ const symbolGroups = {
                 input.keystroke("Left");
                 input.keystroke("Left");
         }},
+        {toType:"\\vert [Enter]", tex:"\\vert"},
         {toType:"| (shift backslash)", tex:"\\left|x\\right|", editorCommands: input => {
                 input.typedText("|");
         }},

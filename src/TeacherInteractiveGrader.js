@@ -7,6 +7,7 @@ import JSZip from 'jszip';
 import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
+import { scaleScore } from './SolutionGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
@@ -726,15 +727,70 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
         }
     }
 
+    var possiblePointsAppearing = {};
+    var countPossiblePointsValues =
+        function(uniqueAnswer, index, arr) {
+            // sort with largest groups first
+            uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[STEPS].length - b[STEPS].length; });
+            // calculate appearances of different value for possible points
+            uniqueAnswer[STUDENT_WORK].forEach(function(singleStudentSolution, index, arr) {
+                var existingCountOfThisPosiblePointsValue = possiblePointsAppearing[singleStudentSolution[POSSIBLE_POINTS]];
+                if (existingCountOfThisPosiblePointsValue) {
+                    existingCountOfThisPosiblePointsValue++;
+                } else {
+                    existingCountOfThisPosiblePointsValue = 1;
+                }
+                possiblePointsAppearing[singleStudentSolution[POSSIBLE_POINTS]] = existingCountOfThisPosiblePointsValue;
+            });
+        };
+
+    var setPossiblePointsAndScaleScore =
+        function(singleStudentSolution, index, arr) {
+            var newScore = singleStudentSolution[SCORE];
+            // this will be false if not set or 0, but that is fine because 0 doesn't need scaling
+            if (singleStudentSolution[SCORE]) {
+                newScore = scaleScore(singleStudentSolution[SCORE],
+                                          singleStudentSolution[POSSIBLE_POINTS],
+                                          mostCommonPossiblePoints);
+            }
+            singleStudentSolution[SCORE] = newScore;
+            singleStudentSolution[POSSIBLE_POINTS] = mostCommonPossiblePoints;
+            return singleStudentSolution;
+        };
+
+    var keyWithMaxValInObj = function(objToSearch) {
+        return Object.keys(objToSearch).reduce(function(a, b){
+                return objToSearch[a] > objToSearch[b] ? a : b
+        });
+    }
+
+
     // sort students responses within an answer group by least work first
+    // also apply possible points correctly, they should all be the same, but if a user
+    // frankensteined several graded zips together, choose the most common possible points value
     for (problemNumber in aggregatedWork) {
         if (aggregatedWork.hasOwnProperty(problemNumber)) {
             var uniqueAnswers = aggregatedWork[problemNumber][UNIQUE_ANSWERS];
-            uniqueAnswers.forEach(function(uniqueAnswer, index, arr) {
-                uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[STEPS].length - b[STEPS].length; });
+            possiblePointsAppearing = {};
+            uniqueAnswers.forEach(countPossiblePointsValues);
+            console.log(possiblePointsAppearing);
+
+            var mostCommonPossiblePoints = keyWithMaxValInObj(possiblePointsAppearing);
+            mostCommonPossiblePoints = mostCommonPossiblePoints ? mostCommonPossiblePoints : 6;
+            console.log(mostCommonPossiblePoints);
+            aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints; 
+            aggregatedWork[problemNumber][POSSIBLE_POINTS_EDITED] = mostCommonPossiblePoints;
+
+            aggregatedWork[problemNumber][UNIQUE_ANSWERS] =  uniqueAnswers.map(function(uniqueAnswer, index, arr) {
+                // set a scaled score, if different graded zips were frankensteined together by a user
+                // don't let the same problem have different possible points for different students
+                uniqueAnswer[STUDENT_WORK].map(setPossiblePointsAndScaleScore);
+                return uniqueAnswer;
             });
         }
     }
+
+
     // TODO - need to add this back
     // TODO - need to think about how this handles outliers that do a wrong problem
     //        should probably only add these for questions where a majority of students answered a question

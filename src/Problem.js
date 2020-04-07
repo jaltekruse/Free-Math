@@ -95,7 +95,7 @@ var ScoreBox = createReactClass({
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
         if (score === '') {
             scoreClass = 'show-complete-div';
-        } else if (score === possiblePoints) {
+        } else if (score >= possiblePoints) {
             scoreClass = 'show-correct-div';
         } else if (score === 0) {
             scoreClass = 'show-incorrect-div';
@@ -103,6 +103,12 @@ var ScoreBox = createReactClass({
             scoreClass = 'show-partially-correct-div';
         }
 
+        var gradingNotice = '';
+        if (score === '') {
+            gradingNotice = 'Full Credit';
+        } else if (score && score > possiblePoints) {
+            gradingNotice = 'Extra Credit';
+        }
         var scoreMessage = null;
         if (score === '')
             scoreMessage = 'Complete';
@@ -112,7 +118,12 @@ var ScoreBox = createReactClass({
             <div>
                 {  
                     score !== undefined
-                        ? (<div className={scoreClass}><b>{scoreMessage}</b></div>)
+                        ? (<div>
+                            <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
+                                <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
+                            </div>
+                            <div className={scoreClass}><b>{scoreMessage}</b></div>
+                            </div>)
                         : null
                 }
             </div>
