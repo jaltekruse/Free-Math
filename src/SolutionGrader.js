@@ -252,7 +252,7 @@ const SolutionGrader = createReactClass({
                         ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
-                    <div style={{visibility: (gradingNotice != '') ? "visible" : "hidden"}}>
+                    <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
                         <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
                     </div>
                     <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>

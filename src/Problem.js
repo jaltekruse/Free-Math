@@ -112,7 +112,7 @@ var ScoreBox = createReactClass({
                 {  
                     score !== undefined
                         ? (<div>
-                            <div style={{visibility: (gradingNotice != '') ? "visible" : "hidden"}}>
+                            <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
                                 <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
                             </div>
                             <div className={scoreClass}><b>{scoreMessage}</b></div>
