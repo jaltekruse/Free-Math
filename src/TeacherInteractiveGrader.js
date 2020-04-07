@@ -11,7 +11,7 @@ import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
-import { removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
+import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
 
 var KAS = window.KAS;
@@ -513,19 +513,29 @@ function saveGradedStudentWork(gradedWork) {
 
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
     var filename;
-    for (filename in separatedAssignments) {
+    for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             separatedAssignments[filename] = makeBackwardsCompatible(separatedAssignments[filename]);
         }
     }
     var zip = new JSZip();
-    for (filename in separatedAssignments) {
+    for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
-            zip.file(filename, JSON.stringify(separatedAssignments[filename]));
+            saveAssignment(separatedAssignments[filename], function(studentAssignmentBlob) {
+                // studentAssignment is itself a zip
+                var fr = new FileReader();
+                fr.addEventListener('load', function() {
+                    var data = this.result;
+                    zip.file(filename, data);
+                });
+                fr.readAsArrayBuffer(studentAssignmentBlob);
+            });
         }
     }
-    var blob = zip.generate({type: 'blob'});
-    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
+    setTimeout(function() {
+        var blob = zip.generate({type: 'blob'});
+        saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
+    }, 6000);
 }
 
 // returns score out of total possible points that are specified in the answer key

@@ -84,7 +84,6 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
             if (step[FORMAT] === IMG) {
                 // change image to refer to filename that will be generated, will be converted by to objectURL
                 // when being read back in
-                console.log("add image");
                 // simpler solution available in ES5
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', step[CONTENT], true);
@@ -109,8 +108,6 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
                 return step;
             }
         });
-        console.log("modified problem:");
-        console.log(problem);
         return problem;
     });
     studentDoc[PROBLEMS] = allProblems;
@@ -130,7 +127,6 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     fr.addEventListener('load', function () {
         var data = this.result;
         zip.file("mainDoc", data);
-        console.log("set timeout");
         setTimeout(function() {
             var finalBlob = zip.generate({type: 'blob'});
             handleFinalBlobCallback(finalBlob);
