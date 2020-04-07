@@ -252,7 +252,7 @@ var Problem = createReactClass({
                                             <div style={{width:"600px"}}>
                                             If your final answer is a number or expression, type it in the final box below.<br />
                                             If your answer is something visual like a graph or table, or you cannot find the right
-                                            symbols in the math keyboard for your answer, you can just submit the image.
+                                            symbols to type your answer, you can just move to the next problem.
                                             </div>
                                         </div>)
                                     :
