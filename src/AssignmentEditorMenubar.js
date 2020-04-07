@@ -7,6 +7,11 @@ import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherIntera
 import { LightButton } from './Button.js';
 import JSZip from 'jszip';
 
+var STEPS = 'STEPS';
+var CONTENT = "CONTENT";
+var IMG = "IMG";
+var FORMAT = "FORMAT";
+
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
@@ -72,32 +77,38 @@ function saveAssignment() {
     }
     var allProblems = window.store.getState()[PROBLEMS];
     var zip = new JSZip();
-    allProblems = allProblems.map(function(problem, index, array) {
+    allProblems = allProblems.map(function(problem, probIndex, array) {
         // trim the numbers to avoid extra groups while grading
         problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
-        if (problem["IMG"]) {
-            // change image to refer to filename that will be generated, will be converted by to objectURL
-            // when being read back in
-            console.log("add image");
-            // simpler solution available in ES5
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', problem["IMG"], true);
-            problem["IMG"] = problem[PROBLEM_NUMBER] + "_img";
-            xhr.responseType = 'blob';
-            xhr.onload = function(e) {
-              if (this.status == 200) {
-                var imgBlob = this.response;
-                // myBlob is now the blob that the object URL pointed to.
-                var fr = new FileReader();
-                fr.addEventListener('load', function() {
-                    var data = this.result;
-                    zip.file(problem[PROBLEM_NUMBER] + "_img", data);
-                });
-                return fr.readAsArrayBuffer(imgBlob);
-              }
-            };
-            xhr.send();
-        }
+        problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
+            if (step[FORMAT] === IMG) {
+                // change image to refer to filename that will be generated, will be converted by to objectURL
+                // when being read back in
+                console.log("add image");
+                // simpler solution available in ES5
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', step[CONTENT], true);
+                var filename = probIndex + "_" + stepIndex + "_img"
+                step[CONTENT] = filename;
+                xhr.responseType = 'blob';
+                xhr.onload = function(e) {
+                  if (this.status == 200) {
+                    var imgBlob = this.response;
+                    // imgBlob is now the blob that the object URL pointed to.
+                    var fr = new FileReader();
+                    fr.addEventListener('load', function() {
+                        var data = this.result;
+                        zip.file(filename, data);
+                    });
+                    return fr.readAsArrayBuffer(imgBlob);
+                  }
+                };
+                xhr.send();
+                return step;
+            } else {
+                return step;
+            }
+        });
         console.log("modified problem:");
         console.log(problem);
         return problem;
@@ -245,11 +256,13 @@ function openAssignment(content, filename, discardDataWarning) {
             }
         }
 
-        newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, index, array) {
-            // trim the numbers to avoid extra groups while grading
-            if (typeof problem["IMG"] !== undefined) {
-                problem["IMG"] = images[problem["IMG"]];
-            }
+        newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, probIndex, array) {
+            problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
+                if (step[FORMAT] === IMG) {
+                    step[CONTENT] = images[probIndex + "_" + stepIndex + "_img"];
+                }
+                return step;
+            });
             return problem;
         });
 
