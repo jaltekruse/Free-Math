@@ -750,8 +750,9 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             aggregatedWork[problemNumber][UNIQUE_ANSWERS] =  uniqueAnswers.map(function(uniqueAnswer, index, arr) {
                 // calculate appearances of different value for possible points
                 uniqueAnswer[STUDENT_WORK].map(function(singleStudentSolution, index, arr) {
-                    var newScore = '';
-                    if (Number(singleStudentSolution[SCORE]) > 0) {
+                    var newScore = singleStudentSolution[SCORE];
+                    // this will be false if not set or 0, but that is fine because 0 doesn't need scaling
+                    if (singleStudentSolution[SCORE]) {
                         newScore = scaleScore(singleStudentSolution[SCORE],
                                                   singleStudentSolution[POSSIBLE_POINTS],
                                                   mostCommonPossiblePoints);
