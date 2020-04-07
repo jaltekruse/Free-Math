@@ -232,8 +232,8 @@ var Problem = createReactClass({
                                     ?
                                     (<div><img src={step[CONTENT]} />
                                       <br /> Type your final answer below </div>)
-                                    : 
-                                    <MathInput 
+                                    :
+                                    <MathInput
                                         key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
                                         styles={{...styles, overflow: 'auto'}}
                                         buttonSets={['trig', 'prealgebra',

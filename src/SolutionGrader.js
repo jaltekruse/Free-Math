@@ -11,6 +11,8 @@ var FEEDBACK = "FEEDBACK";
 
 // teacher grade page model properties
 var CONTENT = "CONTENT";
+var FORMAT = "FORMAT";
+var IMG = "IMG";
 
 // action properties
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
@@ -116,16 +118,22 @@ const StudentWork = createReactClass({
                         <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
 
                             <div className="student-step-grader" style={{display: "inline-block"}}>
-                            <TeX style={stepStyle} onClick={function() {
-                                window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
-                                                SOLUTION_CLASS_INDEX : solutionClassIndex,
-                                                SOLUTION_INDEX : studentSolutionIndex,
-                                                STEP_KEY : stepIndex});
-                                }}>
-                                {typeof(step[CONTENT]) === 'string'
-                                    ? step[CONTENT]
-                                    : "\\text{corruption occured}"}
+
+                            { step[FORMAT] === IMG
+                                ?
+                                (<div><img src={step[CONTENT]} /></div>)
+                                :
+                                <TeX style={stepStyle} onClick={function() {
+                                    window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
+                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                                    SOLUTION_INDEX : studentSolutionIndex,
+                                                    STEP_KEY : stepIndex});
+                                    }}>
+                                    {typeof(step[CONTENT]) === 'string'
+                                        ? step[CONTENT]
+                                        : "\\text{corruption occured}"}
                                 </TeX>
+                            }
                             </div>
                         </div>
                     );
