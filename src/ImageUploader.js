@@ -10,12 +10,9 @@ var ImageUploader = React.createClass({
                 console.log(this.props.value["IMG"]);
                 console.log(this.props.value);
 		return (<span>
-                        upload picture of written work <input type="file" ref="chooseFile" id="open-file-input" />
+                        upload a picture of written work <input type="file" ref="chooseFile" id="open-file-input" />
                         <br />
                     { /* <canvas style={{float :"inline-block"}} ref="canvas"></canvas> */}
-                    { this.props.value["IMG"] ?
-                            (<div><img src={this.props.value["IMG"]} />
-                                  <br /> Type your final answer below </div>) : null }
 		</span>);
 	},
     	componentDidMount: function() {
@@ -31,8 +28,10 @@ var ImageUploader = React.createClass({
                     var objUrl = window.URL.createObjectURL(imgFile);
                     var probNumber = this.props.value["PROBLEM_NUMBER"];
                     window.store.dispatch(
-                        { type : "INSERT_STEP_ABOVE", "PROBLEM_INDEX" : this.props.problemIndex,
-                            STEP_KEY : 0, FORMAT: "IMG", CONTENT : objUrl});
+                        { type : "NEW_STEP", "PROBLEM_INDEX" : this.props.problemIndex,
+                            STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
+                    window.store.dispatch(
+                        { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : this.props.problemIndex });
                     //window.store.dispatch(
                     //    { type : "SET_PROBLEM_IMG", "PROBLEM_INDEX" : this.props.problemIndex,
                     //      "NEW_IMG" : objUrl})
