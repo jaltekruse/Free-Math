@@ -66,16 +66,16 @@ function saveGradedStudentWork(gradedWork) {
 }
 */
 
-function saveAssignment() {
+function saveAssignment(studentDoc, handleFinalBlobCallback) {
     window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
-    var atLeastOneProblemNumberNotSet = validateProblemNumbers(window.store.getState()[PROBLEMS]);
+    var allProblems = studentDoc[PROBLEMS];
+    var atLeastOneProblemNumberNotSet = validateProblemNumbers(allProblems);
     if (atLeastOneProblemNumberNotSet) {
         window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
         window.alert("Cannot save, a problem number is mising or two or more " +
                      "problems have the same number.");
         return;
     }
-    var allProblems = window.store.getState()[PROBLEMS];
     var zip = new JSZip();
     allProblems = allProblems.map(function(problem, probIndex, array) {
         // trim the numbers to avoid extra groups while grading
@@ -113,33 +113,32 @@ function saveAssignment() {
         console.log(problem);
         return problem;
     });
-    var overallState = window.store.getState();
-    overallState[PROBLEMS] = allProblems;
+    studentDoc[PROBLEMS] = allProblems;
     var blob =
         new Blob([
             JSON.stringify({
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
-                           overallState 
+                          studentDoc 
                         )
                     )[PROBLEMS]
             })],
         //{type: "application/octet-stream"});
         {type: "text/plain;charset=utf-8"});
 
-        var fr = new FileReader();
-        fr.addEventListener('load', function () {
-            var data = this.result;
-            zip.file("mainDoc", data);
-            console.log("set timeout");
-            setTimeout(function() { 
-                var finalBlob = zip.generate({type: 'blob'});
-                saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
-            }, 2000);
-            // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
-            //success(this.result);
-        }, false);
-        return fr.readAsArrayBuffer(blob);
+    var fr = new FileReader();
+    fr.addEventListener('load', function () {
+        var data = this.result;
+        zip.file("mainDoc", data);
+        console.log("set timeout");
+        setTimeout(function() {
+            var finalBlob = zip.generate({type: 'blob'});
+            handleFinalBlobCallback(finalBlob);
+        }, 2000);
+        // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
+        //success(this.result);
+    }, false);
+    fr.readAsArrayBuffer(blob);
 }
 
 function saveAssignmentOld() {
@@ -345,7 +344,9 @@ var AssignmentEditorMenubar = createReactClass({
                         />&nbsp;&nbsp;
 
                         <LightButton text="Save" onClick={
-                            function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
+                            function() { saveAssignment(window.store.getState(), function(finalBlob) {
+                                saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
+                            }) }} /> &nbsp;&nbsp;&nbsp;
                     </div>) : null}
                 </div>
             </div>
@@ -353,4 +354,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export {AssignmentEditorMenubar as default, removeExtension, openAssignment, validateProblemNumbers};
+export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment, validateProblemNumbers};
