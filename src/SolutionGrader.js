@@ -239,14 +239,21 @@ const SolutionGrader = createReactClass({
                         }/>
             );
         };
+        // header message for complete status or extra credit notification
+        var gradingNotice = '';
+        if (data[SCORE] === '') {
+            gradingNotice = 'Complete - Full Credit';
+        } else if (score && score > possiblePoints) {
+            gradingNotice = 'Extra Credit';
+        }
         return (
             <div className={classes} style={{float:"left"}}> {/*<!-- container for nav an equation list --> */}
                 { viewingSimilarGroup
                         ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
-                    <div style={{visibility: (data[SCORE] === "") ? "visible" : "hidden"}}>
-                        <small><span style={{color:"#545454"}}>Complete - Full Credit</span><br /></small>
+                    <div style={{visibility: (gradingNotice != '') ? "visible" : "hidden"}}>
+                        <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
                     </div>
                     <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
                     {/* TODO - I need teachers to be able to edit the score, including deleting down to
