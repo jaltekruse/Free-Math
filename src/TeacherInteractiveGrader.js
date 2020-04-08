@@ -846,6 +846,44 @@ function replaceSpecialCharsWithLatex(possiblyOldDoc) {
                 var orig = step[CONTENT];
                 step[CONTENT] = step[CONTENT].replace(/°/g, "\\degree");
                 step[CONTENT] = step[CONTENT].replace(/∝/g, "\\propto");
+                step[CONTENT] = step[CONTENT].replace(/α/g,"\\alpha");
+                step[CONTENT] = step[CONTENT].replace(/β/g,"\\beta");
+                step[CONTENT] = step[CONTENT].replace(/γ/g,"\\gamma");
+                step[CONTENT] = step[CONTENT].replace(/δ/g,"\\delta");
+                step[CONTENT] = step[CONTENT].replace(/ϵ/g,"\\epsilon");
+                step[CONTENT] = step[CONTENT].replace(/ζ/g,"\\zeta");
+                step[CONTENT] = step[CONTENT].replace(/η/g,"\\eta");
+                step[CONTENT] = step[CONTENT].replace(/θ/g,"\\theta");
+                step[CONTENT] = step[CONTENT].replace(/ι/g,"\\iota");
+                step[CONTENT] = step[CONTENT].replace(/κ/g,"\\kappa");
+                step[CONTENT] = step[CONTENT].replace(/λ/g,"\\lambda");
+                step[CONTENT] = step[CONTENT].replace(/μ/g,"\\mu");
+                step[CONTENT] = step[CONTENT].replace(/ν/g,"\\nu");
+                step[CONTENT] = step[CONTENT].replace(/ξ/g,"\\xi");
+                step[CONTENT] = step[CONTENT].replace(/o/g,"\\omicron");
+                step[CONTENT] = step[CONTENT].replace(/π/g,"\\pi");
+                step[CONTENT] = step[CONTENT].replace(/ρ/g,"\\rho");
+                step[CONTENT] = step[CONTENT].replace(/ϱ/g,"\\varrho");
+                step[CONTENT] = step[CONTENT].replace(/σ/g,"\\sigma");
+                step[CONTENT] = step[CONTENT].replace(/τ/g,"\\tau");
+                step[CONTENT] = step[CONTENT].replace(/υ/g,"\\upsilon");
+                step[CONTENT] = step[CONTENT].replace(/ϕ/g,"\\phi");
+                step[CONTENT] = step[CONTENT].replace(/χ/g,"\\chi");
+                step[CONTENT] = step[CONTENT].replace(/ψ/g,"\\psi");
+                step[CONTENT] = step[CONTENT].replace(/ω/g,"\\omega");
+
+                step[CONTENT] = step[CONTENT].replace(/Γ/g,"\\Gamma");
+                step[CONTENT] = step[CONTENT].replace(/Δ/g,"\\Delta");
+                step[CONTENT] = step[CONTENT].replace(/Θ/g,"\\Theta");
+                step[CONTENT] = step[CONTENT].replace(/Λ/g,"\\Lambda");
+                step[CONTENT] = step[CONTENT].replace(/Ξ/g,"\\Xi");
+                step[CONTENT] = step[CONTENT].replace(/Π/g,"\\Pi");
+                step[CONTENT] = step[CONTENT].replace(/Σ/g,"\\Sigma");
+                step[CONTENT] = step[CONTENT].replace(/ϒ/g,"\\Upsilon");
+                step[CONTENT] = step[CONTENT].replace(/Φ/g,"\\Phi");
+                step[CONTENT] = step[CONTENT].replace(/Ψ/g,"\\Psi");
+                step[CONTENT] = step[CONTENT].replace(/Ω/g,"\\Omega");
+
                 if (step[CONTENT] !== orig) {
                     console.log(orig);
                     console.log(step[CONTENT]);
