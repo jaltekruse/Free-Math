@@ -36,6 +36,7 @@ const symbolGroups = {
         {toType:"<", tex:"<"},
         {toType:"<=", tex:"\\le"},
         {toType:"\\approx [Enter]", tex:"\\approx"},
+        {toType:"\\propto [Enter]", tex:"\\propto"},
         {toType:"_ (underscore)", tex:"A_b", description: "subscript"},
         {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power"},
         {toType:"\\pm [Enter]", tex:"\\pm"},

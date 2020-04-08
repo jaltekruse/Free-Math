@@ -827,9 +827,35 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
-    var ret = convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+    var ret = replaceSpecialCharsWithLatex(
+                convertToCurrentFormat2(
+                    convertToCurrentFormatFromAlpha(possiblyOldDoc)));
     ret[CURRENT_PROBLEM] = 0;
     return ret;
+}
+
+function replaceSpecialCharsWithLatex(possiblyOldDoc) {
+    if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
+        && possiblyOldDoc[PROBLEMS].length > 0) {
+        console.log("changing special chars to latex");
+        // TODO - consider getting rid of this deep clone, but not much object creation
+        // to avoid if I want to keep this function pure
+        possiblyOldDoc = cloneDeep(possiblyOldDoc);
+        possiblyOldDoc[PROBLEMS] = possiblyOldDoc[PROBLEMS].map(function (problem) {
+            problem[STEPS] = problem[STEPS].map(function (step) {
+                var orig = step[CONTENT];
+                step[CONTENT] = step[CONTENT].replace(/°/g, "\\degree");
+                step[CONTENT] = step[CONTENT].replace(/∝/g, "\\propto");
+                if (step[CONTENT] !== orig) {
+                    console.log(orig);
+                    console.log(step[CONTENT]);
+                }
+                return step;
+            });
+            return problem;
+        });
+    }
+    return possiblyOldDoc;
 }
 
 function convertToCurrentFormatFromAlpha(possiblyOldDoc) {
