@@ -33,22 +33,16 @@ var ImageUploader = React.createClass({
                     var probNumber = this.props.value["PROBLEM_NUMBER"];
                     var lastStepIndex = this.props.value[STEPS].length - 1;
                     var lastStep = this.props.value[STEPS][lastStepIndex];
-                    console.log(typeof lastStep[FORMAT]);
-                    console.log(lastStep[CONTENT]);
+                    window.store.dispatch(
+                        { type : "NEW_STEP", "PROBLEM_INDEX" : this.props.problemIndex,
+                            STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
+                    window.store.dispatch(
+                        { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : this.props.problemIndex });
+
+                    // if the previously last step was blank, just remove it to avoid blank boxes in the list
                     if (typeof lastStep[FORMAT] === 'undefined' && lastStep[CONTENT] === '') {
                         window.store.dispatch(
-                            { type : "NEW_STEP", "PROBLEM_INDEX" : this.props.problemIndex,
-                                STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
-                        window.store.dispatch(
                             { type : "DELETE_STEP", "PROBLEM_INDEX" : this.props.problemIndex, STEP_KEY : lastStepIndex});
-                        window.store.dispatch(
-                            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : this.props.problemIndex });
-                    } else {
-                        window.store.dispatch(
-                            { type : "NEW_STEP", "PROBLEM_INDEX" : this.props.problemIndex,
-                                STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
-                        window.store.dispatch(
-                            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : this.props.problemIndex });
                     }
                     //window.store.dispatch(
                     //    { type : "SET_PROBLEM_IMG", "PROBLEM_INDEX" : this.props.problemIndex,
