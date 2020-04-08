@@ -860,7 +860,6 @@ function replaceSpecialCharsWithLatex(possiblyOldDoc) {
                 step[CONTENT] = step[CONTENT].replace(/μ/g,"\\mu");
                 step[CONTENT] = step[CONTENT].replace(/ν/g,"\\nu");
                 step[CONTENT] = step[CONTENT].replace(/ξ/g,"\\xi");
-                step[CONTENT] = step[CONTENT].replace(/o/g,"\\omicron");
                 step[CONTENT] = step[CONTENT].replace(/π/g,"\\pi");
                 step[CONTENT] = step[CONTENT].replace(/ρ/g,"\\rho");
                 step[CONTENT] = step[CONTENT].replace(/ϱ/g,"\\varrho");
