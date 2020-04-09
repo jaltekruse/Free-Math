@@ -718,12 +718,16 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     }
 
     var possiblePointsAppearing = {};
+    let mostCommonPossiblePoints;
     var countPossiblePointsValues =
         function(uniqueAnswer, index, arr) {
             // sort with largest groups first
             uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[STEPS].length - b[STEPS].length; });
             // calculate appearances of different value for possible points
             uniqueAnswer[STUDENT_WORK].forEach(function(singleStudentSolution, index, arr) {
+                if (typeof singleStudentSolution[POSSIBLE_POINTS] === 'undefined') {
+                    return;
+                }
                 var existingCountOfThisPosiblePointsValue = possiblePointsAppearing[singleStudentSolution[POSSIBLE_POINTS]];
                 if (existingCountOfThisPosiblePointsValue) {
                     existingCountOfThisPosiblePointsValue++;
@@ -749,7 +753,9 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
         };
 
     var keyWithMaxValInObj = function(objToSearch) {
-        return Object.keys(objToSearch).reduce(function(a, b){
+        var keys = Object.keys(objToSearch);
+        if (keys.length === 0) return undefined;
+        return keys.reduce(function(a, b){
                 return objToSearch[a] > objToSearch[b] ? a : b
         });
     }
@@ -765,8 +771,8 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             uniqueAnswers.forEach(countPossiblePointsValues);
             console.log(possiblePointsAppearing);
 
-            var mostCommonPossiblePoints = keyWithMaxValInObj(possiblePointsAppearing);
-            mostCommonPossiblePoints = mostCommonPossiblePoints ? mostCommonPossiblePoints : 6;
+            mostCommonPossiblePoints = keyWithMaxValInObj(possiblePointsAppearing);
+            mostCommonPossiblePoints = typeof mostCommonPossiblePoints !== 'undefined' ? mostCommonPossiblePoints : 6;
             console.log(mostCommonPossiblePoints);
             aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints; 
             aggregatedWork[problemNumber][POSSIBLE_POINTS_EDITED] = mostCommonPossiblePoints;
