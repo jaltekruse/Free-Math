@@ -40,6 +40,8 @@ var HIGHLIGHT = 'HIGHLIGHT';
 
 var SHOW_ALL = 'SHOW_ALL';
 
+window.ga = function() {};
+
 // in the teacher grading experince, student work is grouped by similar final answer
 // these groups are called solution classes
 it('test Grade Solution Class', () => {

@@ -532,7 +532,7 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY] + 1),
-                {...oldStep, STEP_ID : genID(), FOCUSED: true},
+                {...oldStep, STEP_ID : genID()},
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ],
             UNDO_STACK : [
