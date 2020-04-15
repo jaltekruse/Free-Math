@@ -97,6 +97,38 @@ const UserActions = createReactClass({
             render();
         };
 
+        var deleteAllTeacherAutoSavesCallback = function(docName) {
+            if (!window.confirm("Are you sure you want to delete all recovered grading sessions?")) {
+                return;
+            }
+
+            for (var key in localStorage){
+                if (startsWith(key, "auto save teachers")) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+            // TODO - fix this hack, should not explicitly call render,
+            // this should be fixed while addressing TODO below about
+            // component directly accessing localStorage
+            render();
+        };
+
+        var deleteAllStudentAutoSavesCallback = function(docName) {
+            if (!window.confirm("Are you sure you want to delete all recovered assignments?")) {
+                return;
+            }
+
+            for (var key in localStorage){
+                if (startsWith(key, "auto save students")) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+            // TODO - fix this hack, should not explicitly call render,
+            // this should be fixed while addressing TODO below about
+            // component directly accessing localStorage
+            render();
+        };
+
         // TODO - this is ugly, a component shouldn't access localStorage,
         // this should be read in at app startup stored in the redux state
         // tree and then kept in sync with what is actually stored through
@@ -113,6 +145,7 @@ const UserActions = createReactClass({
                 recoveredTeacherDocs.push(key);
             }
         }
+        // sort by name, TODO -also allow sort by date
         recoveredStudentDocs = recoveredStudentDocs.sort(function (a, b) {
             return a.toLowerCase().localeCompare(b.toLowerCase());
         });
@@ -185,16 +218,18 @@ const UserActions = createReactClass({
                         </span>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
-                            (<h4>Recovered Assignments</h4>) : null }
+                            (<span><h4>Recovered Assignments &nbsp;
+                                <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
+                             </h4></span>) : null }
                         { (recoveredStudentDocs.length > 0) ?
                                 recoveredStudentDocs.map(function(docName, docIndex) {
                                     return (
                                         <div key={docName}>
-                                            <Button type="submit" text="Open"
+                                            <Button text="Open"
                                                     onClick={function() {
                                                         recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
                                                     } />
-                                            <Button type="submit" text="Delete"
+                                            <Button text="Delete"
                                                     onClick={function() {
                                                         deleteAutoSaveCallback(docName)}
                                                     } />
@@ -223,7 +258,9 @@ const UserActions = createReactClass({
                     </span>
                         <br />
                     { (recoveredTeacherDocs.length > 0) ?
-                        (<h4>Recovered Grading Sessions</h4>) : null }
+                        (<span><h4>Recovered Grading Sessions &nbsp;
+                            <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
+                         </h4></span>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
                         recoveredTeacherDocs.map(function(docName, docIndex) {
                             return (
