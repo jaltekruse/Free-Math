@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -35,6 +36,55 @@ export function render() {
         <FreeMath value={window.store.getState()} />,
         document.getElementById('root')
     );
+}
+
+function deleteOldAutoSaves() {
+}
+
+// assumes prefix of "auto save teacher/student" has been stripped off already
+// as well as the seconds and milliseconds on the date/time
+function splitNameAndDate(recoveredDocName) {
+    var nameAndDate = recoveredDocName.match(/(.*) (\d\d\d\d-\d+-\d+ \d+:\d+)/);
+    return nameAndDate;
+}
+
+function sortByDate(arrayOfAutoSaveDocNames) {
+    return arrayOfAutoSaveDocNames.sort(function (a, b) {
+        var dateA = a.match(/\d\d\d\d-\d+-\d+ \d+:\d+:\d\d\..*/);
+        var dateB = b.match(/\d\d\d\d-\d+-\d+ \d+:\d+:\d\d\..*/);
+        if (dateA && dateA.length === 1) {
+            if (dateB && dateB.length === 1) {
+                return moment(dateB[0]) - moment(dateA[0]);
+            }
+        }
+        return 0;
+    });
+}
+
+function sortCaseInsensitive(arrayOfStrings) {
+    return arrayOfStrings.sort(function (a, b) {
+        return a.toLowerCase().localeCompare(b.toLowerCase());
+    });
+}
+
+function getTeacherRecoveredDocs() {
+    var recoveredTeacherDocs = [];
+    for (var key in localStorage){
+        if (startsWith(key, "auto save teachers")) {
+            recoveredTeacherDocs.push(key);
+        }
+    }
+    return recoveredTeacherDocs;
+}
+
+function getStudentRecoveredDocs() {
+    var recoveredStudentDocs = [];
+    for (var key in localStorage){
+        if (startsWith(key,"auto save students")) {
+            recoveredStudentDocs.push(key);
+        }
+    }
+    return recoveredStudentDocs;
 }
 
 function startsWith(str, maybePrefix) {
@@ -134,24 +184,12 @@ const UserActions = createReactClass({
         // tree and then kept in sync with what is actually stored through
         // actions use subscribers
         //https://stackoverflow.com/questions/35305661/where-to-write-to-localstorage-in-a-redux-app
-        var recoveredStudentDocs = [];
-        var recoveredTeacherDocs = [];
-        // recovered autoSaved docs
-        for (var key in localStorage){
-            if (startsWith(key,"auto save students")) {
-            //if (startsWith(key,"auto save students")) {
-                recoveredStudentDocs.push(key);
-            } else if (startsWith(key, "auto save teachers")) {
-                recoveredTeacherDocs.push(key);
-            }
-        }
-        // sort by name, TODO -also allow sort by date
-        recoveredStudentDocs = recoveredStudentDocs.sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
-        });
-        recoveredTeacherDocs = recoveredTeacherDocs.sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
-        });
+        var recoveredStudentDocs = getStudentRecoveredDocs();
+        var recoveredTeacherDocs = getTeacherRecoveredDocs();
+
+        // sort by date, TODO - also allow switch to sort by name 
+        recoveredStudentDocs = sortByDate(recoveredStudentDocs);
+        recoveredTeacherDocs = sortByDate(recoveredTeacherDocs);
 
         var halfScreenStyle= {
             width:"44%",
@@ -220,25 +258,32 @@ const UserActions = createReactClass({
                         { (recoveredStudentDocs.length > 0) ?
                             (<span><h4>Recovered Assignments &nbsp;
                                 <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
-                             </h4></span>) : null }
-                        { (recoveredStudentDocs.length > 0) ?
-                                recoveredStudentDocs.map(function(docName, docIndex) {
-                                    return (
-                                        <div key={docName}>
-                                            <Button text="Open"
-                                                    onClick={function() {
-                                                        recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
-                                                    } />
-                                            <Button text="Delete"
-                                                    onClick={function() {
-                                                        deleteAutoSaveCallback(docName)}
-                                                    } />
-                                        {docName.replace("auto save students ","")
-                                            .replace(/:\d\d\..*/, "")}</div>
-                                    );
-                                })
-                           : null
-                        }
+                             </h4>
+                                    { recoveredStudentDocs.map(function(docName, docIndex) {
+                                                // strip off milliseconds and seconds, and the type of doc label when displaying to user
+                                                var docNameTrimmed = docName.replace("auto save students ","")
+                                                        .replace(/:\d\d\..*/, "")
+                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
+                                                var namePart = nameAndDate[1];
+                                                var datePart = nameAndDate[2];
+                                                return (
+                                                        <div style={{marginBottom:"20px"}} key={docName}>
+                                                        {namePart}
+                                                        <br />
+                                                        <Button text="Open"
+                                                                onClick={function() {
+                                                                    recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
+                                                                } />
+                                                        <Button text="Delete"
+                                                                onClick={function() {
+                                                                    deleteAutoSaveCallback(docName)}
+                                                                } />
+                                                        &nbsp;&nbsp;{datePart}
+                                                        <br />
+                                                        </div>
+                                                );
+                                            }) }
+                                    </span>) : null }
                         { (recoveredStudentDocs.length > 0) ?
                             (<p>Recovered assignments stored temporarily in your
                                 browser, save to your device as soon as 
@@ -257,25 +302,35 @@ const UserActions = createReactClass({
                         </a>
                     </span>
                         <br />
-                    { (recoveredTeacherDocs.length > 0) ?
-                        (<span><h4>Recovered Grading Sessions &nbsp;
-                            <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
-                         </h4></span>) : null }
-                    { (recoveredTeacherDocs.length > 0) ?
-                        recoveredTeacherDocs.map(function(docName, docIndex) {
-                            return (
-                            <div key={docName}>
-                                <Button text="Open" onClick={
-                                    function() {recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}} />
-                                <Button text="Delete" onClick={
-                                    function() {deleteAutoSaveCallback(docName)}}
-                                />
-                                {docName.replace("auto save teachers ","")
-                                    .replace(/:\d\d\..*/, "")}</div>
-                                );
-                            })
-                       : null
-                    }
+                        { (recoveredTeacherDocs.length > 0) ?
+                            (<span><h4>Recovered Grading Sessions &nbsp;
+                                <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
+                             </h4>
+                                    { recoveredTeacherDocs.map(function(docName, docIndex) {
+                                                // strip off milliseconds and seconds, and the type of doc label when displaying to user
+                                                var docNameTrimmed = docName.replace("auto save teachers ","")
+                                                        .replace(/:\d\d\..*/, "")
+                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
+                                                var namePart = nameAndDate[1];
+                                                var datePart = nameAndDate[2];
+                                                return (
+                                                        <div style={{marginBottom:"20px"}} key={docName}>
+                                                        {namePart}
+                                                        <br />
+                                                        <Button text="Open"
+                                                                onClick={function() {
+                                                                    recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}
+                                                                } />
+                                                        <Button text="Delete"
+                                                                onClick={function() {
+                                                                    deleteAutoSaveCallback(docName)}
+                                                                } />
+                                                        &nbsp;&nbsp;{datePart}
+                                                        <br />
+                                                        </div>
+                                                );
+                                            }) }
+                                    </span>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
                             (<p>Recovered grading sessions stored temporarily in
                                 your browser, save to your device as soon as 
