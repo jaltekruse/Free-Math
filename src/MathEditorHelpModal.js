@@ -10,6 +10,7 @@ const symbolGroups = {
             input.typedText("/");
         }},
         {toType:"=", tex:"="},
+        {toType:"\\neq [Enter]", tex:"\\neq"},
         {toType:"pi", tex:"\\pi"},
         {toType:"sqrt", tex:"\\sqrt{x}", editorCommands: input => {
             input.cmd("\\sqrt");
