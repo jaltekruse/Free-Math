@@ -38,9 +38,6 @@ export function render() {
     );
 }
 
-function deleteOldAutoSaves() {
-}
-
 // assumes prefix of "auto save teacher/student" has been stripped off already
 // as well as the seconds and milliseconds on the date/time
 function splitNameAndDate(recoveredDocName) {
@@ -95,7 +92,10 @@ function startsWith(str, maybePrefix) {
 const UserActions = createReactClass({
     getInitialState () {
         return { showModal: false,
-                 showActionsMobile: false};
+                 showActionsMobile: false,
+                 teacherRecoveredSorting: "DATE",
+	             studentRecoveredSorting: "DATE"
+	         };
     },
 
     closeSpinner() {
@@ -187,9 +187,17 @@ const UserActions = createReactClass({
         var recoveredStudentDocs = getStudentRecoveredDocs();
         var recoveredTeacherDocs = getTeacherRecoveredDocs();
 
-        // sort by date, TODO - also allow switch to sort by name 
-        recoveredStudentDocs = sortByDate(recoveredStudentDocs);
-        recoveredTeacherDocs = sortByDate(recoveredTeacherDocs);
+        // sort by date, TODO - also allow switch to sort by name
+        if (this.state.studentRecoveredSorting === "DATE") {
+            recoveredStudentDocs = sortByDate(recoveredStudentDocs);
+        } else {
+            recoveredStudentDocs = sortCaseInsensitive(recoveredStudentDocs);
+        }
+        if (this.state.teacherRecoveredSorting === "DATE") {
+            recoveredTeacherDocs = sortByDate(recoveredTeacherDocs);
+        } else {
+            recoveredTeacherDocs = sortCaseInsensitive(recoveredTeacherDocs);
+        }
 
         var halfScreenStyle= {
             width:"44%",
@@ -258,7 +266,26 @@ const UserActions = createReactClass({
                         { (recoveredStudentDocs.length > 0) ?
                             (<span><h4>Recovered Assignments &nbsp;
                                 <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
-                             </h4>
+                                </h4>
+                                Sort by
+                                <Button text="Date"
+                                        className={(this.state.studentRecoveredSorting === "DATE" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({studentRecoveredSorting: "DATE"});
+                                        }.bind(this)}
+                                />
+                                <Button text="Name"
+                                        className={(this.state.studentRecoveredSorting === "NAME" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({studentRecoveredSorting: "NAME"});
+                                        }.bind(this)}
+                                />
+                                <br />
+                                <br />
                                     { recoveredStudentDocs.map(function(docName, docIndex) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
                                                 var docNameTrimmed = docName.replace("auto save students ","")
@@ -286,7 +313,7 @@ const UserActions = createReactClass({
                                     </span>) : null }
                         { (recoveredStudentDocs.length > 0) ?
                             (<p>Recovered assignments stored temporarily in your
-                                browser, save to your device as soon as 
+                                browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
                 <div style={{...divStyle, textAlign: "left"}}>
@@ -305,7 +332,26 @@ const UserActions = createReactClass({
                         { (recoveredTeacherDocs.length > 0) ?
                             (<span><h4>Recovered Grading Sessions &nbsp;
                                 <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
-                             </h4>
+                                </h4>
+                                Sort by
+                                <Button text="Date"
+                                        className={(this.state.teacherRecoveredSorting === "DATE" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({teacherRecoveredSorting: "DATE"});
+                                        }.bind(this)}
+                                />
+                                <Button text="Name"
+                                        className={(this.state.teacherRecoveredSorting === "NAME" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({teacherRecoveredSorting: "NAME"});
+                                        }.bind(this)}
+                                />
+                                <br />
+                                <br />
                                     { recoveredTeacherDocs.map(function(docName, docIndex) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
                                                 var docNameTrimmed = docName.replace("auto save teachers ","")
@@ -333,7 +379,7 @@ const UserActions = createReactClass({
                                     </span>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
                             (<p>Recovered grading sessions stored temporarily in
-                                your browser, save to your device as soon as 
+                                your browser, save to your device as soon as
                                 possible</p>) : null }
                 </div>
             </div>
@@ -345,8 +391,8 @@ const UserActions = createReactClass({
      *
             <div className="answer-incorrect"
                  style={{display:"block", padding:"10px", margin: "10px"}}>
-                <span>DATA LOSS WARNING: School districts may clear your 
-                      downloads folder when logging off. It is recommended 
+                <span>DATA LOSS WARNING: School districts may clear your
+                      downloads folder when logging off. It is recommended
                       to save your files on a USB drive, LMS (Canvas, Moodle,
                       Blackboard) or your institution's preferred cloud
                       storage provider like Google Drive, Dropbox, etc.</span>
@@ -399,7 +445,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             );
         };
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div>
             <div className="menuBar">
@@ -408,7 +454,7 @@ const DefaultHomepageActions = createReactClass({
                      className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
-                    <a href="gettingStarted.html" 
+                    <a href="gettingStarted.html"
                         style={{color:"white", marginRight:"15px"}} >
                         Getting Started
                     </a>{' '}
@@ -431,7 +477,7 @@ const DefaultHomepageActions = createReactClass({
             <div>
             <div className="homepage-center">
             <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -446,7 +492,7 @@ const DefaultHomepageActions = createReactClass({
             >
                 <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Student Experience</h3>
             </button>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -454,19 +500,19 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3> 
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3>
             </button>
             </div>
             {
             <div className="homepage-only-on-mobile">
-                { ! browserIsIOS ? 
-                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+                { ! browserIsIOS ?
+                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                              onClick={function() {
-                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
+                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
                             >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
                                     {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
-                                </h3> 
+                                </h3>
                             </button>
                     ) : null
                 }
@@ -542,7 +588,7 @@ const DefaultHomepageActions = createReactClass({
                                 <p style={{color: "#eee", fontSize: "25px"}}>
                                     Join our e-mail list to find out first about new features and updates to the site.
                                 </p>
-                                <input type="email" name="EMAIL" className="email" size="25" 
+                                <input type="email" name="EMAIL" className="email" size="25"
                                        id="mce-EMAIL" placeholder="  email address"
                                        style={{"border": "0px", fontSize: "25px"}}
                                        value={this.state.emailString}
@@ -603,7 +649,7 @@ const DefaultHomepageActions = createReactClass({
                             window.ga('send', 'event', 'Actions', 'share', 'twitter');
                         }}>
                             <img alt="twitter" src="images/twitter.png" style={{"height": "50px"}}></img></a>&nbsp;
-                        <a href="https://www.reddit.com/r/freemath" target="_blank" rel="noopener noreferrer" 
+                        <a href="https://www.reddit.com/r/freemath" target="_blank" rel="noopener noreferrer"
                            onClick={function() {
                             window.ga('send', 'event', 'Actions', 'share', 'reddit');
                         }}>
