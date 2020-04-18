@@ -639,6 +639,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     // structure: { "1.1" : { "jason" :true, "taylor" : true }
     var studentWorkFound = {};
     allStudentWork.forEach(function(assignInfo, index, array) {
+        console.log("analyzing 1 student doc");
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
             var studentAnswer = _.last(problem[STEPS])[CONTENT];
             // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
@@ -1029,6 +1030,16 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
             // otherwise try to open as a zip full of student docs
             new_zip.load(content);
 
+            var docCount = 0;
+            for (var file in new_zip.files) {
+                if (new_zip.files.hasOwnProperty(file)) {
+                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                    else if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+                    else if (new_zip.file(file) === null) continue;
+                    else docCount++;
+                }
+            }
+            console.log("opening " + docCount + " files.");
             // you now have every files contained in the loaded zip
             for (var file in new_zip.files) {
                 // don't get properties from prototype
@@ -1048,6 +1059,8 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
                             var newDoc = openAssignment(fileContents, file, false);
                             //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
                             allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
+
+                            console.log("opened student doc");
                         } else { // old path, should be handled by making method called above handle both cases for teacher and student case
                             var fileContents = new_zip.file(file).asText();
                             // how is this behaviring differrntly than JSOn.parse()?!?!

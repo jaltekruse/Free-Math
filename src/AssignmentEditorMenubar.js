@@ -52,6 +52,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
         return;
     }
     var zip = new JSZip();
+    var imagesBeingAddedToZip = 0;
     allProblems = allProblems.map(function(problem, probIndex, array) {
         // make a new object, as this mutates the state, including changing the blob URLs
         // into filenames that will be in the zip file for images, these changes
@@ -72,6 +73,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
                 var newStep = {...step};
                 newStep[CONTENT] = filename;
                 xhr.responseType = 'blob';
+                imagesBeingAddedToZip++;
                 xhr.onload = function(e) {
                   if (this.status == 200) {
                     var imgBlob = this.response;
@@ -80,6 +82,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
                     fr.addEventListener('load', function() {
                         var data = this.result;
                         zip.file(filename, data);
+                        imagesBeingAddedToZip--;
                     });
                     return fr.readAsArrayBuffer(imgBlob);
                   }
@@ -94,6 +97,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     });
     studentDoc = { ...studentDoc,
                    [PROBLEMS]: allProblems};
+
     var blob =
         new Blob([
             JSON.stringify({
@@ -106,18 +110,25 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
         //{type: "application/octet-stream"});
         {type: "text/plain;charset=utf-8"});
 
-    var fr = new FileReader();
-    fr.addEventListener('load', function () {
-        var data = this.result;
-        zip.file("mainDoc", data);
-        setTimeout(function() {
-            var finalBlob = zip.generate({type: 'blob'});
-            handleFinalBlobCallback(finalBlob);
-        }, 2000);
-        // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
-        //success(this.result);
-    }, false);
-    fr.readAsArrayBuffer(blob);
+    var checkImagesLoaded = function() {
+        if (imagesBeingAddedToZip === 0) {
+
+            var fr = new FileReader();
+            fr.addEventListener('load', function () {
+                var data = this.result;
+                zip.file("mainDoc", data);
+                var finalBlob = zip.generate({type: 'blob'});
+                handleFinalBlobCallback(finalBlob);
+                // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
+                //success(this.result);
+            }, false);
+            fr.readAsArrayBuffer(blob);
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkImagesLoaded, 50);
+        }
+    }
+    checkImagesLoaded();
 }
 
 function saveAssignmentOld() {
