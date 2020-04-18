@@ -40,32 +40,6 @@ function validateProblemNumbers(allProblems) {
     return atLeastOneProblemNumberNotSet;
 }
 
-/*
-function saveGradedStudentWork(gradedWork) {
-    if (gradedWork === undefined) {
-        console.log("no graded assignments to save");
-    }
-    // temporarily disable data loss warning
-    window.onbeforeunload = null;
-
-    var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-    var filename;
-    for (filename in separatedAssignments) {
-        if (separatedAssignments.hasOwnProperty(filename)) {
-            separatedAssignments[filename] = makeBackwardsCompatible(separatedAssignments[filename]);
-        }
-    }
-    var zip = new JSZip();
-    for (filename in separatedAssignments) {
-        if (separatedAssignments.hasOwnProperty(filename)) {
-            zip.file(filename, JSON.stringify(separatedAssignments[filename]));
-        }
-    }
-    var blob = zip.generate({type: 'blob'});
-    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
-}
-*/
-
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
     window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
     var allProblems = studentDoc[PROBLEMS];
@@ -116,7 +90,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
             JSON.stringify({
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
-                          studentDoc 
+                          studentDoc
                         )
                     )[PROBLEMS]
             })],
@@ -158,7 +132,7 @@ function saveAssignmentOld() {
             JSON.stringify({
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
-                           overallState 
+                           overallState
                         )
                     )[PROBLEMS]
             })],
@@ -186,29 +160,9 @@ function removeExtension(filename) {
     return filename;
 }
 
-/*
-// open zip file full of student assignments for grading
-function studentSubmissionsZip(evt, onFailure = function() {}) {
-    // reset scroll location from previous view of student docs
-    window.location.hash = '';
-    var f = evt.target.files[0];
-
-    if (f) {
-        var r = new FileReader();
-        r.onload = function(e) {
-            var content = e.target.result;
-            loadStudentDocsFromZip(content, f.name, onFailure);
-        }
-        r.readAsArrayBuffer(f);
-    } else {
-        window.ga('send', 'exception', { 'exDescription' : 'error opening docs to grade' } );
-        alert("Failed to load file");
-        onFailure();
-    }
-}
-*/
-
-//function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
+// can throws exception if thw wrong file type is opened
+// successfully opens both the current zip-based format that allows
+// saving images as well as the old format that was just json in a text file
 function openAssignment(content, filename, discardDataWarning) {
     var new_zip = new JSZip();
     try {
@@ -265,13 +219,16 @@ function openAssignment(content, filename, discardDataWarning) {
         return newDoc;
 
     } catch (e) {
-        // TODO - try to open a single student doc
-        console.log(e);
-        alert("Error opening file, you should be opening a zip file full of Free Math documents.");
-        window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
-        //onFailure();
-        return;
+        // this can throw an exception if it is the wrong file type (like a user opened a PDF)
+        var newDoc = openAssignmentOld(
+            ab2str(content),
+            filename, discardDataWarning);
+        return newDoc;
     }
+}
+
+function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
 }
 
 
@@ -287,11 +244,9 @@ function openAssignmentOld(serializedDoc, filename, discardDataWarning) {
     //}
 
     var newDoc = JSON.parse(serializedDoc);
-    // compatibility for old files, need to convert the old proerty names as
-    // well as add the LAST_SHOWN_STEP
     newDoc = convertToCurrentFormat(newDoc);
-    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS]});
-    window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : removeExtension(filename)});
+    newDoc[ASSIGNMENT_NAME] = removeExtension(filename);
+    return newDoc;
 }
 
 // read a file from the local disk, pass an onChange event from a "file" input type
@@ -322,13 +277,13 @@ export function readSingleFile(evt, discardDataWarning) {
 
 var AssignmentEditorMenubar = createReactClass({
   render: function() {
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div className="menuBar">
                 <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    
-                    {!browserIsIOS ? 
+
+                    {!browserIsIOS ?
                     (<div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
                         Filename &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="25"
