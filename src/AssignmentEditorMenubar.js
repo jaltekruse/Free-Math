@@ -5,6 +5,7 @@ import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { LightButton } from './Button.js';
+import { cloneDeep, genID } from './FreeMath.js';
 import JSZip from 'jszip';
 
 var STEPS = 'STEPS';
@@ -52,6 +53,12 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     }
     var zip = new JSZip();
     allProblems = allProblems.map(function(problem, probIndex, array) {
+        // make a new object, as this mutates the state, including changing the blob URLs
+        // into filenames that will be in the zip file for images, these changes
+        // should not be made to the in-memory version
+        // BE CAREFUL NOT TO CHANGE THIS, the bug only shows up after a save and then
+        // a further edit of the doc without navigating away
+        problem = { ...problem };
         // trim the numbers to avoid extra groups while grading
         problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
         problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
@@ -62,7 +69,8 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', step[CONTENT], true);
                 var filename = probIndex + "_" + stepIndex + "_img"
-                step[CONTENT] = filename;
+                var newStep = {...step};
+                newStep[CONTENT] = filename;
                 xhr.responseType = 'blob';
                 xhr.onload = function(e) {
                   if (this.status == 200) {
@@ -77,14 +85,15 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
                   }
                 };
                 xhr.send();
-                return step;
+                return newStep;
             } else {
                 return step;
             }
         });
         return problem;
     });
-    studentDoc[PROBLEMS] = allProblems;
+    studentDoc = { ...studentDoc,
+                   [PROBLEMS]: allProblems};
     var blob =
         new Blob([
             JSON.stringify({

@@ -264,7 +264,7 @@ function splitKey(compositeKey) {
 function findSimilarStudentAssignments(allStudentWork) {
 
     if (allStudentWork.length > 100) {
-        alert("Too many assignments to perform overall document similarity check.\n" + 
+        alert("Too many assignments to perform overall document similarity check.\n" +
             "To use this feature you can open up documents in groups of 100 students or less at a time.");
         return [];
     }
@@ -627,9 +627,9 @@ function areExpressionsSimilar(expression1, expression2) {
 // SIMILAR_ASSIGNMENT_SETS : [ [ "jason", "emma", "matt"], ["jim", "tim"] ],
 // PROBLEMS : { "1.a" : {
 //      "POSSIBLE_POINTS : 3,
-//      "UNIQUE_ANSWERS" : [ 
+//      "UNIQUE_ANSWERS" : [
 //              { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE",
-//                STUDENT_WORK : [ 
+//                STUDENT_WORK : [
 //                      { STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
 //                             STEPS : [ { CONTENT : "2x=14"},
 //                                       { CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
@@ -784,7 +784,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             mostCommonPossiblePoints = keyWithMaxValInObj(possiblePointsAppearing);
             mostCommonPossiblePoints = typeof mostCommonPossiblePoints !== 'undefined' ? mostCommonPossiblePoints : 6;
             console.log(mostCommonPossiblePoints);
-            aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints; 
+            aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints;
             aggregatedWork[problemNumber][POSSIBLE_POINTS_EDITED] = mostCommonPossiblePoints;
 
             aggregatedWork[problemNumber][UNIQUE_ANSWERS] =  uniqueAnswers.map(function(uniqueAnswer, index, arr) {
@@ -823,7 +823,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
 
 // TODO - delete this, highlights now shown in student experience for viewing
 // feedback on a graded assignment.
-// 
+//
 // Still used in the legacy document upgrade code below.
 //
 // This was from a very old version of the software, likely safe to
@@ -1016,55 +1016,67 @@ function makeBackwardsCompatible(newDoc) {
 
 function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
     var new_zip = new JSZip();
+    var allStudentWork = [];
+    var failureCount = 0;
+    var badFiles = [];
+    // try opening file as a single student doc
     try {
-        new_zip.load(content);
+        var singleStudentDoc = openAssignment(content, filename, false);
+        console.log(singleStudentDoc);
+        allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
+    } catch (ex) {
+        try {
+            // otherwise try to open as a zip full of student docs
+            new_zip.load(content);
 
-        var allStudentWork = [];
-
-        var failureCount = 0;
-        var badFiles = [];
-        // you now have every files contained in the loaded zip
-        for (var file in new_zip.files) {
-            // don't get properties from prototype
-            if (new_zip.files.hasOwnProperty(file)) {
-                // extra directory added when zipping files on mac
-                // TODO - check for other things to filter out from zip
-                // files created on other platforms
-                if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
-                // check the extension is .math
-                // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
-                if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
-                // filter out directories which are part of this list
-                if (new_zip.file(file) === null) continue;
-                try {
-                    if (true) { // new path with pics
-                        var fileContents = new_zip.file(file).asArrayBuffer();
-                        var newDoc = openAssignment(fileContents, file, false);
-                        //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
-                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
-                    } else { // old path, should be handled by making method called above handle both cases for teacher and student case
-                        var fileContents = new_zip.file(file).asText();
-                        // how is this behaviring differrntly than JSOn.parse()?!?!
-                        //var assignmentData = window.$.parseJSON(fileContents);
-                        fileContents = fileContents.trim();
-                        var assignmentData = JSON.parse(fileContents);
-                        assignmentData = convertToCurrentFormat(assignmentData);
-                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+            // you now have every files contained in the loaded zip
+            for (var file in new_zip.files) {
+                // don't get properties from prototype
+                if (new_zip.files.hasOwnProperty(file)) {
+                    // extra directory added when zipping files on mac
+                    // TODO - check for other things to filter out from zip
+                    // files created on other platforms
+                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                    // check the extension is .math
+                    // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+                    if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+                    // filter out directories which are part of this list
+                    if (new_zip.file(file) === null) continue;
+                    try {
+                        if (true) { // new path with pics
+                            var fileContents = new_zip.file(file).asArrayBuffer();
+                            var newDoc = openAssignment(fileContents, file, false);
+                            //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                            allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
+                        } else { // old path, should be handled by making method called above handle both cases for teacher and student case
+                            var fileContents = new_zip.file(file).asText();
+                            // how is this behaviring differrntly than JSOn.parse()?!?!
+                            //var assignmentData = window.$.parseJSON(fileContents);
+                            fileContents = fileContents.trim();
+                            var assignmentData = JSON.parse(fileContents);
+                            assignmentData = convertToCurrentFormat(assignmentData);
+                            allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                        }
+                    } catch (e) {
+                        console.log("failed to parse file: " + file);
+                        console.log(e);
+                        failureCount++;
+                        badFiles.push(file);
                     }
-                } catch (e) {
-                    console.log("failed to parse file: " + file);
-                    console.log(e);
-                    failureCount++;
-                    badFiles.push(file);
                 }
             }
+            if (failureCount > 0) {
+                alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+                window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
+                window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
+            }
+        } catch (e) {
+            alert("Error opening file, you should be opening a zip file full of Free Math documents, or a single Free Math assignment.");
+            window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
         }
-        if (failureCount > 0) {
-            alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
-            window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
-            window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
-        }
+    }
 
+    try {
         window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
         // TODO - add back answer key
         var aggregatedWork = aggregateStudentWork(allStudentWork);
@@ -1305,7 +1317,7 @@ function setupGraph(gradingOverview, chart) {
                 problemNum = labels[activePoints[0]["_index"]];
             }
             problemNum = problemNum.replace("Problem ", "");
-            window.ga('send', 'event', 'Actions', 'edit', 
+            window.ga('send', 'event', 'Actions', 'edit',
                 'Change problem being graded');
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
@@ -1350,7 +1362,7 @@ const TeacherInteractiveGrader = createReactClass({
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
@@ -1370,11 +1382,11 @@ const TeacherInteractiveGrader = createReactClass({
                         </div>
                         )
                     } />
-                {browserIsIOS ? 
+                {browserIsIOS ?
                     (
                         <div className="answer-incorrect"
                          style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can
                                   be used to try out the experience, but you will need to visit the site on your Mac,
                                   Widows PC, Chromebook or Android device to actually use the site.</span>
                         </div>) :
