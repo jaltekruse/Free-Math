@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -37,6 +38,52 @@ export function render() {
     );
 }
 
+// assumes prefix of "auto save teacher/student" has been stripped off already
+// as well as the seconds and milliseconds on the date/time
+function splitNameAndDate(recoveredDocName) {
+    var nameAndDate = recoveredDocName.match(/(.*) (\d\d\d\d-\d+-\d+ \d+:\d+)/);
+    return nameAndDate;
+}
+
+function sortByDate(arrayOfAutoSaveDocNames) {
+    return arrayOfAutoSaveDocNames.sort(function (a, b) {
+        var dateA = a.match(/\d\d\d\d-\d+-\d+ \d+:\d+:\d\d\..*/);
+        var dateB = b.match(/\d\d\d\d-\d+-\d+ \d+:\d+:\d\d\..*/);
+        if (dateA && dateA.length === 1) {
+            if (dateB && dateB.length === 1) {
+                return moment(dateB[0]) - moment(dateA[0]);
+            }
+        }
+        return 0;
+    });
+}
+
+function sortCaseInsensitive(arrayOfStrings) {
+    return arrayOfStrings.sort(function (a, b) {
+        return a.toLowerCase().localeCompare(b.toLowerCase());
+    });
+}
+
+function getTeacherRecoveredDocs() {
+    var recoveredTeacherDocs = [];
+    for (var key in localStorage){
+        if (startsWith(key, "auto save teachers")) {
+            recoveredTeacherDocs.push(key);
+        }
+    }
+    return recoveredTeacherDocs;
+}
+
+function getStudentRecoveredDocs() {
+    var recoveredStudentDocs = [];
+    for (var key in localStorage){
+        if (startsWith(key,"auto save students")) {
+            recoveredStudentDocs.push(key);
+        }
+    }
+    return recoveredStudentDocs;
+}
+
 function startsWith(str, maybePrefix) {
     //https://stackoverflow.com/a/4579228
     return str.lastIndexOf(maybePrefix, 0) === 0
@@ -45,7 +92,10 @@ function startsWith(str, maybePrefix) {
 const UserActions = createReactClass({
     getInitialState () {
         return { showModal: false,
-                 showActionsMobile: false};
+                 showActionsMobile: false,
+                 teacherRecoveredSorting: "DATE",
+	             studentRecoveredSorting: "DATE"
+	         };
     },
 
     closeSpinner() {
@@ -97,28 +147,57 @@ const UserActions = createReactClass({
             render();
         };
 
+        var deleteAllTeacherAutoSavesCallback = function(docName) {
+            if (!window.confirm("Are you sure you want to delete all recovered grading sessions?")) {
+                return;
+            }
+
+            for (var key in localStorage){
+                if (startsWith(key, "auto save teachers")) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+            // TODO - fix this hack, should not explicitly call render,
+            // this should be fixed while addressing TODO below about
+            // component directly accessing localStorage
+            render();
+        };
+
+        var deleteAllStudentAutoSavesCallback = function(docName) {
+            if (!window.confirm("Are you sure you want to delete all recovered assignments?")) {
+                return;
+            }
+
+            for (var key in localStorage){
+                if (startsWith(key, "auto save students")) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+            // TODO - fix this hack, should not explicitly call render,
+            // this should be fixed while addressing TODO below about
+            // component directly accessing localStorage
+            render();
+        };
+
         // TODO - this is ugly, a component shouldn't access localStorage,
         // this should be read in at app startup stored in the redux state
         // tree and then kept in sync with what is actually stored through
         // actions use subscribers
         //https://stackoverflow.com/questions/35305661/where-to-write-to-localstorage-in-a-redux-app
-        var recoveredStudentDocs = [];
-        var recoveredTeacherDocs = [];
-        // recovered autoSaved docs
-        for (var key in localStorage){
-            if (startsWith(key,"auto save students")) {
-            //if (startsWith(key,"auto save students")) {
-                recoveredStudentDocs.push(key);
-            } else if (startsWith(key, "auto save teachers")) {
-                recoveredTeacherDocs.push(key);
-            }
+        var recoveredStudentDocs = getStudentRecoveredDocs();
+        var recoveredTeacherDocs = getTeacherRecoveredDocs();
+
+        // sort by date, TODO - also allow switch to sort by name
+        if (this.state.studentRecoveredSorting === "DATE") {
+            recoveredStudentDocs = sortByDate(recoveredStudentDocs);
+        } else {
+            recoveredStudentDocs = sortCaseInsensitive(recoveredStudentDocs);
         }
-        recoveredStudentDocs = recoveredStudentDocs.sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
-        });
-        recoveredTeacherDocs = recoveredTeacherDocs.sort(function (a, b) {
-            return a.toLowerCase().localeCompare(b.toLowerCase());
-        });
+        if (this.state.teacherRecoveredSorting === "DATE") {
+            recoveredTeacherDocs = sortByDate(recoveredTeacherDocs);
+        } else {
+            recoveredTeacherDocs = sortCaseInsensitive(recoveredTeacherDocs);
+        }
 
         var halfScreenStyle= {
             width:"44%",
@@ -185,28 +264,56 @@ const UserActions = createReactClass({
                         </span>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
-                            (<h4>Recovered Assignments</h4>) : null }
-                        { (recoveredStudentDocs.length > 0) ?
-                                recoveredStudentDocs.map(function(docName, docIndex) {
-                                    return (
-                                        <div key={docName}>
-                                            <Button type="submit" text="Open"
-                                                    onClick={function() {
-                                                        recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
-                                                    } />
-                                            <Button type="submit" text="Delete"
-                                                    onClick={function() {
-                                                        deleteAutoSaveCallback(docName)}
-                                                    } />
-                                        {docName.replace("auto save students ","")
-                                            .replace(/:\d\d\..*/, "")}</div>
-                                    );
-                                })
-                           : null
-                        }
+                            (<span><h4>Recovered Assignments &nbsp;
+                                <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
+                                </h4>
+                                Sort by
+                                <Button text="Date"
+                                        className={(this.state.studentRecoveredSorting === "DATE" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({studentRecoveredSorting: "DATE"});
+                                        }.bind(this)}
+                                />
+                                <Button text="Name"
+                                        className={(this.state.studentRecoveredSorting === "NAME" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({studentRecoveredSorting: "NAME"});
+                                        }.bind(this)}
+                                />
+                                <br />
+                                <br />
+                                    { recoveredStudentDocs.map(function(docName, docIndex) {
+                                                // strip off milliseconds and seconds, and the type of doc label when displaying to user
+                                                var docNameTrimmed = docName.replace("auto save students ","")
+                                                        .replace(/:\d\d\..*/, "")
+                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
+                                                var namePart = nameAndDate[1];
+                                                var datePart = nameAndDate[2];
+                                                return (
+                                                        <div style={{marginBottom:"20px"}} key={docName}>
+                                                        {namePart}
+                                                        <br />
+                                                        <Button text="Open"
+                                                                onClick={function() {
+                                                                    recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
+                                                                } />
+                                                        <Button text="Delete"
+                                                                onClick={function() {
+                                                                    deleteAutoSaveCallback(docName)}
+                                                                } />
+                                                        &nbsp;&nbsp;{datePart}
+                                                        <br />
+                                                        </div>
+                                                );
+                                            }) }
+                                    </span>) : null }
                         { (recoveredStudentDocs.length > 0) ?
                             (<p>Recovered assignments stored temporarily in your
-                                browser, save to your device as soon as 
+                                browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
                 <div style={{...divStyle, textAlign: "left"}}>
@@ -222,26 +329,57 @@ const UserActions = createReactClass({
                         </a>
                     </span>
                         <br />
-                    { (recoveredTeacherDocs.length > 0) ?
-                        (<h4>Recovered Grading Sessions</h4>) : null }
-                    { (recoveredTeacherDocs.length > 0) ?
-                        recoveredTeacherDocs.map(function(docName, docIndex) {
-                            return (
-                            <div key={docName}>
-                                <Button text="Open" onClick={
-                                    function() {recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}} />
-                                <Button text="Delete" onClick={
-                                    function() {deleteAutoSaveCallback(docName)}}
+                        { (recoveredTeacherDocs.length > 0) ?
+                            (<span><h4>Recovered Grading Sessions &nbsp;
+                                <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
+                                </h4>
+                                Sort by
+                                <Button text="Date"
+                                        className={(this.state.teacherRecoveredSorting === "DATE" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({teacherRecoveredSorting: "DATE"});
+                                        }.bind(this)}
                                 />
-                                {docName.replace("auto save teachers ","")
-                                    .replace(/:\d\d\..*/, "")}</div>
-                                );
-                            })
-                       : null
-                    }
+                                <Button text="Name"
+                                        className={(this.state.teacherRecoveredSorting === "NAME" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({teacherRecoveredSorting: "NAME"});
+                                        }.bind(this)}
+                                />
+                                <br />
+                                <br />
+                                    { recoveredTeacherDocs.map(function(docName, docIndex) {
+                                                // strip off milliseconds and seconds, and the type of doc label when displaying to user
+                                                var docNameTrimmed = docName.replace("auto save teachers ","")
+                                                        .replace(/:\d\d\..*/, "")
+                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
+                                                var namePart = nameAndDate[1];
+                                                var datePart = nameAndDate[2];
+                                                return (
+                                                        <div style={{marginBottom:"20px"}} key={docName}>
+                                                        {namePart}
+                                                        <br />
+                                                        <Button text="Open"
+                                                                onClick={function() {
+                                                                    recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}
+                                                                } />
+                                                        <Button text="Delete"
+                                                                onClick={function() {
+                                                                    deleteAutoSaveCallback(docName)}
+                                                                } />
+                                                        &nbsp;&nbsp;{datePart}
+                                                        <br />
+                                                        </div>
+                                                );
+                                            }) }
+                                    </span>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
                             (<p>Recovered grading sessions stored temporarily in
-                                your browser, save to your device as soon as 
+                                your browser, save to your device as soon as
                                 possible</p>) : null }
                 </div>
             </div>
@@ -253,8 +391,8 @@ const UserActions = createReactClass({
      *
             <div className="answer-incorrect"
                  style={{display:"block", padding:"10px", margin: "10px"}}>
-                <span>DATA LOSS WARNING: School districts may clear your 
-                      downloads folder when logging off. It is recommended 
+                <span>DATA LOSS WARNING: School districts may clear your
+                      downloads folder when logging off. It is recommended
                       to save your files on a USB drive, LMS (Canvas, Moodle,
                       Blackboard) or your institution's preferred cloud
                       storage provider like Google Drive, Dropbox, etc.</span>
@@ -307,7 +445,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             );
         };
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div>
             <div className="menuBar">
@@ -316,7 +454,7 @@ const DefaultHomepageActions = createReactClass({
                      className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right"}}>
-                    <a href="gettingStarted.html" 
+                    <a href="gettingStarted.html"
                         style={{color:"white", marginRight:"15px"}} >
                         Getting Started
                     </a>{' '}
@@ -339,7 +477,7 @@ const DefaultHomepageActions = createReactClass({
             <div>
             <div className="homepage-center">
             <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -354,7 +492,7 @@ const DefaultHomepageActions = createReactClass({
             >
                 <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Student Experience</h3>
             </button>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -362,19 +500,19 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3> 
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3>
             </button>
             </div>
             {
             <div className="homepage-only-on-mobile">
-                { ! browserIsIOS ? 
-                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}} 
+                { ! browserIsIOS ?
+                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                              onClick={function() {
-                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile}); 
+                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
                             >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
                                     {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
-                                </h3> 
+                                </h3>
                             </button>
                     ) : null
                 }
@@ -450,7 +588,7 @@ const DefaultHomepageActions = createReactClass({
                                 <p style={{color: "#eee", fontSize: "25px"}}>
                                     Join our e-mail list to find out first about new features and updates to the site.
                                 </p>
-                                <input type="email" name="EMAIL" className="email" size="25" 
+                                <input type="email" name="EMAIL" className="email" size="25"
                                        id="mce-EMAIL" placeholder="  email address"
                                        style={{"border": "0px", fontSize: "25px"}}
                                        value={this.state.emailString}
@@ -511,7 +649,7 @@ const DefaultHomepageActions = createReactClass({
                             window.ga('send', 'event', 'Actions', 'share', 'twitter');
                         }}>
                             <img alt="twitter" src="images/twitter.png" style={{"height": "50px"}}></img></a>&nbsp;
-                        <a href="https://www.reddit.com/r/freemath" target="_blank" rel="noopener noreferrer" 
+                        <a href="https://www.reddit.com/r/freemath" target="_blank" rel="noopener noreferrer"
                            onClick={function() {
                             window.ga('send', 'event', 'Actions', 'share', 'reddit');
                         }}>

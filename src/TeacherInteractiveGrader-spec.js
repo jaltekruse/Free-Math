@@ -94,12 +94,14 @@ it('test aggregate student work', () => {
         SIMILAR_ASSIGNMENT_SETS : [ ],
         PROBLEMS : {
             "1" : {
-                POSSIBLE_POINTS : 3,
+                POSSIBLE_POINTS : 6,
+                POSSIBLE_POINTS_EDITED : 6,
                 UNIQUE_ANSWERS : [
                     { ANSWER : "x=2", FILTER : SHOW_ALL,
                       STUDENT_WORK : [
                         { STUDENT_FILE : "jake r.", AUTOMATICALLY_ASSIGNED_SCORE : 3,
-                          SCORE : 3, FEEDBACK : "",
+                          SCORE : NaN, FEEDBACK : "",
+                          POSSIBLE_POINTS : 6,
                           LAST_SHOWN_STEP : 1,
                           PROBLEM_NUMBER : 1,
                           STEPS : [
@@ -112,7 +114,8 @@ it('test aggregate student work', () => {
                     { ANSWER : "x=-2", FILTER : SHOW_ALL,
                       STUDENT_WORK : [
                         { STUDENT_FILE : "jon m.", AUTOMATICALLY_ASSIGNED_SCORE : 1.5,
-                          SCORE : 1.5,FEEDBACK : "",
+                          SCORE : NaN,FEEDBACK : "",
+                          POSSIBLE_POINTS : 6,
                           LAST_SHOWN_STEP: 1,
                           PROBLEM_NUMBER : 1,
                           STEPS : [
@@ -253,6 +256,7 @@ it('test aggregate student work no answer key', () => {
                       STUDENT_WORK : [
                         { STUDENT_FILE : "jake r.",
                           AUTOMATICALLY_ASSIGNED_SCORE : "",
+                          POSSIBLE_POINTS : 6,
                           SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
                           PROBLEM_NUMBER : 1,
                           STEPS : [
@@ -266,6 +270,7 @@ it('test aggregate student work no answer key', () => {
                       STUDENT_WORK : [
                         { STUDENT_FILE : "jon m.",
                           AUTOMATICALLY_ASSIGNED_SCORE : "",
+                          POSSIBLE_POINTS : 6,
                           SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
                           PROBLEM_NUMBER : 1,
                           STEPS : [

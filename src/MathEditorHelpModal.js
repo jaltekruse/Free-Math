@@ -10,6 +10,7 @@ const symbolGroups = {
             input.typedText("/");
         }},
         {toType:"=", tex:"="},
+        {toType:"\\neq [Enter]", tex:"\\neq"},
         {toType:"pi", tex:"\\pi"},
         {toType:"sqrt", tex:"\\sqrt{x}", editorCommands: input => {
             input.cmd("\\sqrt");
@@ -26,6 +27,7 @@ const symbolGroups = {
                 input.keystroke("Left");
                 input.keystroke("Left");
         }},
+        {toType:"\\vert [Enter]", tex:"\\vert"},
         {toType:"| (shift backslash)", tex:"\\left|x\\right|", editorCommands: input => {
                 input.typedText("|");
         }},
@@ -35,6 +37,7 @@ const symbolGroups = {
         {toType:"<", tex:"<"},
         {toType:"<=", tex:"\\le"},
         {toType:"\\approx [Enter]", tex:"\\approx"},
+        {toType:"\\propto [Enter]", tex:"\\propto"},
         {toType:"_ (underscore)", tex:"A_b", description: "subscript"},
         {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power"},
         {toType:"\\pm [Enter]", tex:"\\pm"},

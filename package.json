@@ -34,6 +34,7 @@
     "jszip": "^2.6.0",
     "katex": "^0.8.2",
     "mathjax": "^2.7.2-rc",
+    "moment": "^2.24.0",
     "object-assign": "4.1.1",
     "postcss-flexbugs-fixes": "3.2.0",
     "postcss-loader": "2.0.6",
@@ -46,6 +47,7 @@
     "react-dom": "^15.6.1",
     "react-error-overlay": "^1.0.10",
     "react-overlays": "^0.8.3",
+    "react-require": "^1.0.1",
     "redux": "^3.7.2",
     "style-loader": "0.18.2",
     "sw-precache-webpack-plugin": "0.11.4",
@@ -94,15 +96,16 @@
       "node"
     ],
     "collectCoverage": true,
-    "coverageFormats": ["json", "html"]
+    "coverageFormats": [
+      "json",
+      "html"
+    ]
   },
   "babel": {
     "presets": [
       "react-app"
     ],
-    "plugins": [
-      "react-require"
-    ]
+    "plugins": []
   },
   "eslintConfig": {
     "extends": "react-app"
