@@ -37,6 +37,12 @@ var NEW_PROBLEM_NUMBER = 'NEW_PROBLEM_NUMBER';
 var SET_PROBLEM_NUMBER = 'SET_PROBLEM_NUMBER';
 var CONTENT = "CONTENT";
 
+// refers to passing complete step info in an action
+//oldStep = {CONTENT : "", FORMAT: "MATH", HIGHTLIGHT: "SUCCESS"};
+// current format MATH isn't used, no format implies math
+// TODO - also text not implemented yet
+var STEP_DATA = "STEP_DATA";
+
 var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
@@ -194,7 +200,7 @@ var Problem = createReactClass({
                         />
                     </div>
                         <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
-                        Type math here or &nbsp;
+                        Type math here or&nbsp;
                         <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
@@ -242,9 +248,14 @@ var Problem = createReactClass({
                                 { step[FORMAT] === IMG 
                                     ?
                                     (<div><img src={step[CONTENT]} />
-                                      <br /> Type your final answer below </div>)
-                                    : 
-                                    <MathInput 
+                                        <br />
+                                            <div style={{width:"600px"}}>
+                                            If your final answer is a number or expression, type it in the final box below.<br />
+                                            Otherwise you can just move to the next problem.
+                                            </div>
+                                        </div>)
+                                    :
+                                    <MathInput
                                         key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
                                         styles={{...styles, overflow: 'auto'}}
                                         buttonSets={['trig', 'prealgebra',
@@ -545,9 +556,13 @@ function problemReducer(problem, action) {
             action[STEP_KEY] = problem[STEPS].length - 1;
         }
         if (action.type === NEW_STEP) {
+            if (action[STEP_DATA]) {
+                oldStep = action[STEP_DATA];
+            } else {
                 oldStep = problem[STEPS][action[STEP_KEY]];
+            }
         } else { // new blank step
-                oldStep = {CONTENT : ""};
+            oldStep = {CONTENT : ""};
         }
         // TODO - allow tracking the cursor, which box it is in
         // for now this applies when the button is used instead of hitting enter
