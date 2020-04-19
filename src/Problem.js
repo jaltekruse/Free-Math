@@ -6,6 +6,7 @@ import Button from './Button.js';
 import { HtmlButton, CloseButton } from './Button.js';
 import { genID } from './FreeMath.js';
 import ImageUploader from './ImageUploader.js';
+import Resizer from 'react-image-file-resizer';
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -273,15 +274,38 @@ var Problem = createReactClass({
                                                                 alert("The file is not an image " + imgFile ? imgFile.type : '');
                                                                 return;
                                                         }
-                                                        var objUrl = window.URL.createObjectURL(imgFile);
-                                                        window.store.dispatch(
-                                                            { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-                                                              FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
-                                                       // if this is the last step, add a blank step below
-                                                       if (stepIndex === steps.length - 1) {
+
+                                                        const handleImg = function(imgFile){
+                                                            console.log(imgFile)
+                                                            var objUrl = window.URL.createObjectURL(imgFile);
                                                             window.store.dispatch(
-                                                                { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
-                                                       }
+                                                                { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+                                                                  FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+                                                            // if this is the last step, add a blank step below
+                                                            if (stepIndex === steps.length - 1) {
+                                                                window.store.dispatch(
+                                                                    { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+                                                            }
+                                                        }
+
+                                                        if (imgFile.type.includes("gif")) {
+                                                            // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+                                                            // something like 0.5-1MB
+                                                            handleImg(imgFile);
+                                                        } else {
+                                                            imgFile = Resizer.imageFileResizer(
+                                                                imgFile,
+                                                                800,
+                                                                800,
+                                                                'JPEG',
+                                                                60,
+                                                                0,
+                                                                imgFile => {
+                                                                    handleImg(imgFile);
+                                                                },
+                                                                'blob'
+                                                            );
+                                                        }
                                                     }.bind(this)}
                                                 /></span>)
                                                 :
