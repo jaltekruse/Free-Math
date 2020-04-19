@@ -138,6 +138,75 @@ var ScoreBox = createReactClass({
     }
 });
 
+
+function handleImg(imgFile, stepIndex, problemIndex) {
+    var objUrl = window.URL.createObjectURL(imgFile);
+    window.store.dispatch(
+        { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+          FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+};
+
+function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
+    // if this is the last step, add a blank step below
+    if (stepIndex === steps.length - 1) {
+        window.store.dispatch(
+            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+    }
+}
+
+function addNewImage(evt, steps, stepIndex, problemIndex) {
+    var imgFile = evt.target.files[0];
+    if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
+            alert("The file is not an image " + imgFile ? imgFile.type : '');
+            return;
+    }
+
+    const handleImg = function(imgFile){
+        var objUrl = window.URL.createObjectURL(imgFile);
+        window.store.dispatch(
+            { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+              FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+    }
+
+    if (imgFile.type.includes("gif")) {
+        // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+        // something like 0.5-1MB
+        if (imgFile.size > 1024 * 1024) {
+            alert("Beyond max size allowed for gifs (1 MB)");
+            return;
+        }
+        handleImg(imgFile, stepIndex, problemIndex);
+        addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
+    } else {
+        imgFile = Resizer.imageFileResizer(
+            imgFile, 800, 800, 'JPEG', 90, 0,
+            imgFile => {
+                handleImg(imgFile, stepIndex, problemIndex);
+                addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
+            },
+            'blob'
+        );
+    }
+}
+
+function getMimetype(signature) {
+    switch (signature) {
+        case '89504E47':
+            return 'image/png'
+        case '47494638':
+            return 'image/gif'
+        case '25504446':
+            return 'application/pdf'
+        case 'FFD8FFDB':
+        case 'FFD8FFE0':
+            return 'image/jpeg'
+        case '504B0304':
+            return 'application/zip'
+        default:
+            return 'Unknown filetype'
+    }
+}
+
 var ImageStep = createReactClass({
 
     render: function() {
@@ -145,74 +214,6 @@ var ImageStep = createReactClass({
         const steps = this.props.value[STEPS];
         const step = this.props.step;
         const stepIndex = this.props.stepIndex;
-
-
-        const handleImg = function(imgFile){
-            var objUrl = window.URL.createObjectURL(imgFile);
-            window.store.dispatch(
-                { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-                  FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
-        };
-
-        const addNewLastStepIfNeeded = function() {
-            // if this is the last step, add a blank step below
-            if (stepIndex === steps.length - 1) {
-                window.store.dispatch(
-                    { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
-            }
-        }
-
-        const addNewImage = function(evt) {
-            var imgFile = evt.target.files[0];
-            if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
-                    alert("The file is not an image " + imgFile ? imgFile.type : '');
-                    return;
-            }
-
-            const handleImg = function(imgFile){
-                var objUrl = window.URL.createObjectURL(imgFile);
-                window.store.dispatch(
-                    { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-                      FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
-            }
-
-            if (imgFile.type.includes("gif")) {
-                // TODO - check size, as this isn't as easy to scale down, good to set a max of\
-                // something like 0.5-1MB
-                if (imgFile.size > 1024 * 1024) {
-                    alert("Beyond max size allowed for gifs (1 MB)");
-                    return;
-                }
-                handleImg(imgFile);
-            } else {
-                imgFile = Resizer.imageFileResizer(
-                    imgFile, 800, 800, 'JPEG', 90, 0,
-                    imgFile => {
-                        handleImg(imgFile);
-                        addNewLastStepIfNeeded();
-                    },
-                    'blob'
-                );
-            }
-        }
-
-        const getMimetype = (signature) => {
-            switch (signature) {
-                case '89504E47':
-                    return 'image/png'
-                case '47494638':
-                    return 'image/gif'
-                case '25504446':
-                    return 'application/pdf'
-                case 'FFD8FFDB':
-                case 'FFD8FFE0':
-                    return 'image/jpeg'
-                case '504B0304':
-                    return 'application/zip'
-                default:
-                    return 'Unknown filetype'
-            }
-        }
 
         const rotate = function(degrees) {
 
@@ -244,7 +245,8 @@ var ImageStep = createReactClass({
                         imgFile = Resizer.imageFileResizer(
                             imgFile, 800, 800, 'JPEG', 90, degrees,
                             imgFile => {
-                                handleImg(imgFile); },
+                                handleImg(imgFile, stepIndex, problemIndex);
+                            },
                             'blob'
                         );
                     }
@@ -254,13 +256,14 @@ var ImageStep = createReactClass({
             };
             xhr.send();
         };
+
         return (
             <div>
                 {step[CONTENT] === ''
                 ?
                     (<span>
                     Upload a picture&nbsp;
-                    <input type="file" onChange={ addNewImage.bind(this) }/>
+                    <input type="file" onChange={ function(evt) {addNewImage(evt, steps, stepIndex, problemIndex) }}/>
                     </span>)
                 :
                     <span>
@@ -351,6 +354,7 @@ var Problem = createReactClass({
                         <div className="equation-list">
                         Type math here or&nbsp;
                         <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
+                        <br />
 
                         {steps.map(function(step, stepIndex) {
                             var styles = {};
@@ -473,7 +477,7 @@ var Problem = createReactClass({
                                               STEP_KEY : stepIndex});
                                     }}/>
                                 </div>
-                                { step[FORMAT] === IMG
+                                { step[FORMAT] === IMG && step[CONTENT] !== ''
                                     ?
                                         <div style={{maxWidth: "95%"}}>
                                         If your final answer is a number or expression, type it in the final box below.<br />
@@ -890,4 +894,4 @@ function problemListReducer(probList, action) {
     }
 }
 
-export { Problem as default, ScoreBox, problemReducer, problemListReducer };
+export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage };
