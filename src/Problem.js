@@ -180,28 +180,28 @@ var Problem = createReactClass({
                         <br />
                         <small>Next Step - Enter Key</small>
                         <br />
-                        <Button text="New Blank Step" style={{width: "125px"}} onClick={
+                        <Button text="New Blank Step" className="long-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <Button text="Undo" style={{width: "55px"}} onClick={
+                        <Button text="Undo" className="short-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : UNDO, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <Button text="Redo" style={{width: "55px"}} onClick={
+                        <Button text="Redo" className="short-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <Button type="submit" style={{width: "125px"}} text="Clone Problem"
+                        <Button type="submit" className="long-problem-action-button fm-button" text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
-                        <div style={{float:'left', maxWidth:"77%"}} className="equation-list">
+                        <div className="equation-list">
                         Type math here or&nbsp;
                         <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
 
@@ -236,7 +236,7 @@ var Problem = createReactClass({
                                         <span>Repeat until you have reached your solution on
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
-                                <div style={{"float":"left","display":"flex", alignItems: "center"}}>
+                            <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
                                 <HtmlButton title='Insert step above'
                                     content={(
                                         <img src="images/add_above.png" alt="x"/>
@@ -310,9 +310,9 @@ var Problem = createReactClass({
                                                 /></span>)
                                                 :
                                                 <span>
-                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"95%"}}/>
+                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"98%"}}/>
                                                     <br />
-                                                        <div style={{width:"600px"}}>
+                                                        <div style={{maxWidth: "95%"}}>
                                                         If your final answer is a number or expression, type it in the final box below.<br />
                                                         Otherwise you can just move to the next problem.
                                                         </div>
@@ -371,8 +371,8 @@ var Problem = createReactClass({
                                         }}
                                     />
                                 }
-                                <CloseButton text="&#10005;" title='Delete step' onClick={
-                                    function(value) {
+                                <CloseButton text="&#10005;" title='Delete step'
+                                    onClick={function(value) {
                                         window.store.dispatch(
                                             { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});

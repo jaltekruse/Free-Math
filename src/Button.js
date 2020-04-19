@@ -20,7 +20,8 @@ var HtmlButton = createReactClass({
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
-        const className = this.props.className ? this.props.className : "fm-button";
+        var className = this.props.className ? this.props.className : "fm-button";
+        className = className + ' html-button';
         return (
             <button
                 className={className}

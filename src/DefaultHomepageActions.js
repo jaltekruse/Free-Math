@@ -199,16 +199,7 @@ const UserActions = createReactClass({
             recoveredTeacherDocs = sortCaseInsensitive(recoveredTeacherDocs);
         }
 
-        var halfScreenStyle= {
-            width:"44%",
-            height: "auto",
-            float: "left",
-            borderRadius:"3px",
-            margin:"5px 5px 5px 5px",
-            padding:"20px",
-        }
         var divStyle = {
-            ...halfScreenStyle,
             border:"1px solid #cfcfcf",
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
@@ -229,7 +220,7 @@ const UserActions = createReactClass({
             />
             <div style={{display:"inline-block", width:"100%"}}>
             <div className="homepage-center-mobile">
-                <div style={{...divStyle, textAlign: "left"}}>
+                <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
                         New Assignment &nbsp;&nbsp;&nbsp;
                         <Button type="submit" text="Create" onClick={
@@ -258,10 +249,10 @@ const UserActions = createReactClass({
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
                         <br />
-                        <span style={{fontSize: "15px"}}>
+                        <small>
                                 Select a Free Math file you previously saved, or one that your teacher
                                 returned to you after grading.
-                        </span>
+                        </small>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
                             (<span><h4>Recovered Assignments &nbsp;
@@ -316,18 +307,18 @@ const UserActions = createReactClass({
                                 browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
-                <div style={{...divStyle, textAlign: "left"}}>
+                <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                     Grade Assignments <input type="file" onChange={openAssignments}/>
                         <br />
-                    <span style={{fontSize: "15px"}}>
+                    <small>
                             Select a zip file full of student files. Zip files are generated
                             when downloading assignment files from your LMS in bulk.
                         <br />
                         <a href="gettingStarted.html">
                             LMS Integration Info
                         </a>
-                    </span>
+                    </small>
                         <br />
                         { (recoveredTeacherDocs.length > 0) ?
                             (<span><h4>Recovered Grading Sessions &nbsp;
@@ -511,7 +502,7 @@ const DefaultHomepageActions = createReactClass({
                                     this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
                             >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
-                                    {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
+                                    {this.state.showActionsMobile ? "Hide" : "Other "} Actions
                                 </h3>
                             </button>
                     ) : null

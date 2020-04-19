@@ -198,70 +198,72 @@ var TexButtons = createReactClass({
 
         return <div className={`${this.props.className} preview-measure`}>
             <Button text="Basic"
-                    style={this.props.buttonGroup === BASIC ? 
+                    style={this.props.buttonGroup === BASIC ?
                                 { backgroundColor: "#052d66"} : {}}
                 onClick={function() {
                             window.store.dispatch(
                                 { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : BASIC });}}/>
             <Button text="Geometry"
-                    style={this.props.buttonGroup === GEOMETRY ? 
+                    style={this.props.buttonGroup === GEOMETRY ?
                                 { backgroundColor: "#052d66"} : {}}
                 onClick={function() {
                             window.store.dispatch(
                                 { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GEOMETRY});}}/>
             <Button text="Set Theory and Logic"
-                    style={this.props.buttonGroup === SET_THEORY ? 
+                    style={this.props.buttonGroup === SET_THEORY ?
                                 { backgroundColor: "#052d66"} : {}}
                 onClick={function() {
                             window.store.dispatch(
                                 { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : SET_THEORY });}}/>
             <Button text="Calculus"
-                    style={this.props.buttonGroup === CALC ? 
+                    style={this.props.buttonGroup === CALC ?
                                 { backgroundColor: "#052d66"} : {}}
                 onClick={function() {
                             window.store.dispatch(
                                 { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : CALC });}}/>
             <Button text="Greek"
-                    style={this.props.buttonGroup === GREEK ? 
+                    style={this.props.buttonGroup === GREEK ?
                                 { backgroundColor: "#052d66"} : {}}
                 onClick={function() {
                             window.store.dispatch(
                                 { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GREEK });}}/>
 
             <div>Move Cursor
-                <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                        onClick={() => {
-                        this.props.onInsert(input => {
-                            input.keystroke("Left");
-                        });
-                    }}>
-                    <TeX>{"\\leftarrow"}</TeX>
-                </button>
-                <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                        onClick={() => {
-                        this.props.onInsert(input => {
-                            input.keystroke("Right");
-                        });
-                    }}>
-                    <TeX>{"\\rightarrow"}</TeX>
-                </button>
-                <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                        onClick={() => {
-                        this.props.onInsert(input => {
-                            input.keystroke("Up");
-                        });
-                    }}>
-                    <TeX>{"\\uparrow"}</TeX>
-                </button>
-                <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                          onClick={() => {
-                        this.props.onInsert(input => {
-                            input.keystroke("Down");
-                        });
-                    }}>
-                    <TeX>{"\\downarrow"}</TeX>
-                </button>
-                <button className="tex-button" style={{display: "inline-block", float: "none", width: "80px"}} 
+                <div>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Left");
+                            });
+                        }}>
+                        <TeX>{"\\leftarrow"}</TeX>
+                    </button>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Right");
+                            });
+                        }}>
+                        <TeX>{"\\rightarrow"}</TeX>
+                    </button>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Up");
+                            });
+                        }}>
+                        <TeX>{"\\uparrow"}</TeX>
+                    </button>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                              onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Down");
+                            });
+                        }}>
+                        <TeX>{"\\downarrow"}</TeX>
+                    </button>
+                </div>
+                <button className="tex-button" style={{display: "inline-block", float: "none", width: "80px"}}
                           onClick={() => {
                         this.props.onInsert(input => {
                             input.keystroke("Backspace");
@@ -403,7 +405,7 @@ const MathInput = createReactClass({
         input.focus();
     },
 
-    mathField: function(options) { 
+    mathField: function(options) {
         MathQuill = window.MathQuill
         // MathQuill.MathField takes a DOM node, MathQuill-ifies it if it's
         // seeing that node for the first time, then returns the associated
@@ -538,7 +540,7 @@ const MathInput = createReactClass({
     },
     */
 
-    componentDidUpdate: function() { 
+    componentDidUpdate: function() {
         // I think this check is expensive, how can I make it cheaper?
         if (!_.isEqual(this.mathField().latex(), this.props.value)) {
             //console.log(this.props);

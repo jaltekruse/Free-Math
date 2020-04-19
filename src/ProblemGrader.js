@@ -84,7 +84,7 @@ var ProblemGrader = createReactClass({
             <div className="problem-summary-container" style={{float:"none",overflow:"hidden"}}>
                 <h3>Problem {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
-                <p>Possible points &nbsp;
+                Possible points &nbsp;
                     <input type="text" size="4" value={possiblePoints}
                            onChange={function(evt) {
                                window.store.dispatch(
@@ -102,8 +102,8 @@ var ProblemGrader = createReactClass({
                                           PROBLEM_NUMBER : problemNumber});
                                 }
                             }.bind(this)
-                        }/> <br/>
-                </p>
+                        }/>
+                <br/>
                 { problemInfo[UNIQUE_ANSWERS].map(
                     function(solutionClassInfo, solutionClassIndex) {
                         return (
