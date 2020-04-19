@@ -91,7 +91,7 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 
 // CSS constants
 var SOFT_RED = '#FFDEDE';
-var GREEN = '#2cff72';
+var GREEN = '#D0FFC9';
 
 var ScoreBox = createReactClass({
     render: function() {
@@ -152,20 +152,20 @@ var Problem = createReactClass({
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
-                <div style={{width:"200px", height:"100%",float:"left"}}>
-                    {   score !== undefined ? (<ScoreBox value={this.props.value} />)
-                                           : null
-                    }
-                    {   this.props.value[FEEDBACK] !== undefined
-                            ? (<div>
-                                    <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''} Teacher Feedback</b><br />
-                                    {this.props.value[FEEDBACK]}
-                               </div>) : null
-                    }
-                </div>
                 <div>
                     <div className="problem-editor-buttons"
                          style={{float:'left', height: "100%", marginRight:"10px"}}>
+
+                        {   score !== undefined ? (<ScoreBox value={this.props.value} />)
+                                               : null
+                        }
+                        {   this.props.value[FEEDBACK] !== undefined
+                                ? (<div>
+                                        <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''} Teacher Feedback</b><br />
+                                        {this.props.value[FEEDBACK]}
+                                   </div>) : null
+                        }
+
                         <div style={{display:"block", marginLeft:"10px"}}>
                             <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
@@ -200,7 +200,7 @@ var Problem = createReactClass({
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
-                        <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
+                        <div style={{float:'left', maxWidth:"77%"}} className="equation-list">
                         Type math here or&nbsp;
                         <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
 
@@ -212,7 +212,7 @@ var Problem = createReactClass({
                                 styles = {backgroundColor : SOFT_RED};
                             }
                             return (
-                            <div key={step[STEP_ID]}>
+                            <div key={step[STEP_ID]} style={{width:"95%"}}>
                                 {showTutorial && stepIndex === 0 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
@@ -286,7 +286,7 @@ var Problem = createReactClass({
                                                 /></span>)
                                                 :
                                                 <span>
-                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"80%"}}/>
+                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"95%"}}/>
                                                     <br />
                                                         <div style={{width:"600px"}}>
                                                         If your final answer is a number or expression, type it in the final box below.<br />
@@ -298,8 +298,8 @@ var Problem = createReactClass({
                                     :
                                     step[FORMAT] === TEXT ?
                                         (
-                                            <input type="text" value={step[CONTENT]} size="100"
-                                                style={{...styles}}
+                                            <input type="text" value={step[CONTENT]} size="60"
+                                                style={{...styles, margin : "10px", maxWidth:"95%"}}
                                                 onChange={
                                                     function(evt) {
                                                         window.store.dispatch({
