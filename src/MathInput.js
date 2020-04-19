@@ -197,36 +197,58 @@ var TexButtons = createReactClass({
         });
 
         return <div className={`${this.props.className} preview-measure`}>
-            <Button text="Basic"
-                    style={this.props.buttonGroup === BASIC ?
-                                { backgroundColor: "#052d66"} : {}}
-                onClick={function() {
-                            window.store.dispatch(
-                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : BASIC });}}/>
-            <Button text="Geometry"
-                    style={this.props.buttonGroup === GEOMETRY ?
-                                { backgroundColor: "#052d66"} : {}}
-                onClick={function() {
-                            window.store.dispatch(
-                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GEOMETRY});}}/>
-            <Button text="Set Theory and Logic"
-                    style={this.props.buttonGroup === SET_THEORY ?
-                                { backgroundColor: "#052d66"} : {}}
-                onClick={function() {
-                            window.store.dispatch(
-                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : SET_THEORY });}}/>
-            <Button text="Calculus"
-                    style={this.props.buttonGroup === CALC ?
-                                { backgroundColor: "#052d66"} : {}}
-                onClick={function() {
-                            window.store.dispatch(
-                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : CALC });}}/>
-            <Button text="Greek"
-                    style={this.props.buttonGroup === GREEK ?
-                                { backgroundColor: "#052d66"} : {}}
-                onClick={function() {
-                            window.store.dispatch(
-                                { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GREEK });}}/>
+            {/* TODO - come back to this, wanted to take up less space on mobile
+                but it looks like this fights with the click handling on this
+                overlay, probably related to keeping the mathquill box focused
+                even when clicking the buttons
+            <div className="math-button-categories-dropdown">
+                Symbols&nbsp;
+                <select
+                    value={this.props.buttonGroup}
+                    onChange={function(evt) {
+                        window.store.dispatch(
+                            { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : evt.target.value});}}
+                >
+                    <option value="BASIC">Basic</option>
+                    <option value="GEOMETRY">Geometry</option>
+                    <option value="SET_THEORY">Set Theory and Logic</option>
+                    <option value="CALC">Calc</option>
+                    <option value="GREEK">Greek</option>
+                </select>
+            </div>
+            */}
+            <div className="math-button-categories">
+                <Button text="Basic"
+                        style={this.props.buttonGroup === BASIC ?
+                                    { backgroundColor: "#052d66"} : {}}
+                    onClick={function() {
+                                window.store.dispatch(
+                                    { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : BASIC });}}/>
+                <Button text="Geometry"
+                        style={this.props.buttonGroup === GEOMETRY ?
+                                    { backgroundColor: "#052d66"} : {}}
+                    onClick={function() {
+                                window.store.dispatch(
+                                    { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GEOMETRY});}}/>
+                <Button text="Set Theory and Logic"
+                        style={this.props.buttonGroup === SET_THEORY ?
+                                    { backgroundColor: "#052d66"} : {}}
+                    onClick={function() {
+                                window.store.dispatch(
+                                    { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : SET_THEORY });}}/>
+                <Button text="Calculus"
+                        style={this.props.buttonGroup === CALC ?
+                                    { backgroundColor: "#052d66"} : {}}
+                    onClick={function() {
+                                window.store.dispatch(
+                                    { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : CALC });}}/>
+                <Button text="Greek"
+                        style={this.props.buttonGroup === GREEK ?
+                                    { backgroundColor: "#052d66"} : {}}
+                    onClick={function() {
+                                window.store.dispatch(
+                                    { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GREEK });}}/>
+            </div>
 
             <div>Move Cursor
                 <div style={{display: "inline-block"}}>
