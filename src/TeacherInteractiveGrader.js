@@ -1034,7 +1034,6 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
             for (var file in new_zip.files) {
                 if (new_zip.files.hasOwnProperty(file)) {
                     if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
-                    else if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
                     else if (new_zip.file(file) === null) continue;
                     else docCount++;
                 }
@@ -1050,7 +1049,9 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
                     if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
                     // check the extension is .math
                     // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
-                    if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+                    // TODO - disabled because mobile devices were adding .zip. at the end of the filename
+                    // still opens fine, but would be good for the extensions to be consistent
+                    //if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
                     // filter out directories which are part of this list
                     if (new_zip.file(file) === null) continue;
                     try {
@@ -1092,6 +1093,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
     try {
         window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
         // TODO - add back answer key
+        //console.log(allStudentWork);
         var aggregatedWork = aggregateStudentWork(allStudentWork);
         console.log("@@@@@@ opened docs");
         console.log(aggregatedWork);
