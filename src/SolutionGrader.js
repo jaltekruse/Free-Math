@@ -13,6 +13,8 @@ var FEEDBACK = "FEEDBACK";
 var CONTENT = "CONTENT";
 var FORMAT = "FORMAT";
 var IMG = "IMG";
+var MATH = "MATH";
+var TEXT = "TEXT";
 
 // action properties
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
@@ -84,7 +86,7 @@ function singleSolutionReducer(state, action) {
                  FEEDBACK : action[FEEDBACK] };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
         if (Number(state[SCORE]) > 0) {
-            var newScore = scaleScore(state[SCORE], action[OLD_POSSIBLE_POINTS], action[POSSIBLE_POINTS]); 
+            var newScore = scaleScore(state[SCORE], action[OLD_POSSIBLE_POINTS], action[POSSIBLE_POINTS]);
             return { ...state,
                      SCORE : newScore };
         } else {
@@ -124,7 +126,21 @@ const StudentWork = createReactClass({
 
                             { step[FORMAT] === IMG
                                 ?
-                                (<div><img src={step[CONTENT]} /></div>)
+                                (<div>
+                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "80%"}}/>
+                                </div>)
+                                :
+                                step[FORMAT] === TEXT
+                                ?
+                                    <div style={{...stepStyle, margin: "5px"}}
+                                        onClick={function() {
+                                                window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
+                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                                    SOLUTION_INDEX : studentSolutionIndex,
+                                                    STEP_KEY : stepIndex});
+                                    }}>
+                                        {step[CONTENT]}
+                                    </div>
                                 :
                                 <TeX style={stepStyle} onClick={function() {
                                     window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
@@ -304,7 +320,7 @@ const SolutionGrader = createReactClass({
                     </div>
                     </div>
                 )}
-                <StudentWork 
+                <StudentWork
                     solutionGradeInfo={data}
                     problemNumber={problemNumber}
                     possiblePoints={possiblePoints}

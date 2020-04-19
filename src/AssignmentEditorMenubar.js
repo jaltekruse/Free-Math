@@ -26,14 +26,9 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 var UNDO_STACK = 'UNDO_STACK';
 var REDO_STACK = 'REDO_STACK';
 
-function validateProblemNumbers(allProblems) {
+function isProblemNumberMissing(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
-    var allNumbers = {};
     allProblems.forEach(function(problem, index, array) {
-        if (allNumbers[problem[PROBLEM_NUMBER].trim()]) {
-            atLeastOneProblemNumberNotSet = true;
-        }
-        allNumbers[problem[PROBLEM_NUMBER].trim()] = true;
         if (problem[PROBLEM_NUMBER].trim() === "") {
             atLeastOneProblemNumberNotSet = true;
         }
@@ -41,14 +36,29 @@ function validateProblemNumbers(allProblems) {
     return atLeastOneProblemNumberNotSet;
 }
 
+function checkDuplicateProblemNumbers(allProblems) {
+    var foundDuplicate = false;
+    var allNumbers = {};
+    allProblems.forEach(function(problem, index, array) {
+        if (allNumbers[problem[PROBLEM_NUMBER].trim()]) {
+            foundDuplicate = true;
+        }
+        allNumbers[problem[PROBLEM_NUMBER].trim()] = true;
+    });
+    return foundDuplicate;
+}
+
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
     window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
     var allProblems = studentDoc[PROBLEMS];
-    var atLeastOneProblemNumberNotSet = validateProblemNumbers(allProblems);
-    if (atLeastOneProblemNumberNotSet) {
+    if (isProblemNumberMissing(allProblems)) {
         window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
-        window.alert("Cannot save, a problem number is mising or two or more " +
-                     "problems have the same number.");
+        window.alert("Cannot save, a problem number is mising.");
+        return;
+    }
+    if (checkDuplicateProblemNumbers(allProblems)) {
+        window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with duplicated problem numbers');
+        window.alert("Cannot save, two or more problems have the same number.");
         return;
     }
     var zip = new JSZip();
@@ -129,36 +139,6 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
         }
     }
     checkImagesLoaded();
-}
-
-function saveAssignmentOld() {
-    window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
-    var atLeastOneProblemNumberNotSet = validateProblemNumbers(window.store.getState()[PROBLEMS]);
-    if (atLeastOneProblemNumberNotSet) {
-        window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
-        window.alert("Cannot save, a problem number is mising or two or more " +
-                     "problems have the same number.");
-        return;
-    }
-    var allProblems = window.store.getState()[PROBLEMS];
-    allProblems.forEach(function(problem, index, array) {
-        // trim the numbers to avoid extra groups while grading
-        problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
-    });
-    var overallState = window.store.getState();
-    overallState[PROBLEMS] = allProblems;
-    var blob =
-        new Blob([
-            JSON.stringify({
-            PROBLEMS : removeUndoRedoHistory(
-                        makeBackwardsCompatible(
-                           overallState
-                        )
-                    )[PROBLEMS]
-            })],
-        {type: "application/octet-stream"});
-        //{type: "text/plain;charset=utf-8"});
-    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
 }
 
 function removeUndoRedoHistory(globalState) {
@@ -325,4 +305,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment, validateProblemNumbers};
+export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment};

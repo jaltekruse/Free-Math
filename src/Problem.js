@@ -203,8 +203,8 @@ var Problem = createReactClass({
                         <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
                         Type math here or&nbsp;
                         <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
-                        {
-                            steps.map(function(step, stepIndex) {
+
+                        {steps.map(function(step, stepIndex) {
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
                                 styles = {backgroundColor : GREEN };
@@ -286,7 +286,7 @@ var Problem = createReactClass({
                                                 /></span>)
                                                 :
                                                 <span>
-                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "80%"}}/>
+                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"80%"}}/>
                                                     <br />
                                                         <div style={{width:"600px"}}>
                                                         If your final answer is a number or expression, type it in the final box below.<br />
@@ -299,6 +299,7 @@ var Problem = createReactClass({
                                     step[FORMAT] === TEXT ?
                                         (
                                             <input type="text" value={step[CONTENT]} size="100"
+                                                style={{...styles}}
                                                 onChange={
                                                     function(evt) {
                                                         window.store.dispatch({
