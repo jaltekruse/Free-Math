@@ -52,6 +52,8 @@ end of styles copied form perseus
 /* Hide the confusing "no file chosen" text on chrome*/
 input[type='file'] {
   color: transparent;
+  width: 200px;
+  overflow-x: hidden;
 }
 
 input[type='text'] {
@@ -328,7 +330,18 @@ div.problem-container {
     margin:10px 10px 10px 10px;
 }
 
+.wide-tex-button {
+    width:100px
+}
+
+.text-step-input {
+    width:800px;
+}
+
 @media (max-width: 950px) {
+    .text-step-input {
+        width:500px;
+    }
     .homepage-actions-container {
         width:85%;
     }
@@ -351,14 +364,15 @@ div.problem-container {
         font-size: 25px;
     }
 
-    .html-button img,
-    .fm-close-button img {
-        transform: scale(2.0)
-    }
     .fm-button-light,
     .fm-button {
         border-radius: 30px;
         padding: 8px 16px;
+    }
+    .html-button img,
+    .fm-close-button img {
+        transform: scale(2.0);
+        padding: 4px 4px 4px 4px;
     }
     small {
         font-size: 20px;
@@ -369,12 +383,14 @@ div.problem-container {
         border-bottom-left-radius: 30px;
         border-top-right-radius: 0px;
         border-bottom-right-radius: 0px;
+        padding: 8px 8px 8px 16px;
     }
     .fm-button-right {
         border-top-left-radius: 30px;
         border-bottom-left-radius: 30px;
         border-top-left-radius: 0px;
         border-bottom-left-radius: 0px;
+        padding: 8px 16px 8px 8px;
     }
 
     .long-problem-action-button {
@@ -390,6 +406,9 @@ div.problem-container {
     .tex-button {
         height: 60px;
         width: 60px;
+    }
+    .wide-tex-button {
+        width:200px
     }
     .equation-list {
         max-width:98%
@@ -410,7 +429,13 @@ div.problem-container {
         box-sizing: border-box;
         margin-top: 5px;
         padding: 10px;
-        width: 401px;
+    }
+    .math-input-buttons.absolute {
+      left: -150px;
+      right: -200px;
+      position: absolute;
+      top: -3px;
+      z-index: 5;
     }
 
     .navBarElms{

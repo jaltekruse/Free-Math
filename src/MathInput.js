@@ -229,7 +229,7 @@ var TexButtons = createReactClass({
                                 { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GREEK });}}/>
 
             <div>Move Cursor
-                <div>
+                <div style={{display: "inline-block"}}>
                     <button className="tex-button" style={{display: "inline-block", float: "none"}}
                             onClick={() => {
                             this.props.onInsert(input => {
@@ -262,15 +262,15 @@ var TexButtons = createReactClass({
                         }}>
                         <TeX>{"\\downarrow"}</TeX>
                     </button>
+                    <button className="tex-button wide-tex-button" style={{display: "inline-block", float: "none"}}
+                              onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Backspace");
+                            });
+                        }}>
+                        <TeX>{"\\text{Backspace}"}</TeX>
+                    </button>
                 </div>
-                <button className="tex-button" style={{display: "inline-block", float: "none", width: "80px"}}
-                          onClick={() => {
-                        this.props.onInsert(input => {
-                            input.keystroke("Backspace");
-                        });
-                    }}>
-                    Backspace
-                </button>
             </div>
             {buttonRows}
         </div>;

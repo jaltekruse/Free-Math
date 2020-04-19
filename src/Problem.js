@@ -319,8 +319,9 @@ var Problem = createReactClass({
                                     :
                                     step[FORMAT] === TEXT ?
                                         (
-                                            <input type="text" value={step[CONTENT]} size="60"
-                                                style={{...styles, margin : "10px", maxWidth:"95%"}}
+                                            <input type="text" value={step[CONTENT]}
+                                                style={{...styles, margin : "10px"}}
+                                                className="text-step-input"
                                                 onChange={
                                                     function(evt) {
                                                         window.store.dispatch({
