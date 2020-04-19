@@ -122,7 +122,7 @@ var ScoreBox = createReactClass({
             scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
         return (
             <div>
-                {  
+                {
                     score !== undefined
                         ? (<div>
                             <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
@@ -143,15 +143,16 @@ var Problem = createReactClass({
       this.setState({value: event.target.value});
     },
     render: function() {
-        var probNumber = this.props.value[PROBLEM_NUMBER];
-        var problemIndex = this.props.id;
-        var showTutorial = this.props.value[SHOW_TUTORIAL];
-        var buttonGroup = this.props.buttonGroup;
-        var score = this.props.value[SCORE];
+        const probNumber = this.props.value[PROBLEM_NUMBER];
+        const problemIndex = this.props.id;
+        const showTutorial = this.props.value[SHOW_TUTORIAL];
+        const buttonGroup = this.props.buttonGroup;
+        const score = this.props.value[SCORE];
+        const steps = this.props.value[STEPS];
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
-                <div style={{width:"200px", height:"100%",float:"left"}}> 
+                <div style={{width:"200px", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                            : null
                     }
@@ -195,7 +196,7 @@ var Problem = createReactClass({
                             }}/>
                         <Button type="submit" style={{width: "125px"}} text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
-                                onClick={function() { 
+                                onClick={function() {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
@@ -203,7 +204,7 @@ var Problem = createReactClass({
                         Type math here or&nbsp;
                         <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
                         {
-                            this.props.value[STEPS].map(function(step, stepIndex) {
+                            steps.map(function(step, stepIndex) {
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
                                 styles = {backgroundColor : GREEN };
@@ -212,22 +213,22 @@ var Problem = createReactClass({
                             }
                             return (
                             <div key={step[STEP_ID]}>
-                                {showTutorial && stepIndex === 0 ? 
+                                {showTutorial && stepIndex === 0 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Click this expression, then press enter.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex === 1 ? 
+                                {showTutorial && stepIndex === 1 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                                        <span>Edit this line to show part of the work for 
+                                        <span>Edit this line to show part of the work for
                                               simplifying this expression, then press enter again.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex === 2 ? 
+                                {showTutorial && stepIndex === 2 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
@@ -244,16 +245,82 @@ var Problem = createReactClass({
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
                                 }}/>
-
-                                { step[FORMAT] === IMG 
+                                <select
+                                    value={step[FORMAT]}
+                                    onChange={function(evt) {
+                                        window.store.dispatch({
+                                            type : EDIT_STEP,
+                                            PROBLEM_INDEX : problemIndex,
+                                            FORMAT : evt.target.value,
+                                            STEP_KEY : stepIndex,
+                                            NEW_STEP_CONTENT : (evt.target.value === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                        });
+                                    }}>
+                                    <option value="MATH">Math</option>
+                                    <option value="TEXT">Text</option>
+                                    <option value="IMG">Image</option>
+                                </select>&nbsp;
+                                { step[FORMAT] === IMG
                                     ?
-                                    (<div><img src={step[CONTENT]} />
-                                        <br />
-                                            <div style={{width:"600px"}}>
-                                            If your final answer is a number or expression, type it in the final box below.<br />
-                                            Otherwise you can just move to the next problem.
-                                            </div>
-                                        </div>)
+                                    (<div>
+                                        {step[CONTENT] === '' ?
+                                            (<span>
+                                            Upload a picture&nbsp;
+                                            <input type="file"
+                                                   onChange={function(evt) {
+                                                        var imgFile = evt.target.files[0];
+                                                        if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
+                                                                alert("The file is not an image " + imgFile ? imgFile.type : '');
+                                                                return;
+                                                        }
+                                                        var objUrl = window.URL.createObjectURL(imgFile);
+                                                        window.store.dispatch(
+                                                            { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+                                                              FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+                                                       // if this is the last step, add a blank step below
+                                                       if (stepIndex === steps.length - 1) {
+                                                            window.store.dispatch(
+                                                                { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+                                                       }
+                                                    }.bind(this)}
+                                                /></span>)
+                                                :
+                                                <span>
+                                                    <img src={step[CONTENT]} />
+                                                    <br />
+                                                        <div style={{width:"600px"}}>
+                                                        If your final answer is a number or expression, type it in the final box below.<br />
+                                                        Otherwise you can just move to the next problem.
+                                                        </div>
+                                                </span>
+                                        }
+                                    </div>)
+                                    :
+                                    step[FORMAT] === TEXT ?
+                                        (
+                                            <input type="text" value={step[CONTENT]} size="100"
+                                                onChange={
+                                                    function(evt) {
+                                                        window.store.dispatch({
+                                                            type : EDIT_STEP,
+                                                            PROBLEM_INDEX : problemIndex,
+                                                            STEP_KEY : stepIndex,
+                                                            FORMAT : TEXT,
+                                                            NEW_STEP_CONTENT : evt.target.value});
+                                                    }}
+                                                onKeyDown={function(evt) {
+                                                        if(evt.key === 'Enter') {
+                                                            window.store.dispatch(
+                                                                { type : NEW_BLANK_STEP,
+                                                                  STEP_KEY : stepIndex,
+                                                                  PROBLEM_INDEX : problemIndex
+                                                                });
+                                                            evt.preventDefault();
+                                                        }
+                                                    }
+                                                }
+                                            />
+                                        )
                                     :
                                     <MathInput
                                         key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
@@ -268,6 +335,7 @@ var Problem = createReactClass({
                                                 type : EDIT_STEP,
                                                 PROBLEM_INDEX : problemIndex,
                                                 STEP_KEY : stepIndex,
+                                                FORMAT : MATH,
                                                 NEW_STEP_CONTENT : value});
                                         }}
                                         onSubmit={function() {
@@ -376,28 +444,36 @@ function problemReducer(problem, action) {
     if (problem === undefined) {
         // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
-                 STEPS : [{STEP_ID : genID(), CONTENT : ""}],
+                 STEPS : [{STEP_ID : genID(), CONTENT : "", FORMAT: MATH}],
                  UNDO_STACK : [], REDO_STACK : []};
     } else if (action.type === SET_PROBLEM_NUMBER) {
         return {
             ...problem,
             PROBLEM_NUMBER : action[NEW_PROBLEM_NUMBER]
         };
-    } else if (action.type === "SET_PROBLEM_IMG") {
-        // TODO - undo/redo support for this action
-        console.log("image!");
-        console.log(action["NEW_IMG"]);
-        return {
-            ...problem,
-            IMG : action["NEW_IMG"],
-        };
     } else if (action.type === EDIT_STEP) {
         // if the last action was an edit of this step, don't add an undo
         // event for each character typed, collapse them together. Only create
         // a new undo event if the edit made the text shorter.
         var latestUndo = problem[UNDO_STACK].length > 0 ? problem[UNDO_STACK][0] : false;
-        const currContent = problem[STEPS][action[STEP_KEY]][CONTENT];
-        const newContent = action[NEW_STEP_CONTENT];
+        const currStep = problem[STEPS][action[STEP_KEY]];
+        const currContent = currStep[CONTENT];
+        var newContent = action[NEW_STEP_CONTENT];
+        const currFormat = currStep[FORMAT];
+        const newFormat = action[FORMAT];
+
+        if ( currFormat === MATH && newFormat === TEXT) {
+            if (currContent === newContent) {
+                // make switching between math and text a little easier
+                console.log("replace with normals spaces");
+                newContent = newContent.replace(/\\ /g, ' ');
+            }
+        } else if (currStep[FORMAT] === TEXT && newFormat === MATH) {
+            if (currContent === newContent) {
+                // make switching between math and text a little easier
+                newContent = newContent.replace(/ /g, '\\ ');
+            }
+        }
 
         // "ADD" or "DELETE"
         var editType;
@@ -409,7 +485,7 @@ function problemReducer(problem, action) {
         // type of edit is currently being done, and checking if it should be combined with the last undo event on the stack.
         //
         // Check if this is a single character edit. If it is find its location, and detemine if it is an insertion or deletion
-        if (Math.abs(currContent.length - newContent.length) === 1) {
+        if (currFormat === newFormat && (currFormat === MATH || currFormat === TEXT) && Math.abs(currContent.length - newContent.length) === 1) {
             // find the first mismatching character
             var i = 0;
             for (; i < currContent.length && i < newContent.length; i++) {
@@ -449,11 +525,14 @@ function problemReducer(problem, action) {
         } else {
             updateLastUndoAction = false;
         }
+        console.log("0000000333333300000000000");
+        console.log(updateLastUndoAction);
 
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
                 type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
+                FORMAT: currFormat,
                 INVERSE_ACTION : {
                     ...action,
                     EDIT_TYPE : editType,
@@ -484,7 +563,10 @@ function problemReducer(problem, action) {
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
                 // copy properties of the old step, to get the STEP_ID, then override the content
-                { ...problem[STEPS][action[STEP_KEY]], CONTENT : action[NEW_STEP_CONTENT] },
+                { ...problem[STEPS][action[STEP_KEY]],
+                     CONTENT : newContent,
+                     FORMAT : action[FORMAT],
+                },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
         }
@@ -562,7 +644,7 @@ function problemReducer(problem, action) {
                 oldStep = problem[STEPS][action[STEP_KEY]];
             }
         } else { // new blank step
-            oldStep = {CONTENT : ""};
+            oldStep = {CONTENT : "", FORMAT: MATH};
         }
         // TODO - allow tracking the cursor, which box it is in
         // for now this applies when the button is used instead of hitting enter
@@ -570,7 +652,7 @@ function problemReducer(problem, action) {
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : DELETE_STEP, STEP_KEY: action[STEP_KEY],
+                type : DELETE_STEP, STEP_KEY: action[STEP_KEY] + 1,
                 INVERSE_ACTION : {...action}
             }
         };
@@ -664,7 +746,6 @@ function problemListReducer(probList, action) {
             ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else if (action.type === SET_PROBLEM_NUMBER ||
-               action.type === "SET_PROBLEM_IMG" || 
                action.type === EDIT_STEP ||
                action.type === UNDO ||
                action.type === REDO ||
