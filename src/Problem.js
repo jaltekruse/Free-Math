@@ -296,15 +296,8 @@ var Problem = createReactClass({
                                                             handleImg(imgFile);
                                                         } else {
                                                             imgFile = Resizer.imageFileResizer(
-                                                                imgFile,
-                                                                800,
-                                                                800,
-                                                                'JPEG',
-                                                                90,
-                                                                0,
-                                                                imgFile => {
-                                                                    handleImg(imgFile);
-                                                                },
+                                                                imgFile, 800, 800, 'JPEG', 90, 0,
+                                                                imgFile => { handleImg(imgFile); },
                                                                 'blob'
                                                             );
                                                         }
@@ -312,6 +305,84 @@ var Problem = createReactClass({
                                                 /></span>)
                                                 :
                                                 <span>
+                                                    <Button className="long-problem-action-button fm-button"
+                                                            text="Rotate Left"
+                                                            title="Rotate image left"
+                                                            onClick={function() {
+                                                                const handleImg = function(imgFile){
+                                                                    console.log(imgFile)
+                                                                    var objUrl = window.URL.createObjectURL(imgFile);
+                                                                    window.store.dispatch(
+                                                                        { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+                                                                          FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+                                                                };
+
+                                                                var xhr = new XMLHttpRequest();
+                                                                xhr.open('GET', step[CONTENT], true);
+                                                                xhr.responseType = 'blob';
+                                                                xhr.onload = function(e) {
+                                                                  console.log("response");
+                                                                  console.log(e);
+                                                                  if (this.status == 200) {
+                                                                    var imgBlob = this.response;
+                                                                    // imgBlob is now the blob that the object URL pointed to.
+                                                                    var fr = new FileReader();
+                                                                    fr.addEventListener('load', function() {
+                                                                        var imgFile = new Blob([this.result]);
+                                                                        console.log("Did it dectect a mime type?");
+                                                                        console.log(imgFile);
+                                                                        // https://medium.com/the-everyday-developer/
+                                                                        // detect-file-mime-type-using-magic-numbers-and-javascript-16bc513d4e1e
+                                                                        const uint = new Uint8Array(this.result.slice(0, 4))
+                                                                        let bytes = []
+                                                                        uint.forEach((byte) => {
+                                                                            bytes.push(byte.toString(16))
+                                                                        })
+                                                                        const hex = bytes.join('').toUpperCase()
+                                                                        console.log(hex);
+                                                                        const getMimetype = (signature) => {
+                                                                            switch (signature) {
+                                                                                case '89504E47':
+                                                                                    return 'image/png'
+                                                                                case '47494638':
+                                                                                    return 'image/gif'
+                                                                                case '47494638':
+                                                                                    return 'image/gif'
+                                                                                case '25504446':
+                                                                                    return 'application/pdf'
+                                                                                case 'FFD8FFDB':
+                                                                                case 'FFD8FFE0':
+                                                                                    return 'image/jpeg'
+                                                                                case '504B0304':
+                                                                                    return 'application/zip'
+                                                                                default:
+                                                                                    return 'Unknown filetype'
+                                                                            }
+                                                                        }
+                                                                        var type = getMimetype(hex);
+
+                                                                        if (type.includes("gif")) {
+                                                                            // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+                                                                            // something like 0.5-1MB
+                                                                            alert("Cannot rotate gifs");
+                                                                        } else {
+                                                                            console.log("rotate!");
+                                                                            imgFile = Resizer.imageFileResizer(
+                                                                                imgFile, 800, 800, 'JPEG', 90, 270,
+                                                                                imgFile => {
+                                                                                    console.log("rotated");
+                                                                                    handleImg(imgFile); },
+                                                                                'blob'
+                                                                            );
+                                                                        }
+                                                                    });
+                                                                    return fr.readAsArrayBuffer(imgBlob);
+                                                                  }
+                                                                };
+                                                                xhr.send();
+                                                        }}
+                                                    />
+                                                    <br />
                                                     <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"98%"}}/>
                                                 </span>
                                         }
