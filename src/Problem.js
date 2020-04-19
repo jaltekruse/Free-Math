@@ -298,7 +298,7 @@ var Problem = createReactClass({
                                                                 800,
                                                                 800,
                                                                 'JPEG',
-                                                                60,
+                                                                90,
                                                                 0,
                                                                 imgFile => {
                                                                     handleImg(imgFile);
