@@ -289,23 +289,25 @@ const SolutionGrader = createReactClass({
                                for this, right now I'll assume I should attach another event here to ensure
                                that the field contains a number when focus is lost
                     */}
-                    <p>Score <input type="text" size="4" className="problem-grade-input"
+                    <br />
+                    Score <input type="text" size="4" className="problem-grade-input"
                                     value={data[SCORE]} onChange={this.setScore}
                               /> out of {possiblePoints} &nbsp;
                             <Button type="submit" text="Full Points" onClick={this.fullPoints}/>
                             <br />
-                            <Button text="Apply to Ungraded"
-                                    title={"Apply this score and feedback text to all responses in this " +
-                                        "group that don't have a grade yet."}
-                                    onClick={this.applyScoreToUngraded}
-                                    style={{backgroundColor: "#008000"}}/>
-                            <Button text="Apply to All"
-                                    title={"Apply this score and feedback text to all responses in this group, " +
-                                          "will overwrite already entered values."}
-                                    onClick={this.applyScoreToAll}
-                                    style={{backgroundColor: "#008000"}}/>
-                    </p>
-                    <p>Feedback &nbsp; &nbsp;
+                    <div style={{marginTop: "15px", marginBottom: "25px"}}>
+                        <Button text="Apply to Ungraded"
+                                title={"Apply this score and feedback text to all responses in this " +
+                                    "group that don't have a grade yet."}
+                                onClick={this.applyScoreToUngraded}
+                                style={{backgroundColor: "#008000"}}/>
+                        <Button text="Apply to All"
+                                title={"Apply this score and feedback text to all responses in this group, " +
+                                      "will overwrite already entered values."}
+                                onClick={this.applyScoreToAll}
+                                style={{backgroundColor: "#008000"}}/>
+                    </div>
+                    Feedback&nbsp;
                     <br />
                     {feedbackButton("Show Work", "Show your complete work.")}
                     {feedbackButton("Simple Mistake", "Review your work for a simple mistake.")}
@@ -313,7 +315,6 @@ const SolutionGrader = createReactClass({
                     {feedbackButton("Let's Talk", "Let's chat about this next class.")}
                     {feedbackButton("Not Simplified", "Be sure to simplify completely.")}
                     {feedbackButton("Sig Figs", "Incorrect significant figures.")}
-                    </p>
 
                     <div><textarea placeholder="Click a button for quick feedback or type custom feedback here."
                                    cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>
