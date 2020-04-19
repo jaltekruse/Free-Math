@@ -320,9 +320,21 @@ div.problem-container {
     padding:20px;
 }
 
+/* On desktop the actions for a step look better
+ * in a line, but on mobile, horizontal space is limited */
+.step-actions {
+    display: flex;
+    flex-direction: row;
+    margin:10px 10px 10px 10px;
+}
+
 @media (max-width: 950px) {
     .homepage-actions-container {
         width:85%;
+    }
+    .step-actions {
+        display: flex;
+        flex-direction: column;
     }
 
     .fm-button-light,

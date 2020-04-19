@@ -237,30 +237,32 @@ var Problem = createReactClass({
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
                             <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
-                                <HtmlButton title='Insert step above'
-                                    content={(
-                                        <img src="images/add_above.png" alt="x"/>
-                                    )}
-                                    onClick={function(value) {
-                                        window.store.dispatch(
-                                            { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
-                                              STEP_KEY : stepIndex});
-                                }}/>
-                                <select
-                                    value={step[FORMAT]}
-                                    onChange={function(evt) {
-                                        window.store.dispatch({
-                                            type : EDIT_STEP,
-                                            PROBLEM_INDEX : problemIndex,
-                                            FORMAT : evt.target.value,
-                                            STEP_KEY : stepIndex,
-                                            NEW_STEP_CONTENT : (evt.target.value === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
-                                        });
-                                    }}>
-                                    <option value="MATH">Math</option>
-                                    <option value="TEXT">Text</option>
-                                    <option value="IMG">Image</option>
-                                </select>&nbsp;
+                                <div className="step-actions">
+                                    <select
+                                        value={step[FORMAT]}
+                                        onChange={function(evt) {
+                                            window.store.dispatch({
+                                                type : EDIT_STEP,
+                                                PROBLEM_INDEX : problemIndex,
+                                                FORMAT : evt.target.value,
+                                                STEP_KEY : stepIndex,
+                                                NEW_STEP_CONTENT : (evt.target.value === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                            });
+                                        }}>
+                                        <option value="MATH">Math</option>
+                                        <option value="TEXT">Text</option>
+                                        <option value="IMG">Image</option>
+                                    </select>
+                                    <HtmlButton title='Insert step above'
+                                        content={(
+                                            <img src="images/add_above.png" alt="x"/>
+                                        )}
+                                        onClick={function(value) {
+                                            window.store.dispatch(
+                                                { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
+                                                  STEP_KEY : stepIndex});
+                                    }}/>
+                                </div>&nbsp;
                                 { step[FORMAT] === IMG
                                     ?
                                     (<div>
@@ -311,11 +313,6 @@ var Problem = createReactClass({
                                                 :
                                                 <span>
                                                     <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"98%"}}/>
-                                                    <br />
-                                                        <div style={{maxWidth: "95%"}}>
-                                                        If your final answer is a number or expression, type it in the final box below.<br />
-                                                        Otherwise you can just move to the next problem.
-                                                        </div>
                                                 </span>
                                         }
                                     </div>)
@@ -378,6 +375,13 @@ var Problem = createReactClass({
                                               STEP_KEY : stepIndex});
                                     }}/>
                                 </div>
+                                { step[FORMAT] === IMG
+                                    ?
+                                        <div style={{maxWidth: "95%"}}>
+                                        If your final answer is a number or expression, type it in the final box below.<br />
+                                        Otherwise you can just move to the next problem.
+                                        </div>
+                                    : null }
                                 </div>
                                 <div style={{"clear":"both"}} />
                             </div>
