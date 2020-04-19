@@ -138,12 +138,159 @@ var ScoreBox = createReactClass({
     }
 });
 
+var ImageStep = createReactClass({
+
+    render: function() {
+        const problemIndex = this.props.id;
+        const steps = this.props.value[STEPS];
+        const step = this.props.step;
+        const stepIndex = this.props.stepIndex;
+
+
+        const handleImg = function(imgFile){
+            var objUrl = window.URL.createObjectURL(imgFile);
+            window.store.dispatch(
+                { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+                  FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+        };
+
+        const addNewLastStepIfNeeded = function() {
+            // if this is the last step, add a blank step below
+            if (stepIndex === steps.length - 1) {
+                window.store.dispatch(
+                    { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+            }
+        }
+
+        const addNewImage = function(evt) {
+            var imgFile = evt.target.files[0];
+            if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
+                    alert("The file is not an image " + imgFile ? imgFile.type : '');
+                    return;
+            }
+
+            const handleImg = function(imgFile){
+                var objUrl = window.URL.createObjectURL(imgFile);
+                window.store.dispatch(
+                    { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+                      FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+            }
+
+            if (imgFile.type.includes("gif")) {
+                // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+                // something like 0.5-1MB
+                if (imgFile.size > 1024 * 1024) {
+                    alert("Beyond max size allowed for gifs (1 MB)");
+                    return;
+                }
+                handleImg(imgFile);
+            } else {
+                imgFile = Resizer.imageFileResizer(
+                    imgFile, 800, 800, 'JPEG', 90, 0,
+                    imgFile => {
+                        handleImg(imgFile);
+                        addNewLastStepIfNeeded();
+                    },
+                    'blob'
+                );
+            }
+        }
+
+        const getMimetype = (signature) => {
+            switch (signature) {
+                case '89504E47':
+                    return 'image/png'
+                case '47494638':
+                    return 'image/gif'
+                case '25504446':
+                    return 'application/pdf'
+                case 'FFD8FFDB':
+                case 'FFD8FFE0':
+                    return 'image/jpeg'
+                case '504B0304':
+                    return 'application/zip'
+                default:
+                    return 'Unknown filetype'
+            }
+        }
+
+        const rotate = function(degrees) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', step[CONTENT], true);
+            xhr.responseType = 'blob';
+            xhr.onload = function(e) {
+              if (this.status === 200) {
+                var imgBlob = this.response;
+                // imgBlob is now the blob that the object URL pointed to.
+                var fr = new FileReader();
+                fr.addEventListener('load', function() {
+                    var imgFile = new Blob([this.result]);
+                    // https://medium.com/the-everyday-developer/
+                    // detect-file-mime-type-using-magic-numbers-and-javascript-16bc513d4e1e
+                    const uint = new Uint8Array(this.result.slice(0, 4))
+                    let bytes = []
+                    uint.forEach((byte) => {
+                        bytes.push(byte.toString(16))
+                    })
+                    const hex = bytes.join('').toUpperCase()
+                    var type = getMimetype(hex);
+
+                    if (type.includes("gif")) {
+                        // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+                        // something like 0.5-1MB
+                        alert("Cannot rotate gifs");
+                    } else {
+                        imgFile = Resizer.imageFileResizer(
+                            imgFile, 800, 800, 'JPEG', 90, degrees,
+                            imgFile => {
+                                handleImg(imgFile); },
+                            'blob'
+                        );
+                    }
+                });
+                return fr.readAsArrayBuffer(imgBlob);
+              }
+            };
+            xhr.send();
+        };
+        return (
+            <div>
+                {step[CONTENT] === ''
+                ?
+                    (<span>
+                    Upload a picture&nbsp;
+                    <input type="file" onChange={ addNewImage.bind(this) }/>
+                    </span>)
+                :
+                    <span>
+                        <Button className="long-problem-action-button fm-button"
+                                text="Rotate Left"
+                                title="Rotate image left"
+                                onClick={function() { rotate(270);}}
+                        />
+                        <Button className="long-problem-action-button fm-button"
+                                text="Rotate Right"
+                                title="Rotate image right"
+                                onClick={function() { rotate(90);}}
+                        />
+                        <br />
+                        <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"98%"}}/>
+                    </span>
+                }
+            </div>
+        );
+    }
+});
+
 var Problem = createReactClass({
 
     handleStepChange: function(event) {
       this.setState({value: event.target.value});
     },
     render: function() {
+        const value = this.props.value;
+        const stepIndex = this.props.stepIndex;
         const probNumber = this.props.value[PROBLEM_NUMBER];
         const problemIndex = this.props.id;
         const showTutorial = this.props.value[SHOW_TUTORIAL];
@@ -265,128 +412,7 @@ var Problem = createReactClass({
                                 </div>&nbsp;
                                 { step[FORMAT] === IMG
                                     ?
-                                    (<div>
-                                        {step[CONTENT] === '' ?
-                                            (<span>
-                                            Upload a picture&nbsp;
-                                            <input type="file"
-                                                   onChange={function(evt) {
-                                                        var imgFile = evt.target.files[0];
-                                                        if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
-                                                                alert("The file is not an image " + imgFile ? imgFile.type : '');
-                                                                return;
-                                                        }
-
-                                                        const handleImg = function(imgFile){
-                                                            console.log(imgFile)
-                                                            var objUrl = window.URL.createObjectURL(imgFile);
-                                                            window.store.dispatch(
-                                                                { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-                                                                  FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
-                                                            // if this is the last step, add a blank step below
-                                                            if (stepIndex === steps.length - 1) {
-                                                                window.store.dispatch(
-                                                                    { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
-                                                            }
-                                                        }
-
-                                                        if (imgFile.type.includes("gif")) {
-                                                            // TODO - check size, as this isn't as easy to scale down, good to set a max of\
-                                                            // something like 0.5-1MB
-                                                            handleImg(imgFile);
-                                                        } else {
-                                                            imgFile = Resizer.imageFileResizer(
-                                                                imgFile, 800, 800, 'JPEG', 90, 0,
-                                                                imgFile => { handleImg(imgFile); },
-                                                                'blob'
-                                                            );
-                                                        }
-                                                    }.bind(this)}
-                                                /></span>)
-                                                :
-                                                <span>
-                                                    <Button className="long-problem-action-button fm-button"
-                                                            text="Rotate Left"
-                                                            title="Rotate image left"
-                                                            onClick={function() {
-                                                                const handleImg = function(imgFile){
-                                                                    console.log(imgFile)
-                                                                    var objUrl = window.URL.createObjectURL(imgFile);
-                                                                    window.store.dispatch(
-                                                                        { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-                                                                          FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
-                                                                };
-
-                                                                var xhr = new XMLHttpRequest();
-                                                                xhr.open('GET', step[CONTENT], true);
-                                                                xhr.responseType = 'blob';
-                                                                xhr.onload = function(e) {
-                                                                  console.log("response");
-                                                                  console.log(e);
-                                                                  if (this.status == 200) {
-                                                                    var imgBlob = this.response;
-                                                                    // imgBlob is now the blob that the object URL pointed to.
-                                                                    var fr = new FileReader();
-                                                                    fr.addEventListener('load', function() {
-                                                                        var imgFile = new Blob([this.result]);
-                                                                        console.log("Did it dectect a mime type?");
-                                                                        console.log(imgFile);
-                                                                        // https://medium.com/the-everyday-developer/
-                                                                        // detect-file-mime-type-using-magic-numbers-and-javascript-16bc513d4e1e
-                                                                        const uint = new Uint8Array(this.result.slice(0, 4))
-                                                                        let bytes = []
-                                                                        uint.forEach((byte) => {
-                                                                            bytes.push(byte.toString(16))
-                                                                        })
-                                                                        const hex = bytes.join('').toUpperCase()
-                                                                        console.log(hex);
-                                                                        const getMimetype = (signature) => {
-                                                                            switch (signature) {
-                                                                                case '89504E47':
-                                                                                    return 'image/png'
-                                                                                case '47494638':
-                                                                                    return 'image/gif'
-                                                                                case '47494638':
-                                                                                    return 'image/gif'
-                                                                                case '25504446':
-                                                                                    return 'application/pdf'
-                                                                                case 'FFD8FFDB':
-                                                                                case 'FFD8FFE0':
-                                                                                    return 'image/jpeg'
-                                                                                case '504B0304':
-                                                                                    return 'application/zip'
-                                                                                default:
-                                                                                    return 'Unknown filetype'
-                                                                            }
-                                                                        }
-                                                                        var type = getMimetype(hex);
-
-                                                                        if (type.includes("gif")) {
-                                                                            // TODO - check size, as this isn't as easy to scale down, good to set a max of\
-                                                                            // something like 0.5-1MB
-                                                                            alert("Cannot rotate gifs");
-                                                                        } else {
-                                                                            console.log("rotate!");
-                                                                            imgFile = Resizer.imageFileResizer(
-                                                                                imgFile, 800, 800, 'JPEG', 90, 270,
-                                                                                imgFile => {
-                                                                                    console.log("rotated");
-                                                                                    handleImg(imgFile); },
-                                                                                'blob'
-                                                                            );
-                                                                        }
-                                                                    });
-                                                                    return fr.readAsArrayBuffer(imgBlob);
-                                                                  }
-                                                                };
-                                                                xhr.send();
-                                                        }}
-                                                    />
-                                                    <br />
-                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"98%"}}/>
-                                                </span>
-                                        }
-                                    </div>)
+                                        <ImageStep value={value} id={problemIndex} stepIndex={stepIndex} step={step} />
                                     :
                                     step[FORMAT] === TEXT ?
                                         (
