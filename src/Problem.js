@@ -286,7 +286,7 @@ var Problem = createReactClass({
                                                 /></span>)
                                                 :
                                                 <span>
-                                                    <img src={step[CONTENT]} />
+                                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "80%"}}/>
                                                     <br />
                                                         <div style={{width:"600px"}}>
                                                         If your final answer is a number or expression, type it in the final box below.<br />
