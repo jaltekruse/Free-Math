@@ -73,7 +73,7 @@ h2 {
   color: #0d9600;
 }
 h3 {
-  font-size: 1.2em;
+  font-size: 1.6em;
   margin: 0;
 }
 h1 small {
@@ -339,6 +339,10 @@ div.problem-container {
 }
 
 @media (max-width: 950px) {
+    h3 {
+      font-size: 1.0em;
+      margin: 0;
+    }
     .text-step-input {
         width:500px;
     }

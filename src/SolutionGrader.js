@@ -110,9 +110,6 @@ const StudentWork = createReactClass({
         var studentSolutionIndex = this.props.id;
         return (
             <div style={{float:"left"}} className="equation-list">
-                { data["IMG"] ?
-                        (<div><img src={data["IMG"]} /></div>) : null }
-                <br/>
                 {
                     data[STEPS].map(function(step, stepIndex) {
                     var stepStyle = {};
@@ -122,13 +119,13 @@ const StudentWork = createReactClass({
                     return (
                         <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
 
-                            <div className="student-step-grader" style={{display: "inline-block"}}>
+                            <div className="student-step-grader">
 
                             { step[FORMAT] === IMG
                                 ?
-                                (<div>
-                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "80%"}}/>
-                                </div>)
+                                (
+                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "98%"}}/>
+                                )
                                 :
                                 step[FORMAT] === TEXT
                                 ?
@@ -279,9 +276,10 @@ const SolutionGrader = createReactClass({
                         ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
-                    <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
+                    <span style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
                         <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
-                    </div>
+                    </span>
+                    <br />
                     <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
                     {/* TODO - I need teachers to be able to edit the score, including deleting down to
                                empty string, so they can write a new score. If I add validation when setting
@@ -295,7 +293,7 @@ const SolutionGrader = createReactClass({
                               /> out of {possiblePoints} &nbsp;
                             <Button type="submit" text="Full Points" onClick={this.fullPoints}/>
                             <br />
-                    <div style={{marginTop: "15px", marginBottom: "25px"}}>
+                    <span style={{marginTop: "15px", marginBottom: "25px"}}>
                         <Button text="Apply to Ungraded"
                                 title={"Apply this score and feedback text to all responses in this " +
                                     "group that don't have a grade yet."}
@@ -306,7 +304,8 @@ const SolutionGrader = createReactClass({
                                       "will overwrite already entered values."}
                                 onClick={this.applyScoreToAll}
                                 style={{backgroundColor: "#008000"}}/>
-                    </div>
+                    </span>
+                    <br />
                     Feedback&nbsp;
                     <br />
                     {feedbackButton("Show Work", "Show your complete work.")}
@@ -315,12 +314,12 @@ const SolutionGrader = createReactClass({
                     {feedbackButton("Let's Talk", "Let's chat about this next class.")}
                     {feedbackButton("Not Simplified", "Be sure to simplify completely.")}
                     {feedbackButton("Sig Figs", "Incorrect significant figures.")}
-
-                    <div><textarea placeholder="Click a button for quick feedback or type custom feedback here."
+                    <br />
+                    <textarea placeholder="Click a button for quick feedback or type custom feedback here."
                                    cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>
                     </div>
-                    </div>
                 )}
+                <br />
                 <StudentWork
                     solutionGradeInfo={data}
                     problemNumber={problemNumber}

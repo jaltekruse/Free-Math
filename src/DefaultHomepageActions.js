@@ -481,7 +481,7 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
@@ -491,7 +491,7 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3>
+                <h3 style={{color:"#eeeeee"}}>Demo Teacher Grading</h3>
             </button>
             </div>
             {
@@ -501,8 +501,8 @@ const DefaultHomepageActions = createReactClass({
                              onClick={function() {
                                     this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
-                            >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
-                                    {this.state.showActionsMobile ? "Hide" : "Other "} Actions
+                            >   <h3 style={{color:"#eeeeee"}}>
+                                    {this.state.showActionsMobile ? "Hide Actions" : "Returning Users"}
                                 </h3>
                             </button>
                     ) : null
