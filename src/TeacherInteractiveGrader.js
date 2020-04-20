@@ -506,6 +506,12 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
 }
 
 function saveGradedStudentWork(gradedWork) {
+    saveGradedStudentWorkToBlob(gradedWork, function(finalBlob) {
+        saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
+    });
+}
+
+function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback) {
     if (gradedWork === undefined) {
         console.log("no graded assignments to save");
     }
@@ -520,23 +526,33 @@ function saveGradedStudentWork(gradedWork) {
         }
     }
     var zip = new JSZip();
+    var filesBeingAddedToZip = 0;
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
+            filesBeingAddedToZip++;
             saveAssignment(separatedAssignments[filename], function(studentAssignmentBlob) {
                 // studentAssignment is itself a zip
                 var fr = new FileReader();
                 fr.addEventListener('load', function() {
                     var data = this.result;
                     zip.file(filename, data);
+                    filesBeingAddedToZip--;
                 });
                 fr.readAsArrayBuffer(studentAssignmentBlob);
             });
         }
     }
-    setTimeout(function() {
-        var blob = zip.generate({type: 'blob'});
-        saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
-    }, 6000);
+
+    var checkFilesLoaded = function() {
+        if (filesBeingAddedToZip === 0) {
+            var finalBlob = zip.generate({type: 'blob'});
+            handleFinalBlobCallback(finalBlob);
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkFilesLoaded, 50);
+        }
+    }
+    checkFilesLoaded();
 }
 
 // returns score out of total possible points that are specified in the answer key
@@ -1438,7 +1454,9 @@ export { TeacherInteractiveGrader as default,
     GradesView,
     SimilarDocChecker,
     studentSubmissionsZip,
+    loadStudentDocsFromZip,
     saveGradedStudentWork,
+    saveGradedStudentWorkToBlob,
     gradeSingleProblem,
     aggregateStudentWork,
     separateIndividualStudentAssignments,

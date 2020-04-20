@@ -2,9 +2,9 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import GradingMenuBar from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
-import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
+import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob } from './TeacherInteractiveGrader.js';
 import { GradesView, SimilarDocChecker } from './TeacherInteractiveGrader.js';
-import AssignmentEditorMenubar from './AssignmentEditorMenubar.js';
+import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
@@ -54,6 +54,38 @@ function genID() {
     return Math.floor(Math.random() * 200000000);
 }
 
+function base64ToBlob(b64Data, contentType='', sliceSize=512) {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, {type: contentType});
+  return blob;
+}
+
+function blobToBase64(blob, callback) {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+            var base64data = reader.result;
+            base64data = base64data.substr(base64data.indexOf(',')+1);
+            callback(base64data);
+
+        }
+        reader.readAsDataURL(blob);
+}
+
+var stillSaving = 0;
 function updateAutoSave(docType, docName, appState) {
     // TODO - validate this against actual saved data on startup
     // or possibly just re-derive it each time?
@@ -64,22 +96,59 @@ function updateAutoSave(docType, docName, appState) {
     if (!saveIndex) {
         saveIndex = { "TEACHERS" : {}, "STUDENTS" : {}};
     }
+    console.log("doc id");
+    console.log(appState["DOC_ID"]);
     if (saveIndex[docType][appState["DOC_ID"]]) {
         var toDelete = saveIndex[docType][appState["DOC_ID"]];
     }
-    var doc = JSON.stringify(appState);
-    // TODO - escape underscores (with double underscore?) in doc name, to allow splitting cleanly
-    // and presenting a better name to users
-    // nvm will just store a key with spaces
-    var dt = new Date();
-    var dateString = datetimeToStr(dt);
-    var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
-    window.localStorage.setItem(saveKey, doc);
-    saveIndex[docType][appState["DOC_ID"]] = saveKey;
-    window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
-    if (toDelete !== undefined) {
-        window.localStorage.removeItem(toDelete);
+
+    if (stillSaving === 1) {
+        return;
     }
+    stillSaving = 1;
+
+    const saveBlobToLocalStorage = function(finalBlob, docType) {
+        blobToBase64(finalBlob, function(base64Data) {
+            // TODO - escape underscores (with double underscore?) in doc name, to allow splitting cleanly
+            // and presenting a better name to users
+            // nvm will just store a key with spaces
+            console.log(base64Data);
+            var dt = new Date();
+            var dateString = datetimeToStr(dt);
+            console.log("DOC NAME@@@@@@!~~~~~~!!!!");
+            console.log(docName);
+            var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
+            window.localStorage.setItem(saveKey, base64Data);
+            saveIndex[docType][appState["DOC_ID"]] = saveKey;
+            window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
+            console.log("to delete");
+            console.log(toDelete);
+
+            if (toDelete !== undefined) {
+                window.localStorage.removeItem(toDelete);
+            }
+            stillSaving--;
+         });
+    };
+    if (docType === 'STUDENTS') {
+        saveAssignment(appState, function(finalBlob) {
+            saveBlobToLocalStorage(finalBlob, docType);
+        });
+    } else if (docType === 'TEACHERS') {
+        saveGradedStudentWorkToBlob(appState, function(finalBlob) {
+            saveBlobToLocalStorage(finalBlob, docType);
+        });
+    }
+
+    var checkSaveFinished = function() {
+        if (stillSaving === 0) {
+            return;
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkSaveFinished, 50);
+        }
+    }
+    checkSaveFinished();
 }
 
 function datetimeToStr(dt) {
@@ -153,7 +222,7 @@ function rootReducer(state, action) {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
             CURRENT_PROBLEM : 0,
-            "DOC_ID" : genID() ,
+            "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
             BUTTON_GROUP : 'BASIC'
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
@@ -233,4 +302,4 @@ var FreeMath = createReactClass({
   }
 });
 
-export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID};
+export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob};

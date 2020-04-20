@@ -48,7 +48,8 @@ function checkDuplicateProblemNumbers(allProblems) {
     return foundDuplicate;
 }
 
-function saveAssignment(studentDoc, handleFinalBlobCallback) {
+
+function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallback) {
     window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
     var allProblems = studentDoc[PROBLEMS];
     if (isProblemNumberMissing(allProblems)) {
@@ -61,6 +62,11 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
         window.alert("Cannot save, two or more problems have the same number.");
         return;
     }
+    return saveAssignment(studentDoc, handleFinalBlobCallback);
+}
+
+function saveAssignment(studentDoc, handleFinalBlobCallback) {
+    var allProblems = studentDoc[PROBLEMS];
     var zip = new JSZip();
     var imagesBeingAddedToZip = 0;
     allProblems = allProblems.map(function(problem, probIndex, array) {
@@ -111,6 +117,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     var blob =
         new Blob([
             JSON.stringify({
+            ...studentDoc,
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
                           studentDoc
@@ -295,7 +302,7 @@ var AssignmentEditorMenubar = createReactClass({
                         />&nbsp;&nbsp;
 
                         <LightButton text="Save" onClick={
-                            function() { saveAssignment(window.store.getState(), function(finalBlob) {
+                            function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
                                 saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
                             }) }} /> &nbsp;&nbsp;&nbsp;
                     </div>) : null}

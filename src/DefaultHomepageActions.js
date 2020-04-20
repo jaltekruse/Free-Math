@@ -4,12 +4,13 @@ import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
-import FreeMath from './FreeMath.js';
+import FreeMath, { base64ToBlob } from './FreeMath.js';
 import Button from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
-import { studentSubmissionsZip, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import { openAssignment } from './AssignmentEditorMenubar.js';
+import { studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 
 var MathQuill = window.MathQuill;
@@ -29,6 +30,13 @@ var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+
+var PROBLEMS = 'PROBLEMS';
+// editing assignmnt mode actions
+var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
+// used to swap out the entire content of the document, for opening
+// a document from a file
+var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 export function render() {
     window.MathQuill = MathQuill.getInterface(1);
@@ -119,22 +127,38 @@ const UserActions = createReactClass({
             studentSubmissionsZip(evt, function() {this.closeSpinner()}.bind(this));
         }.bind(this);
 
-        var recoverAutoSaveCallback = function(docName, appMode) {
+        var recoverAutoSaveCallback = function(autoSaveFullName, filename, appMode) {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = function() {
                     return true;
             };
             window.location.hash = '';
-            var recovered = JSON.parse(window.localStorage.getItem(docName));
+            function base64ToArrayBuffer(base64) {
+                var binary_string = window.atob(base64);
+                var len = binary_string.length;
+                var bytes = new Uint8Array(len);
+                for (var i = 0; i < len; i++) {
+                    bytes[i] = binary_string.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+            var recovered;
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
             if (appMode === EDIT_ASSIGNMENT) {
-                recovered = convertToCurrentFormat(recovered);
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
+                recovered = openAssignment(base64ToArrayBuffer(
+                    window.localStorage.getItem(autoSaveFullName)),
+                    filename, false);
+                console.log(recovered);
+                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
+                window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : filename});
             } else if (appMode === GRADE_ASSIGNMENTS) {
                 // TODO - NEED a convert to current format here!!
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');
+                loadStudentDocsFromZip(
+                    base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
+                    filename, false);
             }
-            document.body.scrollTop = document.documentElement.scrollTop = 0;
-            window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
         };
         var deleteAutoSaveCallback = function(docName) {
             if (!window.confirm("Are you sure you want to delete this recovered document?")) {
@@ -277,24 +301,25 @@ const UserActions = createReactClass({
                                 />
                                 <br />
                                 <br />
-                                    { recoveredStudentDocs.map(function(docName, docIndex) {
+
+                                    { recoveredStudentDocs.map(function(autoSaveFullName, index) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
-                                                var docNameTrimmed = docName.replace("auto save students ","")
+                                                var filenameAndDate = autoSaveFullName.replace("auto save students","")
                                                         .replace(/:\d\d\..*/, "")
-                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
-                                                var namePart = nameAndDate[1];
+                                                var nameAndDate = splitNameAndDate(filenameAndDate);
+                                                var filename = nameAndDate[1];
                                                 var datePart = nameAndDate[2];
                                                 return (
-                                                        <div style={{marginBottom:"20px"}} key={docName}>
-                                                        {namePart}
+                                                        <div style={{marginBottom:"20px"}} key={autoSaveFullName}>
+                                                        {filename}
                                                         <br />
                                                         <Button text="Open"
                                                                 onClick={function() {
-                                                                    recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
+                                                                    recoverAutoSaveCallback(autoSaveFullName, filename, EDIT_ASSIGNMENT)}
                                                                 } />
                                                         <Button text="Delete"
                                                                 onClick={function() {
-                                                                    deleteAutoSaveCallback(docName)}
+                                                                    deleteAutoSaveCallback(autoSaveFullName)}
                                                                 } />
                                                         &nbsp;&nbsp;{datePart}
                                                         <br />
@@ -343,24 +368,24 @@ const UserActions = createReactClass({
                                 />
                                 <br />
                                 <br />
-                                    { recoveredTeacherDocs.map(function(docName, docIndex) {
+                                    { recoveredTeacherDocs.map(function(autoSaveFullName, index) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
-                                                var docNameTrimmed = docName.replace("auto save teachers ","")
+                                                var filenameAndDate = autoSaveFullName.replace("auto save teachers ","")
                                                         .replace(/:\d\d\..*/, "")
-                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
-                                                var namePart = nameAndDate[1];
+                                                var nameAndDate = splitNameAndDate(filenameAndDate);
+                                                var filename = nameAndDate[1];
                                                 var datePart = nameAndDate[2];
                                                 return (
-                                                        <div style={{marginBottom:"20px"}} key={docName}>
-                                                        {namePart}
+                                                        <div style={{marginBottom:"20px"}} key={autoSaveFullName}>
+                                                        {filename}
                                                         <br />
                                                         <Button text="Open"
                                                                 onClick={function() {
-                                                                    recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}
+                                                                    recoverAutoSaveCallback(autoSaveFullName, filename, GRADE_ASSIGNMENTS)}
                                                                 } />
                                                         <Button text="Delete"
                                                                 onClick={function() {
-                                                                    deleteAutoSaveCallback(docName)}
+                                                                    deleteAutoSaveCallback(autoSaveFullName)}
                                                                 } />
                                                         &nbsp;&nbsp;{datePart}
                                                         <br />
