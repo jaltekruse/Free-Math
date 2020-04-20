@@ -1031,7 +1031,9 @@ function makeBackwardsCompatible(newDoc) {
     return newDoc;
 }
 
-function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
+// TODO - be careful merging in the google branch, changed the signature here to include docId,
+// as this codepath is now used for restoring auto-saves from html5 localStorage, not just reading from files
+function loadStudentDocsFromZip(content, filename, onFailure = function() {}, docId, googleId = false) {
     var new_zip = new JSZip();
     var allStudentWork = [];
     var failureCount = 0;
@@ -1116,6 +1118,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
         window.store.dispatch(
             { type : SET_ASSIGNMENTS_TO_GRADE,
               GOOGLE_ID : googleId,
+              DOC_ID : docId,
               NEW_STATE :
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
     } catch (e) {

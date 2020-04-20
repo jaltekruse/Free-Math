@@ -4,7 +4,7 @@ import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
-import FreeMath, { base64ToBlob } from './FreeMath.js';
+import FreeMath, { base64ToBlob, getAutoSaveIndex } from './FreeMath.js';
 import Button from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
@@ -156,9 +156,25 @@ const UserActions = createReactClass({
             } else if (appMode === GRADE_ASSIGNMENTS) {
                 // TODO - NEED a convert to current format here!!
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');
+
+                // look up DOC_ID in save_index, this value isn't written anywhere into
+                // the teacher save file like it is for students, but it is needed
+                // to prevent opening from an auto-save spawning a new auto-save, rather
+                // than updating the old one in place
+                const saveIndex = getAutoSaveIndex();
+
+                var matchingDocId = undefined;
+                for (var docId in saveIndex["TEACHERS"]) {
+                    if ( saveIndex["TEACHERS"].hasOwnProperty(docId)
+                            && autoSaveFullName === saveIndex["TEACHERS"][docId]) {
+                        matchingDocId = docId;
+                        break;
+                    }
+                }
+
                 loadStudentDocsFromZip(
                     base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
-                    filename, false);
+                    filename, false, matchingDocId);
             }
         };
         var deleteAutoSaveCallback = function(docName) {

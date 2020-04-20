@@ -85,19 +85,21 @@ function blobToBase64(blob, callback) {
         reader.readAsDataURL(blob);
 }
 
+function getAutoSaveIndex() {
+    var saveIndex = window.localStorage.getItem("save_index");
+    if (saveIndex) {
+        return JSON.parse(saveIndex);
+    } else {
+        return { "TEACHERS" : {}, "STUDENTS" : {}};
+    }
+}
+
+
 var stillSaving = 0;
 function updateAutoSave(docType, docName, appState) {
     // TODO - validate this against actual saved data on startup
     // or possibly just re-derive it each time?
-    var saveIndex = window.localStorage.getItem("save_index");
-    if (saveIndex) {
-        saveIndex = JSON.parse(saveIndex);
-    }
-    if (!saveIndex) {
-        saveIndex = { "TEACHERS" : {}, "STUDENTS" : {}};
-    }
-    console.log("doc id");
-    console.log(appState["DOC_ID"]);
+    var saveIndex = getAutoSaveIndex();
     if (saveIndex[docType][appState["DOC_ID"]]) {
         var toDelete = saveIndex[docType][appState["DOC_ID"]];
     }
@@ -115,8 +117,6 @@ function updateAutoSave(docType, docName, appState) {
             console.log(base64Data);
             var dt = new Date();
             var dateString = datetimeToStr(dt);
-            console.log("DOC NAME@@@@@@!~~~~~~!!!!");
-            console.log(docName);
             var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
             try {
                 window.localStorage.setItem(saveKey, base64Data);
@@ -127,8 +127,6 @@ function updateAutoSave(docType, docName, appState) {
                 console.log(e);
                 return;
             }
-            console.log("to delete");
-            console.log(toDelete);
 
             if (toDelete !== undefined) {
                 window.localStorage.removeItem(toDelete);
@@ -309,4 +307,4 @@ var FreeMath = createReactClass({
   }
 });
 
-export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob};
+export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob, getAutoSaveIndex };
