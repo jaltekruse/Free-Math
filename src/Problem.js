@@ -7,6 +7,10 @@ import { HtmlButton, CloseButton } from './Button.js';
 import { genID } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
 
+import Cropper from 'react-cropper';
+// If you choose not to use import, you need to assign Cropper to default
+// var Cropper = require('react-cropper').default
+
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
 // when this is not at the end of the list and a new
@@ -175,9 +179,11 @@ var ImageUploader = React.createClass({
 	}
 });
 
-
 function handleImg(imgFile, stepIndex, problemIndex, steps) {
-    var objUrl = window.URL.createObjectURL(imgFile);
+    handleImgUrl(window.URL.createObjectURL(imgFile), stepIndex, problemIndex, steps);
+};
+
+function handleImgUrl(objUrl, stepIndex, problemIndex, steps) {
     window.store.dispatch(
         { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
           FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
@@ -238,6 +244,11 @@ function getMimetype(signature) {
 
 var ImageStep = createReactClass({
 
+    getInitialState: function() {
+        return {
+            cropping : false
+        }
+    },
     render: function() {
         const problemIndex = this.props.id;
         const steps = this.props.value[STEPS];
@@ -306,8 +317,31 @@ var ImageStep = createReactClass({
                                 title="Rotate image right"
                                 onClick={function() { rotate(90);}}
                         />
+                        <Button className="long-problem-action-button fm-button"
+                                text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                onClick={function() {
+                                    if (this.state.cropping) {
+                                        handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
+                                        this.setState({cropping : false});
+                                    } else {
+                                        this.setState({cropping : true});
+                                    }
+                                }.bind(this)}
+                        />
                         <br />
-                        <img src={step[CONTENT]} style={{margin : "10px", maxWidth:"98%"}}/>
+                        { this.state.cropping
+                            ?
+                            <Cropper
+                                ref={elem => {this.cropper = elem;}}
+                                src={step[CONTENT]}
+                                style={{height: 400, width: '100%'}}
+                                // Cropper.js options
+                                guides={true}
+                                crop={function(){}} />
+                            :
+                            <img src={step[CONTENT]} style={{margin : "10px", minWidth: "500px", maxWidth:"98%"}}/>
+                        }
                     </span>
                 }
             </div>
