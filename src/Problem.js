@@ -350,7 +350,7 @@ var ImageStep = createReactClass({
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
-                                <img src={step[CONTENT]} style={{margin : "10px", minWidth: "500px", maxWidth:"98%"}}/>
+                                <img src={step[CONTENT]} style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
                             </span>
                         }
                     </span>
