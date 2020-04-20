@@ -80,6 +80,11 @@ var ANSWER = "ANSWER";
 var CONTENT = "CONTENT";
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 
+var FORMAT = "FORMAT";
+var MATH = "MATH";
+var TEXT = "TEXT";
+var IMG = "IMG";
+
 var SHOW_ALL = "SHOW_ALL";
 
 // action properties
@@ -657,7 +662,20 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     allStudentWork.forEach(function(assignInfo, index, array) {
         console.log("analyzing 1 student doc");
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            var studentAnswer = _.last(problem[STEPS])[CONTENT];
+            const lastStep = _.last(problem[STEPS]);
+            // image as the last step is treated as blank text as the answer
+            var studentAnswer;
+            if (lastStep && (lastStep[FORMAT] === MATH || lastStep[FORMAT] === TEXT) && lastStep[CONTENT].trim() !== '') {
+                studentAnswer = lastStep[CONTENT]
+            } else if (lastStep && problem[STEPS].length >= 2 &&
+                        (lastStep[FORMAT] === IMG ||
+                            (lastStep[CONTENT].trim() === ''
+                                && problem[STEPS][problem[STEPS].length - 2][FORMAT] === IMG))) {
+                studentAnswer = 'Image';
+            } else {
+                studentAnswer = '';
+            }
+
             // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
             var automaticallyAssignedGrade = "";
             if (!_.isEmpty(answerKey)) {
