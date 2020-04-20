@@ -150,8 +150,9 @@ const UserActions = createReactClass({
                     window.localStorage.getItem(autoSaveFullName)),
                     filename, false);
                 console.log(recovered);
-                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
-                window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : filename});
+                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                    ASSIGNMENT_NAME : filename,
+                    DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
             } else if (appMode === GRADE_ASSIGNMENTS) {
                 // TODO - NEED a convert to current format here!!
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');

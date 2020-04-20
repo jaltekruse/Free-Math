@@ -118,9 +118,15 @@ function updateAutoSave(docType, docName, appState) {
             console.log("DOC NAME@@@@@@!~~~~~~!!!!");
             console.log(docName);
             var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
-            window.localStorage.setItem(saveKey, base64Data);
-            saveIndex[docType][appState["DOC_ID"]] = saveKey;
-            window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
+            try {
+                window.localStorage.setItem(saveKey, base64Data);
+                saveIndex[docType][appState["DOC_ID"]] = saveKey;
+                window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
+            } catch (e) {
+                console.log("Error updating auto-save, likely out of space");
+                console.log(e);
+                return;
+            }
             console.log("to delete");
             console.log(toDelete);
 
@@ -210,7 +216,7 @@ function rootReducer(state, action) {
         var overview = calculateGradingOverview(action[NEW_STATE][PROBLEMS]);
         return {
             ...action[NEW_STATE],
-            "DOC_ID" : genID(),
+            "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
             "GRADING_OVERVIEW" : overview,
             "CURRENT_PROBLEM" : overview[PROBLEMS][0][PROBLEM_NUMBER],
             APP_MODE : GRADE_ASSIGNMENTS,
@@ -222,6 +228,7 @@ function rootReducer(state, action) {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
             CURRENT_PROBLEM : 0,
+            ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
             BUTTON_GROUP : 'BASIC'
         };

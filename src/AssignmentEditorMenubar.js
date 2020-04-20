@@ -268,8 +268,8 @@ export function readSingleFile(evt, discardDataWarning) {
                 try {
                     var contents = e.target.result;
                     var newDoc = openAssignment(contents, f.name, discardDataWarning);
-                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT, PROBLEMS : newDoc[PROBLEMS]});
-                    window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : newDoc[ASSIGNMENT_NAME]});
+                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                        ASSIGNMENT_NAME : removeExtension(f.name), PROBLEMS : newDoc[PROBLEMS]});
                 } catch (e) {
                     console.log(e);
                     window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
