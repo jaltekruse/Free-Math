@@ -5,7 +5,6 @@ import MathInput from './MathInput.js';
 import Button from './Button.js';
 import { HtmlButton, CloseButton } from './Button.js';
 import { genID } from './FreeMath.js';
-import ImageUploader from './ImageUploader.js';
 import Resizer from 'react-image-file-resizer';
 
 // to implement undo/redo and index for the last step
@@ -138,12 +137,51 @@ var ScoreBox = createReactClass({
     }
 });
 
+var ImageUploader = React.createClass({
+	render : function() {
+        const problemIndex = this.props.problemIndex;
+        const steps = this.props.value[STEPS];
+        const lastStep = steps[steps.length - 1];
+		return (
+            <span>
+                Upload a picture&nbsp;
+                <input type="file"
+                       onChange={function(evt) {
+                            var lastStepIndex = steps.length - 1;
+                            addNewImage(evt, steps, lastStepIndex, problemIndex,
+                                function(imgFile, stepIndex, problemIndex, steps) {
+                                    var objUrl = window.URL.createObjectURL(imgFile);
+                                    if (( typeof lastStep[FORMAT] === 'undefined'
+                                          || lastStep[FORMAT] === "MATH"
+                                        )
+                                        && lastStep[CONTENT] === '') {
+                                        window.store.dispatch(
+                                            { type : "INSERT_STEP_ABOVE",
+                                              "PROBLEM_INDEX" : problemIndex,
+                                              STEP_KEY: lastStepIndex,
+                                              FORMAT: "IMG", CONTENT: objUrl} );
+                                    } else {
+                                        window.store.dispatch(
+                                            { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
+                                              STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
+                                        window.store.dispatch(
+                                            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+                                    }
+                                }
+                            );
+                       }}
+                />
+		    </span>);
+	}
+});
 
-function handleImg(imgFile, stepIndex, problemIndex) {
+
+function handleImg(imgFile, stepIndex, problemIndex, steps) {
     var objUrl = window.URL.createObjectURL(imgFile);
     window.store.dispatch(
         { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
           FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+    addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
 };
 
 function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
@@ -154,18 +192,11 @@ function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
     }
 }
 
-function addNewImage(evt, steps, stepIndex, problemIndex) {
+function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
     var imgFile = evt.target.files[0];
     if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
             alert("The file is not an image " + imgFile ? imgFile.type : '');
             return;
-    }
-
-    const handleImg = function(imgFile){
-        var objUrl = window.URL.createObjectURL(imgFile);
-        window.store.dispatch(
-            { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-              FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
     }
 
     if (imgFile.type.includes("gif")) {
@@ -175,14 +206,12 @@ function addNewImage(evt, steps, stepIndex, problemIndex) {
             alert("Beyond max size allowed for gifs (1 MB)");
             return;
         }
-        handleImg(imgFile, stepIndex, problemIndex);
-        addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
+        addImg(imgFile, stepIndex, problemIndex, steps);
     } else {
         imgFile = Resizer.imageFileResizer(
             imgFile, 800, 800, 'JPEG', 90, 0,
             imgFile => {
-                handleImg(imgFile, stepIndex, problemIndex);
-                addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
+                addImg(imgFile, stepIndex, problemIndex, steps);
             },
             'blob'
         );
@@ -245,7 +274,7 @@ var ImageStep = createReactClass({
                         imgFile = Resizer.imageFileResizer(
                             imgFile, 800, 800, 'JPEG', 90, degrees,
                             imgFile => {
-                                handleImg(imgFile, stepIndex, problemIndex);
+                                handleImg(imgFile, stepIndex, problemIndex, steps);
                             },
                             'blob'
                         );
