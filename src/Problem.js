@@ -148,7 +148,7 @@ var ImageUploader = React.createClass({
         const lastStep = steps[steps.length - 1];
 		return (
             <span>
-                Upload a picture&nbsp;
+                upload a picture&nbsp;
                 <input type="file"
                        onChange={function(evt) {
                             var lastStepIndex = steps.length - 1;
