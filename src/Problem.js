@@ -307,17 +307,8 @@ var ImageStep = createReactClass({
                     </span>)
                 :
                     <span>
-                        <Button className="long-problem-action-button fm-button"
-                                text="Rotate Left"
-                                title="Rotate image left"
-                                onClick={function() { rotate(270);}}
-                        />
-                        <Button className="long-problem-action-button fm-button"
-                                text="Rotate Right"
-                                title="Rotate image right"
-                                onClick={function() { rotate(90);}}
-                        />
-                        <Button className="long-problem-action-button fm-button"
+
+                        <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
                                 text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
                                 title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
                                 onClick={function() {
@@ -329,18 +320,38 @@ var ImageStep = createReactClass({
                                     }
                                 }.bind(this)}
                         />
-                        <br />
                         { this.state.cropping
                             ?
-                            <Cropper
-                                ref={elem => {this.cropper = elem;}}
-                                src={step[CONTENT]}
-                                style={{height: 400, width: '100%'}}
-                                // Cropper.js options
-                                guides={true}
-                                crop={function(){}} />
+                            <span>
+                                <Button className="long-problem-action-button fm-button"
+                                    text="Cancel"
+                                    title="Cancel Cropping"
+                                    onClick={function() {
+                                        this.setState({cropping : false});
+                                    }.bind(this)} />
+                                <Cropper
+                                    ref={elem => {this.cropper = elem;}}
+                                    src={step[CONTENT]}
+                                    style={{height: 400, width: '100%'}}
+                                    // Cropper.js options
+                                    guides={true}
+                                    crop={function(){}} />
+                            </span>
                             :
-                            <img src={step[CONTENT]} style={{margin : "10px", minWidth: "500px", maxWidth:"98%"}}/>
+                            <span>
+                                <Button className="long-problem-action-button fm-button"
+                                        text="Rotate Left"
+                                        title="Rotate image left"
+                                        onClick={function() { rotate(270);}}
+                                />
+                                <Button className="long-problem-action-button fm-button"
+                                        text="Rotate Right"
+                                        title="Rotate image right"
+                                        onClick={function() { rotate(90);}}
+                                />
+                                <br />
+                                <img src={step[CONTENT]} style={{margin : "10px", minWidth: "500px", maxWidth:"98%"}}/>
+                            </span>
                         }
                     </span>
                 }

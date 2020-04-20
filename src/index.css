@@ -300,10 +300,14 @@ div.problem-container {
     min-width: 50%;
 }
 
+.extra-long-problem-action-button {
+    width: 180px
+}
+
 .long-problem-action-button {
     width: 125px
-
 }
+
 .short-problem-action-button {
     width: 55px
 }
@@ -397,6 +401,9 @@ div.problem-container {
         padding: 8px 16px 8px 8px;
     }
 
+    .extra-long-problem-action-button {
+        width: 360px
+    }
     .long-problem-action-button {
         width: 250px
     }
