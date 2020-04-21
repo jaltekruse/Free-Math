@@ -284,7 +284,7 @@ export function readSingleFile(evt, discardDataWarning) {
 
 var AssignmentEditorMenubar = createReactClass({
   render: function() {
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div className="menuBar">
                 <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">

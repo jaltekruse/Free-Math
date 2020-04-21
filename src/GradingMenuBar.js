@@ -14,7 +14,7 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 
 const GradingMenuBar = createReactClass({
     render: function() {
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
             assignmentName = "";
@@ -22,10 +22,10 @@ const GradingMenuBar = createReactClass({
         return (
             <div className="menuBar">
                 <div className="nav" style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}}>
-                    <LogoHomeNav /> 
+                    <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
-                        {/* Don't show option to save on iOS*/} 
-                        {!browserIsIOS ? 
+                        {/* Don't show option to save on iOS*/}
+                        {!browserIsIOS ?
                         (<span>
                         Assignment Name &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="20"

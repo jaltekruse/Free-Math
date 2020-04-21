@@ -478,7 +478,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             );
         };
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div>
             <div className="menuBar">

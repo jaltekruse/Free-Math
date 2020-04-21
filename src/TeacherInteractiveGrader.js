@@ -1414,7 +1414,7 @@ const TeacherInteractiveGrader = createReactClass({
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>

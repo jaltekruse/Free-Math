@@ -70,7 +70,7 @@ var Assignment = createReactClass({
         // Microsoft injected the word iPhone in IE11's userAgent in order to try and fool
         // Gmail somehow. Therefore we need to exclude it. More info about this here and here.
         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var probList = this.props.value[PROBLEMS];
         var currProblem = this.props.value[CURRENT_PROBLEM];
         var addProblem = function() {
