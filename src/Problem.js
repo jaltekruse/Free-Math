@@ -147,7 +147,7 @@ var ImageUploader = React.createClass({
         const steps = this.props.value[STEPS];
         const lastStep = steps[steps.length - 1];
 		return (
-            <span>
+            <div style={{display:"inline-block"}}>
                 upload a picture&nbsp;
                 <input type="file"
                        onChange={function(evt) {
@@ -175,7 +175,7 @@ var ImageUploader = React.createClass({
                             );
                        }}
                 />
-		    </span>);
+		    </div>);
 	}
 });
 
