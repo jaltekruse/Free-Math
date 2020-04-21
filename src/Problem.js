@@ -109,7 +109,7 @@ var ScoreBox = createReactClass({
             scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
         return (
             <div>
-                {  
+                {
                     score !== undefined
                         ? (<div>
                             <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
@@ -138,7 +138,7 @@ var Problem = createReactClass({
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
-                <div style={{width:"200px", height:"100%",float:"left"}}> 
+                <div style={{width:"200px", height:"100%",float:"left"}}>
                     {   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                            : null
                     }
@@ -182,7 +182,7 @@ var Problem = createReactClass({
                             }}/>
                         <Button type="submit" style={{width: "125px"}} text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
-                                onClick={function() { 
+                                onClick={function() {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
@@ -198,22 +198,22 @@ var Problem = createReactClass({
                             }
                             return (
                             <div key={step[STEP_ID]}>
-                                {showTutorial && stepIndex === 0 ? 
+                                {showTutorial && stepIndex === 0 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Click this expression, then press enter.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex === 1 ? 
+                                {showTutorial && stepIndex === 1 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                                        <span>Edit this line to show part of the work for 
+                                        <span>Edit this line to show part of the work for
                                               simplifying this expression, then press enter again.</span>
                                     </div>
                                 </div>) : null}
-                                {showTutorial && stepIndex === 2 ? 
+                                {showTutorial && stepIndex === 2 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
                                          style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
@@ -230,7 +230,7 @@ var Problem = createReactClass({
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
                                 }}/>
-                                <MathInput 
+                                <MathInput
                                     key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
                                     styles={{...styles, overflow: 'auto'}}
                                     buttonSets={['trig', 'prealgebra',
@@ -271,7 +271,7 @@ var Problem = createReactClass({
                 (<div>
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
-                    <span>Scroll to the top of the page and another problem to your document. Copy a problem
+                    <span>Scroll to the top of the page and add another problem to your document. Copy a problem
                           out of your assignment on the first line, and solve it as you did above.</span>
                     </div>
                 </div>

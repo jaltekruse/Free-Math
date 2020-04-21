@@ -321,7 +321,7 @@ const UserActions = createReactClass({
                     Grade Assignments <input type="file" onChange={openAssignments}/>
                         <br />
                     <span style={{fontSize: "15px"}}>
-                            Select a zip file full of student files. Zip files are generated
+                            Select a zip file full of student assignments. Zip files are generated
                             when downloading assignment files from your LMS in bulk.
                         <br />
                         <a href="gettingStarted.html">
