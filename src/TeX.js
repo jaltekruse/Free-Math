@@ -217,7 +217,7 @@ class TeX extends React.Component {
             </div>
         </div>;
     },
-});
+}
 
 export default TeX;
 // End static math render copied from Perseus

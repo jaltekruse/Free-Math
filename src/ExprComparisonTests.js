@@ -53,6 +53,6 @@ var ExprComparisonTests = React.createClass({
         </div>
         );
     }
-});
+}
 
 export default ExprComparisonTests;

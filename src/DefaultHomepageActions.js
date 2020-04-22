@@ -743,7 +743,7 @@ class DefaultHomepageActions extends React.Component {
             </div>
         );
     }
-});
+}
 
 
 export default DefaultHomepageActions;

@@ -35,7 +35,7 @@ class HtmlButton extends React.Component {
             </button>
         );
   }
-});
+}
 
 class Button extends React.Component {
 
@@ -57,7 +57,7 @@ class Button extends React.Component {
             </button>
         );
   }
-});
+}
 
 class LightButton extends React.Component {
 
@@ -77,7 +77,7 @@ class LightButton extends React.Component {
             </button>
         );
   }
-});
+}
 
 class CloseButton extends React.Component {
 
@@ -98,6 +98,6 @@ class CloseButton extends React.Component {
             </button>
         );
   }
-});
+}
 
 export {Button as default, HtmlButton, CloseButton, LightButton};

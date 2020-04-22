@@ -135,6 +135,6 @@ class SolutionClassGrader extends React.Component {
             </div>
         );
     }
-});
+}
 
 export { SolutionClassGrader as default, solutionClassReducer };

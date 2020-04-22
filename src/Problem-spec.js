@@ -185,7 +185,7 @@ it('test demo creation, undo/redo bug', () => {
         expectedUndoState3,
         afterThirdUndo
     );
-});
+}
 
 it('test adding a problem', () => {
     var initialAssignment = {
@@ -215,7 +215,7 @@ it('test adding a problem', () => {
         expectedAssignment,
         assignmentReducer(convertToCurrentFormat(initialAssignment), { type : ADD_PROBLEM })
     );
-});
+}
 
 // Comparision function that ignores randomly generated IDs
 // Still checks that the IDs are set and non-zero, because the fact that
@@ -263,7 +263,7 @@ it('test removing a problem', () => {
         assignmentReducer(convertToCurrentFormat(initialAssignment), { type : REMOVE_PROBLEM, PROBLEM_INDEX : 1 }),
         (expectedAssignment)
     );
-});
+}
 
 it('test cloning a problem', () => {
     var initialAssignment = {
@@ -292,7 +292,7 @@ it('test cloning a problem', () => {
         assignmentReducer(convertToCurrentFormat(initialAssignment), { type : CLONE_PROBLEM, PROBLEM_INDEX : 0 }),
         expectedAssignment
     );
-});
+}
 
 it('test renaming a problem', () => {
     var initialAssignment = {
@@ -320,7 +320,7 @@ it('test renaming a problem', () => {
 		{ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : 1, NEW_PROBLEM_NUMBER : "1.a"}),
         expectedAssignment
     );
-});
+}
 
 it('test editing a step', () => {
     var initialAssignment = {
@@ -354,7 +354,7 @@ it('test editing a step', () => {
 		{ type : EDIT_STEP, PROBLEM_INDEX : 1, STEP_KEY : 1, NEW_STEP_CONTENT : "5"}),
         expectedAssignment
     );
-});
+}
 
 it('test adding a step', () => {
     var initialAssignment = {
@@ -386,7 +386,7 @@ it('test adding a step', () => {
         assignmentReducer(convertToCurrentFormat(initialAssignment),{ type : NEW_STEP, PROBLEM_INDEX : 1}),
         expectedAssignment
     );
-});
+}
 
 it('test adding blank step', () => {
     var initialAssignment = {
@@ -418,7 +418,7 @@ it('test adding blank step', () => {
         assignmentReducer(convertToCurrentFormat(initialAssignment),{ type : NEW_BLANK_STEP, PROBLEM_INDEX : 1}),
         expectedAssignment
     );
-});
+}
 
 // TODO - add undo/redo to each of the edit type tests
 // TODO - add test for add/delete individual steps in the middle of the list

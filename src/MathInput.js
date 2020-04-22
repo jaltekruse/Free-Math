@@ -301,7 +301,7 @@ class TexButtons extends React.Component {
         buttonSets,
         buttonSetsType
     }
-});
+}
 // end TeX buttons from Perseus
 
 // Math editor copied from Khan Perseus project
@@ -579,7 +579,7 @@ class MathInput extends React.Component {
         this.mathField().blur();
         this.setState({ focused: false });
     }
-});
+}
 
 export default MathInput;
 

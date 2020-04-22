@@ -69,7 +69,7 @@ class FreeMathModal extends React.Component {
             </span>
         );
     }
-});
+}
 
 export {
     FreeMathModal as default

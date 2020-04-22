@@ -68,7 +68,7 @@ it('test set highlight', () => {
     expect(output2).toEqual(expectedOutput);
     var output3 = singleSolutionReducer(output2, action);
     expect(output3).toEqual(input);
-});
+}
 
 
 it('test set feedback', () => {
@@ -99,7 +99,7 @@ it('test set feedback', () => {
     expectedOutput[FEEDBACK] = "";
     var output2 = singleSolutionReducer(output, action);
     expect(output2).toEqual(expectedOutput);
-});
+}
 
 it('test set possible points, individual solution', () => {
     var input =
@@ -134,4 +134,4 @@ it('test set possible points, individual solution', () => {
     expectedOutput[SCORE] = 0;
     var output = singleSolutionReducer(input, action);
     expect(output).toEqual(expectedOutput);
-});
+}

@@ -60,7 +60,7 @@ it('test grading a problem', () => {
     deepFreeze(studentAnswer2);
     expect(gradeSingleProblem(studentAnswer1, answerKey)).toEqual(3);
     expect(gradeSingleProblem(studentAnswer2, answerKey)).toEqual(1.5);
-});
+}
 
 it('test aggregate student work', () => {
     var allStudentWork = [
@@ -133,7 +133,7 @@ it('test aggregate student work', () => {
     // in the app using global script tags in index.html
     var output = aggregateStudentWork(allStudentWork, answerKey, function(expr1, expr2) {return expr1 === expr2;});
     expect(output).toEqual(expectedOutput);
-});
+}
 
 it('test separate assignments', () => {
     var input = {
@@ -215,7 +215,7 @@ it('test separate assignments', () => {
     }
     var content = zip.generate();
     //location.href="data:application/zip;base64," + content;
-});
+}
 
 it('test aggregate student work no answer key', () => {
     // TODO - change this use of ASSIGNMENT to just be PROBLEMS for matching student doc format
@@ -288,7 +288,7 @@ it('test aggregate student work no answer key', () => {
     // TODO - figure out how to include depedencies like KAS in webpack so I can test them, currently included
     // in the app using global script tags in index.html
     expect(aggregateStudentWork(allStudentWork, {}, function(expr1, expr2) {return expr1 === expr2;})).toEqual(expectedOutput);
-});
+}
 
 it('test set possible points for entire problem, all solution classes', () => {
-});
+}

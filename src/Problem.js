@@ -139,7 +139,7 @@ class ScoreBox extends React.Component {
             </div>
         );
     }
-});
+}
 
 var ImageUploader = React.createClass({
 	render : function() {
@@ -177,7 +177,7 @@ var ImageUploader = React.createClass({
                 />
 		    </div>);
 	}
-});
+}
 
 function handleImg(imgFile, stepIndex, problemIndex, steps) {
     handleImgUrl(window.URL.createObjectURL(imgFile), stepIndex, problemIndex, steps);
@@ -358,7 +358,7 @@ class ImageStep extends React.Component {
             </div>
         );
     }
-});
+}
 
 class Problem extends React.Component {
 
@@ -578,7 +578,7 @@ class Problem extends React.Component {
             </div>
         );
     }
-});
+}
 
 /*
  * Designing more complex undo/redo, now that individual steps can be deleted or added in the middle

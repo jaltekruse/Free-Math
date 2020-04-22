@@ -1180,7 +1180,7 @@ class SimilarDocChecker extends React.Component {
             </div>
         );
     }
-});
+}
 
 class SimilarGroupSelector extends React.Component {
 
@@ -1246,7 +1246,7 @@ class SimilarGroupSelector extends React.Component {
             </div>
         );
     }
-});
+}
 
 class GradesView extends React.Component {
     render () {
@@ -1279,7 +1279,7 @@ class GradesView extends React.Component {
             </div>
         );
     }
-});
+}
 
 class AllProblemGraders extends React.Component {
     render () {
@@ -1324,7 +1324,7 @@ class AllProblemGraders extends React.Component {
             </div>
         );
     }
-});
+}
 
 function setupGraph(gradingOverview, chart) {
         var labels = [];
@@ -1403,12 +1403,12 @@ class TeacherInteractiveGrader extends React.Component {
         setupGraph(
             window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],
             ReactDOM.findDOMNode(this.refs.chart));
-      },
+      }
     getInitialState () {
         /* note the modal shows immediately when viewing the student demo,
          * but not for opening an assignment */
         return { showModal: true }
-    },
+    }
     render () {
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
@@ -1469,7 +1469,7 @@ class TeacherInteractiveGrader extends React.Component {
             </div>
         );
     }
-});
+}
 
 export { TeacherInteractiveGrader as default,
     GradesView,

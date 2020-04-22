@@ -118,6 +118,6 @@ class ProblemGrader extends React.Component {
                 }
         </div>);
     }
-});
+}
 
 export { ProblemGrader as default, problemGraderReducer };

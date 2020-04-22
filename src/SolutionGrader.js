@@ -165,7 +165,7 @@ class StudentWork extends React.Component {
             </div>
         );
     }
-});
+}
 
 class SolutionGrader extends React.Component {
     setScore: function(evt) {
@@ -339,6 +339,6 @@ class SolutionGrader extends React.Component {
             </div>
         );
     }
-});
+}
 
 export { SolutionGrader as default, scaleScore, singleSolutionReducer};

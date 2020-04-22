@@ -310,6 +310,6 @@ class AssignmentEditorMenubar extends React.Component {
             </div>
         );
   }
-});
+}
 
 export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment};

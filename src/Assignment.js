@@ -195,6 +195,6 @@ class Assignment extends React.Component {
     componentDidMount () {
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.exampleStaticMath));
     }
-});
+}
 
 export { Assignment as default, assignmentReducer };

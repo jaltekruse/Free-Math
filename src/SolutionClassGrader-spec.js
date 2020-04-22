@@ -83,7 +83,7 @@ it('test Grade Solution Class', () => {
     deepFreeze(input);
     var output = gradingReducer(input, { type : GRADE_CLASS_OF_SOLUTIONS, PROBLEM_NUMBER : "1", SOLUTION_CLASS_INDEX : 0, SCORE : 3} );
     expect(output).toEqual(expectedOutput);
-});
+}
 
 it('test Grade Single Solution', () => {
     var input = {
@@ -124,4 +124,4 @@ it('test Grade Single Solution', () => {
     deepFreeze(input);
     var output = gradingReducer(input, { type : GRADE_SINGLE_SOLUTION, PROBLEM_NUMBER : "1", SOLUTION_CLASS_INDEX : 0, SCORE : 3, SOLUTION_INDEX : 0} );
     expect(output).toEqual(expectedOutput);
-});
+}

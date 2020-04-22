@@ -14,6 +14,6 @@ class MathQuillStatic extends React.Component {
     componentDidMount () {
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.staticMath));
     }
-});
+}
 
 export {MathQuillStatic as default};
