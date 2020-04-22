@@ -10,7 +10,7 @@ class MathQuillStatic extends React.Component {
         return (
             <span ref="staticMath">{tex}</span>
         );
-    },
+    }
     componentDidMount () {
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.staticMath));
     }

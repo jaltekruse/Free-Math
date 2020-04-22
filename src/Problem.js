@@ -141,8 +141,8 @@ class ScoreBox extends React.Component {
     }
 }
 
-var ImageUploader = React.createClass({
-	render : function() {
+class ImageUploader extends React.Component {
+	render() {
         const problemIndex = this.props.problemIndex;
         const steps = this.props.value[STEPS];
         const lastStep = steps[steps.length - 1];
@@ -244,11 +244,11 @@ function getMimetype(signature) {
 
 class ImageStep extends React.Component {
 
-    getInitialState: function() {
+    getInitialState() {
         return {
             cropping : false
         }
-    },
+    }
     render () {
         const problemIndex = this.props.id;
         const steps = this.props.value[STEPS];
@@ -362,9 +362,9 @@ class ImageStep extends React.Component {
 
 class Problem extends React.Component {
 
-    handleStepChange: function(event) {
+    handleStepChange(event) {
       this.setState({value: event.target.value});
-    },
+    }
     render () {
         const value = this.props.value;
         const stepIndex = this.props.stepIndex;

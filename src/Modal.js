@@ -12,15 +12,15 @@ import { Modal } from 'react-overlays';
 class FreeMathModal extends React.Component {
     getInitialState () {
         return { showModal: false };
-    },
+    }
 
     closeModal() {
         this.setState({ showModal: false });
-    },
+    }
 
     openModal() {
         this.setState({ showModal: true });
-    },
+    }
 
     render() {
         let showModal = this.props.showModal;

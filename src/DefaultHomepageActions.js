@@ -98,6 +98,10 @@ function startsWith(str, maybePrefix) {
 }
 
 class UserActions extends React.Component {
+    constructor(props) {
+      super(props)
+      this.render = this.render.bind(this);
+    }
     getInitialState () {
         return { showModal: false,
                  showActionsMobile: false,

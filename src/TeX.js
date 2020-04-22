@@ -80,22 +80,22 @@ class TeX extends React.Component {
         onClick: PropTypes.func,
         onRender: PropTypes.func,
         style: PropTypes.any,
-    },
+    }
 
     //TODO - get re-enabled for perf boost
     // mixins: [PureRenderMixin],
 
-    shouldComponentUpdate: function(oldProps, newProps) {
+    shouldComponentUpdate(oldProps, newProps) {
         return oldProps.children !== this.props.children;
-    },
+    }
 
-    getDefaultProps: function() {
+    getDefaultProps() {
         return {
             // Called after math is rendered or re-rendered
             onRender: function() {},
             onClick: null,
         };
-    },
+    }
 
     componentDidMount () {
         this._root = ReactDOM.findDOMNode(this);
@@ -111,9 +111,9 @@ class TeX extends React.Component {
 
         this.setScriptText(text);
         process(this.script, () => this.props.onRender(this._root));
-    },
+    }
 
-    componentDidUpdate: function(prevProps, prevState) {
+    componentDidUpdate(prevProps, prevState) {
         // If we already rendered katex in the render function, we don't
         // need to render anything here.
         if (this.refs.katex.childElementCount > 0) {
@@ -150,9 +150,9 @@ class TeX extends React.Component {
             this.setScriptText(newText);
             process(this.script, this.props.onRender);
         }
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         if (this.script) {
             loadMathJax(() => {
                 const jax = MathJax.Hub.getJaxFor(this.script);
@@ -161,9 +161,9 @@ class TeX extends React.Component {
                 }
             });
         }
-    },
+    }
 
-    setScriptText: function(text) {
+    setScriptText(text) {
         if (!this.script) {
             this.script = document.createElement("script");
             this.script.type = "math/tex";
@@ -175,7 +175,7 @@ class TeX extends React.Component {
         } else {
             this.script.textContent = text;
         }
-    },
+    }
 
     render () {
         let katexHtml = null;
@@ -216,7 +216,7 @@ class TeX extends React.Component {
             />
             </div>
         </div>;
-    },
+    }
 }
 
 export default TeX;
