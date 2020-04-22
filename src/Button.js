@@ -13,7 +13,7 @@ const unselectable = {
     userSelect: "none"
 }
 
-var HtmlButton = createReactClass({
+class HtmlButton extends React.Component {
 
     render: function() {
         const contentComponent = this.props.content;
@@ -37,7 +37,7 @@ var HtmlButton = createReactClass({
   }
 });
 
-var Button = createReactClass({
+class Button extends React.Component {
 
     render: function() {
         const onClick = this.props.onClick;
@@ -59,7 +59,7 @@ var Button = createReactClass({
   }
 });
 
-var LightButton = createReactClass({
+class LightButton extends React.Component {
 
     render: function() {
         const onClick = this.props.onClick;
@@ -79,7 +79,7 @@ var LightButton = createReactClass({
   }
 });
 
-var CloseButton = createReactClass({
+class CloseButton extends React.Component {
 
     render: function() {
         const onClick = this.props.onClick;

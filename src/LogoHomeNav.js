@@ -2,7 +2,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import './App.css';
 
-const LogoHomeNav = createReactClass({
+class LogoHomeNav extends React.Component {
   render: function() {
         return (
             <div style={{float:"left", lineHeight : 1}} onClick= {

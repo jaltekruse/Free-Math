@@ -97,23 +97,23 @@ function startsWith(str, maybePrefix) {
     return str.lastIndexOf(maybePrefix, 0) === 0
 }
 
-const UserActions = createReactClass({
+class UserActions extends React.Component {
     getInitialState () {
         return { showModal: false,
                  showActionsMobile: false,
                  teacherRecoveredSorting: "DATE",
 	             studentRecoveredSorting: "DATE"
 	         };
-    },
+    }
 
     closeSpinner() {
         this.setState({ showModal: false });
-    },
+    }
 
     openSpinner() {
         this.setState({ showModal: true });
-    },
-    render: function() {
+    }
+    render () {
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = function() {
@@ -431,9 +431,9 @@ const UserActions = createReactClass({
                       storage provider like Google Drive, Dropbox, etc.</span>
             </div>
      */
-});
+}
 
-const DefaultHomepageActions = createReactClass({
+class DefaultHomepageActions extends React.Component {
     componentDidMount: function() {
     },
     getInitialState: function() {

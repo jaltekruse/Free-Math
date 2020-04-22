@@ -246,8 +246,8 @@ function rootReducer(state, action) {
     }
 }
 
-var FreeMath = createReactClass({
-  render: function() {
+class FreeMath extends React.Component {
+  render() {
     // TODO - figure out how to best switch between teacher and
     // student mode rendering
     var wrapperDivStyle = {
@@ -305,6 +305,6 @@ var FreeMath = createReactClass({
         alert(this.props.value);
     }
   }
-});
+}
 
 export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob, getAutoSaveIndex };

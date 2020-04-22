@@ -3,7 +3,7 @@ import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 var MathQuill = window.MathQuill;
 
-var MathQuillStatic = createReactClass({
+class MathQuillStatic extends React.Component {
 
     render: function() {
         const tex = this.props.tex;

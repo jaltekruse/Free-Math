@@ -282,7 +282,7 @@ export function readSingleFile(evt, discardDataWarning) {
     }
 }
 
-var AssignmentEditorMenubar = createReactClass({
+class AssignmentEditorMenubar extends React.Component {
   render: function() {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (

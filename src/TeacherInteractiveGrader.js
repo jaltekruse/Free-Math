@@ -1169,7 +1169,7 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
     }
 }
 
-const SimilarDocChecker = createReactClass({
+class SimilarDocChecker extends React.Component {
     render: function() {
         return (
             <div>
@@ -1182,7 +1182,7 @@ const SimilarDocChecker = createReactClass({
     }
 });
 
-const SimilarGroupSelector = createReactClass({
+class SimilarGroupSelector extends React.Component {
 
     render: function() {
         var state = window.store.getState();
@@ -1248,7 +1248,7 @@ const SimilarGroupSelector = createReactClass({
     }
 });
 
-const GradesView = createReactClass({
+class GradesView extends React.Component {
     render: function() {
         var props = this.props;
         return (
@@ -1281,7 +1281,7 @@ const GradesView = createReactClass({
     }
 });
 
-const AllProblemGraders = createReactClass({
+class AllProblemGraders extends React.Component {
     render: function() {
         var state = window.store.getState();
         var problems = state[PROBLEMS];
@@ -1398,7 +1398,7 @@ function setupGraph(gradingOverview, chart) {
         });
 }
 
-const TeacherInteractiveGrader = createReactClass({
+class TeacherInteractiveGrader extends React.Component {
     componentDidMount() {
         setupGraph(
             window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],

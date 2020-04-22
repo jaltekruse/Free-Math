@@ -3,6 +3,7 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import TeX from './TeX.js';
 import Button from './Button.js';
+import ImageEditor from '@toast-ui/react-image-editor'
 
 var STUDENT_FILE = 'STUDENT_FILE';
 
@@ -102,7 +103,7 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
         ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
 }
 
-const StudentWork = createReactClass({
+class StudentWork extends React.Component {
     render: function() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
@@ -120,11 +121,18 @@ const StudentWork = createReactClass({
                         <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
 
                             <div className="student-step-grader">
+                            {/* <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "98%"}}/> */}
 
                             { step[FORMAT] === IMG
                                 ?
                                 (
-                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "98%"}}/>
+                                    <ImageEditor includeUI={{
+                                          loadImage: {
+                                            path: step[CONTENT],
+                                            name: 'SampleImage'
+                                          }
+                                        }}
+                                     />
                                 )
                                 :
                                 step[FORMAT] === TEXT
@@ -159,7 +167,7 @@ const StudentWork = createReactClass({
     }
 });
 
-const SolutionGrader = createReactClass({
+class SolutionGrader extends React.Component {
     setScore: function(evt) {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;

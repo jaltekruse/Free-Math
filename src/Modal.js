@@ -9,7 +9,7 @@ import { Modal } from 'react-overlays';
 // of this component.
 // For current usage:
 // <MathEditorHelpModal content={(<MathEditorHelp />)}/>
-var FreeMathModal = createReactClass({
+class FreeMathModal extends React.Component {
     getInitialState () {
         return { showModal: false };
     },

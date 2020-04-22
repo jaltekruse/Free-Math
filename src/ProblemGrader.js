@@ -70,7 +70,7 @@ function problemGraderReducer(state, action) {
 // A problem grader encompasses all of the student work in response
 // to a single problem. The work is grouped by similar final answer,
 // the groups are called "answer classes".
-var ProblemGrader = createReactClass({
+class ProblemGrader extends React.Component {
     render: function() {
         var problemNumber = this.props.problemNumber;
         var studentsToView = this.props.studentsToView;

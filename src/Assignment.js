@@ -60,7 +60,7 @@ function assignmentReducer(state, action) {
     }
 }
 
-var Assignment = createReactClass({
+class Assignment extends React.Component {
     getInitialState () {
         /* note the modal shows immediately when viewing the student demo,
          * but not for opening an assignment */

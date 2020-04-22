@@ -97,7 +97,7 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var SOFT_RED = '#FFDEDE';
 var GREEN = '#D0FFC9';
 
-var ScoreBox = createReactClass({
+class ScoreBox extends React.Component {
     render: function() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
         var scoreClass = undefined;
@@ -242,7 +242,7 @@ function getMimetype(signature) {
     }
 }
 
-var ImageStep = createReactClass({
+class ImageStep extends React.Component {
 
     getInitialState: function() {
         return {
@@ -360,7 +360,7 @@ var ImageStep = createReactClass({
     }
 });
 
-var Problem = createReactClass({
+class Problem extends React.Component {
 
     handleStepChange: function(event) {
       this.setState({value: event.target.value});

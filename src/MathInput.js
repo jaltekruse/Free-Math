@@ -149,7 +149,7 @@ var buttonSetsType = PropTypes.arrayOf(
         PropTypes.oneOf(_.keys(buttonSets))
     );
 
-var TexButtons = createReactClass({
+class TexButtons extends React.Component {
     propTypes: {
         sets: buttonSetsType.isRequired,
         onInsert: PropTypes.func.isRequired,
@@ -307,7 +307,7 @@ var TexButtons = createReactClass({
 // Math editor copied from Khan Perseus project
 
 // A WYSIWYG math input that calls `onChange(LaTeX-string)`
-const MathInput = createReactClass({
+class MathInput extends React.Component {
     propTypes: {
         value: PropTypes.string,
         convertDotToTimes: PropTypes.bool,

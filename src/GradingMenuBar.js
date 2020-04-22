@@ -12,8 +12,8 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 
-const GradingMenuBar = createReactClass({
-    render: function() {
+class GradingMenuBar extends React.Component {
+    render() {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
@@ -72,10 +72,10 @@ const GradingMenuBar = createReactClass({
             </div>
         );
     }
-});
+}
 
-export const ModalWhileGradingMenuBar = createReactClass({
-    render: function() {
+class ModalWhileGradingMenuBar extends React.Component {
+    render() {
         return (
             <div className="menuBar">
                 <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
@@ -91,6 +91,6 @@ export const ModalWhileGradingMenuBar = createReactClass({
             </div>
         );
     }
-});
+}
 
-export default GradingMenuBar;
+export { GradingMenuBar as default, ModalWhileGradingMenuBar };
