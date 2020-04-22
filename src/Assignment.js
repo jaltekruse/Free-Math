@@ -68,18 +68,18 @@ var Assignment = createReactClass({
         // Microsoft injected the word iPhone in IE11's userAgent in order to try and fool
         // Gmail somehow. Therefore we need to exclude it. More info about this here and here.
         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var probList = this.props.value[PROBLEMS];
         var currProblem = this.props.value[CURRENT_PROBLEM];
         var addProblem = function() {
             var probs = this.props.value[PROBLEMS];
             var lastProb = probs[probs.length - 1];
-            window.ga('send', 'event', 'Actions', 'edit', 
+            window.ga('send', 'event', 'Actions', 'edit',
                 'Add Problem - last problem steps = ', lastProb[STEPS].length);
             window.store.dispatch({ type : ADD_PROBLEM});
         }.bind(this);
         return (
-        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
+        <div style={{height: "100%", backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
             <FreeMathModal
                 showModal={this.state.showModal &&
                             probList[currProblem][SHOW_TUTORIAL]}
@@ -119,16 +119,16 @@ var Assignment = createReactClass({
                     <ScoreBox value={problem} />
                     <div>
                         <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                            className={(problemIndex === currProblem ? 
-                                            "fm-button-selected " : "") + 
+                            className={(problemIndex === currProblem ?
+                                            "fm-button-selected " : "") +
                                       "fm-button-left fm-button"}
                             onClick={function() {
                                 window.store.dispatch(
                                     {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}}
                         />
                         <HtmlButton text="&#10005;" title="Delete problem" key={problemIndex + " close"}
-                            className={(problemIndex === currProblem ? 
-                                            "fm-button-selected " : "") + 
+                            className={(problemIndex === currProblem ?
+                                            "fm-button-selected " : "") +
                                       "fm-button-right fm-button"}
                             onClick={
                                 function() {
@@ -138,7 +138,7 @@ var Assignment = createReactClass({
                                     }
                                     if (!window.confirm("Are you sure you want to delete this problem?")) { return; }
                                     window.store.dispatch(
-                                        { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) 
+                                        { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex})
                             }.bind(this)}
                             content={(<img src="images/close.png" alt="x"/>)}
                         />
@@ -146,17 +146,17 @@ var Assignment = createReactClass({
                     </div>
                 );
             }.bind(this))}
-            <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() { 
+            <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() {
                 addProblem();
             }}/>
-            {probList[currProblem][SHOW_TUTORIAL] ? 
+            {probList[currProblem][SHOW_TUTORIAL] ?
                     (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
                         onClick={function() {
                             this.setState({showModal: true});
                     }.bind(this)}/>) : null
             }
-            {probList[currProblem][SHOW_TUTORIAL] && !browserIsIOS ? 
+            {probList[currProblem][SHOW_TUTORIAL] && !browserIsIOS ?
                 (
                     <div className="answer-partially-correct"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
@@ -164,11 +164,11 @@ var Assignment = createReactClass({
                     </div>) :
                 null
             }
-            {browserIsIOS ? 
+            {browserIsIOS ?
                 (
                     <div className="answer-incorrect"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                        <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                        <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can
                               be used to try out the experience, but you will need to visit the site on your Mac,
                               Widows PC, Chromebook or Android device to actually use the site.</span>
                     </div>) :

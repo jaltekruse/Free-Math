@@ -168,8 +168,9 @@ var Problem = createReactClass({
                         <Button text="New Blank Step" style={{width: "125px"}} onClick={
                             function() {
                                 window.store.dispatch(
-                                    { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
+                                    { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
                             }}/>
+                        <div style={{display:"inline-block"}}>
                         <Button text="Undo" style={{width: "55px"}} onClick={
                             function() {
                                 window.store.dispatch(
@@ -180,6 +181,7 @@ var Problem = createReactClass({
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
                             }}/>
+                        </div>
                         <Button type="submit" style={{width: "125px"}} text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() {
