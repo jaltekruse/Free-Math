@@ -283,7 +283,7 @@ export function readSingleFile(evt, discardDataWarning) {
 }
 
 class AssignmentEditorMenubar extends React.Component {
-  render: function() {
+  render () {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div className="menuBar">

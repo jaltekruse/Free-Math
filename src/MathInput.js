@@ -156,7 +156,7 @@ class TexButtons extends React.Component {
         buttonGroup: PropTypes.string.isRequired
     },
 
-    render: function() {
+    render () {
         //MathQuill = MathQuill.getInterface(1);
         // Always show buttonSets in the same order. Note: Technically it's ok
         // for _.keys() to return the keys in an arbitrary order, but in
@@ -321,7 +321,7 @@ class MathInput extends React.Component {
         buttonGroup: PropTypes.string
     },
 
-    render: function() {
+    render () {
         // mathquill usually adds these itself but react removes them when
         // updating the component.
         var className = "perseus-math-input mq-editable-field mq-math-mode";
@@ -441,7 +441,7 @@ class MathInput extends React.Component {
         window.removeEventListener("mouseup", this.handleMouseUp);
     },
 
-    componentDidMount: function() {
+    componentDidMount () {
 
         window.addEventListener("mousedown", this.handleMouseDown);
         window.addEventListener("mouseup", this.handleMouseUp);

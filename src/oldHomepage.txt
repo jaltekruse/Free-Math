@@ -31,7 +31,7 @@ export function render() {
 }
 
 class DefaultHomepageActions extends React.Component {
-    componentDidMount: function() {
+    componentDidMount () {
         // React 15 doesn't support custom attributes in JSX
         var element = ReactDOM.findDOMNode(this.refs.youtubeEmbed);
         element.setAttribute("fs", "1");
@@ -46,7 +46,7 @@ class DefaultHomepageActions extends React.Component {
 			emailString : ''
 		}
 	},
-    render: function() {
+    render () {
         var divStyle = {
             width:"44%",
             float: "left",

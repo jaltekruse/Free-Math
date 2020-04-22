@@ -71,7 +71,7 @@ function problemGraderReducer(state, action) {
 // to a single problem. The work is grouped by similar final answer,
 // the groups are called "answer classes".
 class ProblemGrader extends React.Component {
-    render: function() {
+    render () {
         var problemNumber = this.props.problemNumber;
         var studentsToView = this.props.studentsToView;
         var problemInfo = this.props.problemInfo;

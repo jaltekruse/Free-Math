@@ -104,7 +104,7 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
 }
 
 class StudentWork extends React.Component {
-    render: function() {
+    render () {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -231,7 +231,7 @@ class SolutionGrader extends React.Component {
                          SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : text,
                          SOLUTION_INDEX : studentSolutionIndex});
     },
-    render: function() {
+    render () {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var possiblePoints = this.props.possiblePoints;

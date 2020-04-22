@@ -29,7 +29,7 @@ var ExprComparisonTests = React.createClass({
     setRightExpr: function(expr) {
         this.setState({ ...this.state, rightExpr: expr});
     },
-    render: function() {
+    render () {
         return (
         <div>
         equals: {this.state.equals + ""} &nbsp;&nbsp; matches: {this.state.matches + ""}

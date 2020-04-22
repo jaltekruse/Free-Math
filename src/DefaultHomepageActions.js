@@ -434,14 +434,14 @@ class UserActions extends React.Component {
 }
 
 class DefaultHomepageActions extends React.Component {
-    componentDidMount: function() {
-    },
-    getInitialState: function() {
+    componentDidMount () {
+    }
+    getInitialState() {
         return {
             emailString : ''
         }
-    },
-    render: function() {
+    }
+    render () {
         var halfScreenStyle= {
             width:"44%",
             height: "auto",

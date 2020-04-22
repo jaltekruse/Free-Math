@@ -98,7 +98,7 @@ var SOFT_RED = '#FFDEDE';
 var GREEN = '#D0FFC9';
 
 class ScoreBox extends React.Component {
-    render: function() {
+    render () {
         var probNumber = this.props.value[PROBLEM_NUMBER];
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
@@ -249,7 +249,7 @@ class ImageStep extends React.Component {
             cropping : false
         }
     },
-    render: function() {
+    render () {
         const problemIndex = this.props.id;
         const steps = this.props.value[STEPS];
         const step = this.props.step;
@@ -365,7 +365,7 @@ class Problem extends React.Component {
     handleStepChange: function(event) {
       this.setState({value: event.target.value});
     },
-    render: function() {
+    render () {
         const value = this.props.value;
         const stepIndex = this.props.stepIndex;
         const probNumber = this.props.value[PROBLEM_NUMBER];

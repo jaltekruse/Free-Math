@@ -5,13 +5,13 @@ var MathQuill = window.MathQuill;
 
 class MathQuillStatic extends React.Component {
 
-    render: function() {
+    render () {
         const tex = this.props.tex;
         return (
             <span ref="staticMath">{tex}</span>
         );
     },
-    componentDidMount: function() {
+    componentDidMount () {
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.staticMath));
     }
 });

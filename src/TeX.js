@@ -97,7 +97,7 @@ class TeX extends React.Component {
         };
     },
 
-    componentDidMount: function() {
+    componentDidMount () {
         this._root = ReactDOM.findDOMNode(this);
 
         if (this.refs.katex.childElementCount > 0) {
@@ -177,7 +177,7 @@ class TeX extends React.Component {
         }
     },
 
-    render: function() {
+    render () {
         let katexHtml = null;
         try {
             katexHtml = {

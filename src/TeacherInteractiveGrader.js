@@ -1170,7 +1170,7 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
 }
 
 class SimilarDocChecker extends React.Component {
-    render: function() {
+    render () {
         return (
             <div>
                 <SimilarGroupSelector />
@@ -1184,7 +1184,7 @@ class SimilarDocChecker extends React.Component {
 
 class SimilarGroupSelector extends React.Component {
 
-    render: function() {
+    render () {
         var state = window.store.getState();
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
         var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
@@ -1249,7 +1249,7 @@ class SimilarGroupSelector extends React.Component {
 });
 
 class GradesView extends React.Component {
-    render: function() {
+    render () {
         var props = this.props;
         return (
             <div style={{margin:"60px 30px 30px 30px"}}>
@@ -1282,7 +1282,7 @@ class GradesView extends React.Component {
 });
 
 class AllProblemGraders extends React.Component {
-    render: function() {
+    render () {
         var state = window.store.getState();
         var problems = state[PROBLEMS];
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
@@ -1409,7 +1409,7 @@ class TeacherInteractiveGrader extends React.Component {
          * but not for opening an assignment */
         return { showModal: true }
     },
-    render: function() {
+    render () {
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the

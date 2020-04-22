@@ -3,7 +3,7 @@ import createReactClass from 'create-react-class';
 import './App.css';
 
 class LogoHomeNav extends React.Component {
-  render: function() {
+  render () {
         return (
             <div style={{float:"left", lineHeight : 1}} onClick= {
                 function(evt) {
@@ -17,7 +17,7 @@ class LogoHomeNav extends React.Component {
                 }}
             >
             <div style={{padding: "3px"}}>
-            <h3 className="freemath-logo" 
+            <h3 className="freemath-logo"
                 style={{"display":"inline", color: "#eee", "fontFamily":"serif"}}>
                 <span className="katex"><span className="katex-mathml">
                         <math><semantics><mrow><mtext>Free&nbsp;Math</mtext></mrow>
@@ -35,6 +35,6 @@ class LogoHomeNav extends React.Component {
             </div>
         );
   }
-});
+}
 
 export default LogoHomeNav;

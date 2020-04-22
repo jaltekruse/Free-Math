@@ -70,7 +70,7 @@ function solutionClassReducer(state, action) {
 }
 
 class SolutionClassGrader extends React.Component {
-    render: function() {
+    render () {
         // TODO - finish
         var data = this.props.solutionClassInfo;
         var studentsToView = this.props.studentsToView;

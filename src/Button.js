@@ -15,7 +15,7 @@ const unselectable = {
 
 class HtmlButton extends React.Component {
 
-    render: function() {
+    render () {
         const contentComponent = this.props.content;
         const onClick = this.props.onClick;
         const title = this.props.title;
@@ -39,7 +39,7 @@ class HtmlButton extends React.Component {
 
 class Button extends React.Component {
 
-    render: function() {
+    render () {
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
@@ -61,7 +61,7 @@ class Button extends React.Component {
 
 class LightButton extends React.Component {
 
-    render: function() {
+    render () {
         const onClick = this.props.onClick;
         const title = this.props.title;
         const className = this.props.className ? this.props.className : "fm-button-light";
@@ -81,7 +81,7 @@ class LightButton extends React.Component {
 
 class CloseButton extends React.Component {
 
-    render: function() {
+    render () {
         const onClick = this.props.onClick;
         const style = this.props.style;
         const title = this.props.title;
