@@ -84,7 +84,9 @@ it('test demo creation, undo/redo bug', () => {
         "APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
         "PROBLEMS": [
             {"PROBLEM_NUMBER": "", "REDO_STACK": [], "STEPS": [{"CONTENT": ""}], "UNDO_STACK": []}
-        ]
+        ],
+        "BUTTON_GROUP": "BASIC",
+        "CURRENT_PROBLEM": 0
     };
 
     compareOverallEditorState(
@@ -94,7 +96,13 @@ it('test demo creation, undo/redo bug', () => {
 
     const withDemoProb = rootReducer(newAssignment, {type : ADD_DEMO_PROBLEM});
 
-    const expectedDemo = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+    const expectedDemo = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+                          "BUTTON_GROUP": "BASIC",
+                          "CURRENT_PROBLEM": 0,
+                          "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
+                          "SHOW_TUTORIAL": true, "STEPS": [
+                              {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111}
+                          ], "UNDO_STACK": []}]};
 
     compareOverallEditorState(
         expectedDemo,
@@ -103,7 +111,14 @@ it('test demo creation, undo/redo bug', () => {
 
     const afterNextStep = rootReducer(expectedDemo, {type : NEW_STEP, PROBLEM_INDEX : 0});
 
-    const expectedState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}, {"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 61417230}], "UNDO_STACK": [{"INVERSE_ACTION": {"PROBLEM_INDEX": 0, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"}]}]};
+    const expectedState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+                          "BUTTON_GROUP": "BASIC",
+                          "CURRENT_PROBLEM": 0,
+                          "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
+                          "SHOW_TUTORIAL": true, "STEPS": [
+                              {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
+                              {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 222222}
+                          ], "UNDO_STACK": [{"INVERSE_ACTION": {"PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}, "STEP_KEY": 0, "type": "DELETE_STEP"}]}]};
 
     compareOverallEditorState(
         expectedState,
@@ -112,7 +127,18 @@ it('test demo creation, undo/redo bug', () => {
 
     const afterFirstUndo = rootReducer(afterNextStep, {type : "UNDO", PROBLEM_INDEX : 0});
 
-    const expectedUndoState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [{"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"}, "PROBLEM_INDEX": 0, "type": "NEW_STEP"}], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+    const expectedUndoState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
+                               "PROBLEMS": [
+                                   { "PROBLEM_NUMBER": "Demo",
+                                     "REDO_STACK": [
+                                       {"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 0, "type": "DELETE_STEP"},
+                                           "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}
+                                     ],
+                                     "SHOW_TUTORIAL": true,
+                                     "STEPS": [
+                                        {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
+                                     ], "UNDO_STACK": []}]};
 
     compareOverallEditorState(
         expectedUndoState,
@@ -121,11 +147,39 @@ it('test demo creation, undo/redo bug', () => {
 
     const afterSecondUndo = rootReducer(afterFirstUndo, {type : "UNDO", PROBLEM_INDEX : 0});
 
-    const expectedUndoState2 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [{"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"}, "PROBLEM_INDEX": 0, "type": "NEW_STEP"}], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+    const expectedUndoState2 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
+                               "PROBLEMS": [
+                                   { "PROBLEM_NUMBER": "Demo",
+                                     "REDO_STACK": [
+                                       {"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 0, "type": "DELETE_STEP"},
+                                           "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}
+                                     ],
+                                     "SHOW_TUTORIAL": true,
+                                     "STEPS": [
+                                        {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
+                                     ], "UNDO_STACK": []}]};
+
+    compareOverallEditorState(
+        expectedUndoState2,
+        afterSecondUndo
+    );
 
     const afterThirdUndo = rootReducer(afterSecondUndo, {type : "UNDO", PROBLEM_INDEX : 0});
 
-    const expectedUndoState3 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "", "REDO_STACK": [{"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"}, "PROBLEM_INDEX": 0, "type": "NEW_STEP"}], "SHOW_TUTORIAL": true, "STEPS": [{"CONTENT": "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}", "STEP_ID": 85581639}], "UNDO_STACK": []}]};
+    const expectedUndoState3 = 
+        {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
+                               "PROBLEMS": [
+                                   { "PROBLEM_NUMBER": "Demo",
+                                     "REDO_STACK": [
+                                       {"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 0, "type": "DELETE_STEP"},
+                                           "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}
+                                     ],
+                                     "SHOW_TUTORIAL": true,
+                                     "STEPS": [
+                                        {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
+                                     ], "UNDO_STACK": []}]};
 
     compareOverallEditorState(
         expectedUndoState3,
@@ -146,6 +200,7 @@ it('test adding a problem', () => {
     var expectedAssignment = {
         "APP_MODE": "EDIT_ASSIGNMENT",
         "ASSIGNMENT_NAME": "Untitled Assignment", 
+        "CURRENT_PROBLEM": 2,
         "PROBLEMS": [
             {"PROBLEM_NUMBER": "1", "REDO_STACK": [], "UNDO_STACK": [],
                 "STEPS": [{"CONTENT": "1+2"}, {"CONTENT": "3"}]},
@@ -167,7 +222,7 @@ it('test adding a problem', () => {
 // they are present is important, there values just aren't deterministic.
 function compareOverallEditorState(expected, actual) {
     try {
-    expect({...expected, DOC_ID : null, PROBLEMS : null}).toEqual({...actual, DOC_ID : null, PROBLEMS : null});
+    expect({...actual, DOC_ID : null, PROBLEMS : null}).toEqual({...expected, DOC_ID : null, PROBLEMS : null});
     expected[PROBLEMS].forEach(function (problem, index, arr) {
         compareSingleProblem(problem, actual[PROBLEMS][index]);
     });
@@ -191,7 +246,7 @@ it('test removing a problem', () => {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
-                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                       STEPS : [{CONTENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
@@ -199,8 +254,9 @@ it('test removing a problem', () => {
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
-                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []} ]
+                       STEPS : [{CONTENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []} ]
     }
     deepFreeze(initialAssignment);
     compareOverallEditorState(
@@ -214,7 +270,7 @@ it('test cloning a problem', () => {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
-                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                       STEPS : [{CONTENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
@@ -222,10 +278,11 @@ it('test cloning a problem', () => {
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
-                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []},
+                       STEPS : [{CONTENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []},
                      { PROBLEM_NUMBER : "1 - copy",
-                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []},
+                       STEPS : [{CONTENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []},
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], UNDO_STACK : [], REDO_STACK : []}
         ]
@@ -242,7 +299,7 @@ it('test renaming a problem', () => {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
-                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
+                       STEPS : [{CONTENT : "1+2"},{CONTENT : "3"}], LAST_SHOWN_STEP : 1},
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 1}
         ]
@@ -250,8 +307,9 @@ it('test renaming a problem', () => {
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
-                       STEPS : [{CONTNENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []},
+                       STEPS : [{CONTENT : "1+2"},{CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []},
                      { PROBLEM_NUMBER : "1.a",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], UNDO_STACK : [], REDO_STACK : []}
         ]
@@ -277,6 +335,7 @@ it('test editing a step', () => {
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
                        STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : [] },
                      { PROBLEM_NUMBER : "2",
@@ -310,13 +369,14 @@ it('test adding a step', () => {
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
                        STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : [] },
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : "2"}],
                        UNDO_STACK : 
                        [
-                           {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "type": "NEW_STEP"}, "STEP_KEY": 2, "type": "DELETE_STEP"} 
+                           {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"} 
                        ],
                        REDO_STACK : [] }
         ]
@@ -341,13 +401,14 @@ it('test adding blank step', () => {
     var expectedAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
         ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
                        STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : [] },
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : ""}],
                        UNDO_STACK : [
-                                {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "type": "NEW_BLANK_STEP"},
-                                 "STEP_KEY": 2, "type": "DELETE_STEP"}
+                                {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_BLANK_STEP"},
+                                 "STEP_KEY": 1, "type": "DELETE_STEP"}
                        ],
                        REDO_STACK : [] }
         ]

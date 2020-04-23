@@ -1,6 +1,5 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
-import ReactDOM from 'react-dom';
 import { Modal } from 'react-overlays';
 
 // attempted to transition this to a generic modal component

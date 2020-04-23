@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -10,7 +11,7 @@ import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
 import { LightButton, HtmlButton } from './Button.js';
-import { studentSubmissionsZip, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
+import { studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat} from './TeacherInteractiveGrader.js';
 import { readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import JSZip from 'jszip';
 
@@ -42,6 +43,9 @@ var ALL_SAVED = 'ALL_SAVED';
 var APP_MODE = 'APP_MODE';
 var MODE_CHOOSER = 'MODE_CHOOSER';
 
+var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+
 function checkAllSaved() {
     const appState = window.store.getState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
@@ -60,9 +64,64 @@ function render() {
     );
 }
 
+// assumes prefix of "auto save teacher/student" has been stripped off already
+// as well as the seconds and milliseconds on the date/time
+function splitNameAndDate(recoveredDocName) {
+    var nameAndDate = recoveredDocName.match(/(.*) (\d\d\d\d-\d+-\d+ \d+:\d+)/);
+    return nameAndDate;
+}
+
+function sortByDate(arrayOfAutoSaveDocNames) {
+    return arrayOfAutoSaveDocNames.sort(function (a, b) {
+        var dateA = a.match(/\d\d\d\d-\d+-\d+ \d+:\d+:\d\d\..*/);
+        var dateB = b.match(/\d\d\d\d-\d+-\d+ \d+:\d+:\d\d\..*/);
+        if (dateA && dateA.length === 1) {
+            if (dateB && dateB.length === 1) {
+                return moment(dateB[0]) - moment(dateA[0]);
+            }
+        }
+        return 0;
+    });
+}
+
+function sortCaseInsensitive(arrayOfStrings) {
+    return arrayOfStrings.sort(function (a, b) {
+        return a.toLowerCase().localeCompare(b.toLowerCase());
+    });
+}
+
+function getTeacherRecoveredDocs() {
+    var recoveredTeacherDocs = [];
+    for (var key in localStorage){
+        if (startsWith(key, "auto save teachers")) {
+            recoveredTeacherDocs.push(key);
+        }
+    }
+    return recoveredTeacherDocs;
+}
+
+function getStudentRecoveredDocs() {
+    var recoveredStudentDocs = [];
+    for (var key in localStorage){
+        if (startsWith(key,"auto save students")) {
+            recoveredStudentDocs.push(key);
+        }
+    }
+    return recoveredStudentDocs;
+}
+
+function startsWith(str, maybePrefix) {
+    //https://stackoverflow.com/a/4579228
+    return str.lastIndexOf(maybePrefix, 0) === 0
+}
+
 const UserActions = createReactClass({
     getInitialState () {
-        return { showModal: false };
+        return { showModal: false,
+                 showActionsMobile: false,
+                 teacherRecoveredSorting: "DATE",
+	             studentRecoveredSorting: "DATE"
+	         };
     },
     componentDidMount: function() {
         const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
@@ -88,7 +147,8 @@ const UserActions = createReactClass({
                     // TODO - also show this while downloading file
                     this.openSpinner();
                     setTimeout(function() {
-                        loadStudentDocsFromZip(content, name, googleId);
+                        loadStudentDocsFromZip(content, name,
+                            function() {}, googleId);
                         this.closeSpinner();
                         }.bind(this), 50);
                 }.bind(this));
@@ -133,6 +193,7 @@ const UserActions = createReactClass({
             this.openSpinner();
 
             window.location.hash = '';
+            window.ga('send', 'event', 'Actions', 'open', 'Grade Assignments');
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             studentSubmissionsZip(evt, function() {this.closeSpinner()}.bind(this));
         }.bind(this);
@@ -143,12 +204,19 @@ const UserActions = createReactClass({
                 assignment.assignment.studentWorkFolder.id, function(response) {});
         }
 
-        var recoverAutoSaveCallback = function(docName) {
+        var recoverAutoSaveCallback = function(docName, appMode) {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = checkAllSaved;
             window.location.hash = '';
-            document.body.scrollTop = document.documentElement.scrollTop = 0;
             var recovered = JSON.parse(window.localStorage.getItem(docName));
+            if (appMode === EDIT_ASSIGNMENT) {
+                recovered = convertToCurrentFormat(recovered);
+                window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
+            } else if (appMode === GRADE_ASSIGNMENTS) {
+                // TODO - NEED a convert to current format here!!
+                window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');
+            }
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
             window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
         };
         var deleteAutoSaveCallback = function(docName) {
@@ -162,23 +230,60 @@ const UserActions = createReactClass({
             render();
         };
 
+        var deleteAllTeacherAutoSavesCallback = function(docName) {
+            if (!window.confirm("Are you sure you want to delete all recovered grading sessions?")) {
+                return;
+            }
+
+            for (var key in localStorage){
+                if (startsWith(key, "auto save teachers")) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+            // TODO - fix this hack, should not explicitly call render,
+            // this should be fixed while addressing TODO below about
+            // component directly accessing localStorage
+            render();
+        };
+
+        var deleteAllStudentAutoSavesCallback = function(docName) {
+            if (!window.confirm("Are you sure you want to delete all recovered assignments?")) {
+                return;
+            }
+
+            for (var key in localStorage){
+                if (startsWith(key, "auto save students")) {
+                    window.localStorage.removeItem(key);
+                }
+            }
+            // TODO - fix this hack, should not explicitly call render,
+            // this should be fixed while addressing TODO below about
+            // component directly accessing localStorage
+            render();
+        };
+
         // TODO - this is ugly, a component shouldn't access localStorage,
         // this should be read in at app startup stored in the redux state
         // tree and then kept in sync with what is actually stored through
         // actions use subscribers
         //https://stackoverflow.com/questions/35305661/where-to-write-to-localstorage-in-a-redux-app
-        var recoveredStudentDocs = [];
-        var recoveredTeacherDocs = [];
-        // recovered autoSaved docs
-        for (var key in localStorage){
-            if (key.startsWith("auto save students")) {
-                recoveredStudentDocs.push(key);
-            } else if (key.startsWith("auto save teachers")) {
-                recoveredTeacherDocs.push(key);
-            }
+        var recoveredStudentDocs = getStudentRecoveredDocs();
+        var recoveredTeacherDocs = getTeacherRecoveredDocs();
+
+        // sort by date, TODO - also allow switch to sort by name
+        if (this.state.studentRecoveredSorting === "DATE") {
+            recoveredStudentDocs = sortByDate(recoveredStudentDocs);
+        } else {
+            recoveredStudentDocs = sortCaseInsensitive(recoveredStudentDocs);
         }
+        if (this.state.teacherRecoveredSorting === "DATE") {
+            recoveredTeacherDocs = sortByDate(recoveredTeacherDocs);
+        } else {
+            recoveredTeacherDocs = sortCaseInsensitive(recoveredTeacherDocs);
+        }
+
         var halfScreenStyle= {
-            width:"42%",
+            width:"44%",
             height: "auto",
             float: "left",
             borderRadius:"3px",
@@ -186,20 +291,15 @@ const UserActions = createReactClass({
             padding:"20px",
         }
         var divStyle = {
-                ...halfScreenStyle,
+            ...halfScreenStyle,
             border:"1px solid #cfcfcf",
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
+        console.log("state on homepage");
+        console.log(this.props.value);
+        console.log(this.props.value);
         return (
-            <div style={{
-                    "max-width": "900px",
-                    "-webkit-box-align": "center",
-                    "align-items": "center",
-                    "display": "flex",
-                    "flex-direction": "column",
-                    "marginLeft":"auto",
-                    "marginRight": "auto"
-            }}>
+            <div className="homepage-user-actions">
             <GoogleClassroomSubmissionSelector
                 value={this.props.value}
                 selectAssignmentCallback={openDriveAssignments}
@@ -207,13 +307,13 @@ const UserActions = createReactClass({
             <FreeMathModal
                 showModal={this.state.showModal}
                 content={(
-                    <div style={{"align-items": "center"}}>
+                    <div style={{alignItems: "center"}}>
                         <img style={{
                             "display": "flex",
                             "marginLeft":"auto",
                             "marginRight": "auto"
                              }}
-                             src="images/Ajax-loader.gif" /><br />
+                             src="images/Ajax-loader.gif" alt="loading spinner" /><br />
                         Analyzing and grouping student work...
                     </div>)}
             />
@@ -280,8 +380,8 @@ const UserActions = createReactClass({
                 )}
             />
             <div style={{display:"inline-block", width:"100%"}}>
-            <div>
-                <div style={divStyle}>
+            <div className="homepage-center-mobile">
+                <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
                         New Assignment &nbsp;&nbsp;&nbsp;
                         <Button type="submit" text="Create" onClick={
@@ -289,6 +389,7 @@ const UserActions = createReactClass({
                                 // turn on confirmation dialog upon navigation away
                                 window.onbeforeunload = checkAllSaved;
                                 window.location.hash = '';
+                                window.ga('send', 'event', 'Actions', 'open', 'New Assignment');
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
                             }}
@@ -314,38 +415,70 @@ const UserActions = createReactClass({
                                 // turn on confirmation dialog upon navigation away
                                 window.onbeforeunload = checkAllSaved;
                                 window.location.hash = '';
+                                window.ga('send', 'event', 'Actions', 'open', 'Open Assignment');
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
                         <br />
+                        <span style={{fontSize: "15px"}}>
+                                Select a Free Math file you previously saved, or one that your teacher
+                                returned to you after grading.
+                        </span>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
-                            (<h4>Recovered Assignments</h4>) : null }
-                        { (recoveredStudentDocs.length > 0) ?
-
-                                recoveredStudentDocs.map(function(docName, docIndex) {
-                                    return (
-                                        <div key={docName}>
-                                            <Button type="submit" text="Open"
-                                                    onClick={function() {
-                                                        recoverAutoSaveCallback(docName)}
-                                                    } />
-                                            <Button type="submit" text="Delete"
-                                                    onClick={function() {
-                                                        deleteAutoSaveCallback(docName)}
-                                                    } />
-                                        {docName.replace("auto save students ","")
-                                            .replace(/:\d\d\..*/, "")}</div>
-                                    );
-                                })
-                           : null
-                        }
+                            (<span><h4>Recovered Assignments &nbsp;
+                                <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
+                                </h4>
+                                Sort by
+                                <Button text="Date"
+                                        className={(this.state.studentRecoveredSorting === "DATE" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({studentRecoveredSorting: "DATE"});
+                                        }.bind(this)}
+                                />
+                                <Button text="Name"
+                                        className={(this.state.studentRecoveredSorting === "NAME" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({studentRecoveredSorting: "NAME"});
+                                        }.bind(this)}
+                                />
+                                <br />
+                                <br />
+                                    { recoveredStudentDocs.map(function(docName, docIndex) {
+                                                // strip off milliseconds and seconds, and the type of doc label when displaying to user
+                                                var docNameTrimmed = docName.replace("auto save students ","")
+                                                        .replace(/:\d\d\..*/, "")
+                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
+                                                var namePart = nameAndDate[1];
+                                                var datePart = nameAndDate[2];
+                                                return (
+                                                        <div style={{marginBottom:"20px"}} key={docName}>
+                                                        {namePart}
+                                                        <br />
+                                                        <Button text="Open"
+                                                                onClick={function() {
+                                                                    recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
+                                                                } />
+                                                        <Button text="Delete"
+                                                                onClick={function() {
+                                                                    deleteAutoSaveCallback(docName)}
+                                                                } />
+                                                        &nbsp;&nbsp;{datePart}
+                                                        <br />
+                                                        </div>
+                                                );
+                                            }) }
+                                    </span>) : null }
                         { (recoveredStudentDocs.length > 0) ?
                             (<p>Recovered assignments stored temporarily in your
                                 browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
-                <div style={{...divStyle, "float": "right"}}>
+                <div style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                     <HtmlButton
                         className="fm-button"
@@ -394,30 +527,63 @@ const UserActions = createReactClass({
                         <br />
                     <input type="file" onChange={openAssignments}/>
                         <br />
-                    <small> Select a zip file full of student work, these are generated
-                            when downloading files from your LMS in bulk.&nbsp;
+                    <span style={{fontSize: "15px"}}>
+                            Select a zip file full of student assignments. Zip files are generated
+                            when downloading assignment files from your LMS in bulk.
+                        <br />
                         <a href="gettingStarted.html">
                             LMS Integration Info
                         </a>
-                    </small>
+                    </span>
                         <br />
-                    { (recoveredTeacherDocs.length > 0) ?
-                        (<h4>Recovered Grading Sessions</h4>) : null }
-                    { (recoveredTeacherDocs.length > 0) ?
-                        recoveredTeacherDocs.map(function(docName, docIndex) {
-                            return (
-                            <div key={docName}>
-                                <Button text="Open" onClick={
-                                    function() {recoverAutoSaveCallback(docName)}} />
-                                <Button text="Delete" onClick={
-                                    function() {deleteAutoSaveCallback(docName)}}
+                        { (recoveredTeacherDocs.length > 0) ?
+                            (<span><h4>Recovered Grading Sessions &nbsp;
+                                <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
+                                </h4>
+                                Sort by
+                                <Button text="Date"
+                                        className={(this.state.teacherRecoveredSorting === "DATE" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({teacherRecoveredSorting: "DATE"});
+                                        }.bind(this)}
                                 />
-                                {docName.replace("auto save teachers ","")
-                                    .replace(/:\d\d\..*/, "")}</div>
-                                );
-                            })
-                       : null
-                    }
+                                <Button text="Name"
+                                        className={(this.state.teacherRecoveredSorting === "NAME" ?
+                                            "fm-button-selected " : "") +
+                                            "fm-button"}
+                                        onClick={function() {
+                                            this.setState({teacherRecoveredSorting: "NAME"});
+                                        }.bind(this)}
+                                />
+                                <br />
+                                <br />
+                                    { recoveredTeacherDocs.map(function(docName, docIndex) {
+                                                // strip off milliseconds and seconds, and the type of doc label when displaying to user
+                                                var docNameTrimmed = docName.replace("auto save teachers ","")
+                                                        .replace(/:\d\d\..*/, "")
+                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
+                                                var namePart = nameAndDate[1];
+                                                var datePart = nameAndDate[2];
+                                                return (
+                                                        <div style={{marginBottom:"20px"}} key={docName}>
+                                                        {namePart}
+                                                        <br />
+                                                        <Button text="Open"
+                                                                onClick={function() {
+                                                                    recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}
+                                                                } />
+                                                        <Button text="Delete"
+                                                                onClick={function() {
+                                                                    deleteAutoSaveCallback(docName)}
+                                                                } />
+                                                        &nbsp;&nbsp;{datePart}
+                                                        <br />
+                                                        </div>
+                                                );
+                                            }) }
+                                    </span>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
                             (<p>Recovered grading sessions stored temporarily in
                                 your browser, save to your device as soon as
@@ -455,20 +621,20 @@ const DefaultHomepageActions = createReactClass({
             height: "auto",
             float: "left",
             borderRadius:"3px",
-            margin:"5px 5px 40px 5px",
-            padding:"10px",
+            margin:"5px 5px 10px 5px",
+            padding:"10px"
         }
         var demoButtonStyle = {
             ...halfScreenStyle,
             width:"350px",
             borderRadius:"60px",
-            "text-align": "center",
+            textAlign: "center",
         };
         var wrapperDivStyle = {
             padding:"0px 0px 0px 0px",
-            "backgroundColor":"#ffffff",
-            "marginLeft":"auto",
-            "marginRight": "auto",
+            backgroundColor:"#ffffff",
+            marginLeft:"auto",
+            marginRight: "auto",
             //width:"1024px"
         };
 
@@ -486,6 +652,7 @@ const DefaultHomepageActions = createReactClass({
                 </div>
             );
         };
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div>
             <div className="menuBar">
@@ -521,43 +688,75 @@ const DefaultHomepageActions = createReactClass({
                             )} />
                     &nbsp;&nbsp;&nbsp;
                     */}
-                    <a href="gettingStarted.html" style={{color:"white", marginRight:"15px"}} >Getting Started</a>{' '}
-                    <a href="contact.html" style={{color:"white", marginRight:"15px"}} >Contact</a>{' '}
-                    <a href="faq.html" style={{color:"white"}} >FAQ</a>
+                    <a href="gettingStarted.html"
+                        style={{color:"white", marginRight:"15px"}} >
+                        Getting Started
+                    </a>{' '}
+                    <a href="contact.html"
+                        style={{color:"white", marginRight:"15px"}} >
+                            Contact
+                    </a>{' '}
+                    <a href="faq.html" style={{color:"white"}} >
+                        FAQ
+                    </a>
                     </div>
                 </div>
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
-                    Give your students feedback, meaningfully and efficiently.
+                    Give your students feedback,
+                    <br />
+                    meaningfully and efficiently.
                 </h1>
-            <div className="homepage-disappear-mobile">
+            <div>
             <div className="homepage-center">
-            <div style={{"padding":"0px 0px 30px 0px"}}>
+            <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = checkAllSaved;
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    window.ga('send', 'event', 'Demos', 'open', 'Student Demo');
                     window.store.dispatch({type : "NEW_ASSIGNMENT"});
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", "font-size": "1.5em"}}>Demo Teacher Grading</h3>
+                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3>
             </button>
             </div>
+            {
+            <div className="homepage-only-on-mobile">
+                { ! browserIsIOS ?
+                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+                             onClick={function() {
+                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile});
+                                }.bind(this)}
+                            >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
+                                    {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
+                                </h3>
+                            </button>
+                    ) : null
+                }
             </div>
-            <UserActions value={this.props.value}/>
+            }
+            </div>
+            <div className="homepage-only-on-mobile" >
+                {this.state.showActionsMobile ? <UserActions value={this.props.value} /> : null }
+            </div>
+            <div className="homepage-disappear-mobile" >
+                <UserActions value={this.props.value} />
+            </div>
             </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />
@@ -585,44 +784,20 @@ const DefaultHomepageActions = createReactClass({
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
-                <div className="homepage-wrapper homepage-center" style={{"margin-bottom": "100px"}}>
+                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
                     <br />
-                    <img style={{"width":"100%",
-                                  "box-shadow": "rgb(176, 177, 178) 0px 10px 50px",
+                    <img style={{width:"100%",
+                                 boxShadow: "rgb(176, 177, 178) 0px 10px 50px"
                                }}
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
                 </div>
-                <div className="homepage-center"
-                     style={{width:"70%", height: "0",
-                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
-                <iframe title="Free Math Video"
-                        src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
-                        width="80%" height="auto" allowFullScreen frameBorder="0"
-                        gesture="media"
-                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div className="homepage-wrapper homepage-center">
-                    <h2>Integrates with Your Favorite LMS<br /><br /></h2>
-                    <img style={{margin : "20px"}}
-                         alt="google classroom logo"
-                         src="images/google_classroom.png"/>
-                    <img style={{margin : "20px"}}
-                         alt="canvas logo"
-                         src="images/canvas.png"/>
-                    <img style={{margin : "20px"}}
-                         alt="moodle logo"
-                         src="images/moodle.png"/>
-                    <img style={{margin : "20px"}}
-                         alt="moodle logo"
-                         src="images/blackboard.png"/>
-                </div>
-                <div style={{"width" : "100%", "margin":"100px 0px 100px 0px",
-                             "padding":"50px 0px 50px 0px",
-                             "marginBottom": "100px",
-                             "background": "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
+                <div style={{width : "100%", margin:"100px 0px 20px 0px",
+                             padding:"50px 0px 50px 0px",
+                             background: "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
                              }}>
 		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
 			<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"
@@ -641,31 +816,85 @@ const DefaultHomepageActions = createReactClass({
                                     Subscribe for Updates <br />
                                 </h2>
                             </label>
-                            <p style={{color: "#eee"}}>
-                                Join our e-mail list to find out first about new features and updates to the site.
-                            </p>
-                            <input type="email" name="EMAIL" className="email" size="25"
-                                   id="mce-EMAIL" placeholder="  email address"
-                                   style={{"border": "0px"}}
-                                   value={this.state.emailString}
-                                   onChange={function(evt) {
-                                            this.setState({emailString : evt.target.value});
-                                   }.bind(this)}/>
-                        <input style={{margin:"10px"}} type="submit"
-                           value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
-                           className="fm-button-light"/>
+                            <h3>
+                                <p style={{color: "#eee", fontSize: "25px"}}>
+                                    Join our e-mail list to find out first about new features and updates to the site.
+                                </p>
+                                <input type="email" name="EMAIL" className="email" size="25"
+                                       id="mce-EMAIL" placeholder="  email address"
+                                       style={{"border": "0px", fontSize: "25px"}}
+                                       value={this.state.emailString}
+                                       onChange={function(evt) {
+                                                this.setState({emailString : evt.target.value});
+                                       }.bind(this)}/>
+                                <input style={{margin:"10px", fontSize: "20px", height:"30px"}} type="submit"
+                                       value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
+                                       className="fm-button-light" onClick={function() {
+                                            window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
+                                }} />
+                            </h3>
 	            </div>
 	            </div>
 		    </form>
 		    </div>
 		</div>
-                <div className="homepage-center-mobile homepage-only-on-mobile">
-                    <h2> Windows Computers, Chromebooks and Macs Currently Supported </h2>
-                        <p> It looks like you are on a mobile device, please save the link and visit on
-                            one of your larger devices to try out the demo. </p>
+                { browserIsIOS ?
+                    (
+                    <div className="homepage-center-mobile">
+                        <h2> Windows PCs, Macs, Chromebooks, and Android devices Currently Supported </h2>
+                            <p> It looks like you are on a iOS device, please save the link and visit on
+                                one of the supported devices for the full exprience. </p>
+                    </div>
+                   ) : null }
+                <div className="homepage-center"
+                     style={{width:"70%", height: "0",
+                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
+                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
+                    <h2>Integrates with Your Favorite LMS<br /></h2>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="google classroom logo"
+                         src="images/google_classroom.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="canvas logo"
+                         src="images/canvas.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="moodle logo"
+                         src="images/moodle.png"/>
+                    <img style={{margin : "20px", height : "200px"}}
+                         alt="blackboard logo"
+                         src="images/blackboard.png"/>
                 </div>
-                <div style={{"align-items": "center", "text-align": "center"}}>
+                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
+                    <h2>Spread the Word</h2>
+                    <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
+                    <br />
+                    <div>
+                        <a href="https://www.facebook.com/sharer/sharer.php?kid_directed_site=1&u=https%3A%2F%2Ffreemathapp.org%2F&display=popup&ref=plugin&src=share_button" target="_blank" rel="noopener noreferrer" onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'facebook');
+                        }}>
+                            <img alt="facebook" src="images/facebook.png" style={{"height": "50px"}}></img></a>&nbsp;
+                        <a href="https://twitter.com/intent/tweet?text=Free%20Math%20%20-%20bringing%20simple%20freeform%20digital%20math%20assignments%20to%20the%20world%27s%20classrooms.&tw_p=tweetbutton&url=https://freemathapp.org&via=freemathapp" target="_blank" rel="noopener noreferrer" onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'twitter');
+                        }}>
+                            <img alt="twitter" src="images/twitter.png" style={{"height": "50px"}}></img></a>&nbsp;
+                        <a href="https://www.reddit.com/r/freemath" target="_blank" rel="noopener noreferrer"
+                           onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'reddit');
+                        }}>
+                            <img alt="reddit" src="images/snoo.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                        <a href="https://www.pinterest.com/pin/create/button/?url=https://freemathapp.org&media=https://freemathapp.org/images/grading_screenshot.png" target="_blank" rel="noopener noreferrer"  onClick={function() {
+                            window.ga('send', 'event', 'Actions', 'share', 'pinterest');
+                        }}>
+                            <img alt="pinterest" src="images/pinterest.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                    </div>
+                </div>
+                <div style={{alignItems: "center", textAlign: "center"}}>
                 <h2>Great for Many Areas of Math</h2>
+                <br />
                 <br />
                 <div style={{float:"none", display:"inline-block"}}>
                     <div className="homepage-center-mobile homepage-left">

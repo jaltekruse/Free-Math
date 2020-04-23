@@ -34,12 +34,20 @@ function solutionClassReducer(state, action) {
         if (action.type === GRADE_CLASS_OF_SOLUTIONS) {
             action.type = GRADE_SINGLE_SOLUTION;
         }
+        var numChanged = 0;
+        var numAlreadyGraded = 0;
         workInGivenSolutionClass.forEach(function(singleStudentsWork, index, arr) {
             if (action[MODE] === JUST_UNGRADED && singleStudentsWork[SCORE] !== "") {
+                numAlreadyGraded++;
                 return;
             }
+            numChanged++;
             workInGivenSolutionClass[index] = singleSolutionReducer(singleStudentsWork, action);
         });
+        window.ga('send', 'event', 'Actions', 'edit', 
+            'Apply to Ungraded items impacted', numChanged);
+        window.ga('send', 'event', 'Actions', 'edit', 
+            'Graded individually before bulk action', numAlreadyGraded);
         return {
             ...state,
             STUDENT_WORK : workInGivenSolutionClass

@@ -43,32 +43,48 @@ var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 
-function saveAssignment() {
+function validateProblemNumbers(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
-    window.store.getState()[PROBLEMS].forEach(function(problem, index, array) {
+    var allNumbers = {};
+    allProblems.forEach(function(problem, index, array) {
+        if (allNumbers[problem[PROBLEM_NUMBER].trim()]) {
+            atLeastOneProblemNumberNotSet = true;
+        }
+        allNumbers[problem[PROBLEM_NUMBER].trim()] = true;
         if (problem[PROBLEM_NUMBER].trim() === "") {
             atLeastOneProblemNumberNotSet = true;
         }
     });
-    if (atLeastOneProblemNumberNotSet) {
-        if (! window.confirm("At least one problem is missing a problem number. "
-                            + "These are needed for your teacher to grade your "
-                            + "assignment effectively. It is reccomended you "
-                            + "cancel the save and fill them in.")) {
-            return;
-        }
-    }
+    return atLeastOneProblemNumberNotSet;
+}
 
+function saveAssignment() {
+    window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
+    var atLeastOneProblemNumberNotSet = validateProblemNumbers(window.store.getState()[PROBLEMS]);
+    if (atLeastOneProblemNumberNotSet) {
+        window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
+        window.alert("Cannot save, a problem number is mising or two or more " +
+                     "problems have the same number.");
+        return;
+    }
+    var allProblems = window.store.getState()[PROBLEMS];
+    allProblems.forEach(function(problem, index, array) {
+        // trim the numbers to avoid extra groups while grading
+        problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
+    });
+    var overallState = window.store.getState();
+    overallState[PROBLEMS] = allProblems;
     var blob =
         new Blob([
             JSON.stringify({
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
-                            window.store.getState()
+                           overallState
                         )
                     )[PROBLEMS]
             })],
-        {type: "text/plain;charset=utf-8"});
+        {type: "application/octet-stream"});
+        //{type: "text/plain;charset=utf-8"});
     saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
 }
 
@@ -128,8 +144,14 @@ export function readSingleFile(evt, discardDataWarning) {
     if (f) {
         var r = new FileReader();
         r.onload = function(e) {
-            var contents = e.target.result;
-            openAssignment(contents, f.name, discardDataWarning);
+            try {
+                var contents = e.target.result;
+                openAssignment(contents, f.name, discardDataWarning);
+            } catch (e) {
+                console.log(e);
+                window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
+                alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
+            }
         }
         r.readAsText(f);
     } else {
@@ -416,6 +438,7 @@ var AssignmentEditorMenubar = createReactClass({
             submitToClassroomCallback, function(){/* TODO - on sign in error*/})
     },
     render: function() {
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const responseGoogle = (response) => {
             console.log(response);
         }
@@ -439,12 +462,15 @@ var AssignmentEditorMenubar = createReactClass({
                     value={this.props.value}
                     selectSubmissionCallback={selectSubmissionCallback}
                     ref="submissionSelector"/>
-                <div style={{width:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{width:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                     <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
                         <span style={{margin : "0px 15px 0px 15px"}}>
                             {saveStateMsg}</span>
+
+                    {!browserIsIOS ?
+                    (<span>
                         Filename &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                name="assignment name"
@@ -455,10 +481,11 @@ var AssignmentEditorMenubar = createReactClass({
                                             { type : SET_ASSIGNMENT_NAME,
                                               ASSIGNMENT_NAME : evt.target.value});
                             }}
-                        />&nbsp;&nbsp;
-
+                        />
                         <LightButton text="Save to Device" onClick={
                             function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
+                        </span>
+                     ) : null}
 
                         <HtmlButton
                             className="fm-button-light"
@@ -496,4 +523,4 @@ var AssignmentEditorMenubar = createReactClass({
   }
 });
 
-export {AssignmentEditorMenubar as default, removeExtension, GoogleClassroomSubmissionSelector };
+export {AssignmentEditorMenubar as default, removeExtension, validateProblemNumbers, GoogleClassroomSubmissionSelector };

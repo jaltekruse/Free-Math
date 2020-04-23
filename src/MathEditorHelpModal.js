@@ -1,22 +1,16 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
-import ReactDOM from 'react-dom';
-import TeX from './TeX.js';
-import MathQuillStatic from './MathQuillStatic.js';
-
-var MathQuill = window.MathQuill;
 
 const symbolGroups = {
     BASIC : [
-        /* TODO - trouble getting this to work right
-        {toType:"/ (slash)", mqStatic:"\\frac{a}{b}", description:"fraction", editorCommands: input => {
-            input.keystroke("/");
-        }},
-        */
         {toType:"+", tex:"+"},
         {toType:"-", tex:"-"},
         {toType:"* (asterisk)", tex:"\\cdot"},
         {toType:"\\div [Enter]", tex:"\\div"},
+        {toType:"/ (slash)", tex:"\\frac{a}{b}", description:"fraction", editorCommands: input => {
+            input.typedText("/");
+        }},
+        {toType:"=", tex:"="},
+        {toType:"\\neq [Enter]", tex:"\\neq"},
         {toType:"pi", tex:"\\pi"},
         {toType:"sqrt", tex:"\\sqrt{x}", editorCommands: input => {
             input.cmd("\\sqrt");
@@ -33,6 +27,7 @@ const symbolGroups = {
                 input.keystroke("Left");
                 input.keystroke("Left");
         }},
+        {toType:"\\vert [Enter]", tex:"\\vert"},
         {toType:"| (shift backslash)", tex:"\\left|x\\right|", editorCommands: input => {
                 input.typedText("|");
         }},
@@ -42,15 +37,35 @@ const symbolGroups = {
         {toType:"<", tex:"<"},
         {toType:"<=", tex:"\\le"},
         {toType:"\\approx [Enter]", tex:"\\approx"},
+        {toType:"\\propto [Enter]", tex:"\\propto"},
         {toType:"_ (underscore)", tex:"A_b", description: "subscript"},
         {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power"},
         {toType:"\\pm [Enter]", tex:"\\pm"},
-        {toType:"\\degree [Enter]", tex:"\\degree"},
-        {toType:"\\angle [Enter]", tex:"\\angle"},
+        {toType:"(", tex:"(", editorCommands: input => {
+            input.typedText("(");
+        }},
+        {toType:")", tex:")", editorCommands: input => {
+            input.typedText(")");
+        }},
+        {toType:"[", tex:"[", editorCommands: input => {
+            input.typedText("[");
+        }},
+        {toType:"]", tex:"]", editorCommands: input => {
+            input.typedText("]");
+        }},
+        {toType:"\\langle [Enter]", tex:"\\langle"},
+        {toType:"\\rangle [Enter]", tex:"\\rangle"},
+        {toType:"\\{", tex:"\\{", editorCommands: input => {
+            input.typedText("{");
+        }},
+        {toType:"\\}", tex:"\\}", editorCommands: input => {
+            input.typedText("}");
+        }},
     ],
     SET_THEORY : [
         {toType:"forall", tex:"\\forall"},
         {toType:"therefore", tex:"\\therefore"},
+        {toType:"\\because [Enter]", tex:"\\because"},
         {toType:"\\in [Enter]", tex:"\\in"},
         {toType:"\\notin [Enter]", tex:"\\notin"},
         {toType:"\\nexists", tex:"\\nexists"},
@@ -67,12 +82,75 @@ const symbolGroups = {
         {toType:"\\superset [Enter]", tex:"\\supset"},
         {toType:"\\superseteq [Enter]", tex:"\\supseteq"},
     ],
+    GEOMETRY : [
+        
+        {toType:"\\underline [Enter]", tex:"\\underline{AB}", editorCommands: input => {
+            input.cmd("\\underline");
+        }},
+        {toType:"\\overline [Enter]", tex:"\\overline{AB}", editorCommands: input => {
+            input.cmd("\\overline");
+        }},
+        {toType:"\\overleftarrow [Enter]", tex:"\\overleftarrow{AB}", editorCommands: input => {
+            input.cmd("\\overleftarrow");
+        }},
+        {toType:"\\overrightarrow [Enter]", tex:"\\overrightarrow{AB}", editorCommands: input => {
+            input.cmd("\\overrightarrow");
+        }},
+        {toType:"\\overleftrightarrow [Enter]", tex:"\\overleftrightarrow{AB}", editorCommands: input => {
+            input.cmd("\\overleftrightarrow");
+        }},
+        /* not in katex */
+        {toType:"\\overarc [Enter]", htmlComponent: 
+            (<span className="mq-math-mode">
+                <span className="mq-selectable">{"\\overarc{AB}"}</span>
+                <span className="mq-root-block mq-hasCursor">
+                    <span className="mq-non-leaf mq-overarc">
+                        <var>A</var>
+                        <var>B</var>
+                    </span>
+                <span className="mq-cursor">​</span>
+            </span></span>),
+            editorCommands: input => {
+                input.cmd("\\overarc");
+        }},
+        /* not in mathquill, there is "hat" but it feels a bit broken
+        {toType:"\\widehat [Enter]", tex:"\\widehat{abc}", editorCommands: input => {
+            input.cmd("\\widehat");
+        }},
+        */
+        {toType:"\\triangle", tex:"\\triangle"},
+
+        /* renders funny in MathQuill, almost looks like emoji?
+        {toType:"\\square [Enter]", tex:"\\square"},
+        */
+        {toType:"\\odot [Enter]", tex:"\\odot"},
+        {toType:"\\bigcirc [Enter]", tex:"\\bigcirc"},
+        {toType:"\\degree [Enter]", tex:"\\degree"},
+        {toType:"\\angle [Enter]", tex:"\\angle"},
+        {toType:"\\measuredangle [Enter]", tex:"\\measuredangle"},
+        /* not in MathQuill
+        {toType:"\\sphericalangle [Enter]", tex:"\\sphericalangle"},
+        */
+        {toType:"\\equiv [Enter]", tex:"\\equiv"},
+        {toType:"\\cong [Enter]", tex:"\\cong"},
+        {toType:"\\perp [Enter]", tex:"\\perp"},
+        {toType:"\\parallel [Enter]", tex:"\\parallel"},
+        /* not in MathQuill
+        {toType:"\\approxeq [Enter]", tex:"\\approxeq"},
+        */
+        {toType:"\\simeq [Enter]", tex:"\\simeq"},
+        {toType:"\\sim [Enter]", tex:"\\sim"},
+        // TODO - wrong symbol used for this in MathQuill
+        // Katex appears correct
+        //{toType:"\\asymp [Enter]", tex:"\\asymp"},
+    ],
     CALC : [
         {toType:"int", tex:"\\int"},
         {toType:"' (single quote)", tex:"'"},
         {toType:"\\oint [Enter]", tex:"\\oint"},
         {toType:"\\partial [Enter]", tex:"\\partial"},
         {toType:"sum", tex:"\\sum"},
+        {toType:"\\prod", tex:"\\prod"},
         {toType:"\\infinity [Enter]", tex:"\\infty"},
     ],
     GREEK : [

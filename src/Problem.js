@@ -3,7 +3,7 @@ import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
-import { CloseButton } from './Button.js';
+import { HtmlButton, CloseButton } from './Button.js';
 import { genID } from './FreeMath.js';
 
 // to implement undo/redo and index for the last step
@@ -25,6 +25,8 @@ var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 // specifying which problem to remove
 var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
 var CLONE_PROBLEM = 'CLONE_PROBLEM';
+
+var PROBLEM_INDEX  = 'PROBLEM_INDEX';
 
 // this action expects:
 // PROBLEM_INDEX - for which problem to change
@@ -79,6 +81,49 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var SOFT_RED = '#FFDEDE';
 var GREEN = '#2cff72';
 
+var ScoreBox = createReactClass({
+    render: function() {
+        var scoreClass = undefined;
+        var score = this.props.value[SCORE];
+        var possiblePoints = this.props.value[POSSIBLE_POINTS];
+        if (score === '') {
+            scoreClass = 'show-complete-div';
+        } else if (score >= possiblePoints) {
+            scoreClass = 'show-correct-div';
+        } else if (score === 0) {
+            scoreClass = 'show-incorrect-div';
+        } else {
+            scoreClass = 'show-partially-correct-div';
+        }
+
+        var gradingNotice = '';
+        if (score === '') {
+            gradingNotice = 'Full Credit';
+        } else if (score && score > possiblePoints) {
+            gradingNotice = 'Extra Credit';
+        }
+        var scoreMessage = null;
+        if (score === '')
+            scoreMessage = 'Complete';
+        else if (score !== undefined)
+            scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
+        return (
+            <div>
+                {
+                    score !== undefined
+                        ? (<div>
+                            <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
+                                <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
+                            </div>
+                            <div className={scoreClass}><b>{scoreMessage}</b></div>
+                            </div>)
+                        : null
+                }
+            </div>
+        );
+    }
+});
+
 var Problem = createReactClass({
 
     handleStepChange: function(event) {
@@ -87,31 +132,14 @@ var Problem = createReactClass({
     render: function() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
         var problemIndex = this.props.id;
-        var scoreClass = undefined;
-        var score = this.props.value[SCORE];
-        var possiblePoints = this.props.value[POSSIBLE_POINTS];
         var showTutorial = this.props.value[SHOW_TUTORIAL];
         var buttonGroup = this.props.buttonGroup;
-        if (score === '') {
-            scoreClass = 'show-complete-div';
-        } else if (score === possiblePoints) {
-            scoreClass = 'show-correct-div';
-        } else if (score === 0) {
-            scoreClass = 'show-incorrect-div';
-        } else {
-            scoreClass = 'show-partially-correct-div';
-        }
-
-        var scoreMessage = null;
-        if (score === '')
-            scoreMessage = 'Complete';
-        else if (score !== undefined)
-            scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
+        var score = this.props.value[SCORE];
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
-                <div style={{width:"200", height:"100%",float:"left"}}>
-                    {   score !== undefined ? (<div className={scoreClass}><b>{scoreMessage}</b></div>)
+                <div style={{width:"200px", height:"100%",float:"left"}}>
+                    {   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                            : null
                     }
                     {   this.props.value[FEEDBACK] !== undefined
@@ -122,37 +150,45 @@ var Problem = createReactClass({
                     }
                 </div>
                 <div>
-                    <div>
-                        <CloseButton type="submit" text="&#10005;" title="Delete problem" onClick={
-                        function() { if (!window.confirm("Delete problem?")) { return; }
-                                     window.store.dispatch({ type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
-                    </div>
-                    <div style={{float:'left', height: "100%", marginRight:"10px"}}>
-                        <small>Problem Number</small><br /><input type="text" size="3" value={probNumber} className="problem-number" onChange={
-                        function(evt) { window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
-                                        NEW_PROBLEM_NUMBER : evt.target.value}) }}/> <br />
-                        <Button text="Next Step (Enter)" onClick={
-                            function() { window.store.dispatch({ type : NEW_STEP, PROBLEM_INDEX : problemIndex}) }}/> <br/>
-                        <Button text="New Blank Step" onClick={
+                    <div className="problem-editor-buttons"
+                         style={{float:'left', height: "100%", marginRight:"10px"}}>
+                        <div style={{display:"block", marginLeft:"10px"}}>
+                            <small style={{marginRight: "10px"}}>Problem Number</small>
+                            <input type="text" style={{width: "95px"}}
+                                   value={probNumber} className="problem-number"
+                                   onChange={
+                                        function(evt) {
+                                            window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
+                                                    NEW_PROBLEM_NUMBER : evt.target.value}) }}
+                            /> <br />
+                        </div>
+                        <br />
+                        <small>Next Step - Enter Key</small>
+                        <br />
+                        <Button text="New Blank Step" style={{width: "125px"}} onClick={
                             function() {
                                 window.store.dispatch(
-                                    { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
-                            }}/> <br/>
-                        <Button text="Undo" onClick={
+                                    { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
+                            }}/>
+                        <div style={{display:"inline-block"}}>
+                        <Button text="Undo" style={{width: "55px"}} onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : UNDO, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <Button text="Redo" onClick={
+                        <Button text="Redo" style={{width: "55px"}} onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
-                            }}/> <br />
-                        <Button type="submit" text="Clone Problem"
-                                        title="Make a copy of this work, useful if you need to reference it while trying another solution path." onClick={
-                        function() { window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}/>
+                            }}/>
+                        </div>
+                        <Button type="submit" style={{width: "125px"}} text="Clone Problem"
+                                title="Make a copy of this work, useful if you need to reference it while trying another solution path."
+                                onClick={function() {
+                                    window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
+                        />
                     </div>
-                        <div style={{float:'left', maxWidth:"85%"}} className="equation-list">
+                        <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
                         Type math here<br />
                         {
                             this.props.value[STEPS].map(function(step, stepIndex) {
@@ -167,14 +203,14 @@ var Problem = createReactClass({
                                 {showTutorial && stepIndex === 0 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Click this expression, then press enter.</span>
                                     </div>
                                 </div>) : null}
                                 {showTutorial && stepIndex === 1 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Edit this line to show part of the work for
                                               simplifying this expression, then press enter again.</span>
                                     </div>
@@ -182,19 +218,23 @@ var Problem = createReactClass({
                                 {showTutorial && stepIndex === 2 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"10px", margin: "10px"}}>
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
                                         <span>Repeat until you have reached your solution on
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
-                                <div style={{"float":"left","display":"inline-block"}}>
-                                <Button text='+ &#8593;' title='Insert step above'
+                                <div style={{"float":"left","display":"flex", alignItems: "center"}}>
+                                <HtmlButton title='Insert step above'
+                                    content={(
+                                        <img src="images/add_above.png" alt="x"/>
+                                    )}
                                     onClick={function(value) {
                                         window.store.dispatch(
                                             { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
                                 }}/>
                                 <MathInput
-                                    key={stepIndex} buttonsVisible='focused' styles={{...styles, overflow: 'auto', maxWidth:'900px'}}
+                                    key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
+                                    styles={{...styles, overflow: 'auto'}}
                                     buttonSets={['trig', 'prealgebra',
                                                  'logarithms', 'calculus']}
                                     buttonGroup={buttonGroup}
@@ -210,6 +250,7 @@ var Problem = createReactClass({
                                     onSubmit={function() {
                                         window.store.dispatch(
                                             { type : NEW_STEP,
+                                              STEP_KEY : stepIndex,
                                               PROBLEM_INDEX : problemIndex});
                                     }}
                                 />
@@ -229,17 +270,12 @@ var Problem = createReactClass({
                 </div>
             </div>
             {showTutorial ?
-                (<div><div className="answer-partially-correct"
-                      style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-                    <span>Add another problem to your document. Copy a problem
+                (<div>
+                    <div className="answer-partially-correct"
+                      style={{display:"inline-block", padding:"5px", margin: "5px"}}>
+                    <span>Scroll to the top of the page and add another problem to your document. Copy a problem
                           out of your assignment on the first line, and solve it as you did above.</span>
-                </div>
-                <div className="answer-partially-correct"
-                      style={{display:"inline-block", padding:"10px", margin: "10px"}}>
-                    <span>You can delete the demo problem above with the
-                    <CloseButton style={{display:"inline-block", "float": "none"}} text="&#10005;" onClick={function(){}}/>
-                    button in the upper right.</span>
-                </div>
+                    </div>
                 </div>
                 ) : null}
             </div>
@@ -474,24 +510,32 @@ function problemReducer(problem, action) {
             REDO_STACK : []
         }
     } else if(action.type === NEW_STEP || action.type === NEW_BLANK_STEP) {
-        var oldLastStep;
-        if (action.type === NEW_STEP) {
-                oldLastStep = problem[STEPS][problem[STEPS].length - 1];
-        } else { // new blank step
-                oldLastStep = {CONTENT : ""};
+        var oldStep;
+        if (typeof action[STEP_KEY] === 'undefined') {
+            action[STEP_KEY] = problem[STEPS].length - 1;
         }
+        if (action.type === NEW_STEP) {
+                oldStep = problem[STEPS][action[STEP_KEY]];
+        } else { // new blank step
+                oldStep = {CONTENT : ""};
+        }
+        // TODO - allow tracking the cursor, which box it is in
+        // for now this applies when the button is used instead of hitting enter
+        // while in the box, will always add to the end
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : DELETE_STEP, STEP_KEY: problem[STEPS].length,
+                type : DELETE_STEP, STEP_KEY: action[STEP_KEY],
                 INVERSE_ACTION : {...action}
             }
         };
         let undoAction = {...inverseAction[INVERSE_ACTION]};
         return {
             ...problem,
-            STEPS : [ ...problem[STEPS],
-                      {...oldLastStep, STEP_ID : genID()}
+            STEPS : [
+                ...problem[STEPS].slice(0, action[STEP_KEY] + 1),
+                {...oldStep, STEP_ID : genID()},
+                ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ],
             UNDO_STACK : [
                 undoAction,
@@ -541,9 +585,9 @@ function problemListReducer(probList, action) {
     if (action.type === ADD_DEMO_PROBLEM) {
         if (probList.length === 1 && probList[0][STEPS][0][CONTENT] === "") {
 
-            return [{ PROBLEM_NUMBER : "",
+            return [{ PROBLEM_NUMBER : "Demo",
                  STEPS : [{
-                     STEP_ID : genID(), CONTENT : "4-9\\left(\\frac{2}{3}\\right)^2+\\frac{4}{5-3\\cdot4}"}],
+                     STEP_ID : genID(), CONTENT : "4+2-3\\left(1+2\\right)"}],
                  UNDO_STACK : [], REDO_STACK : [],
                  SHOW_TUTORIAL : true
                  }];
@@ -556,19 +600,20 @@ function problemListReducer(probList, action) {
             problemReducer(undefined, action)
         ];
     } else if (action.type === REMOVE_PROBLEM) {
+        if (probList.length === 1) return probList;
         return [
-            ...probList.slice(0, action.PROBLEM_INDEX),
-            ...probList.slice(action.PROBLEM_INDEX + 1)
+            ...probList.slice(0, action[PROBLEM_INDEX]),
+            ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else if (action.type === CLONE_PROBLEM) {
         var newProb = {
-            ...probList[action.PROBLEM_INDEX],
-            PROBLEM_NUMBER : probList[action.PROBLEM_INDEX][PROBLEM_NUMBER] + ' - copy'
+            ...probList[action[PROBLEM_INDEX]],
+            PROBLEM_NUMBER : probList[action[PROBLEM_INDEX]][PROBLEM_NUMBER] + ' - copy'
         };
         return [
-            ...probList.slice(0, action.PROBLEM_INDEX + 1),
+            ...probList.slice(0, action[PROBLEM_INDEX] + 1),
             newProb,
-            ...probList.slice(action.PROBLEM_INDEX + 1)
+            ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else if (action.type === SET_PROBLEM_NUMBER ||
                action.type === EDIT_STEP ||
@@ -579,13 +624,13 @@ function problemListReducer(probList, action) {
                action.type === INSERT_STEP_ABOVE ||
                action.type === NEW_STEP) {
         return [
-            ...probList.slice(0, action.PROBLEM_INDEX),
-            problemReducer(probList[action.PROBLEM_INDEX], action),
-            ...probList.slice(action.PROBLEM_INDEX + 1)
+            ...probList.slice(0, action[PROBLEM_INDEX]),
+            problemReducer(probList[action[PROBLEM_INDEX]], action),
+            ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
     } else {
         return probList;
     }
 }
 
-export { Problem as default, problemReducer, problemListReducer };
+export { Problem as default, ScoreBox, problemReducer, problemListReducer };

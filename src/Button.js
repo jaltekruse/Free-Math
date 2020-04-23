@@ -5,12 +5,12 @@ import createReactClass from 'create-react-class';
 // I think this is no longer needed now that I'm using a real button
 // instead of a div
 const unselectable = {
-    "-webkit-touch-callout": "none",
-    "-webkit-user-select": "none",
-    "-khtml-user-select": "none",
-    "-moz-user-select": "none",
-    "-ms-user-select": "none",
-    "user-select": "none"
+    WebkitTouchCallout: "none",
+    WebkitUserSelect: "none",
+    KhtmlUserSelect: "none",
+    MozUserSelect: "none",
+    msUserSelect: "none",
+    userSelect: "none"
 }
 
 var HtmlButton = createReactClass({
@@ -20,7 +20,7 @@ var HtmlButton = createReactClass({
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
-        const className =  this.props.className;
+        const className = this.props.className ? this.props.className : "fm-button";
         return (
             <button
                 className={className}
@@ -42,9 +42,10 @@ var Button = createReactClass({
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
+        const className = this.props.className ? this.props.className : "fm-button";
         return (
             <button
-                className="fm-button"
+                className={className}
                 style={{...unselectable, ...style}}
                 onClick={function() {
                      onClick();
@@ -62,9 +63,10 @@ var LightButton = createReactClass({
     render: function() {
         const onClick = this.props.onClick;
         const title = this.props.title;
+        const className = this.props.className ? this.props.className : "fm-button-light";
         return (
             <button
-                className="fm-button-light"
+                className={className}
                 onClick={function() {
                     onClick();
                 }}
@@ -96,7 +98,7 @@ var CloseButton = createReactClass({
                 }}
                 title={title}
             >
-            {this.props.text}
+            <img src="images/close_dark.png" alt="x"/>
             </button>
         );
   }

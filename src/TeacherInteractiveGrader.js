@@ -7,12 +7,18 @@ import JSZip from 'jszip';
 import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
+import { scaleScore } from './SolutionGrader.js';
 import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
+import { CloseButton } from './Button.js';
+import FreeMathModal from './Modal.js';
 import { removeExtension } from './AssignmentEditorMenubar.js';
 import { checkAllSaved } from './DefaultHomepageActions.js';
+import { saveAs } from 'file-saver';
 
 var KAS = window.KAS;
+
+var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
@@ -35,6 +41,7 @@ var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var PROBLEMS = 'PROBLEMS';
+var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 
 var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
 var SIMILAR_ASSIGNMENT_SETS = "SIMILAR_ASSIGNMENT_SETS";
@@ -72,6 +79,7 @@ var FEEDBACK = "FEEDBACK";
 var STUDENT_WORK = "STUDENT_WORK";
 var ANSWER = "ANSWER";
 var CONTENT = "CONTENT";
+var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 
 var SHOW_ALL = "SHOW_ALL";
 
@@ -330,9 +338,9 @@ function findSimilarStudentAssignments(allStudentWork) {
                     : [];
 
                 // add if not in list
-                similarDocsToEach[assignment1[STUDENT_FILE]].indexOf(assignment2[STUDENT_FILE]) === -1
-                    ? similarDocsToEach[assignment1[STUDENT_FILE]].push(assignment2[STUDENT_FILE])
-                    : 0;
+                if (similarDocsToEach[assignment1[STUDENT_FILE]].indexOf(assignment2[STUDENT_FILE]) === -1) {
+                    similarDocsToEach[assignment1[STUDENT_FILE]].push(assignment2[STUDENT_FILE]);
+                }
             }
         });
     });
@@ -360,34 +368,41 @@ function findSimilarStudentAssignments(allStudentWork) {
         }
         return allSimilarityGroups;
     }
+
+    let pair;
+    let addedToOneGroup;
+
+    const addToGroupsIfNotPresent = function(group, index, array) {
+	var matchesAll = true;
+	// are both members of this pair already in this group, then skip comparing with
+	// everyone else
+	if (group.indexOf(pair[0]) !== -1 && group.indexOf(pair[1]) !== -1) {
+	    addedToOneGroup = true;
+	    return true;
+	}
+	for (let groupMember of group) {
+	    if ( (groupMember !== pair[0]
+		   && similarityScores[buildKey(groupMember, pair[0])] === undefined) ||
+		  (groupMember !== pair[1]
+		   && similarityScores[buildKey(groupMember, pair[1])] === undefined) ) {
+		matchesAll = false;
+		break;
+	    }
+	}
+	if (matchesAll) {
+	    // add if not in list
+	    if (group.indexOf(pair[0]) === -1) group.push(pair[0]);
+	    if (group.indexOf(pair[1]) === -1) group.push(pair[1]);
+	    addedToOneGroup = true;
+	}
+    };
+
     for (var similarPair in similarityScores) {
         if (similarityScores.hasOwnProperty(similarPair)) {
-            let pair = splitKey(similarPair);
-            var addedToOneGroup = false;
-            allSimilarityGroups.forEach(function(group, index, array) {
-                var matchesAll = true;
-                // are both members of this pair already in this group, then skip comparing with
-                // everyone else
-                if (group.indexOf(pair[0]) !== -1 && group.indexOf(pair[1]) !== -1) {
-                    addedToOneGroup = true;
-                    return true;
-                }
-                for (let groupMember of group) {
-                    if ( (groupMember !== pair[0]
-                           && similarityScores[buildKey(groupMember, pair[0])] === undefined) ||
-                          (groupMember !== pair[1]
-                           && similarityScores[buildKey(groupMember, pair[1])] === undefined) ) {
-                        matchesAll = false;
-                        break;
-                    }
-                }
-                if (matchesAll) {
-                    // add if not in list
-                    group.indexOf(pair[0]) === -1 ? group.push(pair[0]) : 0;
-                    group.indexOf(pair[1]) === -1 ? group.push(pair[1]) : 0;
-                    addedToOneGroup = true;
-                }
-            });
+            pair = splitKey(similarPair);
+            addedToOneGroup = false;
+	    /*ignore jslint start*/
+            allSimilarityGroups.forEach(addToGroupsIfNotPresent);
             if (!addedToOneGroup) {
                 allSimilarityGroups.push(pair);
             }
@@ -516,10 +531,8 @@ function genStudentWorkZip(gradedWork) {
 
 function saveGradedStudentWork(gradedWork) {
     var zip = genStudentWorkZip(gradedWork);
-    var content = zip.generate();
-
-    window.location.href="data:application/zip;download:testing;base64," + content;
-    setTimeout(function() { window.onbeforeunload = checkAllSaved() }, 500);
+    var blob = zip.generate({type: 'blob'});
+    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
 }
 
 // returns score out of total possible points that are specified in the answer key
@@ -570,6 +583,7 @@ function areExpressionsSimilar(expression1, expression2) {
             // if parsing or comparison fails, do nothing, assume they are not similar
             // "matches" is already set to false above
             console.log("failed to compare 2 expressions");
+            window.ga('send', 'exception', { 'exDescription' : 'failed while comparing expressions.' } );
             console.log(expression1);
             console.log(expression2);
             console.log(e);
@@ -609,8 +623,12 @@ function areExpressionsSimilar(expression1, expression2) {
 // SIMILAR_ASSIGNMENT_SETS : [ [ "jason", "emma", "matt"], ["jim", "tim"] ],
 // PROBLEMS : { "1.a" : {
 //      "POSSIBLE_POINTS : 3,
-//      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
-//                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
+//      "UNIQUE_ANSWERS" : [
+//              { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE",
+//                STUDENT_WORK : [
+//                      { STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
+//                             STEPS : [ { CONTENT : "2x=14"},
+//                                       { CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
 function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparator = areExpressionsSimilar) {
     var aggregatedWork = {};
     // used to simplify filling in a flag for missing work if a student does not do a problem
@@ -705,15 +723,76 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
         }
     }
 
+    var possiblePointsAppearing = {};
+    let mostCommonPossiblePoints;
+    var countPossiblePointsValues =
+        function(uniqueAnswer, index, arr) {
+            // sort with largest groups first
+            uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[STEPS].length - b[STEPS].length; });
+            // calculate appearances of different value for possible points
+            uniqueAnswer[STUDENT_WORK].forEach(function(singleStudentSolution, index, arr) {
+                if (typeof singleStudentSolution[POSSIBLE_POINTS] === 'undefined') {
+                    return;
+                }
+                var existingCountOfThisPosiblePointsValue = possiblePointsAppearing[singleStudentSolution[POSSIBLE_POINTS]];
+                if (existingCountOfThisPosiblePointsValue) {
+                    existingCountOfThisPosiblePointsValue++;
+                } else {
+                    existingCountOfThisPosiblePointsValue = 1;
+                }
+                possiblePointsAppearing[singleStudentSolution[POSSIBLE_POINTS]] = existingCountOfThisPosiblePointsValue;
+            });
+        };
+
+    var setPossiblePointsAndScaleScore =
+        function(singleStudentSolution, index, arr) {
+            var newScore = singleStudentSolution[SCORE];
+            // this will be false if not set or 0, but that is fine because 0 doesn't need scaling
+            if (singleStudentSolution[SCORE]) {
+                newScore = scaleScore(singleStudentSolution[SCORE],
+                                          singleStudentSolution[POSSIBLE_POINTS],
+                                          mostCommonPossiblePoints);
+            }
+            singleStudentSolution[SCORE] = newScore;
+            singleStudentSolution[POSSIBLE_POINTS] = mostCommonPossiblePoints;
+            return singleStudentSolution;
+        };
+
+    var keyWithMaxValInObj = function(objToSearch) {
+        var keys = Object.keys(objToSearch);
+        if (keys.length === 0) return undefined;
+        return keys.reduce(function(a, b){
+                return objToSearch[a] > objToSearch[b] ? a : b
+        });
+    }
+
+
     // sort students responses within an answer group by least work first
+    // also apply possible points correctly, they should all be the same, but if a user
+    // frankensteined several graded zips together, choose the most common possible points value
     for (problemNumber in aggregatedWork) {
         if (aggregatedWork.hasOwnProperty(problemNumber)) {
             var uniqueAnswers = aggregatedWork[problemNumber][UNIQUE_ANSWERS];
-            uniqueAnswers.forEach(function(uniqueAnswer, index, arr) {
-                uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[STEPS].length - b[STEPS].length; });
+            possiblePointsAppearing = {};
+            uniqueAnswers.forEach(countPossiblePointsValues);
+            console.log(possiblePointsAppearing);
+
+            mostCommonPossiblePoints = keyWithMaxValInObj(possiblePointsAppearing);
+            mostCommonPossiblePoints = typeof mostCommonPossiblePoints !== 'undefined' ? mostCommonPossiblePoints : 6;
+            console.log(mostCommonPossiblePoints);
+            aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints;
+            aggregatedWork[problemNumber][POSSIBLE_POINTS_EDITED] = mostCommonPossiblePoints;
+
+            aggregatedWork[problemNumber][UNIQUE_ANSWERS] =  uniqueAnswers.map(function(uniqueAnswer, index, arr) {
+                // set a scaled score, if different graded zips were frankensteined together by a user
+                // don't let the same problem have different possible points for different students
+                uniqueAnswer[STUDENT_WORK].map(setPossiblePointsAndScaleScore);
+                return uniqueAnswer;
             });
         }
     }
+
+
     // TODO - need to add this back
     // TODO - need to think about how this handles outliers that do a wrong problem
     //        should probably only add these for questions where a majority of students answered a question
@@ -760,7 +839,123 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
-    return convertToCurrentFormat2(convertToCurrentFormatFromAlpha(possiblyOldDoc));
+    var ret = replaceSpecialCharsWithLatex(
+                convertToCurrentFormat2(
+                    convertToCurrentFormatFromAlpha(possiblyOldDoc)));
+    ret[CURRENT_PROBLEM] = 0;
+    return ret;
+}
+
+function replaceSpecialCharsWithLatex(possiblyOldDoc) {
+    if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
+        && possiblyOldDoc[PROBLEMS].length > 0) {
+        console.log("changing special chars to latex");
+        // TODO - consider getting rid of this deep clone, but not much object creation
+        // to avoid if I want to keep this function pure
+        possiblyOldDoc = cloneDeep(possiblyOldDoc);
+        possiblyOldDoc[PROBLEMS] = possiblyOldDoc[PROBLEMS].map(function (problem) {
+            problem[STEPS] = problem[STEPS].map(function (step) {
+                var orig = step[CONTENT];
+                // TODO - from katex - No character metrics for '∉' in style 'Main-Regular'
+                step[CONTENT] = step[CONTENT].replace(/−/g, '-');
+                step[CONTENT] = step[CONTENT].replace(/⋅/g, '\\cdot');
+                step[CONTENT] = step[CONTENT].replace(/÷/g, '\\div');
+                // yes these are different characers... TODO actually maybe not
+                //step[CONTENT] = step[CONTENT].replace(/=/g, '=');
+                step[CONTENT] = step[CONTENT].replace(/π/g, '\\pi');
+                step[CONTENT] = step[CONTENT].replace(/∣/g, '\\vert');
+                step[CONTENT] = step[CONTENT].replace(/≥/g, '\\ge');
+                step[CONTENT] = step[CONTENT].replace(/≤/g, '\\le');
+                step[CONTENT] = step[CONTENT].replace(/≈/g, '\\approx');
+                step[CONTENT] = step[CONTENT].replace(/∝/g, '\\propto');
+                step[CONTENT] = step[CONTENT].replace(/±/g, '\\pm');
+                step[CONTENT] = step[CONTENT].replace(/⟨/g, '\\left\\langle');
+                step[CONTENT] = step[CONTENT].replace(/⟩/g, '\\right\\rangle');
+                step[CONTENT] = step[CONTENT].replace(/△/g, '\\triangle');
+                step[CONTENT] = step[CONTENT].replace(/⊙/g, '\\odot');
+                step[CONTENT] = step[CONTENT].replace(/◯/g, '\\bigcirc');
+                step[CONTENT] = step[CONTENT].replace(/°/g, '\\degree');
+                step[CONTENT] = step[CONTENT].replace(/∠/g, '\\angle');
+                step[CONTENT] = step[CONTENT].replace(/∡/g, '\\measuredangle');
+                step[CONTENT] = step[CONTENT].replace(/≡/g, '\\equiv');
+                step[CONTENT] = step[CONTENT].replace(/≅/g, '\\cong');
+                step[CONTENT] = step[CONTENT].replace(/⊥/g, '\\perp');
+                step[CONTENT] = step[CONTENT].replace(/∥/g, '\\parallel');
+                step[CONTENT] = step[CONTENT].replace(/≃/g, '\\simeq');
+                step[CONTENT] = step[CONTENT].replace(/∼/g, '\\sim');
+                step[CONTENT] = step[CONTENT].replace(/∀/g, '\\forall');
+                step[CONTENT] = step[CONTENT].replace(/∴/g, '\\therefore');
+                step[CONTENT] = step[CONTENT].replace(/∵/g, '\\because');
+                step[CONTENT] = step[CONTENT].replace(/∈/g, '\\in');
+                step[CONTENT] = step[CONTENT].replace(/∉/g, '\\notin');
+                step[CONTENT] = step[CONTENT].replace(/∄/g, '\\nexists');
+                step[CONTENT] = step[CONTENT].replace(/∃/g, '\\exists');
+                step[CONTENT] = step[CONTENT].replace(/¬/g, '\\neg');
+                step[CONTENT] = step[CONTENT].replace(/∨/g, '\\lor');
+                step[CONTENT] = step[CONTENT].replace(/∧/g, '\\land');
+                step[CONTENT] = step[CONTENT].replace(/→/g, '\\to');
+                step[CONTENT] = step[CONTENT].replace(/←/g, '\\gets');
+                step[CONTENT] = step[CONTENT].replace(/∪/g, '\\cup');
+                step[CONTENT] = step[CONTENT].replace(/∩/g, '\\cap');
+                step[CONTENT] = step[CONTENT].replace(/⊂/g, '\\subset');
+                step[CONTENT] = step[CONTENT].replace(/⊆/g, '\\subseteq');
+                step[CONTENT] = step[CONTENT].replace(/⊃/g, '\\supset');
+                step[CONTENT] = step[CONTENT].replace(/⊇/g, '\\supseteq');
+                step[CONTENT] = step[CONTENT].replace(/∫/g, '\\int');
+                step[CONTENT] = step[CONTENT].replace(/∮/g, '\\oint');
+                step[CONTENT] = step[CONTENT].replace(/∂/g, '\\partial');
+                step[CONTENT] = step[CONTENT].replace(/∑/g, '\\sum');
+                step[CONTENT] = step[CONTENT].replace(/∏/g, '\\prod');
+                step[CONTENT] = step[CONTENT].replace(/∞/g, '\\infty');
+                step[CONTENT] = step[CONTENT].replace(/′/g, "'");
+
+                step[CONTENT] = step[CONTENT].replace(/α/g,"\\alpha");
+                step[CONTENT] = step[CONTENT].replace(/β/g,"\\beta");
+                step[CONTENT] = step[CONTENT].replace(/γ/g,"\\gamma");
+                step[CONTENT] = step[CONTENT].replace(/Γ/g,"\\Gamma");
+                step[CONTENT] = step[CONTENT].replace(/δ/g,"\\delta");
+                step[CONTENT] = step[CONTENT].replace(/Δ/g,"\\Delta");
+                step[CONTENT] = step[CONTENT].replace(/ϵ/g,"\\epsilon");
+                step[CONTENT] = step[CONTENT].replace(/ϝ/g,"\\digamma");
+                step[CONTENT] = step[CONTENT].replace(/ζ/g,"\\zeta");
+                step[CONTENT] = step[CONTENT].replace(/η/g,"\\eta");
+                step[CONTENT] = step[CONTENT].replace(/θ/g,"\\theta");
+                step[CONTENT] = step[CONTENT].replace(/Θ/g,"\\Theta");
+                step[CONTENT] = step[CONTENT].replace(/ι/g,"\\iota");
+                step[CONTENT] = step[CONTENT].replace(/κ/g,"\\kappa");
+                step[CONTENT] = step[CONTENT].replace(/λ/g,"\\lambda");
+                step[CONTENT] = step[CONTENT].replace(/Λ/g,"\\Lambda");
+                step[CONTENT] = step[CONTENT].replace(/μ/g,"\\mu");
+                step[CONTENT] = step[CONTENT].replace(/ν/g,"\\nu");
+                step[CONTENT] = step[CONTENT].replace(/ξ/g,"\\xi");
+                step[CONTENT] = step[CONTENT].replace(/Ξ/g,"\\Xi");
+                step[CONTENT] = step[CONTENT].replace(/π/g,"\\pi");
+                step[CONTENT] = step[CONTENT].replace(/Π/g,"\\Pi");
+                step[CONTENT] = step[CONTENT].replace(/ρ/g,"\\rho");
+                step[CONTENT] = step[CONTENT].replace(/ϱ/g,"\\varrho");
+                step[CONTENT] = step[CONTENT].replace(/σ/g,"\\sigma");
+                step[CONTENT] = step[CONTENT].replace(/Σ/g,"\\Sigma");
+                step[CONTENT] = step[CONTENT].replace(/τ/g,"\\tau");
+                step[CONTENT] = step[CONTENT].replace(/υ/g,"\\upsilon");
+                step[CONTENT] = step[CONTENT].replace(/ϒ/g,"\\Upsilon");
+                step[CONTENT] = step[CONTENT].replace(/ϕ/g,"\\phi");
+                step[CONTENT] = step[CONTENT].replace(/Φ/g,"\\Phi");
+                step[CONTENT] = step[CONTENT].replace(/χ/g,"\\chi");
+                step[CONTENT] = step[CONTENT].replace(/ψ/g,"\\psi");
+                step[CONTENT] = step[CONTENT].replace(/Ψ/g,"\\Psi");
+                step[CONTENT] = step[CONTENT].replace(/ω/g,"\\omega");
+                step[CONTENT] = step[CONTENT].replace(/Ω/g,"\\Omega");
+
+                if (step[CONTENT] !== orig) {
+                    console.log(orig);
+                    console.log(step[CONTENT]);
+                }
+                return step;
+            });
+            return problem;
+        });
+    }
+    return possiblyOldDoc;
 }
 
 function convertToCurrentFormatFromAlpha(possiblyOldDoc) {
@@ -855,7 +1050,11 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
         }
         if (failureCount > 0) {
             alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+            window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
+            window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
         }
+
+        window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
         // TODO - add back answer key
         var aggregatedWork = aggregateStudentWork(allStudentWork);
         console.log("@@@@@@ opened docs");
@@ -867,7 +1066,9 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
     } catch (e) {
         // TODO - try to open a single student doc
+        console.log(e);
         alert("Error opening file, you should be opening a zip file full of Free Math documents.");
+        window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
         onFailure();
         return;
     }
@@ -887,6 +1088,7 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
         }
         r.readAsArrayBuffer(f);
     } else {
+        window.ga('send', 'exception', { 'exDescription' : 'error opening docs to grade' } );
         alert("Failed to load file");
         onFailure();
     }
@@ -988,7 +1190,7 @@ const GradesView = createReactClass({
                             for (var studentFileName in grades) {
                                 if (grades.hasOwnProperty(studentFileName)) {
                                     tableRows.push(
-                                    (<tr>
+                                    (<tr key={studentFileName}>
                                         <td>{studentFileName}</td>
                                         <td>{grades[studentFileName]}</td>
                                     </tr> ));
@@ -1049,22 +1251,20 @@ const AllProblemGraders = createReactClass({
     }
 });
 
-const TeacherInteractiveGrader = createReactClass({
-    componentDidMount() {
-        var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
+function setupGraph(gradingOverview, chart) {
         var labels = [];
         var numberUniqueAnswersData = {
-            label: "Number unique answers",
+            label: "Unique Answers",
             backgroundColor: "blue",
             data: []
         };
         var largestAnswerGroups = {
-            label: "Largest answer group size",
+            label: "Largest Group",
             backgroundColor: "green",
             data: []
         };
         var averageAnswerGroups = {
-            label: "Average answer group size",
+            label: "Average Group",
             backgroundColor: "purple",
             data: []
         };
@@ -1075,18 +1275,17 @@ const TeacherInteractiveGrader = createReactClass({
             largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
-        var chart = ReactDOM.findDOMNode(this.refs.chart);
         var onClickFunc = function(evt) {
             var activePoints = chart.getElementsAtEvent(evt);
             var problemNum;
             if (!activePoints || activePoints.length === 0) {
                 // TODO - this could be better, collision isn't quite right once the text labels
                 // are tight enough they start displaying at an angle.
-                let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
-                let yScale = this.chart.scales['y-axis-0'];
+                let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
+                let yScale = chart.scales['y-axis-0'];
                 if (yScale.getValueForPixel(mousePoint.y) < 0) {
-                    let mousePoint = Chart.helpers.getRelativePosition(evt, this.chart.chart);
-                    let xScale = this.chart.scales['x-axis-0'];
+                    let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
+                    let xScale = chart.scales['x-axis-0'];
                     problemNum = xScale.ticks[xScale.getValueForPixel(mousePoint.x)];
                 } else {
                     return;
@@ -1095,10 +1294,13 @@ const TeacherInteractiveGrader = createReactClass({
                 problemNum = labels[activePoints[0]["_index"]];
             }
             problemNum = problemNum.replace("Problem ", "");
+            window.ga('send', 'event', 'Actions', 'edit',
+                'Change problem being graded');
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
         };
         Chart.defaults.global.defaultFontColor = '#010101';
+        Chart.defaults.global.defaultFontSize = 16;
         chart = new Chart(chart.getContext('2d'), {
             type: 'bar',
             data: {
@@ -1131,19 +1333,64 @@ const TeacherInteractiveGrader = createReactClass({
                 }
             }
         });
+}
+
+const TeacherInteractiveGrader = createReactClass({
+    componentDidMount() {
+        setupGraph(
+            window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],
+            ReactDOM.findDOMNode(this.refs.chart));
       },
+    getInitialState () {
+        /* note the modal shows immediately when viewing the student demo,
+         * but not for opening an assignment */
+        return { showModal: true }
+    },
     render: function() {
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
+                <div className="menubar-spacer"> </div>
+                <FreeMathModal
+                    showModal={showTutorial && this.state.showModal}
+                    content={(
+                        <div width="750px">
+                            <CloseButton onClick={function() {
+                                this.setState({showModal: false});
+                            }.bind(this)} />
+                            <iframe title="Free Math Video"
+                                src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
+                                allowFullScreen frameBorder="0"
+                                style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                        </div>
+                        )
+                    } />
+                {browserIsIOS ?
+                    (
+                        <div className="answer-incorrect"
+                         style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can
+                                  be used to try out the experience, but you will need to visit the site on your Mac,
+                                  Widows PC, Chromebook or Android device to actually use the site.</span>
+                        </div>) :
+                    null
+                }
+                {showTutorial ?
+                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                        title="Reopen Demo Video"
+                        onClick={function() {
+                            this.setState({showModal: true});
+                        }.bind(this)}/>
+                    ) : null}
                 <h3>To see student responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
-                <canvas ref="chart" width="400" height="50"></canvas>
+                <canvas ref="chart" width="400" height="70"></canvas>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />

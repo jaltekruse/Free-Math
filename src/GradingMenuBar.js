@@ -64,6 +64,7 @@ const GradingMenuBar = createReactClass({
             saveCallback, function(){/* TODO - on sign in error*/})
     },
     render: function() {
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
             assignmentName = "";
@@ -77,27 +78,35 @@ const GradingMenuBar = createReactClass({
         }
         return (
             <div className="menuBar">
-                <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
-                    <LogoHomeNav /> 
+                <div className="nav" style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}}>
+                    <LogoHomeNav />
                     <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
                         <span style={{margin : "0px 15px 0px 15px"}}>
-                            {saveStateMsg}</span>
-                        Name &nbsp;
-                        <input type="text" id="assignment-name-text" size="20"
-                                name="assignment name"
-                                value={this.props.value[ASSIGNMENT_NAME]}
-                                onChange={
-                                    function(evt) {
-                                        window.store.dispatch(
-                                            { type : SET_ASSIGNMENT_NAME,
-                                                ASSIGNMENT_NAME : evt.target.value});
-                                    }}
-                        />&nbsp;&nbsp;
-                        <LightButton text="Save to Device" onClick={
-                            function() {
-                                saveGradedStudentWork(window.store.getState());
-                            }
-                        }/>&nbsp;&nbsp;
+                            {saveStateMsg}
+                        </span>
+                        {/* Don't show option to save on iOS*/}
+                        {!browserIsIOS ?
+                        (<span>
+                            Assignment Name &nbsp;&nbsp;
+                            <input type="text" id="assignment-name-text" size="20"
+                                    name="assignment name"
+                                    value={this.props.value[ASSIGNMENT_NAME]}
+                                    onChange={
+                                        function(evt) {
+                                            window.store.dispatch(
+                                                { type : SET_ASSIGNMENT_NAME,
+                                                    ASSIGNMENT_NAME : evt.target.value});
+                                        }}
+                            />&nbsp;&nbsp;
+                            <LightButton text="Save to Device" onClick={
+                                function() {
+                                    window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
+                                    saveGradedStudentWork(window.store.getState());
+                                }
+                            }/>
+                        </span>)
+                        : null } &nbsp;&nbsp;
+
                         <HtmlButton
                             className="fm-button-light"
                             ref="saveToDrive"
@@ -115,6 +124,7 @@ const GradingMenuBar = createReactClass({
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.ga('send', 'event', 'Actions', 'edit', 'Open similar doc check');
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
                         }/>&nbsp;&nbsp;
@@ -122,6 +132,7 @@ const GradingMenuBar = createReactClass({
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                window.ga('send', 'event', 'Actions', 'edit', 'View Grades');
                                 window.store.dispatch({type : SET_TO_VIEW_GRADES});
                             }
                         }/>&nbsp;&nbsp;

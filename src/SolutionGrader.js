@@ -40,6 +40,12 @@ var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 
 var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
 
+// only added here to navigate down the global state to count number of solutions a bulk apply
+// will impact
+var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
+var PROBLEMS = 'PROBLEMS';
+var STUDENT_WORK = "STUDENT_WORK";
+
 function singleSolutionReducer(state, action) {
     if (action.type === GRADE_SINGLE_SOLUTION) {
         // currently no validation here
@@ -76,9 +82,7 @@ function singleSolutionReducer(state, action) {
                  FEEDBACK : action[FEEDBACK] };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
         if (Number(state[SCORE]) > 0) {
-            var newScore = Math.round(
-                ( Number(state[SCORE]) / Number(action[OLD_POSSIBLE_POINTS]) )
-                * Number(action[POSSIBLE_POINTS]));
+            var newScore = scaleScore(state[SCORE], action[OLD_POSSIBLE_POINTS], action[POSSIBLE_POINTS]); 
             return { ...state,
                      SCORE : newScore };
         } else {
@@ -89,11 +93,15 @@ function singleSolutionReducer(state, action) {
     }
 }
 
+function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
+    return Math.round(
+        ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
+}
+
 const StudentWork = createReactClass({
     render: function() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
-        var possiblePoints = this.props.possiblePoints;
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         return (
@@ -148,6 +156,10 @@ const SolutionGrader = createReactClass({
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
+
+        var globalState = window.store.getState();
+        var groupSize = globalState[PROBLEMS][problemNumber][UNIQUE_ANSWERS][solutionClassIndex][STUDENT_WORK].length;
+        window.ga('send', 'event', 'Actions', 'edit', 'Apply Score to All', groupSize);
         // TODO - check if any unique grades have been applied to student solutions other than this one in
         // this solution class
         // if not, just send the action through, otherwise prompt a warning about losing grades
@@ -227,14 +239,21 @@ const SolutionGrader = createReactClass({
                         }/>
             );
         };
+        // header message for complete status or extra credit notification
+        var gradingNotice = '';
+        if (data[SCORE] === '') {
+            gradingNotice = 'Complete - Full Credit';
+        } else if (score && score > possiblePoints) {
+            gradingNotice = 'Extra Credit';
+        }
         return (
             <div className={classes} style={{float:"left"}}> {/*<!-- container for nav an equation list --> */}
                 { viewingSimilarGroup
                         ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
-                    <div style={{visibility: (data[SCORE] === "") ? "visible" : "hidden"}}>
-                        <small><span style={{color:"#545454"}}>Complete - Full Credit</span><br /></small>
+                    <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
+                        <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
                     </div>
                     <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
                     {/* TODO - I need teachers to be able to edit the score, including deleting down to
@@ -287,4 +306,4 @@ const SolutionGrader = createReactClass({
     }
 });
 
-export { SolutionGrader as default, singleSolutionReducer};
+export { SolutionGrader as default, scaleScore, singleSolutionReducer};
