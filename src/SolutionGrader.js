@@ -103,7 +103,10 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
 }
 
 class StudentWork extends React.Component {
-    render() {
+    state = {
+        imageMarkup : false
+    };
+    render = () => {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -111,7 +114,7 @@ class StudentWork extends React.Component {
         return (
             <div style={{float:"left"}} className="equation-list">
                 {
-                    data[STEPS].map(function(step, stepIndex) {
+                data[STEPS].map(function(step, stepIndex) {
                     var stepStyle = {};
                     if (step[HIGHLIGHT] === ERROR) stepStyle = {backgroundColor : RED}
                     else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
@@ -120,10 +123,25 @@ class StudentWork extends React.Component {
                         <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
 
                             <div>
-                            {/* <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "98%"}}/> */}
                             { step[FORMAT] === IMG
                                 ?
                                 (
+                                <span>
+                                <Button className="extra-long-problem-action-button fm-button"
+                                        text={this.state.imageMarkup ?
+                                            "Finished Feedback" : "Mark Feedback" }
+                                        title={this.state.imageMarkup ?
+                                            "Finished Feedback" : "Mark Feedback" }
+                                        onClick={function() {
+                                            if (this.state.imageMarkup) {
+                                                // TODO - save modified image
+                                                this.setState({imageMarkup: false});
+                                            } else {
+                                                this.setState({imageMarkup: true});
+                                            }
+                                        }.bind(this)}
+                                />
+                                { this.state.imageMarkup ?
                                     <ImageEditor
                                         includeUI={{
                                           loadImage: {
@@ -133,7 +151,7 @@ class StudentWork extends React.Component {
                                           menu: ['draw', 'shape', 'text'],
                                           initMenu: 'shape',
                                           uiSize: {
-                                            width: '1000px',
+                                            width: '500px',
                                             height: '700px'
                                           },
                                           menuBarPosition: 'top'
@@ -146,6 +164,11 @@ class StudentWork extends React.Component {
                                         }}
                                         usageStatistics={false}
                                       />
+                                    :
+                                    <img src={step[CONTENT]}
+                                         style={{margin : "10px", maxWidth: "98%"}}/>
+                                }
+                                </span>
                                 )
                                 :
                                 step[FORMAT] === TEXT
@@ -174,7 +197,7 @@ class StudentWork extends React.Component {
                             </div>
                         </div>
                     );
-                })}
+                }.bind(this))}
             </div>
         );
     }

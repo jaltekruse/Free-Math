@@ -619,12 +619,13 @@ class DefaultHomepageActions extends React.Component {
                                 </p>
                                 <input type="email" name="EMAIL" className="email" size="25"
                                        id="mce-EMAIL" placeholder="  email address"
-                                       style={{"border": "0px", fontSize: "25px"}}
+                                       style={{"border": "0px", padding: "5px",
+                                               fontSize: "25px"}}
                                        value={this.state.emailString}
                                        onChange={function(evt) {
                                                 this.setState({emailString : evt.target.value});
                                        }.bind(this)}/>
-                                <input style={{margin:"10px", fontSize: "20px", height:"30px"}} type="submit"
+                                <input style={{margin:"10px"}} type="submit"
                                        value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
                                        className="fm-button-light" onClick={function() {
                                             window.ga('send', 'event', 'Actions', 'signup', 'Mail list');

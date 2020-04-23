@@ -205,6 +205,9 @@ function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
     }
 
     if (imgFile.type.includes("gif")) {
+        // disable for now, they take up lots of space and rotate/crop don't work
+        alert("Gifs are not supported");
+        return;
         // TODO - check size, as this isn't as easy to scale down, good to set a max of\
         // something like 0.5-1MB
         if (imgFile.size > 1024 * 1024) {
@@ -399,13 +402,17 @@ class Problem extends React.Component {
                             /> <br />
                         </div>
                         <br />
-                        <small>Next Step - Enter Key</small>
-                        <br />
+                        <Button text="Next Step (Enter)" className="long-problem-action-button fm-button" onClick={
+                            function() {
+                                window.store.dispatch(
+                                    { type : NEW_STEP, PROBLEM_INDEX : problemIndex})
+                            }}/>
                         <Button text="New Blank Step" className="long-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex})
                             }}/>
+                        <div style={{display:'inline-block'}}>
                         <Button text="Undo" className="short-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
@@ -416,6 +423,7 @@ class Problem extends React.Component {
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
                             }}/>
+                        </div>
                         <Button type="submit" className="long-problem-action-button fm-button" text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() {
@@ -491,9 +499,10 @@ class Problem extends React.Component {
                                     :
                                     step[FORMAT] === TEXT ?
                                         (
-                                            <input type="text" value={step[CONTENT]}
+                                            <textarea value={step[CONTENT]}
                                                 style={{...styles, margin : "10px"}}
                                                 className="text-step-input"
+                                                rows="4"
                                                 onChange={
                                                     function(evt) {
                                                         window.store.dispatch({
