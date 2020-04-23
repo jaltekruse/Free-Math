@@ -50,6 +50,12 @@ var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
 var PROBLEMS = 'PROBLEMS';
 var STUDENT_WORK = "STUDENT_WORK";
 
+// refers to passing complete step info in an action
+//oldStep = {CONTENT : "", FORMAT: "MATH", HIGHTLIGHT: "SUCCESS"};
+// current format MATH isn't used, no format implies math
+var STEP_DATA = "STEP_DATA";
+var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
+
 function singleSolutionReducer(state, action) {
     if (action.type === GRADE_SINGLE_SOLUTION) {
         // currently no validation here
@@ -63,6 +69,14 @@ function singleSolutionReducer(state, action) {
             ret[FEEDBACK] = action[FEEDBACK];
         }
         return ret;
+    } else if (action.type === EDIT_STUDENT_STEP ) {
+        return { ...state,
+            STEPS : [
+                ...state[STEPS].slice(0, action[STEP_KEY]),
+                { ...state[STEPS][action[STEP_KEY]], ...action[STEP_DATA]},
+                ...state[STEPS].slice(action[STEP_KEY] + 1)
+            ]
+        };
     } else if (action.type === HIGHLIGHT_STEP) {
         var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
         var newHighlight;
@@ -102,6 +116,77 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
         ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
 }
 
+
+class ImageStep extends React.Component {
+    editorRef = React.createRef();
+    state = {
+        imageMarkup : false
+    };
+    render = () => {
+        var step = this.props.step;
+        var problemNumber = this.props.problemNumber
+        var solutionClassIndex = this.props.solutionClassIndex;
+        var studentSolutionIndex = this.props.studentSolutionIndex ;
+        var stepIndex = this.props.stepIndex;
+        return (
+            <span>
+            <Button className="extra-long-problem-action-button fm-button"
+                    text={this.state.imageMarkup ?
+                        "Save (Cannot undo)" : "Mark Feedback" }
+                    title={this.state.imageMarkup ?
+                        "Save (Cannot undo)" : "Mark Feedback" }
+                    onClick={function() {
+                        if (this.state.imageMarkup) {
+                            // TODO - save modified image
+                            const editorInstance = this.editorRef.current.getInstance();
+                            window.store.dispatch({
+                                type : EDIT_STUDENT_STEP,
+                                PROBLEM_NUMBER : problemNumber,
+                                SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                SOLUTION_INDEX : studentSolutionIndex,
+                                STEP_KEY : stepIndex,
+                                STEP_DATA :
+                                    {...step,
+                                     CONTENT: editorInstance.toDataURL()}});
+                            this.setState({imageMarkup: false});
+                        } else {
+                            this.setState({imageMarkup: true});
+                        }
+                    }.bind(this)}
+            />
+            { this.state.imageMarkup ?
+                <ImageEditor
+                    ref={this.editorRef}
+                    includeUI={{
+                      loadImage: {
+                        path: step[CONTENT],
+                        name: 'SampleImage'
+                      },
+                      menu: ['draw', 'shape', 'text'],
+                      initMenu: 'shape',
+                      uiSize: {
+                        width: '500px',
+                        height: '700px'
+                      },
+                      menuBarPosition: 'top'
+                    }}
+                    cssMaxHeight={500}
+                    cssMaxWidth={700}
+                    selectionStyle={{
+                      cornerSize: 20,
+                      rotatingPointOffset: 70
+                    }}
+                    usageStatistics={false}
+                  />
+                :
+                <img src={step[CONTENT]}
+                     style={{margin : "10px", maxWidth: "98%"}}/>
+            }
+            </span>
+        )
+    }
+}
+
 class StudentWork extends React.Component {
     state = {
         imageMarkup : false
@@ -125,57 +210,19 @@ class StudentWork extends React.Component {
                             <div>
                             { step[FORMAT] === IMG
                                 ?
-                                (
-                                <span>
-                                <Button className="extra-long-problem-action-button fm-button"
-                                        text={this.state.imageMarkup ?
-                                            "Finished Feedback" : "Mark Feedback" }
-                                        title={this.state.imageMarkup ?
-                                            "Finished Feedback" : "Mark Feedback" }
-                                        onClick={function() {
-                                            if (this.state.imageMarkup) {
-                                                // TODO - save modified image
-                                                this.setState({imageMarkup: false});
-                                            } else {
-                                                this.setState({imageMarkup: true});
-                                            }
-                                        }.bind(this)}
+                                <ImageStep step={step}
+                                           problemNumber={problemNumber}
+                                           solutionClassIndex={solutionClassIndex}
+                                           studentSolutionIndex={studentSolutionIndex}
+                                           stepIndex={stepIndex}
                                 />
-                                { this.state.imageMarkup ?
-                                    <ImageEditor
-                                        includeUI={{
-                                          loadImage: {
-                                            path: step[CONTENT],
-                                            name: 'SampleImage'
-                                          },
-                                          menu: ['draw', 'shape', 'text'],
-                                          initMenu: 'shape',
-                                          uiSize: {
-                                            width: '500px',
-                                            height: '700px'
-                                          },
-                                          menuBarPosition: 'top'
-                                        }}
-                                        cssMaxHeight={500}
-                                        cssMaxWidth={700}
-                                        selectionStyle={{
-                                          cornerSize: 20,
-                                          rotatingPointOffset: 70
-                                        }}
-                                        usageStatistics={false}
-                                      />
-                                    :
-                                    <img src={step[CONTENT]}
-                                         style={{margin : "10px", maxWidth: "98%"}}/>
-                                }
-                                </span>
-                                )
                                 :
                                 step[FORMAT] === TEXT
                                 ?
                                     <div style={{...stepStyle, margin: "5px"}}
                                         onClick={function() {
-                                                window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
+                                                window.store.dispatch({ type : HIGHLIGHT_STEP,
+                                                    PROBLEM_NUMBER : problemNumber,
                                                     SOLUTION_CLASS_INDEX : solutionClassIndex,
                                                     SOLUTION_INDEX : studentSolutionIndex,
                                                     STEP_KEY : stepIndex});
@@ -184,7 +231,8 @@ class StudentWork extends React.Component {
                                     </div>
                                 :
                                 <TeX style={stepStyle} onClick={function() {
-                                    window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
+                                    window.store.dispatch({ type : HIGHLIGHT_STEP,
+                                                    PROBLEM_NUMBER : problemNumber,
                                                     SOLUTION_CLASS_INDEX : solutionClassIndex,
                                                     SOLUTION_INDEX : studentSolutionIndex,
                                                     STEP_KEY : stepIndex});

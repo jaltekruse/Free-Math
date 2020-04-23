@@ -25,6 +25,7 @@ var ANSWER = "ANSWER";
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
 var SCORE = "SCORE";
 var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
+var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
 
 function solutionClassReducer(state, action) {
     if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
@@ -53,6 +54,7 @@ function solutionClassReducer(state, action) {
         };
     } else if (action.type === GRADE_SINGLE_SOLUTION ||
                action.type === SET_PROBLEM_FEEDBACK ||
+               action.type === EDIT_STUDENT_STEP ||
                action.type === HIGHLIGHT_STEP
         ) {
         return {

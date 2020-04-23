@@ -25,11 +25,13 @@ var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
 var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
 var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
+var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
 
 function problemGraderReducer(state, action) {
     if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
         action.type === GRADE_SINGLE_SOLUTION ||
         action.type === HIGHLIGHT_STEP ||
+        action.type === EDIT_STUDENT_STEP ||
         action.type === SET_PROBLEM_FEEDBACK ) {
         return {
             ...state,

@@ -95,6 +95,7 @@ var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 // action properties: MODE (JUST_UNGRADED | ALL)
 
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
+var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
 
 /*
  * Compute a table to show the overall grades for each student
@@ -218,6 +219,7 @@ function gradingReducer(state, action) {
            action.type === GRADE_CLASS_OF_SOLUTIONS ||
            action.type === GRADE_SINGLE_SOLUTION ||
            action.type === HIGHLIGHT_STEP ||
+           action.type === EDIT_STUDENT_STEP ||
            action.type === SET_PROBLEM_FEEDBACK
     ) {
         // check if the value in the possible points input is a valid number

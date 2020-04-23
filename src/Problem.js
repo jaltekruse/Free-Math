@@ -43,7 +43,6 @@ var CONTENT = "CONTENT";
 // refers to passing complete step info in an action
 //oldStep = {CONTENT : "", FORMAT: "MATH", HIGHTLIGHT: "SUCCESS"};
 // current format MATH isn't used, no format implies math
-// TODO - also text not implemented yet
 var STEP_DATA = "STEP_DATA";
 
 var SUCCESS = 'SUCCESS';
