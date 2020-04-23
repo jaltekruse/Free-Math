@@ -55,6 +55,8 @@ var STUDENT_WORK = "STUDENT_WORK";
 // current format MATH isn't used, no format implies math
 var STEP_DATA = "STEP_DATA";
 var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
+// allow revert of teacher edits
+var ORIG_STUDENT_STEP = 'ORIG_STUDENT_STEP';
 
 function singleSolutionReducer(state, action) {
     if (action.type === GRADE_SINGLE_SOLUTION) {
@@ -70,10 +72,16 @@ function singleSolutionReducer(state, action) {
         }
         return ret;
     } else if (action.type === EDIT_STUDENT_STEP ) {
+        var origStudentStep = state[STEPS][action[STEP_KEY]][ORIG_STUDENT_STEP];
+        if (typeof origStudentStep === 'undefined') {
+            origStudentStep = state[STEPS][action[STEP_KEY]];
+        }
         return { ...state,
             STEPS : [
                 ...state[STEPS].slice(0, action[STEP_KEY]),
-                { ...state[STEPS][action[STEP_KEY]], ...action[STEP_DATA]},
+                { ...state[STEPS][action[STEP_KEY]],
+                  ...action[STEP_DATA],
+                  ORIG_STUDENT_STEP: origStudentStep },
                 ...state[STEPS].slice(action[STEP_KEY] + 1)
             ]
         };
@@ -132,9 +140,9 @@ class ImageStep extends React.Component {
             <span>
             <Button className="extra-long-problem-action-button fm-button"
                     text={this.state.imageMarkup ?
-                        "Save (Cannot undo)" : "Mark Feedback" }
+                        "Save Feedback" : "Mark Feedback" }
                     title={this.state.imageMarkup ?
-                        "Save (Cannot undo)" : "Mark Feedback" }
+                        "Save Feedback" : "Mark Feedback" }
                     onClick={function() {
                         if (this.state.imageMarkup) {
                             // TODO - save modified image
@@ -154,6 +162,24 @@ class ImageStep extends React.Component {
                         }
                     }.bind(this)}
             />
+            { step[ORIG_STUDENT_STEP] ?
+                <Button className="extra-long-problem-action-button fm-button"
+                    text="Revert Feedback"
+                    title="Revert Feedback"
+                    onClick={function() {
+                        // TODO - save modified image
+                        window.store.dispatch({
+                            type : EDIT_STUDENT_STEP,
+                            PROBLEM_NUMBER : problemNumber,
+                            SOLUTION_CLASS_INDEX : solutionClassIndex,
+                            SOLUTION_INDEX : studentSolutionIndex,
+                            STEP_KEY : stepIndex,
+                            STEP_DATA : step[ORIG_STUDENT_STEP]
+                        });
+                    }.bind(this)}
+                />
+                : null
+            }
             { this.state.imageMarkup ?
                 <ImageEditor
                     ref={this.editorRef}
