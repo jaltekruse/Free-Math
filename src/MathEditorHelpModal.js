@@ -5,6 +5,7 @@ const symbolGroups = {
         {toType:"+", tex:"+"},
         {toType:"-", tex:"-"},
         {toType:"* (asterisk)", tex:"\\cdot"},
+        {toType:"\\times [Enter]", tex:"\\times"},
         {toType:"\\div [Enter]", tex:"\\div"},
         {toType:"/ (slash)", tex:"\\frac{a}{b}", description:"fraction", editorCommands: input => {
             input.typedText("/");
@@ -37,7 +38,6 @@ const symbolGroups = {
         {toType:"<", tex:"<"},
         {toType:"<=", tex:"\\le"},
         {toType:"\\approx [Enter]", tex:"\\approx"},
-        {toType:"\\propto [Enter]", tex:"\\propto"},
         {toType:"_ (underscore)", tex:"A_b", description: "subscript"},
         {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power"},
         {toType:"\\pm [Enter]", tex:"\\pm"},
@@ -75,6 +75,9 @@ const symbolGroups = {
         {toType:"\\land", tex:"\\land"},
         {toType:"\\to [Enter]", tex:"\\to"},
         {toType:"\\gets [Enter]", tex:"\\gets"},
+        {toType:"\\choose [Enter]", tex:"\\binom{n}{m}", editorCommands: input => {
+            input.cmd("\\choose");
+        }},
         {toType:"union", tex:"\\cup"},
         {toType:"\\intersect [Enter]", tex:"\\cap"},
         {toType:"subset", tex:"\\subset"},
@@ -83,7 +86,7 @@ const symbolGroups = {
         {toType:"\\superseteq [Enter]", tex:"\\supseteq"},
     ],
     GEOMETRY : [
-        
+
         {toType:"\\underline [Enter]", tex:"\\underline{AB}", editorCommands: input => {
             input.cmd("\\underline");
         }},
@@ -100,7 +103,7 @@ const symbolGroups = {
             input.cmd("\\overleftrightarrow");
         }},
         /* not in katex */
-        {toType:"\\overarc [Enter]", htmlComponent: 
+        {toType:"\\overarc [Enter]", htmlComponent:
             (<span className="mq-math-mode">
                 <span className="mq-selectable">{"\\overarc{AB}"}</span>
                 <span className="mq-root-block mq-hasCursor">
@@ -132,6 +135,7 @@ const symbolGroups = {
         {toType:"\\sphericalangle [Enter]", tex:"\\sphericalangle"},
         */
         {toType:"\\equiv [Enter]", tex:"\\equiv"},
+        {toType:"\\propto [Enter]", tex:"\\propto"},
         {toType:"\\cong [Enter]", tex:"\\cong"},
         {toType:"\\perp [Enter]", tex:"\\perp"},
         {toType:"\\parallel [Enter]", tex:"\\parallel"},
