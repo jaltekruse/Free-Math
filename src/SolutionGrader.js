@@ -1,8 +1,8 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import './App.css';
 import TeX from './TeX.js';
 import Button from './Button.js';
+import ImageEditor from '@toast-ui/react-image-editor'
 
 var STUDENT_FILE = 'STUDENT_FILE';
 
@@ -102,8 +102,8 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
         ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
 }
 
-const StudentWork = createReactClass({
-    render: function() {
+class StudentWork extends React.Component {
+    render() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -119,12 +119,33 @@ const StudentWork = createReactClass({
                     return (
                         <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
 
-                            <div className="student-step-grader">
-
+                            <div>
+                            {/* <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "98%"}}/> */}
                             { step[FORMAT] === IMG
                                 ?
                                 (
-                                    <img src={step[CONTENT]} style={{margin : "10px", maxWidth: "98%"}}/>
+                                    <ImageEditor
+                                        includeUI={{
+                                          loadImage: {
+                                            path: step[CONTENT],
+                                            name: 'SampleImage'
+                                          },
+                                          menu: ['draw', 'shape', 'text'],
+                                          initMenu: 'shape',
+                                          uiSize: {
+                                            width: '1000px',
+                                            height: '700px'
+                                          },
+                                          menuBarPosition: 'top'
+                                        }}
+                                        cssMaxHeight={500}
+                                        cssMaxWidth={700}
+                                        selectionStyle={{
+                                          cornerSize: 20,
+                                          rotatingPointOffset: 70
+                                        }}
+                                        usageStatistics={false}
+                                      />
                                 )
                                 :
                                 step[FORMAT] === TEXT
@@ -157,26 +178,28 @@ const StudentWork = createReactClass({
             </div>
         );
     }
-});
+}
 
-const SolutionGrader = createReactClass({
-    setScore: function(evt) {
+class SolutionGrader extends React.Component {
+    setScore = (evt) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : GRADE_SINGLE_SOLUTION, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : evt.target.value,
                          SOLUTION_INDEX : studentSolutionIndex});
-    },
-    fullPoints: function(evt) {
+    };
+
+    fullPoints = (evt) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : GRADE_SINGLE_SOLUTION, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex,
                          SCORE : this.props.possiblePoints, SOLUTION_INDEX : studentSolutionIndex});
-    },
-    applyScoreToAll: function(evt) {
+    };
+
+    applyScoreToAll = (evt) => {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -197,8 +220,9 @@ const SolutionGrader = createReactClass({
         window.store.dispatch({ type : GRADE_CLASS_OF_SOLUTIONS, MODE : ALL, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : data[SCORE],
                          FEEDBACK : data[FEEDBACK]});
-    },
-    applyScoreToUngraded: function(evt) {
+    };
+
+    applyScoreToUngraded = (evt) => {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -206,24 +230,27 @@ const SolutionGrader = createReactClass({
                          PROBLEM_NUMBER : problemNumber, SOLUTION_CLASS_INDEX : solutionClassIndex,
                          SCORE : data[SCORE], FEEDBACK : data[FEEDBACK]
                         });
-    },
-    setFeedback: function(evt) {
+    };
+
+    setFeedback = (evt) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : SET_PROBLEM_FEEDBACK, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : evt.target.value,
                          SOLUTION_INDEX : studentSolutionIndex});
-    },
-    setQuickFeedback: function(text) {
+    };
+
+    setQuickFeedback = (text) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : SET_PROBLEM_FEEDBACK, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : text,
                          SOLUTION_INDEX : studentSolutionIndex});
-    },
-    render: function() {
+    };
+
+    render() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var possiblePoints = this.props.possiblePoints;
@@ -331,6 +358,6 @@ const SolutionGrader = createReactClass({
             </div>
         );
     }
-});
+}
 
 export { SolutionGrader as default, scaleScore, singleSolutionReducer};

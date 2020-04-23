@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
@@ -97,8 +96,8 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var SOFT_RED = '#FFDEDE';
 var GREEN = '#D0FFC9';
 
-var ScoreBox = createReactClass({
-    render: function() {
+class ScoreBox extends React.Component {
+    render() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
@@ -139,10 +138,10 @@ var ScoreBox = createReactClass({
             </div>
         );
     }
-});
+}
 
-var ImageUploader = React.createClass({
-	render : function() {
+class ImageUploader extends React.Component {
+    render() {
         const problemIndex = this.props.problemIndex;
         const steps = this.props.value[STEPS];
         const lastStep = steps[steps.length - 1];
@@ -177,18 +176,18 @@ var ImageUploader = React.createClass({
                 />
 		    </div>);
 	}
-});
+}
 
 function handleImg(imgFile, stepIndex, problemIndex, steps) {
     handleImgUrl(window.URL.createObjectURL(imgFile), stepIndex, problemIndex, steps);
-};
+}
 
 function handleImgUrl(objUrl, stepIndex, problemIndex, steps) {
     window.store.dispatch(
         { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
           FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
     addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
-};
+}
 
 function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
     // if this is the last step, add a blank step below
@@ -242,14 +241,12 @@ function getMimetype(signature) {
     }
 }
 
-var ImageStep = createReactClass({
+class ImageStep extends React.Component {
+    state = {
+        cropping : false
+    };
 
-    getInitialState: function() {
-        return {
-            cropping : false
-        }
-    },
-    render: function() {
+    render() {
         const problemIndex = this.props.id;
         const steps = this.props.value[STEPS];
         const step = this.props.step;
@@ -358,14 +355,14 @@ var ImageStep = createReactClass({
             </div>
         );
     }
-});
+}
 
-var Problem = createReactClass({
-
-    handleStepChange: function(event) {
+class Problem extends React.Component {
+    handleStepChange = (event) => {
       this.setState({value: event.target.value});
-    },
-    render: function() {
+    };
+
+    render() {
         const value = this.props.value;
         const stepIndex = this.props.stepIndex;
         const probNumber = this.props.value[PROBLEM_NUMBER];
@@ -578,7 +575,7 @@ var Problem = createReactClass({
             </div>
         );
     }
-});
+}
 
 /*
  * Designing more complex undo/redo, now that individual steps can be deleted or added in the middle

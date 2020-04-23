@@ -4,13 +4,12 @@ import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
-import FreeMath, { base64ToBlob, getAutoSaveIndex } from './FreeMath.js';
+import FreeMath, { getAutoSaveIndex } from './FreeMath.js';
 import Button from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
-import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
 import { openAssignment } from './AssignmentEditorMenubar.js';
-import { studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import { studentSubmissionsZip, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
 import { readSingleFile } from './AssignmentEditorMenubar.js';
 
 var MathQuill = window.MathQuill;
@@ -32,8 +31,6 @@ var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
 
 var PROBLEMS = 'PROBLEMS';
-// editing assignmnt mode actions
-var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 // used to swap out the entire content of the document, for opening
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
@@ -97,23 +94,22 @@ function startsWith(str, maybePrefix) {
     return str.lastIndexOf(maybePrefix, 0) === 0
 }
 
-const UserActions = createReactClass({
-    getInitialState () {
-        return { showModal: false,
-                 showActionsMobile: false,
-                 teacherRecoveredSorting: "DATE",
-	             studentRecoveredSorting: "DATE"
-	         };
-    },
+class UserActions extends React.Component {
+    state = { showModal: false,
+             showActionsMobile: false,
+             teacherRecoveredSorting: "DATE",
+             studentRecoveredSorting: "DATE"
+         };
 
-    closeSpinner() {
+    closeSpinner = () => {
         this.setState({ showModal: false });
-    },
+    };
 
-    openSpinner() {
+    openSpinner = () => {
         this.setState({ showModal: true });
-    },
-    render: function() {
+    };
+
+    render() {
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = function() {
@@ -431,17 +427,17 @@ const UserActions = createReactClass({
                       storage provider like Google Drive, Dropbox, etc.</span>
             </div>
      */
-});
+}
 
-const DefaultHomepageActions = createReactClass({
-    componentDidMount: function() {
-    },
-    getInitialState: function() {
-        return {
-            emailString : ''
-        }
-    },
-    render: function() {
+class DefaultHomepageActions extends React.Component {
+    state = {
+        emailString : ''
+    };
+
+    componentDidMount() {
+    }
+
+    render() {
         var halfScreenStyle= {
             width:"44%",
             height: "auto",
@@ -743,7 +739,7 @@ const DefaultHomepageActions = createReactClass({
             </div>
         );
     }
-});
+}
 
 
 export default DefaultHomepageActions;

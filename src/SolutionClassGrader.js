@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import './App.css';
 import TeX from './TeX.js';
 import SolutionGrader, { singleSolutionReducer } from './SolutionGrader.js';
@@ -44,9 +43,9 @@ function solutionClassReducer(state, action) {
             numChanged++;
             workInGivenSolutionClass[index] = singleSolutionReducer(singleStudentsWork, action);
         });
-        window.ga('send', 'event', 'Actions', 'edit', 
+        window.ga('send', 'event', 'Actions', 'edit',
             'Apply to Ungraded items impacted', numChanged);
-        window.ga('send', 'event', 'Actions', 'edit', 
+        window.ga('send', 'event', 'Actions', 'edit',
             'Graded individually before bulk action', numAlreadyGraded);
         return {
             ...state,
@@ -69,8 +68,8 @@ function solutionClassReducer(state, action) {
     }
 }
 
-var SolutionClassGrader = createReactClass({
-    render: function() {
+class SolutionClassGrader extends React.Component {
+    render() {
         // TODO - finish
         var data = this.props.solutionClassInfo;
         var studentsToView = this.props.studentsToView;
@@ -135,6 +134,6 @@ var SolutionClassGrader = createReactClass({
             </div>
         );
     }
-});
+}
 
 export { SolutionClassGrader as default, solutionClassReducer };

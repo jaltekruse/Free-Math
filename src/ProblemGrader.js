@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import './App.css';
 import SolutionClassGrader, { solutionClassReducer } from './SolutionClassGrader.js';
 import Button from './Button.js';
@@ -70,8 +69,8 @@ function problemGraderReducer(state, action) {
 // A problem grader encompasses all of the student work in response
 // to a single problem. The work is grouped by similar final answer,
 // the groups are called "answer classes".
-var ProblemGrader = createReactClass({
-    render: function() {
+class ProblemGrader extends React.Component {
+    render() {
         var problemNumber = this.props.problemNumber;
         var studentsToView = this.props.studentsToView;
         var problemInfo = this.props.problemInfo;
@@ -118,6 +117,6 @@ var ProblemGrader = createReactClass({
                 }
         </div>);
     }
-});
+}
 
 export { ProblemGrader as default, problemGraderReducer };

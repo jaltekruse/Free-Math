@@ -30,7 +30,7 @@ export function render() {
     );
 }
 
-const DefaultHomepageActions = createReactClass({
+const DefaultHomepageActions = React.createClass({
     componentDidMount: function() {
         // React 15 doesn't support custom attributes in JSX
         var element = ReactDOM.findDOMNode(this.refs.youtubeEmbed);

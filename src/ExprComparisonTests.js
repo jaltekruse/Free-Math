@@ -3,12 +3,10 @@ import MathInput from './MathInput.js';
 
 var KAS = window.KAS;
 
-var ExprComparisonTests = React.createClass({
-    getInitialState () {
-        return { leftExpr: "", rightExpr : "", equals : false, matches : false};
-    },
+class ExprComparisonTests extends React.Component {
+    state = { leftExpr: "", rightExpr : "", equals : false, matches : false};
 
-    compareExprs: function() {
+    compareExprs = () => {
         console.log("left: " + this.state.leftExpr);
         console.log("right: " + this.state.rigthExpr);
         var leftParsed = KAS.parse(this.state.leftExpr).expr;
@@ -20,16 +18,17 @@ var ExprComparisonTests = React.createClass({
         this.setState({ ...this.state,
             equals: (this.state.leftExpr == this.state.rightExpr),
             matches: matches});
-    },
+    };
 
-    setLeftExpr: function (expr) {
+    setLeftExpr = (expr) => {
         this.setState({ ...this.state, leftExpr: expr});
-    },
+    };
 
-    setRightExpr: function(expr) {
+    setRightExpr = (expr) => {
         this.setState({ ...this.state, rightExpr: expr});
-    },
-    render: function() {
+    };
+
+    render() {
         return (
         <div>
         equals: {this.state.equals + ""} &nbsp;&nbsp; matches: {this.state.matches + ""}
@@ -53,6 +52,6 @@ var ExprComparisonTests = React.createClass({
         </div>
         );
     }
-});
+}
 
 export default ExprComparisonTests;

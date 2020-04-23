@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import { Chart } from 'chart.js';
 import _ from 'underscore';
@@ -1169,8 +1168,8 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
     }
 }
 
-const SimilarDocChecker = createReactClass({
-    render: function() {
+class SimilarDocChecker extends React.Component {
+    render() {
         return (
             <div>
                 <SimilarGroupSelector />
@@ -1180,11 +1179,10 @@ const SimilarDocChecker = createReactClass({
             </div>
         );
     }
-});
+}
 
-const SimilarGroupSelector = createReactClass({
-
-    render: function() {
+class SimilarGroupSelector extends React.Component {
+    render() {
         var state = window.store.getState();
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
         var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
@@ -1246,10 +1244,10 @@ const SimilarGroupSelector = createReactClass({
             </div>
         );
     }
-});
+}
 
-const GradesView = createReactClass({
-    render: function() {
+class GradesView extends React.Component {
+    render() {
         var props = this.props;
         return (
             <div style={{margin:"60px 30px 30px 30px"}}>
@@ -1279,10 +1277,10 @@ const GradesView = createReactClass({
             </div>
         );
     }
-});
+}
 
-const AllProblemGraders = createReactClass({
-    render: function() {
+class AllProblemGraders extends React.Component {
+    render() {
         var state = window.store.getState();
         var problems = state[PROBLEMS];
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
@@ -1324,7 +1322,7 @@ const AllProblemGraders = createReactClass({
             </div>
         );
     }
-});
+}
 
 function setupGraph(gradingOverview, chart) {
         var labels = [];
@@ -1398,18 +1396,16 @@ function setupGraph(gradingOverview, chart) {
         });
 }
 
-const TeacherInteractiveGrader = createReactClass({
+class TeacherInteractiveGrader extends React.Component {
+    state = { showModal: true };
+
     componentDidMount() {
         setupGraph(
             window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],
             ReactDOM.findDOMNode(this.refs.chart));
-      },
-    getInitialState () {
-        /* note the modal shows immediately when viewing the student demo,
-         * but not for opening an assignment */
-        return { showModal: true }
-    },
-    render: function() {
+      }
+
+    render() {
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
@@ -1469,7 +1465,7 @@ const TeacherInteractiveGrader = createReactClass({
             </div>
         );
     }
-});
+}
 
 export { TeacherInteractiveGrader as default,
     GradesView,

@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 
 // Make the text on the button not selectable
 // I think this is no longer needed now that I'm using a real button
@@ -13,9 +12,8 @@ const unselectable = {
     userSelect: "none"
 }
 
-var HtmlButton = createReactClass({
-
-    render: function() {
+class HtmlButton extends React.Component {
+    render() {
         const contentComponent = this.props.content;
         const onClick = this.props.onClick;
         const title = this.props.title;
@@ -35,11 +33,10 @@ var HtmlButton = createReactClass({
             </button>
         );
   }
-});
+}
 
-var Button = createReactClass({
-
-    render: function() {
+class Button extends React.Component {
+    render() {
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
@@ -57,11 +54,10 @@ var Button = createReactClass({
             </button>
         );
   }
-});
+}
 
-var LightButton = createReactClass({
-
-    render: function() {
+class LightButton extends React.Component {
+    render() {
         const onClick = this.props.onClick;
         const title = this.props.title;
         const className = this.props.className ? this.props.className : "fm-button-light";
@@ -77,11 +73,10 @@ var LightButton = createReactClass({
             </button>
         );
   }
-});
+}
 
-var CloseButton = createReactClass({
-
-    render: function() {
+class CloseButton extends React.Component {
+    render() {
         const onClick = this.props.onClick;
         const style = this.props.style;
         const title = this.props.title;
@@ -98,6 +93,6 @@ var CloseButton = createReactClass({
             </button>
         );
   }
-});
+}
 
 export {Button as default, HtmlButton, CloseButton, LightButton};

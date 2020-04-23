@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import { Modal } from 'react-overlays';
 
 // attempted to transition this to a generic modal component
@@ -9,20 +8,18 @@ import { Modal } from 'react-overlays';
 // of this component.
 // For current usage:
 // <MathEditorHelpModal content={(<MathEditorHelp />)}/>
-var FreeMathModal = createReactClass({
-    getInitialState () {
-        return { showModal: false };
-    },
+class FreeMathModal extends React.Component {
+    state = { showModal: false };
 
-    closeModal() {
+    closeModal = () => {
         this.setState({ showModal: false });
-    },
+    };
 
-    openModal() {
+    openModal = () => {
         this.setState({ showModal: true });
-    },
-
+    };
     render() {
+
         let showModal = this.props.showModal;
         const modalStyle = {
             position: 'fixed',
@@ -69,7 +66,7 @@ var FreeMathModal = createReactClass({
             </span>
         );
     }
-});
+}
 
 export {
     FreeMathModal as default

@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import GradingMenuBar from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
 import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob } from './TeacherInteractiveGrader.js';
@@ -246,65 +245,65 @@ function rootReducer(state, action) {
     }
 }
 
-var FreeMath = createReactClass({
-  render: function() {
-    // TODO - figure out how to best switch between teacher and
-    // student mode rendering
-    var wrapperDivStyle = {
-        padding:"0px 30px 0px 30px",
-        marginLeft:"auto",
-        marginRight: "auto",
-        height:"100%"
-    };
-    /*
-    return (
-            <div style={wrapperDivStyle}>
-                <AssignmentEditorMenubar value={this.props.value}/>
-                <div style={{display:"inline-block", width:"100%"}}>
-                    <ExprComparisonTests />
-                </div>
-            </div>
-            );
-    */
+class FreeMath extends React.Component {
+    render() {
+      // TODO - figure out how to best switch between teacher and
+      // student mode rendering
+      var wrapperDivStyle = {
+          padding:"0px 30px 0px 30px",
+          marginLeft:"auto",
+          marginRight: "auto",
+          height:"100%"
+      };
+      /*
+      return (
+              <div style={wrapperDivStyle}>
+                  <AssignmentEditorMenubar value={this.props.value}/>
+                  <div style={{display:"inline-block", width:"100%"}}>
+                      <ExprComparisonTests />
+                  </div>
+              </div>
+              );
+      */
 
-    if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
-        return (
-            <div>
-                <AssignmentEditorMenubar value={this.props.value}/>
-                <Assignment value={this.props.value}/>
-            </div>
-        );
-    } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
-        return (
-            <div>
-                <GradingMenuBar value={this.props.value} />
-                <TeacherInteractiveGrader value={this.props.value}/>
-            </div>
-        );
-    } else if (this.props.value[APP_MODE] === MODE_CHOOSER) {
-        return (
-            <DefaultHomepageActions />
-        );
-    } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
-        return (
-            <div style={{...wrapperDivStyle, width : "80%" }}>
-                <ModalWhileGradingMenuBar />
-                <GradesView value={this.props.value} />
-            </div>
-        );
-    } else if (this.props.value[APP_MODE] === SIMILAR_DOC_CHECK) {
-        return (
-            <div style={{...wrapperDivStyle, width : "95%" }}>
-                <ModalWhileGradingMenuBar />
-                <div style={{margin:"60px 0px 30px 0px"}}>
-                <SimilarDocChecker value={this.props.value} />
-                </div>
-            </div>
-        );
-    } else  {
-        alert(this.props.value);
+      if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
+          return (
+              <div>
+                  <AssignmentEditorMenubar value={this.props.value}/>
+                  <Assignment value={this.props.value}/>
+              </div>
+          );
+      } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
+          return (
+              <div>
+                  <GradingMenuBar value={this.props.value} />
+                  <TeacherInteractiveGrader value={this.props.value}/>
+              </div>
+          );
+      } else if (this.props.value[APP_MODE] === MODE_CHOOSER) {
+          return (
+              <DefaultHomepageActions />
+          );
+      } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
+          return (
+              <div style={{...wrapperDivStyle, width : "80%" }}>
+                  <ModalWhileGradingMenuBar />
+                  <GradesView value={this.props.value} />
+              </div>
+          );
+      } else if (this.props.value[APP_MODE] === SIMILAR_DOC_CHECK) {
+          return (
+              <div style={{...wrapperDivStyle, width : "95%" }}>
+                  <ModalWhileGradingMenuBar />
+                  <div style={{margin:"60px 0px 30px 0px"}}>
+                  <SimilarDocChecker value={this.props.value} />
+                  </div>
+              </div>
+          );
+      } else  {
+          alert(this.props.value);
+      }
     }
-  }
-});
+}
 
 export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob, getAutoSaveIndex };

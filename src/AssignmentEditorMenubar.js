@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -282,34 +281,34 @@ export function readSingleFile(evt, discardDataWarning) {
     }
 }
 
-var AssignmentEditorMenubar = createReactClass({
-  render: function() {
-        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        return (
-            <div className="menuBar">
-                <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
-                    <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+class AssignmentEditorMenubar extends React.Component {
+    render() {
+          var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+          return (
+              <div className="menuBar">
+                  <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                      <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                    {!browserIsIOS ?
-                    (<div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
-                        Filename &nbsp;&nbsp;
-                        <input type="text" id="assignment-name-text" size="20"
-                               name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
-                               onChange={
-                                    function(evt) {
-                                        window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
-                                    }}
-                        />&nbsp;&nbsp;
+                      {!browserIsIOS ?
+                      (<div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                          Filename &nbsp;&nbsp;
+                          <input type="text" id="assignment-name-text" size="20"
+                                 name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
+                                 onChange={
+                                      function(evt) {
+                                          window.store.dispatch({type : SET_ASSIGNMENT_NAME, ASSIGNMENT_NAME : evt.target.value});
+                                      }}
+                          />&nbsp;&nbsp;
 
-                        <LightButton text="Save" onClick={
-                            function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
-                                saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
-                            }) }} /> &nbsp;&nbsp;&nbsp;
-                    </div>) : null}
-                </div>
-            </div>
-        );
-  }
-});
+                          <LightButton text="Save" onClick={
+                              function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
+                                  saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
+                              }) }} /> &nbsp;&nbsp;&nbsp;
+                      </div>) : null}
+                  </div>
+              </div>
+          );
+    }
+}
 
 export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment};

@@ -1,19 +1,18 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 var MathQuill = window.MathQuill;
 
-var MathQuillStatic = createReactClass({
-
-    render: function() {
+class MathQuillStatic extends React.Component {
+    render() {
         const tex = this.props.tex;
         return (
             <span ref="staticMath">{tex}</span>
         );
-    },
-    componentDidMount: function() {
+    }
+
+    componentDidMount() {
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.staticMath));
     }
-});
+}
 
 export {MathQuillStatic as default};
