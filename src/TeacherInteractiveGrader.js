@@ -671,7 +671,10 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             const lastStep = _.last(problem[STEPS]);
             // image as the last step is treated as blank text as the answer
             var studentAnswer;
-            if (lastStep && (lastStep[FORMAT] === MATH || lastStep[FORMAT] === TEXT) && lastStep[CONTENT].trim() !== '') {
+            // TODO - encapsulate format check for math to include 'undefined', compatibility with legacy
+            if (lastStep && (lastStep[FORMAT] === MATH || lastStep[FORMAT] === TEXT
+                             || typeof lastStep[FORMAT] === 'undefined'
+                ) && lastStep[CONTENT].trim() !== '') {
                 studentAnswer = lastStep[CONTENT]
             } else if (lastStep && problem[STEPS].length >= 2 &&
                         (lastStep[FORMAT] === IMG ||
