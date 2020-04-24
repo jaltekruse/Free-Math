@@ -52,6 +52,8 @@ end of styles copied form perseus
 /* Hide the confusing "no file chosen" text on chrome*/
 input[type='file'] {
   color: transparent;
+  width: 200px;
+  overflow-x: hidden;
 }
 
 input[type='text'] {
@@ -71,7 +73,7 @@ h2 {
   color: #0d9600;
 }
 h3 {
-  font-size: 1.2em;
+  font-size: 1.6em;
   margin: 0;
 }
 h1 small {
@@ -79,7 +81,6 @@ h1 small {
 }
 
 .homepage-headline {
-    max-width: 875px;
     padding: 100px 2vw 100px 2vw;
     /* this is necesary to prevent the padding from adding to thw width */
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
@@ -87,156 +88,9 @@ h1 small {
     box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
-@media (max-width: 950px) {
-
-    iframe.tutorial-video {
-        width: 400px;
-        height:300px;
-        display:block
-    }
-    .mathStepEditor {
-        max-width:400px
-    }
-
-    .math-input-buttons {
-        background-color: rgba(245, 245, 245, 0.9);
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        box-sizing: border-box;
-        margin-top: 5px;
-        padding: 10px;
-        width: 401px;
-    }
-
-    .navBarElms{
-        padding: 7px 5px 5px 5px;
-        font-size: 25px
-    }
-    .freemath-logo {
-        font-size: 30px
-    }
-    .homepage-disappear-mobile {
-        display:none
-    }
-    .homepage-headline {
-        font-size: 40px;
-        padding-bottom: 0px;
-    }
-    h2 {
-        font-size: 35px
-    }
-
-    .homepage-center-mobile {
-        width: 100%;
-        -webkit-box-align: center;
-        align-items: center;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        margin-left: auto;
-        margin-right: auto;
-        padding: 0vw 2vw 10vw 2vw;
-        /* this is necesary to prevent the padding from adding to thw width */
-        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-        box-sizing: border-box;         /* Opera/IE 8+ */
-    }
-
-    .homepage-wrapper {
-        align-items: center;
-        text-align: center;
-        padding: 70px 0px 0px 0px;
-        display: inline-block;
-    }
-    .menubar-spacer {
-        height: 60px;
-        display: block
-    }
-    .menubar-spacer-small {
-        height: 30px;
-        display: block
-    }
-    div.problem-editor-buttons {
-        width: 100%;
-    }
-
-    div.homepage-user-actions {
-        align-items: center;
-    }
-}
-
-@media (min-width: 951px) {
-    iframe.tutorial-video {
-        width: 600px;
-        height:400px;
-        display:block
-    }
-    .mathStepEditor {
-        max-width:900px
-    }
-    .math-input-buttons {
-        background-color: rgba(245, 245, 245, 0.9);
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        box-sizing: border-box;
-        margin-top: 5px;
-        padding: 10px;
-        width: 701px;
-    }
-    .navBarElms{
-        padding: 7px 5px 5px 5px;
-    }
-    .freemath-logo {
-        font-size: 22px;
-        margin: 0;
-    }
-    .homepage-only-on-mobile {
-        display:none
-    }
-    .homepage-headline {
-        font-size: 60px;
-    }
-    .homepage-text {
-        display: block;
-        width: 35vw;
-        padding: 8vw 0px 0px 6vw
-    }
-    .homepage-right {
-        float: right;
-        display: block;
-        padding-right:6vw
-    }
-    .homepage-video {
-        width: 47vw;
-        box-shadow: rgb(176, 177, 178) 0px 10px 50px;
-        padding-right:0px
-    }
-    .homepage-left {
-        float: left;
-    }
-    .homepage-wrapper {
-        padding: 200px 0px 0px 0px;
-        display: inline-block;
-        width: 100%
-    }
-    div.problem-editor-buttons {
-        width: 150px;
-    }
-    div.homepage-user-actions {
-        max-width: 900px;
-        -webkit-box-align: center;
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        margin-left: auto;
-        margin-right: auto
-    }
-}
-
 .fm-button-light {
   border: 2px solid transparent;
   display: inline-block;
-  height: 20px;
   margin: 2px;
   padding: 0px 8px 0px 8px;
   background-color: white;
@@ -355,6 +209,371 @@ h1 small {
   outline: none;
 }
 
+div.answer-partially-correct {
+    border-radius: 2px;
+    border:1px solid #a4a4a4;
+    background-color:#FFFDBF;
+}
+
+div.answer-correct {
+    border-radius: 2px;
+    border:1px solid #a4a4a4;
+    background-color:#D0FFC9;
+}
+
+div.show-correct-div {
+    border:1px solid black;
+    background-color:#D0FFC9;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.show-incorrect-div {
+    border:1px solid black;
+    background-color:#FFDEDE;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.show-partially-correct-div {
+    border:1px solid black;
+    background-color:#FFFDBF;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.show-complete-div {
+    border:1px solid black;
+    background-color:#DEDEDE;
+    border-radius: 2px;
+    display:inline-block;
+    margin: 0px 5px 5px 0px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.similar-assignment-filters {
+    border-radius: 2px;
+    border:1px solid #a4a4a4;
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
+    background-color:#FFFDBF;
+}
+
+div.assignment-filters {
+    margin: 5px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
+}
+
+div.similar-student-answers {
+    /*
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 15px 15px;
+    background-color:white;
+    border:1px solid #cfcfcf;
+    border-radius: 3px;
+    box-shadow: 0 10px 6px -6px #777;
+    */
+}
+
+div.student-work {
+    border-radius: 3px;
+    border:1px solid #a4a4a4;
+    box-shadow: 0 5px 3px -3px #cfcfcf;
+    margin: 10px 5px 10px 5px;
+    padding: 15px 15px 15px 15px;
+}
+
+div.problem-container {
+    border-radius: 3px;
+    border:1px solid #bfbfbf;
+    background-color:white;
+    margin: 15px 15px 15px 15px;
+    padding: 15px 15px 30px 15px;
+    box-shadow: 0 5px 3px -3px #cfcfcf;
+    min-width: 50%;
+}
+
+.extra-long-problem-action-button {
+    width: 180px
+}
+
+.long-problem-action-button {
+    width: 125px
+}
+
+.short-problem-action-button {
+    width: 55px
+}
+
+.equation-list {
+    float:left;
+    max-width:77%
+}
+
+.homepage-actions-container {
+    width:44%;
+    height: auto;
+    float: left;
+    border-radius:3px;
+    margin:5px 5px 5px 5px;
+    padding:20px;
+}
+
+/* On desktop the actions for a step look better
+ * in a line, but on mobile, horizontal space is limited */
+.step-actions {
+    display: flex;
+    flex-direction: row;
+    margin:10px 10px 10px 10px;
+}
+
+.wide-tex-button {
+    width:100px
+}
+
+.text-step-input {
+    width:800px;
+}
+
+@media (max-width: 950px) {
+    h3 {
+      font-size: 1.0em;
+      margin: 0;
+    }
+    .text-step-input {
+        width:500px;
+    }
+    .homepage-actions-container {
+        width:85%;
+    }
+    .step-actions {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .fm-button-light,
+    .fm-button,
+    .fm-button-left,
+    .fm-button-right,
+    .fm-close-button,
+    p,
+    textarea,
+    input,
+    select,
+    body,
+    div{
+        font-size: 25px;
+    }
+
+    .fm-button-light,
+    .fm-button {
+        border-radius: 30px;
+        padding: 8px 16px;
+    }
+    .html-button img,
+    .fm-close-button img {
+        transform: scale(2.0);
+        padding: 4px 4px 4px 4px;
+    }
+    small {
+        font-size: 20px;
+    }
+
+    .fm-button-left {
+        border-top-left-radius: 30px;
+        border-bottom-left-radius: 30px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 0px;
+        padding: 8px 8px 8px 16px;
+    }
+    .fm-button-right {
+        border-top-left-radius: 30px;
+        border-bottom-left-radius: 30px;
+        border-top-left-radius: 0px;
+        border-bottom-left-radius: 0px;
+        padding: 8px 16px 8px 8px;
+    }
+
+    .extra-long-problem-action-button {
+        width: 360px
+    }
+    .long-problem-action-button {
+        width: 250px
+    }
+    .short-problem-action-button {
+        width: 110px
+    }
+    .fm-close-button {
+        height: 40px;
+        width: 40px;
+    }
+    .tex-button {
+        height: 60px;
+        width: 60px;
+    }
+    .wide-tex-button {
+        width:200px
+    }
+    .equation-list {
+        max-width:98%
+    }
+    iframe.tutorial-video {
+        width: 400px;
+        height:300px;
+        display:block
+    }
+    .mathStepEditor {
+        max-width:400px
+    }
+
+    .math-input-buttons {
+        background-color: rgba(245, 245, 245, 0.9);
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        margin-top: 5px;
+        padding: 10px;
+    }
+    .math-input-buttons.absolute {
+      left: -150px;
+      right: -200px;
+      position: absolute;
+      top: -3px;
+      z-index: 5;
+    }
+
+    .navBarElms{
+        padding: 7px 5px 5px 5px;
+        font-size: 25px
+    }
+    .freemath-logo {
+        font-size: 30px
+    }
+    .homepage-disappear-mobile {
+        display:none
+    }
+    .homepage-headline {
+        font-size: 40px;
+        padding-bottom: 0px;
+    }
+    h2 {
+        font-size: 35px
+    }
+
+    .homepage-center-mobile {
+        width: 100%;
+        -webkit-box-align: center;
+        align-items: center;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0vw 2vw 10vw 2vw;
+        /* this is necesary to prevent the padding from adding to thw width */
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+        box-sizing: border-box;         /* Opera/IE 8+ */
+    }
+
+    .homepage-wrapper {
+        align-items: center;
+        text-align: center;
+        padding: 70px 0px 0px 0px;
+        display: inline-block;
+    }
+    .menubar-spacer {
+        height: 140px;
+        display: block
+    }
+    .menubar-spacer-small {
+        height: 80px;
+        display: block
+    }
+    div.problem-editor-buttons {
+        width: 100%;
+    }
+
+    div.homepage-user-actions {
+        align-items: center;
+    }
+}
+
+@media (min-width: 951px) {
+
+    iframe.tutorial-video {
+        width: 600px;
+        height:400px;
+        display:block
+    }
+    .mathStepEditor {
+        max-width:900px
+    }
+    .math-input-buttons {
+        background-color: rgba(245, 245, 245, 0.9);
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        margin-top: 5px;
+        padding: 10px;
+        width: 701px;
+    }
+    .navBarElms{
+        padding: 7px 5px 5px 5px;
+    }
+    .freemath-logo {
+        font-size: 22px;
+        margin: 0;
+    }
+    .homepage-only-on-mobile {
+        display:none
+    }
+    .homepage-headline {
+        font-size: 60px;
+    }
+    .homepage-text {
+        display: block;
+        width: 35vw;
+        padding: 8vw 0px 0px 6vw
+    }
+    .homepage-right {
+        float: right;
+        display: block;
+        padding-right:6vw
+    }
+    .homepage-video {
+        width: 47vw;
+        box-shadow: rgb(176, 177, 178) 0px 10px 50px;
+        padding-right:0px
+    }
+    .homepage-left {
+        float: left;
+    }
+    .homepage-wrapper {
+        padding: 200px 0px 0px 0px;
+        display: inline-block;
+        width: 100%
+    }
+    div.problem-editor-buttons {
+        width: 180px;
+    }
+    div.homepage-user-actions {
+        max-width: 900px;
+        -webkit-box-align: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        margin-right: auto
+    }
+}
+
 .menuBar{
     padding: 5px 5px 5px 5px;
     width:100%;
@@ -465,96 +684,6 @@ div.answer-complete {
 
 .success-highlight{
     background-color:#99FFBB;
-}
-
-div.answer-partially-correct {
-    border-radius: 2px;
-    border:1px solid #a4a4a4;
-    background-color:#FFFDBF;
-}
-
-div.answer-correct {
-    border-radius: 2px;
-    border:1px solid #a4a4a4;
-    background-color:#D0FFC9;
-}
-
-div.show-correct-div {
-    border:1px solid black;
-    background-color:#D0FFC9;
-    border-radius: 2px;
-    display:inline-block;
-    margin: 0px 5px 5px 0px;
-    padding: 5px 5px 5px 5px;
-}
-
-div.show-incorrect-div {
-    border:1px solid black;
-    background-color:#FFDEDE;
-    border-radius: 2px;
-    display:inline-block;
-    margin: 0px 5px 5px 0px;
-    padding: 5px 5px 5px 5px;
-}
-
-div.show-partially-correct-div {
-    border:1px solid black;
-    background-color:#FFFDBF;
-    border-radius: 2px;
-    display:inline-block;
-    margin: 0px 5px 5px 0px;
-    padding: 5px 5px 5px 5px;
-}
-
-div.show-complete-div {
-    border:1px solid black;
-    background-color:#DEDEDE;
-    border-radius: 2px;
-    display:inline-block;
-    margin: 0px 5px 5px 0px;
-    padding: 5px 5px 5px 5px;
-}
-
-div.similar-assignment-filters {
-    border-radius: 2px;
-    border:1px solid #a4a4a4;
-    margin: 15px 15px 15px 15px;
-    padding: 15px 15px 15px 15px;
-    background-color:#FFFDBF;
-}
-
-div.assignment-filters {
-    margin: 5px 5px 5px 5px;
-    padding: 5px 5px 5px 5px;
-}
-
-div.similar-student-answers {
-    /*
-    margin: 15px 15px 15px 15px;
-    padding: 15px 15px 15px 15px;
-    background-color:white;
-    border:1px solid #cfcfcf;
-    border-radius: 3px;
-    box-shadow: 0 10px 6px -6px #777;
-    */
-}
-
-div.student-work {
-    border-radius: 3px;
-    border:1px solid #a4a4a4;
-    box-shadow: 0 5px 3px -3px #cfcfcf;
-    margin: 10px 5px 10px 5px;
-    padding: 15px 15px 15px 15px;
-}
-
-div.problem-container {
-    border-radius: 3px;
-    border:1px solid #bfbfbf;
-    background-color:white;
-    margin: 15px 15px 15px 15px;
-    padding: 15px 15px 30px 15px;
-    box-shadow: 0 5px 3px -3px #cfcfcf;
-    min-width: 50%;
 }
 
 .student-step-grader{

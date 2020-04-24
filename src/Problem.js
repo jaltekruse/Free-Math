@@ -1,10 +1,14 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
 import { HtmlButton, CloseButton } from './Button.js';
 import { genID } from './FreeMath.js';
+import Resizer from 'react-image-file-resizer';
+
+import Cropper from 'react-cropper';
+// If you choose not to use import, you need to assign Cropper to default
+// var Cropper = require('react-cropper').default
 
 // to implement undo/redo and index for the last step
 // to show is tracked and moved up and down
@@ -36,6 +40,11 @@ var NEW_PROBLEM_NUMBER = 'NEW_PROBLEM_NUMBER';
 var SET_PROBLEM_NUMBER = 'SET_PROBLEM_NUMBER';
 var CONTENT = "CONTENT";
 
+// refers to passing complete step info in an action
+//oldStep = {CONTENT : "", FORMAT: "MATH", HIGHTLIGHT: "SUCCESS"};
+// current format MATH isn't used, no format implies math
+var STEP_DATA = "STEP_DATA";
+
 var SUCCESS = 'SUCCESS';
 var ERROR = 'ERROR';
 var HIGHLIGHT = 'HIGHLIGHT';
@@ -43,6 +52,11 @@ var STEPS = 'STEPS';
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
+
+var FORMAT = "FORMAT";
+var MATH = "MATH";
+var TEXT = "TEXT";
+var IMG = "IMG";
 
 var INSERT_STEP_ABOVE = 'INSERT_STEP_ABOVE';
 var NEW_STEP = 'NEW_STEP';
@@ -79,10 +93,11 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 
 // CSS constants
 var SOFT_RED = '#FFDEDE';
-var GREEN = '#2cff72';
+var GREEN = '#D0FFC9';
 
 class ScoreBox extends React.Component {
     render() {
+        var probNumber = this.props.value[PROBLEM_NUMBER];
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
@@ -124,34 +139,257 @@ class ScoreBox extends React.Component {
     }
 }
 
+class ImageUploader extends React.Component {
+    render() {
+        const problemIndex = this.props.problemIndex;
+        const steps = this.props.value[STEPS];
+        const lastStep = steps[steps.length - 1];
+		return (
+            <div style={{display:"inline-block"}}>
+                upload a picture&nbsp;
+                <input type="file"
+                       onChange={function(evt) {
+                            var lastStepIndex = steps.length - 1;
+                            addNewImage(evt, steps, lastStepIndex, problemIndex,
+                                function(imgFile, stepIndex, problemIndex, steps) {
+                                    var objUrl = window.URL.createObjectURL(imgFile);
+                                    if (( typeof lastStep[FORMAT] === 'undefined'
+                                          || lastStep[FORMAT] === "MATH"
+                                        )
+                                        && lastStep[CONTENT] === '') {
+                                        window.store.dispatch(
+                                            { type : "INSERT_STEP_ABOVE",
+                                              "PROBLEM_INDEX" : problemIndex,
+                                              STEP_KEY: lastStepIndex,
+                                              FORMAT: "IMG", CONTENT: objUrl} );
+                                    } else {
+                                        window.store.dispatch(
+                                            { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
+                                              STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
+                                        window.store.dispatch(
+                                            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+                                    }
+                                }
+                            );
+                       }}
+                />
+		    </div>);
+	}
+}
+
+function handleImg(imgFile, stepIndex, problemIndex, steps) {
+    handleImgUrl(window.URL.createObjectURL(imgFile), stepIndex, problemIndex, steps);
+}
+
+function handleImgUrl(objUrl, stepIndex, problemIndex, steps) {
+    window.store.dispatch(
+        { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+          FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+    addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
+}
+
+function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
+    // if this is the last step, add a blank step below
+    if (stepIndex === steps.length - 1) {
+        window.store.dispatch(
+            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+    }
+}
+
+function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
+    var imgFile = evt.target.files[0];
+    if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
+            alert("The file is not an image " + imgFile ? imgFile.type : '');
+            return;
+    }
+
+    if (imgFile.type.includes("gif")) {
+        // disable for now, they take up lots of space and rotate/crop don't work
+        alert("Gifs are not supported");
+        return;
+        // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+        // something like 0.5-1MB
+        if (imgFile.size > 1024 * 1024) {
+            alert("Beyond max size allowed for gifs (1 MB)");
+            return;
+        }
+        addImg(imgFile, stepIndex, problemIndex, steps);
+    } else {
+        imgFile = Resizer.imageFileResizer(
+            imgFile, 800, 800, 'JPEG', 90, 0,
+            imgFile => {
+                addImg(imgFile, stepIndex, problemIndex, steps);
+            },
+            'blob'
+        );
+    }
+}
+
+function getMimetype(signature) {
+    switch (signature) {
+        case '89504E47':
+            return 'image/png'
+        case '47494638':
+            return 'image/gif'
+        case '25504446':
+            return 'application/pdf'
+        case 'FFD8FFDB':
+        case 'FFD8FFE0':
+            return 'image/jpeg'
+        case '504B0304':
+            return 'application/zip'
+        default:
+            return 'Unknown filetype'
+    }
+}
+
+class ImageStep extends React.Component {
+    state = {
+        cropping : false
+    };
+
+    render() {
+        const problemIndex = this.props.id;
+        const steps = this.props.value[STEPS];
+        const step = this.props.step;
+        const stepIndex = this.props.stepIndex;
+
+        const rotate = function(degrees) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', step[CONTENT], true);
+            xhr.responseType = 'blob';
+            xhr.onload = function(e) {
+              if (this.status === 200) {
+                var imgBlob = this.response;
+                // imgBlob is now the blob that the object URL pointed to.
+                var fr = new FileReader();
+                fr.addEventListener('load', function() {
+                    var imgFile = new Blob([this.result]);
+                    // https://medium.com/the-everyday-developer/
+                    // detect-file-mime-type-using-magic-numbers-and-javascript-16bc513d4e1e
+                    const uint = new Uint8Array(this.result.slice(0, 4))
+                    let bytes = []
+                    uint.forEach((byte) => {
+                        bytes.push(byte.toString(16))
+                    })
+                    const hex = bytes.join('').toUpperCase()
+                    var type = getMimetype(hex);
+
+                    if (type.includes("gif")) {
+                        // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+                        // something like 0.5-1MB
+                        alert("Cannot rotate gifs");
+                    } else {
+                        imgFile = Resizer.imageFileResizer(
+                            imgFile, 800, 800, 'JPEG', 90, degrees,
+                            imgFile => {
+                                handleImg(imgFile, stepIndex, problemIndex, steps);
+                            },
+                            'blob'
+                        );
+                    }
+                });
+                return fr.readAsArrayBuffer(imgBlob);
+              }
+            };
+            xhr.send();
+        };
+
+        return (
+            <div>
+                {step[CONTENT] === ''
+                ?
+                    (<span>
+                    Upload a picture&nbsp;
+                    <input type="file" onChange={ function(evt) {addNewImage(evt, steps, stepIndex, problemIndex) }}/>
+                    </span>)
+                :
+                    <span>
+
+                        <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
+                                text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                onClick={function() {
+                                    if (this.state.cropping) {
+                                        handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
+                                        this.setState({cropping : false});
+                                    } else {
+                                        this.setState({cropping : true});
+                                    }
+                                }.bind(this)}
+                        />
+                        { this.state.cropping
+                            ?
+                            <span>
+                                <Button className="long-problem-action-button fm-button"
+                                    text="Cancel"
+                                    title="Cancel Cropping"
+                                    onClick={function() {
+                                        this.setState({cropping : false});
+                                    }.bind(this)} />
+                                <Cropper
+                                    ref={elem => {this.cropper = elem;}}
+                                    src={step[CONTENT]}
+                                    style={{height: 400, width: '100%'}}
+                                    // Cropper.js options
+                                    guides={true}
+                                    crop={function(){}} />
+                            </span>
+                            :
+                            <span>
+                                <Button className="long-problem-action-button fm-button"
+                                        text="Rotate Left"
+                                        title="Rotate image left"
+                                        onClick={function() { rotate(270);}}
+                                />
+                                <Button className="long-problem-action-button fm-button"
+                                        text="Rotate Right"
+                                        title="Rotate image right"
+                                        onClick={function() { rotate(90);}}
+                                />
+                                <br />
+                                <img src={step[CONTENT]} style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
+                            </span>
+                        }
+                    </span>
+                }
+            </div>
+        );
+    }
+}
+
 class Problem extends React.Component {
     handleStepChange = (event) => {
       this.setState({value: event.target.value});
     };
 
     render() {
-        var probNumber = this.props.value[PROBLEM_NUMBER];
-        var problemIndex = this.props.id;
-        var showTutorial = this.props.value[SHOW_TUTORIAL];
-        var buttonGroup = this.props.buttonGroup;
-        var score = this.props.value[SCORE];
+        const value = this.props.value;
+        const stepIndex = this.props.stepIndex;
+        const probNumber = this.props.value[PROBLEM_NUMBER];
+        const problemIndex = this.props.id;
+        const showTutorial = this.props.value[SHOW_TUTORIAL];
+        const buttonGroup = this.props.buttonGroup;
+        const score = this.props.value[SCORE];
+        const steps = this.props.value[STEPS];
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
-                <div style={{width:"200px", height:"100%",float:"left"}}>
-                    {   score !== undefined ? (<ScoreBox value={this.props.value} />)
-                                           : null
-                    }
-                    {   this.props.value[FEEDBACK] !== undefined
-                            ? (<div>
-                                    <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''} Teacher Feedback</b><br />
-                                    {this.props.value[FEEDBACK]}
-                               </div>) : null
-                    }
-                </div>
                 <div>
                     <div className="problem-editor-buttons"
                          style={{float:'left', height: "100%", marginRight:"10px"}}>
+
+                        {   score !== undefined ? (<ScoreBox value={this.props.value} />)
+                                               : null
+                        }
+                        {   this.props.value[FEEDBACK] !== undefined
+                                ? (<div>
+                                        <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''} Teacher Feedback</b><br />
+                                        {this.props.value[FEEDBACK]}
+                                   </div>) : null
+                        }
+
                         <div style={{display:"block", marginLeft:"10px"}}>
                             <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
@@ -163,35 +401,40 @@ class Problem extends React.Component {
                             /> <br />
                         </div>
                         <br />
-                        <small>Next Step - Enter Key</small>
-                        <br />
-                        <Button text="New Blank Step" style={{width: "125px"}} onClick={
+                        <Button text="Next Step (Enter)" className="long-problem-action-button fm-button" onClick={
+                            function() {
+                                window.store.dispatch(
+                                    { type : NEW_STEP, PROBLEM_INDEX : problemIndex})
+                            }}/>
+                        <Button text="New Blank Step" className="long-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
                             }}/>
-                        <div style={{display:"inline-block"}}>
-                        <Button text="Undo" style={{width: "55px"}} onClick={
+                        <div style={{display:'inline-block'}}>
+                        <Button text="Undo" className="short-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : UNDO, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <Button text="Redo" style={{width: "55px"}} onClick={
+                        <Button text="Redo" className="short-problem-action-button fm-button" onClick={
                             function() {
                                 window.store.dispatch(
                                     { type : REDO, PROBLEM_INDEX : problemIndex})
                             }}/>
                         </div>
-                        <Button type="submit" style={{width: "125px"}} text="Clone Problem"
+                        <Button type="submit" className="long-problem-action-button fm-button" text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
-                        <div style={{float:'left', maxWidth:"90%"}} className="equation-list">
-                        Type math here<br />
-                        {
-                            this.props.value[STEPS].map(function(step, stepIndex) {
+                        <div className="equation-list">
+                        Type math here or&nbsp;
+                        <ImageUploader problemIndex={problemIndex} value={this.props.value}/>
+                        <br />
+
+                        {steps.map(function(step, stepIndex) {
                             var styles = {};
                             if (step[HIGHLIGHT] === SUCCESS) {
                                 styles = {backgroundColor : GREEN };
@@ -199,7 +442,7 @@ class Problem extends React.Component {
                                 styles = {backgroundColor : SOFT_RED};
                             }
                             return (
-                            <div key={step[STEP_ID]}>
+                            <div key={step[STEP_ID]} style={{width:"95%"}}>
                                 {showTutorial && stepIndex === 0 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
@@ -222,45 +465,104 @@ class Problem extends React.Component {
                                         <span>Repeat until you have reached your solution on
                                               the last line you edit.</span></div></div>) : null}
                                 <div style={{display:"block"}}>
-                                <div style={{"float":"left","display":"flex", alignItems: "center"}}>
-                                <HtmlButton title='Insert step above'
-                                    content={(
-                                        <img src="images/add_above.png" alt="x"/>
-                                    )}
-                                    onClick={function(value) {
-                                        window.store.dispatch(
-                                            { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
-                                              STEP_KEY : stepIndex});
-                                }}/>
-                                <MathInput
-                                    key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
-                                    styles={{...styles, overflow: 'auto'}}
-                                    buttonSets={['trig', 'prealgebra',
-                                                 'logarithms', 'calculus']}
-                                    buttonGroup={buttonGroup}
-                                    stepIndex={stepIndex}
-                                    problemIndex={problemIndex} value={step[CONTENT]} onChange={
-                                        function(value) {
+                            <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
+                                <div className="step-actions">
+                                    <select
+                                        value={step[FORMAT]}
+                                        onChange={function(evt) {
                                             window.store.dispatch({
-                                            type : EDIT_STEP,
-                                            PROBLEM_INDEX : problemIndex,
-                                            STEP_KEY : stepIndex,
-                                            NEW_STEP_CONTENT : value});
-                                    }}
-                                    onSubmit={function() {
-                                        window.store.dispatch(
-                                            { type : NEW_STEP,
-                                              STEP_KEY : stepIndex,
-                                              PROBLEM_INDEX : problemIndex});
-                                    }}
-                                />
-                                <CloseButton text="&#10005;" title='Delete step' onClick={
-                                    function(value) {
+                                                type : EDIT_STEP,
+                                                PROBLEM_INDEX : problemIndex,
+                                                FORMAT : evt.target.value,
+                                                STEP_KEY : stepIndex,
+                                                NEW_STEP_CONTENT : (evt.target.value === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                            });
+                                        }}>
+                                        <option value="MATH">Math</option>
+                                        <option value="TEXT">Text</option>
+                                        <option value="IMG">Image</option>
+                                    </select>
+                                    <HtmlButton title='Insert step above'
+                                        content={(
+                                            <img src="images/add_above.png" alt="x"/>
+                                        )}
+                                        onClick={function(value) {
+                                            window.store.dispatch(
+                                                { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
+                                                  STEP_KEY : stepIndex});
+                                    }}/>
+                                </div>&nbsp;
+                                { step[FORMAT] === IMG
+                                    ?
+                                        <ImageStep value={value} id={problemIndex} stepIndex={stepIndex} step={step} />
+                                    :
+                                    step[FORMAT] === TEXT ?
+                                        (
+                                            <textarea value={step[CONTENT]}
+                                                style={{...styles, margin : "10px"}}
+                                                className="text-step-input"
+                                                rows="4"
+                                                onChange={
+                                                    function(evt) {
+                                                        window.store.dispatch({
+                                                            type : EDIT_STEP,
+                                                            PROBLEM_INDEX : problemIndex,
+                                                            STEP_KEY : stepIndex,
+                                                            FORMAT : TEXT,
+                                                            NEW_STEP_CONTENT : evt.target.value});
+                                                    }}
+                                                onKeyDown={function(evt) {
+                                                        if(evt.key === 'Enter') {
+                                                            window.store.dispatch(
+                                                                { type : NEW_BLANK_STEP,
+                                                                  STEP_KEY : stepIndex,
+                                                                  PROBLEM_INDEX : problemIndex
+                                                                });
+                                                            evt.preventDefault();
+                                                        }
+                                                    }
+                                                }
+                                            />
+                                        )
+                                    :
+                                    <MathInput
+                                        key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
+                                        styles={{...styles, overflow: 'auto'}}
+                                        buttonSets={['trig', 'prealgebra',
+                                                     'logarithms', 'calculus']}
+                                        buttonGroup={buttonGroup}
+                                        stepIndex={stepIndex}
+                                        problemIndex={problemIndex} value={step[CONTENT]} onChange={
+                                            function(value) {
+                                                window.store.dispatch({
+                                                type : EDIT_STEP,
+                                                PROBLEM_INDEX : problemIndex,
+                                                STEP_KEY : stepIndex,
+                                                FORMAT : MATH,
+                                                NEW_STEP_CONTENT : value});
+                                        }}
+                                        onSubmit={function() {
+                                            window.store.dispatch(
+                                                { type : NEW_STEP,
+                                                  STEP_KEY : stepIndex,
+                                                  PROBLEM_INDEX : problemIndex});
+                                        }}
+                                    />
+                                }
+                                <CloseButton text="&#10005;" title='Delete step'
+                                    onClick={function(value) {
                                         window.store.dispatch(
                                             { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
                                               STEP_KEY : stepIndex});
                                     }}/>
                                 </div>
+                                { step[FORMAT] === IMG && step[CONTENT] !== ''
+                                    ?
+                                        <div style={{maxWidth: "95%"}}>
+                                        If your final answer is a number or expression, type it in the final box below.<br />
+                                        Otherwise you can just move to the next problem.
+                                        </div>
+                                    : null }
                                 </div>
                                 <div style={{"clear":"both"}} />
                             </div>
@@ -347,10 +649,12 @@ class Problem extends React.Component {
  */
 // reducer for an individual problem
 function problemReducer(problem, action) {
+    console.log("problem reducer");
+    console.log(action);
     if (problem === undefined) {
         // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
-                 STEPS : [{STEP_ID : genID(), CONTENT : ""}],
+                 STEPS : [{STEP_ID : genID(), CONTENT : "", FORMAT: MATH}],
                  UNDO_STACK : [], REDO_STACK : []};
     } else if (action.type === SET_PROBLEM_NUMBER) {
         return {
@@ -362,8 +666,24 @@ function problemReducer(problem, action) {
         // event for each character typed, collapse them together. Only create
         // a new undo event if the edit made the text shorter.
         var latestUndo = problem[UNDO_STACK].length > 0 ? problem[UNDO_STACK][0] : false;
-        const currContent = problem[STEPS][action[STEP_KEY]][CONTENT];
-        const newContent = action[NEW_STEP_CONTENT];
+        const currStep = problem[STEPS][action[STEP_KEY]];
+        const currContent = currStep[CONTENT];
+        var newContent = action[NEW_STEP_CONTENT];
+        const currFormat = currStep[FORMAT];
+        const newFormat = action[FORMAT];
+
+        if ( currFormat === MATH && newFormat === TEXT) {
+            if (currContent === newContent) {
+                // make switching between math and text a little easier
+                console.log("replace with normals spaces");
+                newContent = newContent.replace(/\\ /g, ' ');
+            }
+        } else if (currStep[FORMAT] === TEXT && newFormat === MATH) {
+            if (currContent === newContent) {
+                // make switching between math and text a little easier
+                newContent = newContent.replace(/ /g, '\\ ');
+            }
+        }
 
         // "ADD" or "DELETE"
         var editType;
@@ -375,7 +695,7 @@ function problemReducer(problem, action) {
         // type of edit is currently being done, and checking if it should be combined with the last undo event on the stack.
         //
         // Check if this is a single character edit. If it is find its location, and detemine if it is an insertion or deletion
-        if (Math.abs(currContent.length - newContent.length) === 1) {
+        if (currFormat === newFormat && (currFormat === MATH || currFormat === TEXT) && Math.abs(currContent.length - newContent.length) === 1) {
             // find the first mismatching character
             var i = 0;
             for (; i < currContent.length && i < newContent.length; i++) {
@@ -415,11 +735,14 @@ function problemReducer(problem, action) {
         } else {
             updateLastUndoAction = false;
         }
+        console.log("0000000333333300000000000");
+        console.log(updateLastUndoAction);
 
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
                 type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
+                FORMAT: currFormat,
                 INVERSE_ACTION : {
                     ...action,
                     EDIT_TYPE : editType,
@@ -450,7 +773,10 @@ function problemReducer(problem, action) {
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
                 // copy properties of the old step, to get the STEP_ID, then override the content
-                { ...problem[STEPS][action[STEP_KEY]], CONTENT : action[NEW_STEP_CONTENT] },
+                { ...problem[STEPS][action[STEP_KEY]],
+                     CONTENT : newContent,
+                     FORMAT : action[FORMAT],
+                },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
         }
@@ -463,6 +789,7 @@ function problemReducer(problem, action) {
             INVERSE_ACTION : {
                 type : INSERT_STEP_ABOVE, STEP_KEY: action[STEP_KEY],
                 CONTENT : problem[STEPS][action[STEP_KEY]][CONTENT],
+                FORMAT : problem[STEPS][action[STEP_KEY]][FORMAT],
                 INVERSE_ACTION : {...action}
             }
         };
@@ -481,9 +808,15 @@ function problemReducer(problem, action) {
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
         var newContent;
+        var newFormat = undefined;
         // non-blank inserations in the middle of work currently only used for undo/redo
         if (CONTENT in action) {
-           newContent = action[CONTENT]
+            newContent = action[CONTENT]
+            if (FORMAT in action) {
+                newFormat = action[FORMAT]
+            } else {
+                // default to no FORMAT, which is math
+            }
         } else {
             // this is the default produced by the button on the UI
             newContent = ""
@@ -500,7 +833,7 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : newContent, STEP_ID : genID()},
+                { CONTENT : newContent, FORMAT: newFormat, STEP_ID : genID()},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
             UNDO_STACK : [
@@ -515,9 +848,13 @@ function problemReducer(problem, action) {
             action[STEP_KEY] = problem[STEPS].length - 1;
         }
         if (action.type === NEW_STEP) {
+            if (action[STEP_DATA]) {
+                oldStep = action[STEP_DATA];
+            } else {
                 oldStep = problem[STEPS][action[STEP_KEY]];
+            }
         } else { // new blank step
-                oldStep = {CONTENT : ""};
+            oldStep = {CONTENT : "", FORMAT: MATH};
         }
         // TODO - allow tracking the cursor, which box it is in
         // for now this applies when the button is used instead of hitting enter
@@ -525,7 +862,7 @@ function problemReducer(problem, action) {
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : DELETE_STEP, STEP_KEY: action[STEP_KEY],
+                type : DELETE_STEP, STEP_KEY: action[STEP_KEY] + 1,
                 INVERSE_ACTION : {...action}
             }
         };
@@ -573,12 +910,15 @@ function problemReducer(problem, action) {
                 ],
         }
     } else {
+        alert("no matching action handling");
         return problem;
     }
 }
 
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
+    console.log("problem list reducer");
+    console.log(action);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }
@@ -633,4 +973,4 @@ function problemListReducer(probList, action) {
     }
 }
 
-export { Problem as default, ScoreBox, problemReducer, problemListReducer };
+export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage };

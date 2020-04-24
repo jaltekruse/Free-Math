@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import './App.css';
 import SolutionClassGrader, { solutionClassReducer } from './SolutionClassGrader.js';
 import Button from './Button.js';
@@ -26,11 +25,13 @@ var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
 var OLD_POSSIBLE_POINTS = "OLD_POSSIBLE_POINTS";
 var SET_PROBLEM_FEEDBACK = "SET_PROBLEM_FEEDBACK";
+var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
 
 function problemGraderReducer(state, action) {
     if (action.type === GRADE_CLASS_OF_SOLUTIONS ||
         action.type === GRADE_SINGLE_SOLUTION ||
         action.type === HIGHLIGHT_STEP ||
+        action.type === EDIT_STUDENT_STEP ||
         action.type === SET_PROBLEM_FEEDBACK ) {
         return {
             ...state,
@@ -84,7 +85,7 @@ class ProblemGrader extends React.Component {
             <div className="problem-summary-container" style={{float:"none",overflow:"hidden"}}>
                 <h3>Problem {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
-                <p>Possible points &nbsp;
+                Possible points &nbsp;
                     <input type="text" size="4" value={possiblePoints}
                            onChange={function(evt) {
                                window.store.dispatch(
@@ -102,8 +103,8 @@ class ProblemGrader extends React.Component {
                                           PROBLEM_NUMBER : problemNumber});
                                 }
                             }.bind(this)
-                        }/> <br/>
-                </p>
+                        }/>
+                <br/>
                 { problemInfo[UNIQUE_ANSWERS].map(
                     function(solutionClassInfo, solutionClassIndex) {
                         return (

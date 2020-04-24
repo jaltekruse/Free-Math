@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import createReactClass from 'create-react-class';
 import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
@@ -9,6 +8,13 @@ import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
+import { cloneDeep, genID } from './FreeMath.js';
+import JSZip from 'jszip';
+
+var STEPS = 'STEPS';
+var CONTENT = "CONTENT";
+var IMG = "IMG";
+var FORMAT = "FORMAT";
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -43,14 +49,9 @@ var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 
-function validateProblemNumbers(allProblems) {
+function isProblemNumberMissing(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
-    var allNumbers = {};
     allProblems.forEach(function(problem, index, array) {
-        if (allNumbers[problem[PROBLEM_NUMBER].trim()]) {
-            atLeastOneProblemNumberNotSet = true;
-        }
-        allNumbers[problem[PROBLEM_NUMBER].trim()] = true;
         if (problem[PROBLEM_NUMBER].trim() === "") {
             atLeastOneProblemNumberNotSet = true;
         }
@@ -58,34 +59,116 @@ function validateProblemNumbers(allProblems) {
     return atLeastOneProblemNumberNotSet;
 }
 
-function saveAssignment() {
+function checkDuplicateProblemNumbers(allProblems) {
+    var foundDuplicate = false;
+    var allNumbers = {};
+    allProblems.forEach(function(problem, index, array) {
+        if (allNumbers[problem[PROBLEM_NUMBER].trim()]) {
+            foundDuplicate = true;
+        }
+        allNumbers[problem[PROBLEM_NUMBER].trim()] = true;
+    });
+    return foundDuplicate;
+}
+
+
+function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallback) {
     window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
-    var atLeastOneProblemNumberNotSet = validateProblemNumbers(window.store.getState()[PROBLEMS]);
-    if (atLeastOneProblemNumberNotSet) {
+    var allProblems = studentDoc[PROBLEMS];
+    if (isProblemNumberMissing(allProblems)) {
         window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with missing problem numbers');
-        window.alert("Cannot save, a problem number is mising or two or more " +
-                     "problems have the same number.");
+        window.alert("Cannot save, a problem number is mising.");
         return;
     }
-    var allProblems = window.store.getState()[PROBLEMS];
-    allProblems.forEach(function(problem, index, array) {
+    if (checkDuplicateProblemNumbers(allProblems)) {
+        window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with duplicated problem numbers');
+        window.alert("Cannot save, two or more problems have the same number.");
+        return;
+    }
+    return saveAssignment(studentDoc, handleFinalBlobCallback);
+}
+
+function saveAssignment(studentDoc, handleFinalBlobCallback) {
+    var allProblems = studentDoc[PROBLEMS];
+    var zip = new JSZip();
+    var imagesBeingAddedToZip = 0;
+    allProblems = allProblems.map(function(problem, probIndex, array) {
+        // make a new object, as this mutates the state, including changing the blob URLs
+        // into filenames that will be in the zip file for images, these changes
+        // should not be made to the in-memory version
+        // BE CAREFUL NOT TO CHANGE THIS, the bug only shows up after a save and then
+        // a further edit of the doc without navigating away
+        problem = { ...problem };
         // trim the numbers to avoid extra groups while grading
         problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
+        problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
+            if (step[FORMAT] === IMG) {
+                // change image to refer to filename that will be generated, will be converted by to objectURL
+                // when being read back in
+                // simpler solution available in ES5
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', step[CONTENT], true);
+                var filename = probIndex + "_" + stepIndex + "_img"
+                var newStep = {...step};
+                newStep[CONTENT] = filename;
+                xhr.responseType = 'blob';
+                imagesBeingAddedToZip++;
+                xhr.onload = function(e) {
+                  if (this.status == 200) {
+                    var imgBlob = this.response;
+                    // imgBlob is now the blob that the object URL pointed to.
+                    var fr = new FileReader();
+                    fr.addEventListener('load', function() {
+                        var data = this.result;
+                        zip.file(filename, data);
+                        imagesBeingAddedToZip--;
+                    });
+                    return fr.readAsArrayBuffer(imgBlob);
+                  }
+                };
+                xhr.send();
+                return newStep;
+            } else {
+                return step;
+            }
+        });
+        return problem;
     });
-    var overallState = window.store.getState();
-    overallState[PROBLEMS] = allProblems;
+    studentDoc = { ...studentDoc,
+                   [PROBLEMS]: allProblems};
+
     var blob =
         new Blob([
             JSON.stringify({
+            ...studentDoc,
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
-                           overallState
+                          studentDoc
                         )
                     )[PROBLEMS]
             })],
-        {type: "application/octet-stream"});
-        //{type: "text/plain;charset=utf-8"});
-    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
+        //{type: "application/octet-stream"});
+        {type: "text/plain;charset=utf-8"});
+
+    var checkImagesLoaded = function() {
+        if (imagesBeingAddedToZip === 0) {
+
+            var fr = new FileReader();
+            fr.addEventListener('load', function () {
+                var data = this.result;
+                zip.file("mainDoc", data);
+                var finalBlob = zip.generate({type: 'blob'});
+                handleFinalBlobCallback(finalBlob);
+                // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
+                //success(this.result);
+            }, false);
+            fr.readAsArrayBuffer(blob);
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkImagesLoaded, 50);
+        }
+    }
+    checkImagesLoaded();
 }
 
 function removeUndoRedoHistory(globalState) {
@@ -107,9 +190,82 @@ function removeExtension(filename) {
     return filename;
 }
 
+// can throws exception if thw wrong file type is opened
+// successfully opens both the current zip-based format that allows
+// saving images as well as the old format that was just json in a text file
+function openAssignment(content, filename, discardDataWarning) {
+    var new_zip = new JSZip();
+    try {
+        new_zip.load(content);
+
+        var allStudentWork = [];
+
+        var failureCount = 0;
+        var badFiles = [];
+        var images = {};
+        // you now have every files contained in the loaded zip
+        for (var file in new_zip.files) {
+            // don't get properties from prototype
+            if (new_zip.files.hasOwnProperty(file)) {
+                // extra directory added when zipping files on mac
+                // TODO - check for other things to filter out from zip
+                // files created on other platforms
+                if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                // check the extension is .math
+                // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+                //if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+                // filter out directories which are part of this list
+                if (new_zip.file(file) === null) continue;
+                try {
+                    if (file === "mainDoc") {
+                        var fileContents = new_zip.file(file).asText();
+                        var newDoc = JSON.parse(fileContents);
+                        // compatibility for old files, need to convert the old proerty names as
+                        // well as add the LAST_SHOWN_STEP
+                        newDoc = convertToCurrentFormat(newDoc);
+                    } else {
+                        // should be an image
+                        var fileContents = new_zip.file(file).asArrayBuffer();
+                        images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                    }
+                } catch (e) {
+                    console.log("failed to parse file: " + file);
+                    console.log(e);
+                }
+            }
+        }
+
+        newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, probIndex, array) {
+            problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
+                if (step[FORMAT] === IMG) {
+                    step[CONTENT] = images[probIndex + "_" + stepIndex + "_img"];
+                }
+                return step;
+            });
+            return problem;
+        });
+
+        newDoc[ASSIGNMENT_NAME] = removeExtension(filename);
+        return newDoc;
+
+    } catch (e) {
+        // this can throw an exception if it is the wrong file type (like a user opened a PDF)
+        var newDoc = openAssignmentOld(
+            ab2str(content),
+            filename, discardDataWarning);
+        return newDoc;
+    }
+}
+
+function ab2str(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+}
+
+
 // TODO - consider giving legacy docs an ID upon opening, allows auto-save to work properly when
 // opening older docs
-export function openAssignment(serializedDoc, filename, discardDataWarning, driveFileId) {
+// TODO - need to pass driveFileID
+function openAssignmentOld(serializedDoc, filename, discardDataWarning, driveFileId = false) {
     // this is now handled at a higher level, this is mostly triggered by onChange events of "file" input elements
     // if the user selects "cancel", I want them to be able to try re-opening again. If they pick the same file I
     // won't get on onChange event without resetting the value, and here I don't have a reference to the DOM element
@@ -123,9 +279,12 @@ export function openAssignment(serializedDoc, filename, discardDataWarning, driv
         // compatibility for old files, need to convert the old proerty names as
         // well as add the LAST_SHOWN_STEP
         newDoc = convertToCurrentFormat(newDoc);
+        /* TODO - need to move this code, I put the call to set state elsewhere to allow using this for binary auto-saves
         window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
             PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
             ASSIGNMENT_NAME : removeExtension(filename)});
+            */
+        return newDoc
     } catch (e) {
         console.log(e);
         alert("Error reading the file, Free Math can only read files with " +
@@ -137,28 +296,31 @@ export function openAssignment(serializedDoc, filename, discardDataWarning, driv
 
 // read a file from the local disk, pass an onChange event from a "file" input type
 // http://www.htmlgoodies.com/beyond/javascript/read-text-files-using-the-javascript-filereader.html
-export function readSingleFile(evt, discardDataWarning) {
+export function readSingleFile(evt, discardDataWarning, driveFileId = false) {
     //Retrieve the first (and only!) File from the FileList object
     var f = evt.target.files[0];
 
     if (f) {
-        var r = new FileReader();
-        r.onload = function(e) {
-            try {
-                var contents = e.target.result;
-                openAssignment(contents, f.name, discardDataWarning);
-            } catch (e) {
-                console.log(e);
-                window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
-                alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
-            }
+            var r = new FileReader();
+            r.onload = function(e) {
+                try {
+                    var contents = e.target.result;
+                    var newDoc = openAssignment(contents, f.name, discardDataWarning);
+
+                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                        PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
+                        ASSIGNMENT_NAME : removeExtension(f.name)});
+                } catch (e) {
+                    console.log(e);
+                    window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
+                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
+                }
         }
-        r.readAsText(f);
+        r.readAsArrayBuffer(f);
     } else {
         alert("Failed to load file");
     }
 }
-
 
 function submitAssignment(submission, selectedClass, selectedAssignment, googleId) {
     window.modifyGoogeClassroomSubmission(
@@ -385,43 +547,40 @@ class AssignmentEditorMenubar extends React.Component {
         // might have been manifesting a different bug leaving out a callback in functions doing
         // the actual requests to google in index.html
         const saveCallback = function(onSuccessCallback = function() {}) {
-            var assignment = JSON.stringify(
-                        { PROBLEMS : makeBackwardsCompatible(
-                                     this.props.value)[PROBLEMS]
+            saveAssignmentValidatingProblemNumbers(window.store.getState(), function(assignment) {
+
+                var googleId = this.props.value[GOOGLE_ID];
+                if (googleId) {
+                    console.log("update in google drive:" + googleId);
+                    window.updateFileWithBinaryContent(
+                        this.props.value[ASSIGNMENT_NAME] + '.math',
+                        assignment,
+                        googleId,
+                        'application/json',
+                        function() {
+                            window.store.dispatch(
+                                { type : SET_GOOGLE_DRIVE_STATE,
+                                    GOOGLE_DRIVE_STATE : ALL_SAVED});
+                            onSuccessCallback();
                         }
-            );
-            assignment = new Blob([assignment], {type: 'application/json'});
-            var googleId = this.props.value[GOOGLE_ID];
-            if (googleId) {
-                console.log("update in google drive:" + googleId);
-                window.updateFileWithBinaryContent(
-                    this.props.value[ASSIGNMENT_NAME] + '.math',
-                    assignment,
-                    googleId,
-                    'application/json',
-                    function() {
-                        window.store.dispatch(
-                            { type : SET_GOOGLE_DRIVE_STATE,
-                                GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        onSuccessCallback();
-                    }
-                );
-            } else {
-                window.createFileWithBinaryContent(
-                    this.props.value[ASSIGNMENT_NAME] + '.math',
-                    assignment,
-                    'application/json',
-                    function(driveFileId) {
-                        window.store.dispatch({type : SET_GOOGLE_ID,
-                            GOOGLE_ID: driveFileId,
-                        });
-                        window.store.dispatch(
-                            { type : SET_GOOGLE_DRIVE_STATE,
-                                GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        onSuccessCallback();
-                    }
-                );
-            }
+                    );
+                } else {
+                    window.createFileWithBinaryContent(
+                        this.props.value[ASSIGNMENT_NAME] + '.math',
+                        assignment,
+                        'application/json',
+                        function(driveFileId) {
+                            window.store.dispatch({type : SET_GOOGLE_ID,
+                                GOOGLE_ID: driveFileId,
+                            });
+                            window.store.dispatch(
+                                { type : SET_GOOGLE_DRIVE_STATE,
+                                    GOOGLE_DRIVE_STATE : ALL_SAVED});
+                            onSuccessCallback();
+                        }
+                    );
+                }
+            }.bind(this));
         }.bind(this);
         const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
         window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
@@ -440,7 +599,7 @@ class AssignmentEditorMenubar extends React.Component {
     }
 
     render() {
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const responseGoogle = (response) => {
             console.log(response);
         }
@@ -484,8 +643,10 @@ class AssignmentEditorMenubar extends React.Component {
                                               ASSIGNMENT_NAME : evt.target.value});
                             }}
                         />
-                        <LightButton text="Save to Device" onClick={
-                            function() { saveAssignment() }} /> &nbsp;&nbsp;&nbsp;
+                          <LightButton text="Save" onClick={
+                              function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
+                                  saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
+                              }) }} /> &nbsp;&nbsp;&nbsp;
                         </span>
                      ) : null}
 
@@ -525,4 +686,4 @@ class AssignmentEditorMenubar extends React.Component {
   }
 }
 
-export {AssignmentEditorMenubar as default, removeExtension, validateProblemNumbers, GoogleClassroomSubmissionSelector };
+export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment, GoogleClassroomSubmissionSelector};

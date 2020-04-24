@@ -1,9 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import createReactClass from 'create-react-class';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
-import { saveGradedStudentWork, genStudentWorkZip } from './TeacherInteractiveGrader.js';
+import { saveGradedStudentWork, saveGradedStudentWorkToBlob} from './TeacherInteractiveGrader.js';
 import { LightButton, HtmlButton } from './Button.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
@@ -27,7 +26,7 @@ var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 class GradingMenuBar extends React.Component {
     componentDidMount() {
         const saveCallback = function() {
-            var zip = genStudentWorkZip(window.store.getState());
+            var zip = saveGradedStudentWorkToBlob(window.store.getState());
             var content = zip.generate({type: "blob"});
             var googleId = window.store.getState()[GOOGLE_ID];
             console.log("update in google drive:" + googleId);
@@ -65,7 +64,7 @@ class GradingMenuBar extends React.Component {
     }
 
     render() {
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
             assignmentName = "";

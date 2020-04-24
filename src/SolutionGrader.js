@@ -1,8 +1,8 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import './App.css';
 import TeX from './TeX.js';
 import Button from './Button.js';
+import ImageEditor from '@toast-ui/react-image-editor'
 
 var STUDENT_FILE = 'STUDENT_FILE';
 
@@ -11,6 +11,10 @@ var FEEDBACK = "FEEDBACK";
 
 // teacher grade page model properties
 var CONTENT = "CONTENT";
+var FORMAT = "FORMAT";
+var IMG = "IMG";
+var MATH = "MATH";
+var TEXT = "TEXT";
 
 // action properties
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
@@ -46,6 +50,14 @@ var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
 var PROBLEMS = 'PROBLEMS';
 var STUDENT_WORK = "STUDENT_WORK";
 
+// refers to passing complete step info in an action
+//oldStep = {CONTENT : "", FORMAT: "MATH", HIGHTLIGHT: "SUCCESS"};
+// current format MATH isn't used, no format implies math
+var STEP_DATA = "STEP_DATA";
+var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
+// allow revert of teacher edits
+var ORIG_STUDENT_STEP = 'ORIG_STUDENT_STEP';
+
 function singleSolutionReducer(state, action) {
     if (action.type === GRADE_SINGLE_SOLUTION) {
         // currently no validation here
@@ -59,6 +71,20 @@ function singleSolutionReducer(state, action) {
             ret[FEEDBACK] = action[FEEDBACK];
         }
         return ret;
+    } else if (action.type === EDIT_STUDENT_STEP ) {
+        var origStudentStep = state[STEPS][action[STEP_KEY]][ORIG_STUDENT_STEP];
+        if (typeof origStudentStep === 'undefined') {
+            origStudentStep = state[STEPS][action[STEP_KEY]];
+        }
+        return { ...state,
+            STEPS : [
+                ...state[STEPS].slice(0, action[STEP_KEY]),
+                { ...state[STEPS][action[STEP_KEY]],
+                  ...action[STEP_DATA],
+                  ORIG_STUDENT_STEP: origStudentStep },
+                ...state[STEPS].slice(action[STEP_KEY] + 1)
+            ]
+        };
     } else if (action.type === HIGHLIGHT_STEP) {
         var oldHighlight = state[STEPS][action[STEP_KEY]][HIGHLIGHT];
         var newHighlight;
@@ -82,7 +108,7 @@ function singleSolutionReducer(state, action) {
                  FEEDBACK : action[FEEDBACK] };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS) {
         if (Number(state[SCORE]) > 0) {
-            var newScore = scaleScore(state[SCORE], action[OLD_POSSIBLE_POINTS], action[POSSIBLE_POINTS]); 
+            var newScore = scaleScore(state[SCORE], action[OLD_POSSIBLE_POINTS], action[POSSIBLE_POINTS]);
             return { ...state,
                      SCORE : newScore };
         } else {
@@ -98,38 +124,154 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
         ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
 }
 
+
+class ImageStep extends React.Component {
+    editorRef = React.createRef();
+    state = {
+        imageMarkup : false
+    };
+    render = () => {
+        var step = this.props.step;
+        var problemNumber = this.props.problemNumber
+        var solutionClassIndex = this.props.solutionClassIndex;
+        var studentSolutionIndex = this.props.studentSolutionIndex ;
+        var stepIndex = this.props.stepIndex;
+        return (
+            <span>
+            <Button className="extra-long-problem-action-button fm-button"
+                    text={this.state.imageMarkup ?
+                        "Save Feedback" : "Mark Feedback" }
+                    title={this.state.imageMarkup ?
+                        "Save Feedback" : "Mark Feedback" }
+                    onClick={function() {
+                        if (this.state.imageMarkup) {
+                            // TODO - save modified image
+                            const editorInstance = this.editorRef.current.getInstance();
+                            window.store.dispatch({
+                                type : EDIT_STUDENT_STEP,
+                                PROBLEM_NUMBER : problemNumber,
+                                SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                SOLUTION_INDEX : studentSolutionIndex,
+                                STEP_KEY : stepIndex,
+                                STEP_DATA :
+                                    {...step,
+                                     CONTENT: editorInstance.toDataURL()}});
+                            this.setState({imageMarkup: false});
+                        } else {
+                            this.setState({imageMarkup: true});
+                        }
+                    }.bind(this)}
+            />
+            { step[ORIG_STUDENT_STEP] ?
+                <Button className="extra-long-problem-action-button fm-button"
+                    text="Revert Feedback"
+                    title="Revert Feedback"
+                    onClick={function() {
+                        // TODO - save modified image
+                        window.store.dispatch({
+                            type : EDIT_STUDENT_STEP,
+                            PROBLEM_NUMBER : problemNumber,
+                            SOLUTION_CLASS_INDEX : solutionClassIndex,
+                            SOLUTION_INDEX : studentSolutionIndex,
+                            STEP_KEY : stepIndex,
+                            STEP_DATA : step[ORIG_STUDENT_STEP]
+                        });
+                    }.bind(this)}
+                />
+                : null
+            }
+            { this.state.imageMarkup ?
+                <ImageEditor
+                    ref={this.editorRef}
+                    includeUI={{
+                      loadImage: {
+                        path: step[CONTENT],
+                        name: 'SampleImage'
+                      },
+                      menu: ['draw', 'shape', 'text'],
+                      initMenu: 'shape',
+                      uiSize: {
+                        width: '500px',
+                        height: '700px'
+                      },
+                      menuBarPosition: 'top'
+                    }}
+                    cssMaxHeight={500}
+                    cssMaxWidth={700}
+                    selectionStyle={{
+                      cornerSize: 20,
+                      rotatingPointOffset: 70
+                    }}
+                    usageStatistics={false}
+                  />
+                :
+                <img src={step[CONTENT]}
+                     style={{margin : "10px", maxWidth: "98%"}}/>
+            }
+            </span>
+        )
+    }
+}
+
 class StudentWork extends React.Component {
-    render() {
+    state = {
+        imageMarkup : false
+    };
+    render = () => {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         return (
             <div style={{float:"left"}} className="equation-list">
-                <br/>
                 {
-                    data[STEPS].map(function(step, stepIndex) {
+                data[STEPS].map(function(step, stepIndex) {
                     var stepStyle = {};
                     if (step[HIGHLIGHT] === ERROR) stepStyle = {backgroundColor : RED}
                     else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
 
                     return (
                         <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
-                            <div className="student-step-grader" style={{display: "inline-block"}}>
-                            <TeX style={stepStyle} onClick={function() {
-                                window.store.dispatch({ type : HIGHLIGHT_STEP, PROBLEM_NUMBER : problemNumber,
-                                                SOLUTION_CLASS_INDEX : solutionClassIndex,
-                                                SOLUTION_INDEX : studentSolutionIndex,
-                                                STEP_KEY : stepIndex});
-                                }}>
-                                {typeof(step[CONTENT]) === 'string'
-                                    ? step[CONTENT]
-                                    : "\\text{corruption occured}"}
+
+                            <div>
+                            { step[FORMAT] === IMG
+                                ?
+                                <ImageStep step={step}
+                                           problemNumber={problemNumber}
+                                           solutionClassIndex={solutionClassIndex}
+                                           studentSolutionIndex={studentSolutionIndex}
+                                           stepIndex={stepIndex}
+                                />
+                                :
+                                step[FORMAT] === TEXT
+                                ?
+                                    <div style={{...stepStyle, margin: "5px"}}
+                                        onClick={function() {
+                                                window.store.dispatch({ type : HIGHLIGHT_STEP,
+                                                    PROBLEM_NUMBER : problemNumber,
+                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                                    SOLUTION_INDEX : studentSolutionIndex,
+                                                    STEP_KEY : stepIndex});
+                                    }}>
+                                        {step[CONTENT]}
+                                    </div>
+                                :
+                                <TeX style={stepStyle} onClick={function() {
+                                    window.store.dispatch({ type : HIGHLIGHT_STEP,
+                                                    PROBLEM_NUMBER : problemNumber,
+                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                                    SOLUTION_INDEX : studentSolutionIndex,
+                                                    STEP_KEY : stepIndex});
+                                    }}>
+                                    {typeof(step[CONTENT]) === 'string'
+                                        ? step[CONTENT]
+                                        : "\\text{corruption occured}"}
                                 </TeX>
+                            }
                             </div>
                         </div>
                     );
-                })}
+                }.bind(this))}
             </div>
         );
     }
@@ -258,9 +400,10 @@ class SolutionGrader extends React.Component {
                         ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
-                    <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
+                    <span style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
                         <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
-                    </div>
+                    </span>
+                    <br />
                     <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
                     {/* TODO - I need teachers to be able to edit the score, including deleting down to
                                empty string, so they can write a new score. If I add validation when setting
@@ -268,23 +411,26 @@ class SolutionGrader extends React.Component {
                                for this, right now I'll assume I should attach another event here to ensure
                                that the field contains a number when focus is lost
                     */}
-                    <p>Score <input type="text" size="4" className="problem-grade-input"
+                    <br />
+                    Score <input type="text" size="4" className="problem-grade-input"
                                     value={data[SCORE]} onChange={this.setScore}
                               /> out of {possiblePoints} &nbsp;
                             <Button type="submit" text="Full Points" onClick={this.fullPoints}/>
                             <br />
-                            <Button text="Apply to Ungraded"
-                                    title={"Apply this score and feedback text to all responses in this " +
-                                        "group that don't have a grade yet."}
-                                    onClick={this.applyScoreToUngraded}
-                                    style={{backgroundColor: "#008000"}}/>
-                            <Button text="Apply to All"
-                                    title={"Apply this score and feedback text to all responses in this group, " +
-                                          "will overwrite already entered values."}
-                                    onClick={this.applyScoreToAll}
-                                    style={{backgroundColor: "#008000"}}/>
-                    </p>
-                    <p>Feedback &nbsp; &nbsp;
+                    <span style={{marginTop: "15px", marginBottom: "25px"}}>
+                        <Button text="Apply to Ungraded"
+                                title={"Apply this score and feedback text to all responses in this " +
+                                    "group that don't have a grade yet."}
+                                onClick={this.applyScoreToUngraded}
+                                style={{backgroundColor: "#008000"}}/>
+                        <Button text="Apply to All"
+                                title={"Apply this score and feedback text to all responses in this group, " +
+                                      "will overwrite already entered values."}
+                                onClick={this.applyScoreToAll}
+                                style={{backgroundColor: "#008000"}}/>
+                    </span>
+                    <br />
+                    Feedback&nbsp;
                     <br />
                     {feedbackButton("Show Work", "Show your complete work.")}
                     {feedbackButton("Simple Mistake", "Review your work for a simple mistake.")}
@@ -292,14 +438,13 @@ class SolutionGrader extends React.Component {
                     {feedbackButton("Let's Talk", "Let's chat about this next class.")}
                     {feedbackButton("Not Simplified", "Be sure to simplify completely.")}
                     {feedbackButton("Sig Figs", "Incorrect significant figures.")}
-                    </p>
-
-                    <div><textarea placeholder="Click a button for quick feedback or type custom feedback here."
+                    <br />
+                    <textarea placeholder="Click a button for quick feedback or type custom feedback here."
                                    cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>
                     </div>
-                    </div>
                 )}
-                <StudentWork 
+                <br />
+                <StudentWork
                     solutionGradeInfo={data}
                     problemNumber={problemNumber}
                     possiblePoints={possiblePoints}

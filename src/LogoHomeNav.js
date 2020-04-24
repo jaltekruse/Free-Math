@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import { checkAllSaved } from './DefaultHomepageActions.js';
 import './App.css';
 
@@ -21,7 +20,7 @@ class LogoHomeNav extends React.Component {
                   }}
               >
               <div style={{padding: "3px"}}>
-              <h3 className="freemath-logo" 
+              <h3 className="freemath-logo"
                   style={{"display":"inline", color: "#eee", "fontFamily":"serif"}}>
                   <span className="katex"><span className="katex-mathml">
                           <math><semantics><mrow><mtext>Free&nbsp;Math</mtext></mrow>

@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import { Chart } from 'chart.js';
 import _ from 'underscore';
@@ -12,8 +11,8 @@ import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
-import { removeExtension } from './AssignmentEditorMenubar.js';
 import { checkAllSaved } from './DefaultHomepageActions.js';
+import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
 
 var KAS = window.KAS;
@@ -81,6 +80,11 @@ var ANSWER = "ANSWER";
 var CONTENT = "CONTENT";
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 
+var FORMAT = "FORMAT";
+var MATH = "MATH";
+var TEXT = "TEXT";
+var IMG = "IMG";
+
 var SHOW_ALL = "SHOW_ALL";
 
 // action properties
@@ -92,6 +96,7 @@ var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 // action properties: MODE (JUST_UNGRADED | ALL)
 
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
+var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
 
 /*
  * Compute a table to show the overall grades for each student
@@ -215,6 +220,7 @@ function gradingReducer(state, action) {
            action.type === GRADE_CLASS_OF_SOLUTIONS ||
            action.type === GRADE_SINGLE_SOLUTION ||
            action.type === HIGHLIGHT_STEP ||
+           action.type === EDIT_STUDENT_STEP ||
            action.type === SET_PROBLEM_FEEDBACK
     ) {
         // check if the value in the possible points input is a valid number
@@ -506,7 +512,16 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
     return assignments;
 }
 
-function genStudentWorkZip(gradedWork) {
+// TODO - delete me
+//function genStudentWorkZip(gradedWork) {
+
+function saveGradedStudentWork(gradedWork) {
+    saveGradedStudentWorkToBlob(gradedWork, function(finalBlob) {
+        saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
+    });
+}
+
+function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = function() {}) {
     if (gradedWork === undefined) {
         console.log("no graded assignments to save");
     }
@@ -515,24 +530,40 @@ function genStudentWorkZip(gradedWork) {
 
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
     var filename;
-    for (filename in separatedAssignments) {
+    for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             separatedAssignments[filename] = makeBackwardsCompatible(separatedAssignments[filename]);
         }
     }
     var zip = new JSZip();
-    for (filename in separatedAssignments) {
+    var filesBeingAddedToZip = 0;
+    for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
-            zip.file(filename, JSON.stringify(separatedAssignments[filename]));
+            filesBeingAddedToZip++;
+            saveAssignment(separatedAssignments[filename], function(studentAssignmentBlob) {
+                // studentAssignment is itself a zip
+                var fr = new FileReader();
+                fr.addEventListener('load', function() {
+                    var data = this.result;
+                    zip.file(filename, data);
+                    filesBeingAddedToZip--;
+                });
+                fr.readAsArrayBuffer(studentAssignmentBlob);
+            });
         }
     }
-    return zip;
-}
 
-function saveGradedStudentWork(gradedWork) {
-    var zip = genStudentWorkZip(gradedWork);
-    var blob = zip.generate({type: 'blob'});
-    saveAs(blob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
+    var checkFilesLoaded = function() {
+        if (filesBeingAddedToZip === 0) {
+            var finalBlob = zip.generate({type: 'blob'});
+            handleFinalBlobCallback(finalBlob);
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkFilesLoaded, 50);
+        }
+    }
+    checkFilesLoaded();
+    return zip;
 }
 
 // returns score out of total possible points that are specified in the answer key
@@ -635,8 +666,22 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     // structure: { "1.1" : { "jason" :true, "taylor" : true }
     var studentWorkFound = {};
     allStudentWork.forEach(function(assignInfo, index, array) {
+        console.log("analyzing 1 student doc");
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            var studentAnswer = _.last(problem[STEPS])[CONTENT];
+            const lastStep = _.last(problem[STEPS]);
+            // image as the last step is treated as blank text as the answer
+            var studentAnswer;
+            if (lastStep && (lastStep[FORMAT] === MATH || lastStep[FORMAT] === TEXT) && lastStep[CONTENT].trim() !== '') {
+                studentAnswer = lastStep[CONTENT]
+            } else if (lastStep && problem[STEPS].length >= 2 &&
+                        (lastStep[FORMAT] === IMG ||
+                            (lastStep[CONTENT].trim() === ''
+                                && problem[STEPS][problem[STEPS].length - 2][FORMAT] === IMG))) {
+                studentAnswer = 'Image';
+            } else {
+                studentAnswer = '';
+            }
+
             // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
             var automaticallyAssignedGrade = "";
             if (!_.isEmpty(answerKey)) {
@@ -1010,58 +1055,94 @@ function makeBackwardsCompatible(newDoc) {
     return newDoc;
 }
 
-function loadStudentDocsFromZip(content, filename, onFailure = function() {}, googleId = false) {
+// TODO - be careful merging in the google branch, changed the signature here to include docId,
+// as this codepath is now used for restoring auto-saves from html5 localStorage, not just reading from files
+function loadStudentDocsFromZip(content, filename, onFailure = function() {}, docId, googleId = false) {
     var new_zip = new JSZip();
+    var allStudentWork = [];
+    var failureCount = 0;
+    var badFiles = [];
+    // try opening file as a single student doc
     try {
-        new_zip.load(content);
+        var singleStudentDoc = openAssignment(content, filename, false);
+        console.log(singleStudentDoc);
+        allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
+    } catch (ex) {
+        try {
+            // otherwise try to open as a zip full of student docs
+            new_zip.load(content);
 
-        var allStudentWork = [];
-
-        var failureCount = 0;
-        var badFiles = [];
-        // you now have every files contained in the loaded zip
-        for (var file in new_zip.files) {
-            // don't get properties from prototype
-            if (new_zip.files.hasOwnProperty(file)) {
-                // extra directory added when zipping files on mac
-                // TODO - check for other things to filter out from zip
-                // files created on other platforms
-                if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
-                // check the extension is .math
-                // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
-                if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
-                // filter out directories which are part of this list
-                if (new_zip.file(file) === null) continue;
-                try {
-                    var fileContents = new_zip.file(file).asText();
-                    // how is this behaviring differrntly than JSOn.parse()?!?!
-                    //var assignmentData = window.$.parseJSON(fileContents);
-                    fileContents = fileContents.trim();
-                    var assignmentData = JSON.parse(fileContents);
-                    assignmentData = convertToCurrentFormat(assignmentData);
-                    allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
-                } catch (e) {
-                    console.log("failed to parse file: " + file);
-                    console.log(e);
-                    failureCount++;
-                    badFiles.push(file);
+            var docCount = 0;
+            for (var file in new_zip.files) {
+                if (new_zip.files.hasOwnProperty(file)) {
+                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                    else if (new_zip.file(file) === null) continue;
+                    else docCount++;
                 }
             }
-        }
-        if (failureCount > 0) {
-            alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
-            window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
-            window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
-        }
+            console.log("opening " + docCount + " files.");
+            // you now have every files contained in the loaded zip
+            for (var file in new_zip.files) {
+                // don't get properties from prototype
+                if (new_zip.files.hasOwnProperty(file)) {
+                    // extra directory added when zipping files on mac
+                    // TODO - check for other things to filter out from zip
+                    // files created on other platforms
+                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                    // check the extension is .math
+                    // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
+                    // TODO - disabled because mobile devices were adding .zip. at the end of the filename
+                    // still opens fine, but would be good for the extensions to be consistent
+                    //if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
+                    // filter out directories which are part of this list
+                    if (new_zip.file(file) === null) continue;
+                    try {
+                        if (true) { // new path with pics
+                            var fileContents = new_zip.file(file).asArrayBuffer();
+                            var newDoc = openAssignment(fileContents, file, false);
+                            //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                            allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
 
+                            console.log("opened student doc");
+                        } else { // old path, should be handled by making method called above handle both cases for teacher and student case
+                            var fileContents = new_zip.file(file).asText();
+                            // how is this behaviring differrntly than JSOn.parse()?!?!
+                            //var assignmentData = window.$.parseJSON(fileContents);
+                            fileContents = fileContents.trim();
+                            var assignmentData = JSON.parse(fileContents);
+                            assignmentData = convertToCurrentFormat(assignmentData);
+                            allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
+                        }
+                    } catch (e) {
+                        console.log("failed to parse file: " + file);
+                        console.log(e);
+                        failureCount++;
+                        badFiles.push(file);
+                    }
+                }
+            }
+            if (failureCount > 0) {
+                alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+                window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
+                window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
+            }
+        } catch (e) {
+            alert("Error opening file, you should be opening a zip file full of Free Math documents, or a single Free Math assignment.");
+            window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
+        }
+    }
+
+    try {
         window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
         // TODO - add back answer key
+        //console.log(allStudentWork);
         var aggregatedWork = aggregateStudentWork(allStudentWork);
         console.log("@@@@@@ opened docs");
         console.log(aggregatedWork);
         window.store.dispatch(
             { type : SET_ASSIGNMENTS_TO_GRADE,
               GOOGLE_ID : googleId,
+              DOC_ID : docId,
               NEW_STATE :
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
     } catch (e) {
@@ -1348,7 +1429,7 @@ class TeacherInteractiveGrader extends React.Component {
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
@@ -1409,9 +1490,9 @@ export { TeacherInteractiveGrader as default,
     GradesView,
     SimilarDocChecker,
     loadStudentDocsFromZip,
-    genStudentWorkZip,
     studentSubmissionsZip,
     saveGradedStudentWork,
+    saveGradedStudentWorkToBlob,
     gradeSingleProblem,
     aggregateStudentWork,
     separateIndividualStudentAssignments,

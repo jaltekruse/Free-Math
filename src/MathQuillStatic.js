@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 var MathQuill = window.MathQuill;
 
@@ -9,11 +8,11 @@ class MathQuillStatic extends React.Component {
         return (
             <span ref="staticMath">{tex}</span>
         );
-    }
+    };
 
     componentDidMount() {
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.staticMath));
-    }
+        MathQuill.StaticMath(ReactDOM.findDOMNode(this.refs.staticMath))
+    };
 }
 
 export {MathQuillStatic as default};

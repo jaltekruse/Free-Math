@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 
 // Make the text on the button not selectable
 // I think this is no longer needed now that I'm using a real button
@@ -19,7 +18,8 @@ class HtmlButton extends React.Component {
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
-        const className = this.props.className ? this.props.className : "fm-button";
+        var className = this.props.className ? this.props.className : "fm-button";
+        className = className + ' html-button';
         return (
             <button
                 className={className}

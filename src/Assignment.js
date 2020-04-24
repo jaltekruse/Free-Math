@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import ReactDOM from 'react-dom';
 import './App.css';
 import Problem from './Problem.js';
@@ -30,6 +29,8 @@ var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
+    console.log("assignment reducer");
+    console.log(action);
     if (state === undefined) {
         return {
             ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
@@ -65,7 +66,7 @@ class Assignment extends React.Component {
         // Microsoft injected the word iPhone in IE11's userAgent in order to try and fool
         // Gmail somehow. Therefore we need to exclude it. More info about this here and here.
         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var probList = this.props.value[PROBLEMS];
         var currProblem = this.props.value[CURRENT_PROBLEM];
         var addProblem = function() {
@@ -95,6 +96,7 @@ class Assignment extends React.Component {
                 } />
             <div>
             <div className="menubar-spacer-small"> </div>
+            <div>
             {probList.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
@@ -182,12 +184,9 @@ class Assignment extends React.Component {
                 the title text of the buttons
             <Button onClick={this.toggleModal} text={this.state.showModal ? "Hide Symbol List" : "Show Available Symbol List" } />
                 this.state.showModal ? <MathEditorHelp /> : null */}
+            </div>
         </div>
       )
-    }
-
-    componentDidMount() {
-        MathQuill.StaticMath(ReactDOM.findDOMNode(this.exampleStaticMath));
     }
 }
 

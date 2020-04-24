@@ -4,16 +4,14 @@ import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
-import FreeMath from './FreeMath.js';
+import FreeMath, { getAutoSaveIndex } from './FreeMath.js';
 import Button from './Button.js';
-import { CloseButton } from './Button.js';
+import { CloseButton, LightButton, HtmlButton } from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
-import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
-import { LightButton, HtmlButton } from './Button.js';
-import { studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat} from './TeacherInteractiveGrader.js';
 import { readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import JSZip from 'jszip';
+import { studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat} from './TeacherInteractiveGrader.js';
 
 var MathQuill = window.MathQuill;
 
@@ -45,6 +43,11 @@ var MODE_CHOOSER = 'MODE_CHOOSER';
 
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+
+var PROBLEMS = 'PROBLEMS';
+// used to swap out the entire content of the document, for opening
+// a document from a file
+var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 function checkAllSaved() {
     const appState = window.store.getState();
@@ -126,7 +129,7 @@ class UserActions extends React.Component {
         const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
-                window.openDriveFile(false, function(name, content, driveFileId) {
+                window.openDriveFile(true, function(name, content, driveFileId) {
                     openAssignment(content, name, false, driveFileId)
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = checkAllSaved;
@@ -206,20 +209,53 @@ class UserActions extends React.Component {
                 assignment.assignment.studentWorkFolder.id, function(response) {});
         }
 
-        var recoverAutoSaveCallback = function(docName, appMode) {
+        var recoverAutoSaveCallback = function(autoSaveFullName, filename, appMode) {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = checkAllSaved;
             window.location.hash = '';
-            var recovered = JSON.parse(window.localStorage.getItem(docName));
+            function base64ToArrayBuffer(base64) {
+                var binary_string = window.atob(base64);
+                var len = binary_string.length;
+                var bytes = new Uint8Array(len);
+                for (var i = 0; i < len; i++) {
+                    bytes[i] = binary_string.charCodeAt(i);
+                }
+                return bytes.buffer;
+            }
+            var recovered;
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
             if (appMode === EDIT_ASSIGNMENT) {
-                recovered = convertToCurrentFormat(recovered);
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
+                recovered = openAssignment(base64ToArrayBuffer(
+                    window.localStorage.getItem(autoSaveFullName)),
+                    filename, false);
+                console.log(recovered);
+                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                    ASSIGNMENT_NAME : filename,
+                    DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
             } else if (appMode === GRADE_ASSIGNMENTS) {
                 // TODO - NEED a convert to current format here!!
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');
+
+                // look up DOC_ID in save_index, this value isn't written anywhere into
+                // the teacher save file like it is for students, but it is needed
+                // to prevent opening from an auto-save spawning a new auto-save, rather
+                // than updating the old one in place
+                const saveIndex = getAutoSaveIndex();
+
+                var matchingDocId = undefined;
+                for (var docId in saveIndex["TEACHERS"]) {
+                    if ( saveIndex["TEACHERS"].hasOwnProperty(docId)
+                            && autoSaveFullName === saveIndex["TEACHERS"][docId]) {
+                        matchingDocId = docId;
+                        break;
+                    }
+                }
+
+                loadStudentDocsFromZip(
+                    base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
+                    filename, false, matchingDocId);
             }
-            document.body.scrollTop = document.documentElement.scrollTop = 0;
-            window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
         };
         var deleteAutoSaveCallback = function(docName) {
             if (!window.confirm("Are you sure you want to delete this recovered document?")) {
@@ -284,16 +320,7 @@ class UserActions extends React.Component {
             recoveredTeacherDocs = sortCaseInsensitive(recoveredTeacherDocs);
         }
 
-        var halfScreenStyle= {
-            width:"44%",
-            height: "auto",
-            float: "left",
-            borderRadius:"3px",
-            margin:"5px 5px 5px 5px",
-            padding:"20px",
-        }
         var divStyle = {
-            ...halfScreenStyle,
             border:"1px solid #cfcfcf",
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
@@ -383,7 +410,7 @@ class UserActions extends React.Component {
             />
             <div style={{display:"inline-block", width:"100%"}}>
             <div className="homepage-center-mobile">
-                <div style={{...divStyle, textAlign: "left"}}>
+                <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
                         New Assignment &nbsp;&nbsp;&nbsp;
                         <Button type="submit" text="Create" onClick={
@@ -422,10 +449,10 @@ class UserActions extends React.Component {
                                 readSingleFile(evt, false /*don't warn about data loss*/);
                         }}/>
                         <br />
-                        <span style={{fontSize: "15px"}}>
+                        <small>
                                 Select a Free Math file you previously saved, or one that your teacher
                                 returned to you after grading.
-                        </span>
+                        </small>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
                             (<span><h4>Recovered Assignments &nbsp;
@@ -450,24 +477,25 @@ class UserActions extends React.Component {
                                 />
                                 <br />
                                 <br />
-                                    { recoveredStudentDocs.map(function(docName, docIndex) {
+
+                                    { recoveredStudentDocs.map(function(autoSaveFullName, index) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
-                                                var docNameTrimmed = docName.replace("auto save students ","")
+                                                var filenameAndDate = autoSaveFullName.replace("auto save students","")
                                                         .replace(/:\d\d\..*/, "")
-                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
-                                                var namePart = nameAndDate[1];
+                                                var nameAndDate = splitNameAndDate(filenameAndDate);
+                                                var filename = nameAndDate[1];
                                                 var datePart = nameAndDate[2];
                                                 return (
-                                                        <div style={{marginBottom:"20px"}} key={docName}>
-                                                        {namePart}
+                                                        <div style={{marginBottom:"20px"}} key={autoSaveFullName}>
+                                                        {filename}
                                                         <br />
                                                         <Button text="Open"
                                                                 onClick={function() {
-                                                                    recoverAutoSaveCallback(docName, EDIT_ASSIGNMENT)}
+                                                                    recoverAutoSaveCallback(autoSaveFullName, filename, EDIT_ASSIGNMENT)}
                                                                 } />
                                                         <Button text="Delete"
                                                                 onClick={function() {
-                                                                    deleteAutoSaveCallback(docName)}
+                                                                    deleteAutoSaveCallback(autoSaveFullName)}
                                                                 } />
                                                         &nbsp;&nbsp;{datePart}
                                                         <br />
@@ -480,7 +508,7 @@ class UserActions extends React.Component {
                                 browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
-                <div style={{...divStyle, textAlign: "left"}}>
+                <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                     <HtmlButton
                         className="fm-button"
@@ -529,14 +557,14 @@ class UserActions extends React.Component {
                         <br />
                     <input type="file" onChange={openAssignments}/>
                         <br />
-                    <span style={{fontSize: "15px"}}>
+                    <small>
                             Select a zip file full of student assignments. Zip files are generated
                             when downloading assignment files from your LMS in bulk.
                         <br />
                         <a href="gettingStarted.html">
                             LMS Integration Info
                         </a>
-                    </span>
+                    </small>
                         <br />
                         { (recoveredTeacherDocs.length > 0) ?
                             (<span><h4>Recovered Grading Sessions &nbsp;
@@ -561,24 +589,24 @@ class UserActions extends React.Component {
                                 />
                                 <br />
                                 <br />
-                                    { recoveredTeacherDocs.map(function(docName, docIndex) {
+                                    { recoveredTeacherDocs.map(function(autoSaveFullName, index) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
-                                                var docNameTrimmed = docName.replace("auto save teachers ","")
+                                                var filenameAndDate = autoSaveFullName.replace("auto save teachers ","")
                                                         .replace(/:\d\d\..*/, "")
-                                                var nameAndDate = splitNameAndDate(docNameTrimmed);
-                                                var namePart = nameAndDate[1];
+                                                var nameAndDate = splitNameAndDate(filenameAndDate);
+                                                var filename = nameAndDate[1];
                                                 var datePart = nameAndDate[2];
                                                 return (
-                                                        <div style={{marginBottom:"20px"}} key={docName}>
-                                                        {namePart}
+                                                        <div style={{marginBottom:"20px"}} key={autoSaveFullName}>
+                                                        {filename}
                                                         <br />
                                                         <Button text="Open"
                                                                 onClick={function() {
-                                                                    recoverAutoSaveCallback(docName, GRADE_ASSIGNMENTS)}
+                                                                    recoverAutoSaveCallback(autoSaveFullName, filename, GRADE_ASSIGNMENTS)}
                                                                 } />
                                                         <Button text="Delete"
                                                                 onClick={function() {
-                                                                    deleteAutoSaveCallback(docName)}
+                                                                    deleteAutoSaveCallback(autoSaveFullName)}
                                                                 } />
                                                         &nbsp;&nbsp;{datePart}
                                                         <br />
@@ -654,7 +682,7 @@ class DefaultHomepageActions extends React.Component {
                 </div>
             );
         };
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div>
             <div className="menuBar">
@@ -724,7 +752,7 @@ class DefaultHomepageActions extends React.Component {
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee"}}>Demo Student Experience</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
@@ -734,7 +762,7 @@ class DefaultHomepageActions extends React.Component {
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3>
+                <h3 style={{color:"#eeeeee"}}>Demo Teacher Grading</h3>
             </button>
             </div>
             {
@@ -744,8 +772,8 @@ class DefaultHomepageActions extends React.Component {
                              onClick={function() {
                                     this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
-                            >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
-                                    {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
+                            >   <h3 style={{color:"#eeeeee"}}>
+                                    {this.state.showActionsMobile ? "Hide Actions" : "Returning Users"}
                                 </h3>
                             </button>
                     ) : null
@@ -824,12 +852,13 @@ class DefaultHomepageActions extends React.Component {
                                 </p>
                                 <input type="email" name="EMAIL" className="email" size="25"
                                        id="mce-EMAIL" placeholder="  email address"
-                                       style={{"border": "0px", fontSize: "25px"}}
+                                       style={{"border": "0px", padding: "5px",
+                                               fontSize: "25px"}}
                                        value={this.state.emailString}
                                        onChange={function(evt) {
                                                 this.setState({emailString : evt.target.value});
                                        }.bind(this)}/>
-                                <input style={{margin:"10px", fontSize: "20px", height:"30px"}} type="submit"
+                                <input style={{margin:"10px"}} type="submit"
                                        value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
                                        className="fm-button-light" onClick={function() {
                                             window.ga('send', 'event', 'Actions', 'signup', 'Mail list');

@@ -1,5 +1,4 @@
 import React from 'react';
-import createReactClass from 'create-react-class';
 import { Modal } from 'react-overlays';
 
 // attempted to transition this to a generic modal component
@@ -21,6 +20,7 @@ class FreeMathModal extends React.Component {
     };
 
     render() {
+
         let showModal = this.props.showModal;
         const modalStyle = {
             position: 'fixed',
