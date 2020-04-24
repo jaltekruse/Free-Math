@@ -194,6 +194,7 @@ function removeExtension(filename) {
 // successfully opens both the current zip-based format that allows
 // saving images as well as the old format that was just json in a text file
 function openAssignment(content, filename, discardDataWarning) {
+    console.log(content);
     var new_zip = new JSZip();
     try {
         new_zip.load(content);
@@ -249,6 +250,7 @@ function openAssignment(content, filename, discardDataWarning) {
         return newDoc;
 
     } catch (e) {
+        console.log(e);
         // this can throw an exception if it is the wrong file type (like a user opened a PDF)
         var newDoc = openAssignmentOld(
             ab2str(content),
@@ -273,25 +275,11 @@ function openAssignmentOld(serializedDoc, filename, discardDataWarning, driveFil
     //if (discardDataWarning && !window.confirm("Discard your current work and open the selected document?")) {
     //    return;
     //}
-
-    try {
-        var newDoc = JSON.parse(serializedDoc);
-        // compatibility for old files, need to convert the old proerty names as
-        // well as add the LAST_SHOWN_STEP
-        newDoc = convertToCurrentFormat(newDoc);
-        /* TODO - need to move this code, I put the call to set state elsewhere to allow using this for binary auto-saves
-        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-            PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
-            ASSIGNMENT_NAME : removeExtension(filename)});
-            */
-        return newDoc
-    } catch (e) {
-        console.log(e);
-        alert("Error reading the file, Free Math can only read files with " +
-              "a .math extension that it creates. If you saved this file " +
-              "with Free Math please send it to developers@freemathapp.org " +
-              "to allow us to debug the issue.");
-    }
+    //
+    var newDoc = JSON.parse(serializedDoc);
+    newDoc = convertToCurrentFormat(newDoc);
+    newDoc[ASSIGNMENT_NAME] = removeExtension(filename);
+    return newDoc;
 }
 
 // read a file from the local disk, pass an onChange event from a "file" input type
