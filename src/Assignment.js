@@ -58,13 +58,10 @@ function assignmentReducer(state, action) {
     }
 }
 
-var Assignment = React.createClass({
-    getInitialState () {
-        /* note the modal shows immediately when viewing the student demo,
-         * but not for opening an assignment */
-        return { showModal: true }
-    },
-    render: function() {
+class Assignment extends React.Component {
+    state = { showModal: true };
+
+    render() {
         // Microsoft injected the word iPhone in IE11's userAgent in order to try and fool
         // Gmail somehow. Therefore we need to exclude it. More info about this here and here.
         // https://stackoverflow.com/questions/9038625/detect-if-device-is-ios
@@ -187,10 +184,11 @@ var Assignment = React.createClass({
                 this.state.showModal ? <MathEditorHelp /> : null */}
         </div>
       )
-    },
-    componentDidMount: function() {
+    }
+
+    componentDidMount() {
         MathQuill.StaticMath(ReactDOM.findDOMNode(this.exampleStaticMath));
     }
-});
+}
 
 export { Assignment as default, assignmentReducer };

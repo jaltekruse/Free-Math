@@ -98,8 +98,8 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
         ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
 }
 
-const StudentWork = React.createClass({
-    render: function() {
+class StudentWork extends React.Component {
+    render() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -133,26 +133,28 @@ const StudentWork = React.createClass({
             </div>
         );
     }
-});
+}
 
-const SolutionGrader = React.createClass({
-    setScore: function(evt) {
+class SolutionGrader extends React.Component {
+    setScore = (evt) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : GRADE_SINGLE_SOLUTION, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : evt.target.value,
                          SOLUTION_INDEX : studentSolutionIndex});
-    },
-    fullPoints: function(evt) {
+    };
+
+    fullPoints = (evt) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : GRADE_SINGLE_SOLUTION, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex,
                          SCORE : this.props.possiblePoints, SOLUTION_INDEX : studentSolutionIndex});
-    },
-    applyScoreToAll: function(evt) {
+    };
+
+    applyScoreToAll = (evt) => {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -173,8 +175,9 @@ const SolutionGrader = React.createClass({
         window.store.dispatch({ type : GRADE_CLASS_OF_SOLUTIONS, MODE : ALL, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, SCORE : data[SCORE],
                          FEEDBACK : data[FEEDBACK]});
-    },
-    applyScoreToUngraded: function(evt) {
+    };
+
+    applyScoreToUngraded = (evt) => {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
@@ -182,24 +185,27 @@ const SolutionGrader = React.createClass({
                          PROBLEM_NUMBER : problemNumber, SOLUTION_CLASS_INDEX : solutionClassIndex,
                          SCORE : data[SCORE], FEEDBACK : data[FEEDBACK]
                         });
-    },
-    setFeedback: function(evt) {
+    };
+
+    setFeedback = (evt) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : SET_PROBLEM_FEEDBACK, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : evt.target.value,
                          SOLUTION_INDEX : studentSolutionIndex});
-    },
-    setQuickFeedback: function(text) {
+    };
+
+    setQuickFeedback = (text) => {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         window.store.dispatch({ type : SET_PROBLEM_FEEDBACK, PROBLEM_NUMBER : problemNumber,
                          SOLUTION_CLASS_INDEX : solutionClassIndex, FEEDBACK : text,
                          SOLUTION_INDEX : studentSolutionIndex});
-    },
-    render: function() {
+    };
+
+    render() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
         var possiblePoints = this.props.possiblePoints;
@@ -304,6 +310,6 @@ const SolutionGrader = React.createClass({
             </div>
         );
     }
-});
+}
 
 export { SolutionGrader as default, scaleScore, singleSolutionReducer};

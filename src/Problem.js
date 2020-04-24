@@ -81,8 +81,8 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var SOFT_RED = '#FFDEDE';
 var GREEN = '#2cff72';
 
-var ScoreBox = React.createClass({
-    render: function() {
+class ScoreBox extends React.Component {
+    render() {
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
@@ -122,14 +122,14 @@ var ScoreBox = React.createClass({
             </div>
         );
     }
-});
+}
 
-var Problem = React.createClass({
-
-    handleStepChange: function(event) {
+class Problem extends React.Component {
+    handleStepChange = (event) => {
       this.setState({value: event.target.value});
-    },
-    render: function() {
+    };
+
+    render() {
         var probNumber = this.props.value[PROBLEM_NUMBER];
         var problemIndex = this.props.id;
         var showTutorial = this.props.value[SHOW_TUTORIAL];
@@ -281,7 +281,7 @@ var Problem = React.createClass({
             </div>
         );
     }
-});
+}
 
 /*
  * Designing more complex undo/redo, now that individual steps can be deleted or added in the middle

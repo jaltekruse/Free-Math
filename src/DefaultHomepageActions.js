@@ -115,15 +115,14 @@ function startsWith(str, maybePrefix) {
     return str.lastIndexOf(maybePrefix, 0) === 0
 }
 
-const UserActions = React.createClass({
-    getInitialState () {
-        return { showModal: false,
-                 showActionsMobile: false,
-                 teacherRecoveredSorting: "DATE",
-	             studentRecoveredSorting: "DATE"
-	         };
-    },
-    componentDidMount: function() {
+class UserActions extends React.Component {
+    state = { showModal: false,
+             showActionsMobile: false,
+             teacherRecoveredSorting: "DATE",
+             studentRecoveredSorting: "DATE"
+         };
+
+    componentDidMount() {
         const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
@@ -175,18 +174,21 @@ const UserActions = React.createClass({
         window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
             gradeClassroomAssignmentCallback, function(){/* TODO - on sign in error*/})
 
-    },
-    closeSpinner() {
-        this.setState({ showModal: false });
-    },
+    }
 
-    openSpinner() {
+    closeSpinner = () => {
+        this.setState({ showModal: false });
+    };
+
+    openSpinner = () => {
         this.setState({ showModal: true });
-    },
-    createAssignment() {
+    };
+
+    createAssignment = () => {
         this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : true });
-    },
-    render: function() {
+    };
+
+    render() {
         var openAssignments = function(evt){
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = checkAllSaved;
@@ -605,17 +607,17 @@ const UserActions = React.createClass({
                       storage provider like Google Drive, Dropbox, etc.</span>
             </div>
      */
-});
+}
 
-const DefaultHomepageActions = React.createClass({
-    componentDidMount: function() {
-    },
-    getInitialState: function() {
-        return {
-            emailString : ''
-        }
-    },
-    render: function() {
+class DefaultHomepageActions extends React.Component {
+    state = {
+        emailString : ''
+    };
+
+    componentDidMount() {
+    }
+
+    render() {
         var halfScreenStyle= {
             width:"44%",
             height: "auto",
@@ -942,7 +944,7 @@ const DefaultHomepageActions = React.createClass({
             </div>
         );
     }
-});
+}
 
 
 export { DefaultHomepageActions as default, render, checkAllSaved };

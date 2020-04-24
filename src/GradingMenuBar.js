@@ -24,8 +24,8 @@ var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 
-const GradingMenuBar = React.createClass({
-    componentDidMount: function() {
+class GradingMenuBar extends React.Component {
+    componentDidMount() {
         const saveCallback = function() {
             var zip = genStudentWorkZip(window.store.getState());
             var content = zip.generate({type: "blob"});
@@ -62,8 +62,9 @@ const GradingMenuBar = React.createClass({
         const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
         window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
             saveCallback, function(){/* TODO - on sign in error*/})
-    },
-    render: function() {
+    }
+
+    render() {
         var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var assignmentName = this.props.value[ASSIGNMENT_NAME];
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
@@ -141,10 +142,10 @@ const GradingMenuBar = React.createClass({
             </div>
         );
     }
-});
+}
 
-export const ModalWhileGradingMenuBar = React.createClass({
-    render: function() {
+export class ModalWhileGradingMenuBar extends React.Component {
+    render() {
         return (
             <div className="menuBar">
                 <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
@@ -160,6 +161,6 @@ export const ModalWhileGradingMenuBar = React.createClass({
             </div>
         );
     }
-});
+}
 
 export default GradingMenuBar;

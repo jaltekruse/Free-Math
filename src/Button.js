@@ -13,9 +13,8 @@ const unselectable = {
     userSelect: "none"
 }
 
-var HtmlButton = React.createClass({
-
-    render: function() {
+class HtmlButton extends React.Component {
+    render() {
         const contentComponent = this.props.content;
         const onClick = this.props.onClick;
         const title = this.props.title;
@@ -34,11 +33,10 @@ var HtmlButton = React.createClass({
             </button>
         );
   }
-});
+}
 
-var Button = React.createClass({
-
-    render: function() {
+class Button extends React.Component {
+    render() {
         const onClick = this.props.onClick;
         const title = this.props.title;
         const style =  this.props.style;
@@ -56,11 +54,10 @@ var Button = React.createClass({
             </button>
         );
   }
-});
+}
 
-var LightButton = React.createClass({
-
-    render: function() {
+class LightButton extends React.Component {
+    render() {
         const onClick = this.props.onClick;
         const title = this.props.title;
         const className = this.props.className ? this.props.className : "fm-button-light";
@@ -81,11 +78,10 @@ var LightButton = React.createClass({
             </button>
         );
   }
-});
+}
 
-var CloseButton = React.createClass({
-
-    render: function() {
+class CloseButton extends React.Component {
+    render() {
         const onClick = this.props.onClick;
         const style = this.props.style;
         const title = this.props.title;
@@ -102,6 +98,6 @@ var CloseButton = React.createClass({
             </button>
         );
   }
-});
+}
 
 export {Button as default, HtmlButton, CloseButton, LightButton};

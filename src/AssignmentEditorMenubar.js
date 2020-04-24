@@ -192,10 +192,11 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
     );
 }
 
-var GoogleClassroomSubmissionSelector = React.createClass({
-    componentDidMount: function() {
-    },
-    listClasses: function() {
+class GoogleClassroomSubmissionSelector extends React.Component {
+    componentDidMount() {
+    }
+
+    listClasses = () => {
         window.listGoogeClassroomCourses(function(response) {
             if (response.courses.length == 1) {
                 var classList = response;
@@ -217,8 +218,9 @@ var GoogleClassroomSubmissionSelector = React.createClass({
                     GOOGLE_CLASS_LIST : response});
             }
         });
-    },
-    render: function() {
+    };
+
+    render() {
         var rootState = this.props.value;
         var selectSubmissionCallback = this.props.selectSubmissionCallback;
         var selectAssignmentCallback = this.props.selectAssignmentCallback;
@@ -375,11 +377,10 @@ var GoogleClassroomSubmissionSelector = React.createClass({
                 />
         );
     }
-});
+}
 
-
-var AssignmentEditorMenubar = React.createClass({
-    componentDidMount: function() {
+class AssignmentEditorMenubar extends React.Component {
+    componentDidMount() {
         // TODO - problem with onSuccessCallback when canceling and re-opening dialog to submit
         // might have been manifesting a different bug leaving out a callback in functions doing
         // the actual requests to google in index.html
@@ -436,8 +437,9 @@ var AssignmentEditorMenubar = React.createClass({
         const submitToClassroom = ReactDOM.findDOMNode(this.refs.submitToClassroom)
         window.gapi.auth2.getAuthInstance().attachClickHandler(submitToClassroom, {},
             submitToClassroomCallback, function(){/* TODO - on sign in error*/})
-    },
-    render: function() {
+    }
+
+    render() {
         var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const responseGoogle = (response) => {
             console.log(response);
@@ -521,6 +523,6 @@ var AssignmentEditorMenubar = React.createClass({
             </div>
         );
   }
-});
+}
 
 export {AssignmentEditorMenubar as default, removeExtension, validateProblemNumbers, GoogleClassroomSubmissionSelector };

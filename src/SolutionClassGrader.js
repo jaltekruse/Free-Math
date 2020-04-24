@@ -69,8 +69,8 @@ function solutionClassReducer(state, action) {
     }
 }
 
-var SolutionClassGrader = React.createClass({
-    render: function() {
+class SolutionClassGrader extends React.Component {
+    render() {
         // TODO - finish
         var data = this.props.solutionClassInfo;
         var studentsToView = this.props.studentsToView;
@@ -135,6 +135,6 @@ var SolutionClassGrader = React.createClass({
             </div>
         );
     }
-});
+}
 
 export { SolutionClassGrader as default, solutionClassReducer };

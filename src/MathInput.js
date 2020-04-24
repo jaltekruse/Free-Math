@@ -149,14 +149,17 @@ var buttonSetsType = PropTypes.arrayOf(
         PropTypes.oneOf(_.keys(buttonSets))
     );
 
-var TexButtons = React.createClass({
-    propTypes: {
+class TexButtons extends React.Component {
+    static propTypes = {
         sets: buttonSetsType.isRequired,
         onInsert: PropTypes.func.isRequired,
         buttonGroup: PropTypes.string.isRequired
-    },
+    };
 
-    render: function() {
+    static buttonSets = buttonSets;
+    static buttonSetsType = buttonSetsType;
+
+    render() {
         //MathQuill = MathQuill.getInterface(1);
         // Always show buttonSets in the same order. Note: Technically it's ok
         // for _.keys() to return the keys in an arbitrary order, but in
@@ -272,19 +275,16 @@ var TexButtons = React.createClass({
             </div>
             {buttonRows}
         </div>;
-    },
-    statics: {
-        buttonSets,
-        buttonSetsType
     }
-});
+}
+
 // end TeX buttons from Perseus
 
 // Math editor copied from Khan Perseus project
 
 // A WYSIWYG math input that calls `onChange(LaTeX-string)`
-const MathInput = React.createClass({
-    propTypes: {
+class MathInput extends React.Component {
+    static propTypes = {
         value: PropTypes.string,
         convertDotToTimes: PropTypes.bool,
         buttonsVisible: PropTypes.oneOf(['always', 'never', 'focused']),
@@ -295,9 +295,17 @@ const MathInput = React.createClass({
         onSubmit: PropTypes.func,
         styles: PropTypes.object,
         buttonGroup: PropTypes.string
-    },
+    };
 
-    render: function() {
+    static defaultProps = {
+        value: "",
+        convertDotToTimes: false,
+        buttonsVisible: 'focused'
+    };
+
+    state = { focused: false };
+
+    render() {
         // mathquill usually adds these itself but react removes them when
         // updating the component.
         var className = "perseus-math-input mq-editable-field mq-math-mode";
@@ -329,7 +337,7 @@ const MathInput = React.createClass({
                 {buttons}
             </div>
         </div>;
-    },
+    }
 
     // handlers:
     // keep track of two related bits of state:
@@ -337,39 +345,39 @@ const MathInput = React.createClass({
     // * this.mouseDown - whether a mouse click is active that started in the
     //   buttons div
 
-    handleFocus: function() {
+    handleFocus = () => {
         this.setState({ focused: true });
         // TODO(joel) fix properly - we should probably allow onFocus handlers
         // to this property, but we need to work correctly with them.
         // if (this.props.onFocus) {
         //     this.props.onFocus();
         // }
-    },
+    };
 
-    handleMouseDown: function(event) {
+    handleMouseDown = (event) => {
         var focused = ReactDOM.findDOMNode(this).contains(event.target);
         this.mouseDown = focused;
         if (!focused) {
             this.setState({ focused: false });
         }
-    },
+    };
 
-    handleMouseUp: function() {
+    handleMouseUp = () => {
         // this mouse click started in the buttons div so we should focus the
         // input
         if (this.mouseDown) {
             this.focus();
         }
         this.mouseDown = false;
-    },
+    };
 
-    handleBlur: function() {
+    handleBlur = () => {
         if (!this.mouseDown) {
             this.setState({ focused: false });
         }
-    },
+    };
 
-    _shouldShowButtons: function() {
+    _shouldShowButtons = () => {
         if (this.props.buttonsVisible === 'always') {
             return true;
         } else if (this.props.buttonsVisible === 'never') {
@@ -377,21 +385,9 @@ const MathInput = React.createClass({
         } else {
             return this.state.focused;
         }
-    },
+    };
 
-    getDefaultProps: function() {
-        return {
-            value: "",
-            convertDotToTimes: false,
-            buttonsVisible: 'focused'
-        };
-    },
-
-    getInitialState: function() {
-        return { focused: false };
-    },
-
-    insert: function(value) {
+    insert = (value) => {
         var input = this.mathField();
         if (_(value).isFunction()) {
             value(input);
@@ -401,23 +397,23 @@ const MathInput = React.createClass({
             input.write(value).focus();
         }
         input.focus();
-    },
+    };
 
-    mathField: function(options) {
+    mathField = (options) => {
         MathQuill = window.MathQuill
         // MathQuill.MathField takes a DOM node, MathQuill-ifies it if it's
         // seeing that node for the first time, then returns the associated
         // MathQuill object for that node. It is stable - will always return
         // the same object when called on the same DOM node.
         return MathQuill.MathField(ReactDOM.findDOMNode(this.refs.mathinput), options);
-    },
+    };
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         window.removeEventListener("mousedown", this.handleMouseDown);
         window.removeEventListener("mouseup", this.handleMouseUp);
-    },
+    }
 
-    componentDidMount: function() {
+    componentDidMount() {
 
         window.addEventListener("mousedown", this.handleMouseDown);
         window.addEventListener("mouseup", this.handleMouseUp);
@@ -530,7 +526,7 @@ const MathInput = React.createClass({
         this.mathField().latex(this.props.value);
         this.mathField().focus();
         initialized = true;
-    },
+    }
 
     /*
     shouldComponentUpdate: function(oldProps, newProps) {
@@ -538,24 +534,24 @@ const MathInput = React.createClass({
     },
     */
 
-    componentDidUpdate: function() {
+    componentDidUpdate() {
         // I think this check is expensive, how can I make it cheaper?
         if (!_.isEqual(this.mathField().latex(), this.props.value)) {
             //console.log(this.props);
             this.mathField().latex(this.props.value);
         }
-    },
+    }
 
-    focus: function() {
+    focus = () => {
         this.mathField().focus();
         this.setState({ focused: true });
-    },
+    };
 
-    blur: function() {
+    blur = () => {
         this.mathField().blur();
         this.setState({ focused: false });
-    }
-});
+    };
+}
 
 export default MathInput;
 

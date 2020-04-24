@@ -74,30 +74,28 @@ const srOnly = {
     width: "1px",
 };
 
-const TeX = React.createClass({
-    propTypes: {
+class TeX extends React.Component {
+    static propTypes = {
         children: PropTypes.node,
         onClick: PropTypes.func,
         onRender: PropTypes.func,
         style: PropTypes.any,
-    },
+    };
+
+    static defaultProps = {
+        // Called after math is rendered or re-rendered
+        onRender: function() {},
+        onClick: null,
+    };
 
     //TODO - get re-enabled for perf boost
     // mixins: [PureRenderMixin],
 
-    shouldComponentUpdate: function(oldProps, newProps) {
+    shouldComponentUpdate(oldProps, newProps) {
         return oldProps.children !== this.props.children;
-    },
+    }
 
-    getDefaultProps: function() {
-        return {
-            // Called after math is rendered or re-rendered
-            onRender: function() {},
-            onClick: null,
-        };
-    },
-
-    componentDidMount: function() {
+    componentDidMount() {
         this._root = ReactDOM.findDOMNode(this);
 
         if (this.refs.katex.childElementCount > 0) {
@@ -111,9 +109,9 @@ const TeX = React.createClass({
 
         this.setScriptText(text);
         process(this.script, () => this.props.onRender(this._root));
-    },
+    }
 
-    componentDidUpdate: function(prevProps, prevState) {
+    componentDidUpdate(prevProps, prevState) {
         // If we already rendered katex in the render function, we don't
         // need to render anything here.
         if (this.refs.katex.childElementCount > 0) {
@@ -150,9 +148,9 @@ const TeX = React.createClass({
             this.setScriptText(newText);
             process(this.script, this.props.onRender);
         }
-    },
+    }
 
-    componentWillUnmount: function() {
+    componentWillUnmount() {
         if (this.script) {
             loadMathJax(() => {
                 const jax = MathJax.Hub.getJaxFor(this.script);
@@ -161,9 +159,9 @@ const TeX = React.createClass({
                 }
             });
         }
-    },
+    }
 
-    setScriptText: function(text) {
+    setScriptText = (text) => {
         if (!this.script) {
             this.script = document.createElement("script");
             this.script.type = "math/tex";
@@ -175,9 +173,9 @@ const TeX = React.createClass({
         } else {
             this.script.textContent = text;
         }
-    },
+    };
 
-    render: function() {
+    render() {
         let katexHtml = null;
         try {
             katexHtml = {
@@ -216,8 +214,8 @@ const TeX = React.createClass({
             />
             </div>
         </div>;
-    },
-});
+    }
+}
 
 export default TeX;
 // End static math render copied from Perseus
