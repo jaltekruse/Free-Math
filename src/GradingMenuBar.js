@@ -24,7 +24,7 @@ var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 
-const GradingMenuBar = createReactClass({
+const GradingMenuBar = React.createClass({
     componentDidMount: function() {
         const saveCallback = function() {
             var zip = genStudentWorkZip(window.store.getState());
@@ -143,7 +143,7 @@ const GradingMenuBar = createReactClass({
     }
 });
 
-export const ModalWhileGradingMenuBar = createReactClass({
+export const ModalWhileGradingMenuBar = React.createClass({
     render: function() {
         return (
             <div className="menuBar">

@@ -81,7 +81,7 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var SOFT_RED = '#FFDEDE';
 var GREEN = '#2cff72';
 
-var ScoreBox = createReactClass({
+var ScoreBox = React.createClass({
     render: function() {
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
@@ -124,7 +124,7 @@ var ScoreBox = createReactClass({
     }
 });
 
-var Problem = createReactClass({
+var Problem = React.createClass({
 
     handleStepChange: function(event) {
       this.setState({value: event.target.value});

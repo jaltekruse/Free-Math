@@ -74,7 +74,7 @@ const srOnly = {
     width: "1px",
 };
 
-const TeX = createReactClass({
+const TeX = React.createClass({
     propTypes: {
         children: PropTypes.node,
         onClick: PropTypes.func,

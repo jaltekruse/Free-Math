@@ -192,7 +192,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
     );
 }
 
-var GoogleClassroomSubmissionSelector = createReactClass({
+var GoogleClassroomSubmissionSelector = React.createClass({
     componentDidMount: function() {
     },
     listClasses: function() {
@@ -378,7 +378,7 @@ var GoogleClassroomSubmissionSelector = createReactClass({
 });
 
 
-var AssignmentEditorMenubar = createReactClass({
+var AssignmentEditorMenubar = React.createClass({
     componentDidMount: function() {
         // TODO - problem with onSuccessCallback when canceling and re-opening dialog to submit
         // might have been manifesting a different bug leaving out a callback in functions doing

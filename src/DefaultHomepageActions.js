@@ -115,7 +115,7 @@ function startsWith(str, maybePrefix) {
     return str.lastIndexOf(maybePrefix, 0) === 0
 }
 
-const UserActions = createReactClass({
+const UserActions = React.createClass({
     getInitialState () {
         return { showModal: false,
                  showActionsMobile: false,
@@ -607,7 +607,7 @@ const UserActions = createReactClass({
      */
 });
 
-const DefaultHomepageActions = createReactClass({
+const DefaultHomepageActions = React.createClass({
     componentDidMount: function() {
     },
     getInitialState: function() {

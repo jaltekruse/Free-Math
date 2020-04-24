@@ -315,7 +315,7 @@ function rootReducer(state, action) {
     }
 }
 
-var FreeMath = createReactClass({
+var FreeMath = React.createClass({
   render: function() {
     // TODO - figure out how to best switch between teacher and
     // student mode rendering

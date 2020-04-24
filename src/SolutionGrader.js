@@ -98,7 +98,7 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
         ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
 }
 
-const StudentWork = createReactClass({
+const StudentWork = React.createClass({
     render: function() {
         var data = this.props.solutionGradeInfo;
         var problemNumber = this.props.problemNumber
@@ -135,7 +135,7 @@ const StudentWork = createReactClass({
     }
 });
 
-const SolutionGrader = createReactClass({
+const SolutionGrader = React.createClass({
     setScore: function(evt) {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;

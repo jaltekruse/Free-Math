@@ -3,7 +3,7 @@ import createReactClass from 'create-react-class';
 import { checkAllSaved } from './DefaultHomepageActions.js';
 import './App.css';
 
-const LogoHomeNav = createReactClass({
+const LogoHomeNav = React.createClass({
   render: function() {
         return (
             <div style={{float:"left", lineHeight : 1}} onClick= {
