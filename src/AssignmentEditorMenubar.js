@@ -592,10 +592,13 @@ class AssignmentEditorMenubar extends React.Component {
         }
         var saveStateMsg = '';
         var googleId = this.props.value[GOOGLE_ID];
+        var saveState = this.props.value[GOOGLE_DRIVE_STATE];
         if (googleId) {
-            var state = this.props.value[GOOGLE_DRIVE_STATE];
-            if (state === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
-            else if (state === SAVING) saveStateMsg = "Saving in Drive...";
+            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
+            else if (saveState === SAVING) saveStateMsg = "Saving in Drive...";
+        } else {
+            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved temporarily in browser";
+            else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
         }
         var rootState = this.props.value;
         var selectSubmissionCallback = function(submission, selectedClass, selectedAssignment, googleId) {
