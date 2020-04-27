@@ -9,7 +9,7 @@ import Button from './Button.js';
 import { CloseButton, LightButton, HtmlButton } from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import FreeMathModal from './Modal.js';
-import { readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
+import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import JSZip from 'jszip';
 import { studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat} from './TeacherInteractiveGrader.js';
 
@@ -130,7 +130,11 @@ class UserActions extends React.Component {
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
                 window.openDriveFile(true, function(name, content, driveFileId) {
-                    openAssignment(content, name, false, driveFileId)
+                    var newDoc = openAssignment(content, name, false, driveFileId);
+
+                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                        PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
+                        ASSIGNMENT_NAME : removeExtension(name)});
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = checkAllSaved;
                     window.location.hash = '';

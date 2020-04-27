@@ -193,8 +193,7 @@ function removeExtension(filename) {
 // can throws exception if thw wrong file type is opened
 // successfully opens both the current zip-based format that allows
 // saving images as well as the old format that was just json in a text file
-function openAssignment(content, filename, discardDataWarning) {
-    console.log(content);
+function openAssignment(content, filename, discardDataWarning, driveFileId = false) {
     var new_zip = new JSZip();
     try {
         new_zip.load(content);
