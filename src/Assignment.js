@@ -96,7 +96,7 @@ class Assignment extends React.Component {
                 } />
             <div>
             <div className="menubar-spacer-small"> </div>
-            <div>
+            <div style={{ display: "flex", flexWrap: "wrap"}}>
             {probList.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
