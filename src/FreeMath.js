@@ -247,25 +247,24 @@ function autoSave() {
                 }
             }
             const saveStudentDoc = function() {
-                var assignment = JSON.stringify(
-                            { PROBLEMS : makeBackwardsCompatible(window.store.getState())[PROBLEMS]});
-                assignment = new Blob([assignment], {type: 'application/json'});
-                window.updateFileWithBinaryContent(
-                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
-                    assignment, googleId, 'application/json',
-                    onSuccess,
-                    onFailure
-                );
+                saveAssignment(appState, function(finalBlob) {
+                    window.updateFileWithBinaryContent(
+                        window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                        finalBlob, googleId, 'application/zip',
+                        onSuccess,
+                        onFailure
+                    );
+                });
             }
             const saveTeacherGrading = function() {
-                var zip = saveGradedStudentWorkToBlob(window.store.getState());
-                var content = zip.generate({type: "blob"});
-                window.updateFileWithBinaryContent (
-                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
-                    content, googleId, 'application/zip',
-                    onSuccess,
-                    onFailure
-                );
+                saveGradedStudentWorkToBlob(appState, function(finalBlob) {
+                    window.updateFileWithBinaryContent (
+                        window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                        finalBlob, googleId, 'application/zip',
+                        onSuccess,
+                        onFailure
+                    );
+                });
             }
             const saveFunc = appState[APP_MODE] === EDIT_ASSIGNMENT ? saveStudentDoc : saveTeacherGrading;
             setTimeout(function() {
