@@ -162,24 +162,33 @@ class ImageStep extends React.Component {
                         }
                     }.bind(this)}
             />
-            { step[ORIG_STUDENT_STEP] ?
-                <Button className="extra-long-problem-action-button fm-button"
-                    text="Revert Feedback"
-                    title="Revert Feedback"
-                    onClick={function() {
-                        // TODO - save modified image
-                        window.store.dispatch({
-                            type : EDIT_STUDENT_STEP,
-                            PROBLEM_NUMBER : problemNumber,
-                            SOLUTION_CLASS_INDEX : solutionClassIndex,
-                            SOLUTION_INDEX : studentSolutionIndex,
-                            STEP_KEY : stepIndex,
-                            STEP_DATA : step[ORIG_STUDENT_STEP]
-                        });
-                    }.bind(this)}
-                />
-                : null
+            {this.state.imageMarkup
+                ?
+                    <Button className="extra-long-problem-action-button fm-button"
+                        text="Cancel"
+                        onClick={function() {
+                            this.setState({imageMarkup: false});
+                        }.bind(this)} />
+                :
+                    (step[ORIG_STUDENT_STEP] ?
+                    <Button className="extra-long-problem-action-button fm-button"
+                        text="Revert Feedback"
+                        title="Revert Feedback"
+                        onClick={function() {
+                            // TODO - save modified image
+                            window.store.dispatch({
+                                type : EDIT_STUDENT_STEP,
+                                PROBLEM_NUMBER : problemNumber,
+                                SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                SOLUTION_INDEX : studentSolutionIndex,
+                                STEP_KEY : stepIndex,
+                                STEP_DATA : step[ORIG_STUDENT_STEP]
+                            });
+                        }.bind(this)}
+                    />
+                    : null)
             }
+            <br />
             { this.state.imageMarkup ?
                 <ImageEditor
                     ref={this.editorRef}
