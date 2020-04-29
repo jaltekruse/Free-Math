@@ -111,7 +111,6 @@ function getAutoSaveIndex() {
     }
 }
 
-var stillSaving = 0;
 function updateAutoSave(docType, docName, appState, onSuccess = function(){}, onFailure = function(){}) {
     // TODO - validate this against actual saved data on startup
     // or possibly just re-derive it each time?
@@ -120,17 +119,11 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
         var toDelete = saveIndex[docType][appState["DOC_ID"]];
     }
 
-    if (stillSaving === 1) {
-        return;
-    }
-    stillSaving = 1;
-
     const saveBlobToLocalStorage = function(finalBlob, docType) {
         blobToBase64(finalBlob, function(base64Data) {
             // TODO - escape underscores (with double underscore?) in doc name, to allow splitting cleanly
             // and presenting a better name to users
             // nvm will just store a key with spaces
-            console.log(base64Data);
             var dt = new Date();
             var dateString = datetimeToStr(dt);
             var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
@@ -149,7 +142,6 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
                 window.localStorage.removeItem(toDelete);
             }
             onSuccess();
-            stillSaving--;
          });
     };
     if (docType === 'STUDENTS') {
@@ -161,16 +153,6 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
             saveBlobToLocalStorage(finalBlob, docType);
         });
     }
-
-    var checkSaveFinished = function() {
-        if (stillSaving === 0) {
-            return;
-        } else {
-            // if not all of the images are loaded, check again in 50 milliseconds
-            setTimeout(checkSaveFinished, 50);
-        }
-    }
-    checkSaveFinished();
 }
 
 function datetimeToStr(dt) {
@@ -222,6 +204,8 @@ function autoSave() {
         }
         currentlyGatheringUpdates = true;
         pendingSaves++;
+        console.log("incremented pendingSave to ");
+        console.log(pendingSaves);
         // kick off an event that will save to google in N seconds, when the timeout
         // expires the current app state will be requested again to capture any
         // more upates that happened in the meantime, and thoe edits will have avoided
@@ -303,6 +287,8 @@ function autoSave() {
             if (problems.length === 1) {
                 var steps = problems[0][STEPS];
                 if (steps.length === 1 && steps[0][CONTENT] === '') {
+                    console.log("not auto-saving because empty doc");
+                    pendingSaves--;
                     return;
                 }
             }

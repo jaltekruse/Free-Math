@@ -170,7 +170,7 @@ class UserActions extends React.Component {
 
                 loadStudentDocsFromZip(
                     base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
-                    filename, false, matchingDocId);
+                    filename, function() {alert("Loading recovery failed")}, matchingDocId, false);
             }
         };
         var deleteAutoSaveCallback = function(docName) {
