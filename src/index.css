@@ -513,7 +513,8 @@ div.problem-container {
         display:block
     }
     .mathStepEditor {
-        max-width:900px
+        max-width:800px;
+        min-width:500px
     }
     .math-input-buttons {
         background-color: rgba(245, 245, 245, 0.9);

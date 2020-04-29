@@ -3,8 +3,9 @@ import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
 import { HtmlButton, CloseButton } from './Button.js';
-import { genID } from './FreeMath.js';
+import { genID, base64ToBlob } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
+import Webcam from "react-webcam";
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -216,7 +217,7 @@ function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
         addImg(imgFile, stepIndex, problemIndex, steps);
     } else {
         imgFile = Resizer.imageFileResizer(
-            imgFile, 800, 800, 'JPEG', 90, 0,
+            imgFile, 800, 800, 'JPEG', 100, 0,
             imgFile => {
                 addImg(imgFile, stepIndex, problemIndex, steps);
             },
@@ -242,6 +243,73 @@ function getMimetype(signature) {
             return 'Unknown filetype'
     }
 }
+
+const videoConstraints = { };
+/*
+  width: 1280,
+  height: 720,
+  facingMode: "user"
+};
+*/
+
+class WebcamCapture extends React.Component {
+    state = {
+        cropping : false,
+        takingPicture : false
+    };
+
+    render() {
+        const problemIndex = this.props.problemIndex;
+        const steps = this.props.steps;
+        const stepIndex = this.props.stepIndex;
+
+        return (
+            <span>
+              { this.state.takingPicture
+                  ?
+                  <span>
+                  <Button text="Take Picture"
+                    onClick={function() {
+                      const imageSrc = this.webcamRef.getScreenshot();
+                      // strip off the mime type info
+                      // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
+                      handleImg(base64ToBlob(imageSrc.split(',')[1]),
+                          stepIndex,
+                          problemIndex,
+                          steps);
+                  }.bind(this)} />
+                  <Button text="Cancel"
+                    onClick={function() {
+                        this.setState({takingPicture : false});
+                  }.bind(this)} />&nbsp;
+                  <br />
+                  <Webcam
+                    audio={false}
+                    height={"auto"}
+                    ref={elem => {this.webcamRef = elem;}}
+                    screenshotFormat="image/png"
+                    width={800}
+                    screenshotQuality={0.99}
+                    forceScreenshotSourceSize={true}
+                    imageSmoothing={true}
+                    videoConstraints={videoConstraints}
+                  />
+                  </span>
+                  :
+                  (<span>
+                    <Button text="Snap a Picture"
+                        onClick={function() {
+                            this.setState({takingPicture : true});
+                      }.bind(this)} />&nbsp;
+                    or upload one&nbsp;
+                    <input type="file" onChange={
+                        function(evt) {addNewImage(evt, steps, stepIndex, problemIndex) }}/>
+                    </span>)
+              }
+            </span>
+          );
+    }
+};
 
 class ImageStep extends React.Component {
     state = {
@@ -297,13 +365,13 @@ class ImageStep extends React.Component {
         };
 
         return (
-            <div>
+            <div className="mathStepEditor">
                 {step[CONTENT] === ''
                 ?
-                    (<span>
-                    Upload a picture&nbsp;
-                    <input type="file" onChange={ function(evt) {addNewImage(evt, steps, stepIndex, problemIndex) }}/>
-                    </span>)
+                    <WebcamCapture
+                        problemIndex={problemIndex} steps={steps}
+                        step={step} stepIndex={stepIndex}
+                    />
                 :
                     <span>
 
@@ -526,7 +594,8 @@ class Problem extends React.Component {
                                         )
                                     :
                                     <MathInput
-                                        key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
+                                        key={stepIndex} buttonsVisible='focused'
+                                        className="mathStepEditor"
                                         styles={{...styles, overflow: 'auto'}}
                                         buttonSets={['trig', 'prealgebra',
                                                      'logarithms', 'calculus']}
