@@ -255,14 +255,15 @@ const videoConstraints = { };
 class WebcamCapture extends React.Component {
     state = {
         cropping : false,
-        takingPicture : false
+        takingPicture : false,
+        facingMode : 'environment'
     };
 
     render() {
-        const problemIndex = this.props.problemIndex;
-        const steps = this.props.steps;
-        const stepIndex = this.props.stepIndex;
-
+        // function that handles an image captured from webcam as a base64 encoded string
+        const handlePicCallback = this.props.handlePicCallback;
+        // function to handle image uploaded as a file
+        const handlePicUploadCallback = this.props.handlePicUploadCallback;
         return (
             <span>
               { this.state.takingPicture
@@ -271,12 +272,11 @@ class WebcamCapture extends React.Component {
                   <Button text="Take Picture"
                     onClick={function() {
                       const imageSrc = this.webcamRef.getScreenshot();
-                      // strip off the mime type info
-                      // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
-                      handleImg(base64ToBlob(imageSrc.split(',')[1]),
-                          stepIndex,
-                          problemIndex,
-                          steps);
+                      handlePicCallback(imageSrc);
+                  }.bind(this)} />
+                  <Button text="Switch Camera"
+                    onClick={function() {
+                        this.setState({facingMode : this.state.facingMode === 'environment' ? 'user' : 'environment'});
                   }.bind(this)} />
                   <Button text="Cancel"
                     onClick={function() {
@@ -292,7 +292,7 @@ class WebcamCapture extends React.Component {
                     screenshotQuality={0.99}
                     forceScreenshotSourceSize={true}
                     imageSmoothing={true}
-                    videoConstraints={videoConstraints}
+                    videoConstraints={{...videoConstraints, facingMode: this.state.facingMode}}
                   />
                   </span>
                   :
@@ -303,7 +303,7 @@ class WebcamCapture extends React.Component {
                       }.bind(this)} />&nbsp;
                     or upload one&nbsp;
                     <input type="file" onChange={
-                        function(evt) {addNewImage(evt, steps, stepIndex, problemIndex) }}/>
+                        function(evt) {handlePicUploadCallback(evt)}}/>
                     </span>)
               }
             </span>
@@ -369,8 +369,17 @@ class ImageStep extends React.Component {
                 {step[CONTENT] === ''
                 ?
                     <WebcamCapture
-                        problemIndex={problemIndex} steps={steps}
-                        step={step} stepIndex={stepIndex}
+                        handlePicCallback={function(imageSrc) {
+                              // strip off the mime type info
+                              // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
+                              handleImg(base64ToBlob(imageSrc.split(',')[1]),
+                                  stepIndex,
+                                  problemIndex,
+                                  steps);
+                        }}
+                        handlePicUploadCallback={function(evt)  {
+                            addNewImage(evt, steps, stepIndex, problemIndex);
+                        }}
                     />
                 :
                     <span>
