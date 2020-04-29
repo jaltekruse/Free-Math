@@ -179,6 +179,10 @@ function autoSave() {
         var googleId = appState[GOOGLE_ID];
         // filter out changes to state made in this function, saving state, pending save count
         // also filter out the initial load of the page when a doc opens
+        // TODO - Jason - looks like I did previously have the pending save count in redux
+        // I must have fixed some bug by taking it out, I think the situation has improved, but I
+        // still want to clear this state when switching to a new doc, but I will also need to cancel
+        // pending save actions as they will decrement it, so settting to 0 is not good
         if (previousSaveState !== currentSaveState
            || previousAppMode !== currentAppMode
             // TODO - possibly cleanup, while this prop is set a modal is shown for picking
