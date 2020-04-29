@@ -309,9 +309,11 @@ class WebcamCapture extends React.Component {
                         onClick={function() {
                             this.setState({takingPicture : true});
                       }.bind(this)} />&nbsp;
-                    or upload one&nbsp;
-                    <input type="file" onChange={
-                        function(evt) {handlePicUploadCallback(evt)}}/>
+                    <div style={{display: 'inline-block'}}>
+                        or upload one&nbsp;
+                        <input type="file" onChange={
+                            function(evt) {handlePicUploadCallback(evt)}}/>
+                      </div>
                     </span>)
               }
             </span>
@@ -463,7 +465,7 @@ class Problem extends React.Component {
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div>
                     <div className="problem-editor-buttons"
-                         style={{float:'left', height: "100%", marginRight:"10px"}}>
+                         style={{float:'left', height: "100%", marginRight:"10px", marginBottom: "20px"}}>
 
                         {   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                                : null

@@ -315,7 +315,7 @@ class AssignmentEditorMenubar extends React.Component {
                             {saveStateMsg}</span>
 
                       {!browserIsIOS ?
-                      (<span>
+                      (<div style={{display:"inline-block"}}>
                           Filename &nbsp;&nbsp;
                           <input type="text" id="assignment-name-text" size="20"
                                  name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
@@ -329,7 +329,7 @@ class AssignmentEditorMenubar extends React.Component {
                               function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
                                   saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
                               }) }} /> &nbsp;&nbsp;&nbsp;
-                      </span>) : null}
+                      </div>) : null}
                     </div>
                   </div>
               </div>

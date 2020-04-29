@@ -27,6 +27,9 @@ var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
 
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
+var SCORE = "SCORE";
+var POSSIBLE_POINTS = "POSSIBLE_POINTS";
+
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
     console.log("assignment reducer");
@@ -115,7 +118,16 @@ class Assignment extends React.Component {
                         textAlign: 'center',
                         marginRight: '15px'}}
 			key={"wrapper_" + problemIndex}>
-                    <ScoreBox value={problem} />
+
+                    {/* bit of a hack for alignment */
+                        probList.filter(function(problem) { return problem[SCORE] !== undefined } ).length > 0
+                            ? ( problem[SCORE] !== undefined /* show the real score box, or a fake hidden one for alignment */
+                                ?
+                                <ScoreBox value={problem} />
+                                :
+                                <div style={{visibility:"hidden"}}><ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1}} /> </div>)
+                            : null
+                    }
                     <div>
                         <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
                             className={(problemIndex === currProblem ?
@@ -145,9 +157,24 @@ class Assignment extends React.Component {
                     </div>
                 );
             }.bind(this))}
-            <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() {
-                addProblem();
-            }}/>
+
+            <div style={{
+                float : 'left',
+                WebkitBoxAlign: 'center',
+                alignItems: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                textAlign: 'center',
+                marginRight: '15px'}}>
+                {/* bit of a hack for alignment */
+                    probList.filter(function(problem) { return problem[SCORE] !== undefined } ).length > 0
+                        ? (<div style={{visibility:"hidden"}}><ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1}} /> </div>)
+                        : null
+                }
+                <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() {
+                    addProblem();
+                }}/>
+            </div>
             {probList[currProblem][SHOW_TUTORIAL] ?
                     (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
