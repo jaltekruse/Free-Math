@@ -145,34 +145,41 @@ class ImageUploader extends React.Component {
         const problemIndex = this.props.problemIndex;
         const steps = this.props.value[STEPS];
         const lastStep = steps[steps.length - 1];
+        const lastStepIndex = steps.length - 1;
+        const addImageToEnd = function(imgFile) {
+            var objUrl = window.URL.createObjectURL(imgFile);
+            if (( typeof lastStep[FORMAT] === 'undefined'
+                  || lastStep[FORMAT] === "MATH"
+                )
+                && lastStep[CONTENT] === '') {
+                window.store.dispatch(
+                    { type : "INSERT_STEP_ABOVE",
+                      "PROBLEM_INDEX" : problemIndex,
+                      STEP_KEY: lastStepIndex,
+                      FORMAT: "IMG", CONTENT: objUrl} );
+            } else {
+                window.store.dispatch(
+                    { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
+                      STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
+                window.store.dispatch(
+                    { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+            }
+        }
 		return (
             <div style={{display:"inline-block"}}>
-                upload a picture&nbsp;
-                <input type="file"
-                       onChange={function(evt) {
-                            var lastStepIndex = steps.length - 1;
+                <WebcamCapture
+                       handlePicUploadCallback={function(evt) {
                             addNewImage(evt, steps, lastStepIndex, problemIndex,
                                 function(imgFile, stepIndex, problemIndex, steps) {
-                                    var objUrl = window.URL.createObjectURL(imgFile);
-                                    if (( typeof lastStep[FORMAT] === 'undefined'
-                                          || lastStep[FORMAT] === "MATH"
-                                        )
-                                        && lastStep[CONTENT] === '') {
-                                        window.store.dispatch(
-                                            { type : "INSERT_STEP_ABOVE",
-                                              "PROBLEM_INDEX" : problemIndex,
-                                              STEP_KEY: lastStepIndex,
-                                              FORMAT: "IMG", CONTENT: objUrl} );
-                                    } else {
-                                        window.store.dispatch(
-                                            { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
-                                              STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
-                                        window.store.dispatch(
-                                            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
-                                    }
+                                    addImageToEnd(imgFile);
                                 }
                             );
                        }}
+                        handlePicCallback={function(imageSrc) {
+                              // strip off the mime type info
+                              // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
+                              addImageToEnd(base64ToBlob(imageSrc.split(',')[1]));
+                        }}
                 />
 		    </div>);
 	}
@@ -273,6 +280,7 @@ class WebcamCapture extends React.Component {
                     onClick={function() {
                       const imageSrc = this.webcamRef.getScreenshot();
                       handlePicCallback(imageSrc);
+                      this.setState({takingPicture: false});
                   }.bind(this)} />
                   <Button text="Switch Camera"
                     onClick={function() {

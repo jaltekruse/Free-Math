@@ -289,6 +289,10 @@ function autoSave() {
                 if (steps.length === 1 && steps[0][CONTENT] === '') {
                     console.log("not auto-saving because empty doc");
                     pendingSaves--;
+                    if (pendingSaves === 0) {
+                        window.store.dispatch(
+                            {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
+                    }
                     return;
                 }
             }
