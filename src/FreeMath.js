@@ -43,6 +43,24 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 
+// TODO - cleanup when merging full google integration
+// this is used to detect some events that shouldn't prompt
+// auto-saves, although the event doesn't fire anywhere on
+// this branch, defining this heare allows keeping the same auto-save
+// logic that is over on that branch
+var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
+
+var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+
 // TODO - make this more efficient, or better yet replace uses with the spread operator
 // to avoid unneeded object creation
 function cloneDeep(oldObject) {
@@ -93,9 +111,8 @@ function getAutoSaveIndex() {
     }
 }
 
-
 var stillSaving = 0;
-function updateAutoSave(docType, docName, appState) {
+function updateAutoSave(docType, docName, appState, onSuccess = function(){}, onFailure = function(){}) {
     // TODO - validate this against actual saved data on startup
     // or possibly just re-derive it each time?
     var saveIndex = getAutoSaveIndex();
@@ -124,12 +141,14 @@ function updateAutoSave(docType, docName, appState) {
             } catch (e) {
                 console.log("Error updating auto-save, likely out of space");
                 console.log(e);
+                onFailure();
                 return;
             }
 
             if (toDelete !== undefined) {
                 window.localStorage.removeItem(toDelete);
             }
+            onSuccess();
             stillSaving--;
          });
     };
@@ -159,22 +178,137 @@ function datetimeToStr(dt) {
                     ":" + ("00" + dt.getMinutes()).slice(-2) + ":" + ("00" + dt.getSeconds()).slice(-2) + "." + dt.getMilliseconds();
 }
 
+let currentSaveState;
+let currentAppMode;
+let currentlyGatheringUpdates;
+let pendingSaves = 0;
 function autoSave() {
     var appState = window.store.getState();
+    let previousSaveState = currentSaveState;
+    currentSaveState = appState[GOOGLE_DRIVE_STATE];
 
-    if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
+    let previousAppMode = currentAppMode;
+    currentAppMode = appState[APP_MODE];
+
+    if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
+        appState[APP_MODE] === GRADE_ASSIGNMENTS) {
+
         var problems = appState[PROBLEMS];
-        // check for the initial state, do not save this
-        if (problems.length === 1) {
-            var steps = problems[0][STEPS];
-            if (steps.length === 1 && steps[0][CONTENT] === '') {
-                return;
+        var googleId = appState[GOOGLE_ID];
+        // filter out changes to state made in this function, saving state, pending save count
+        // also filter out the initial load of the page when a doc opens
+        if (previousSaveState !== currentSaveState
+           || previousAppMode !== currentAppMode
+            // TODO - possibly cleanup, while this prop is set a modal is shown for picking
+            // where to submit an assignment to google classroom. This state might not belong in
+            // redux store, but for now filter out any actions while this modal is active from
+            // triggering auto-saves, otherwise it confusingly reports re-saving while the modal
+            // is up, but users should be confident that the docs is saved in drive the whole time.
+           || appState[GOOGLE_CLASS_LIST]) {
+            // ignore the changes to the drive state, none of them should trigger auto-save events
+            // especially as we kick off an update to this value within this function
+            return;
+        }
+        // try to bundle together a few updates, wait 2 seconds before calling save. assume
+        // some more keystrokes are incomming
+        if (appState[GOOGLE_DRIVE_STATE] !== SAVING) {
+            window.store.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
+        }
+        // assume users will type multiple characters rapidly, don't eagerly send a request
+        // to google for each update, let them batch up for a bit first
+        if (currentlyGatheringUpdates) {
+            console.log("skipping new auto-save because currently gathering updates");
+            return;
+        }
+        currentlyGatheringUpdates = true;
+        pendingSaves++;
+        // kick off an event that will save to google in N seconds, when the timeout
+        // expires the current app state will be requested again to capture any
+        // more upates that happened in the meantime, and thoe edits will have avoided
+        // creating their own callback with a timeout based on the currentlyGatheringUpdates
+        // flag and the check above
+        const onSuccess = function() {
+            pendingSaves--;
+            console.log('pendingSaves');
+            console.log(pendingSaves);
+            if (pendingSaves === 0) {
+                window.store.dispatch(
+                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
             }
         }
-        updateAutoSave("STUDENTS", appState["ASSIGNMENT_NAME"], appState);
-    } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
-        // TODO - add input for assignment name to teacher page
-        updateAutoSave("TEACHERS", appState["ASSIGNMENT_NAME"], appState);
+        const onFailure = function() {
+            pendingSaves--;
+            console.log('pendingSaves');
+            console.log(pendingSaves);
+            if (pendingSaves === 0) {
+                window.store.dispatch(
+                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
+            }
+        }
+        const saveStudentDoc = function() {
+            // this does deliberately go grab the app state again, it is called
+            // after a 2 second timeout below, want to let edit build up for 2 seconds
+            // and then at the end of that we want to auto-save whatever is the current state
+            saveAssignment(window.store.getState(), function(finalBlob) {
+                window.updateFileWithBinaryContent(
+                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    finalBlob, googleId, 'application/zip',
+                    onSuccess,
+                    onFailure
+                );
+            });
+        }
+        const saveTeacherGrading = function() {
+            // this does deliberately go grab the app state again, it is called
+            // after a 2 second timeout below, want to let edit build up for 2 seconds
+            // and then at the end of that we want to auto-save whatever is the current state
+            saveGradedStudentWorkToBlob(window.store.getState(), function(finalBlob) {
+                window.updateFileWithBinaryContent (
+                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                    finalBlob, googleId, 'application/zip',
+                    onSuccess,
+                    onFailure
+                );
+            });
+        }
+        const saveStudentToLocal = function() {
+            console.log("auto saving student to local");
+            try {
+                updateAutoSave("STUDENTS", window.store.getState()["ASSIGNMENT_NAME"], window.store.getState(),
+                    onSuccess, onFailure);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+        const saveTeacherToLocal = function() {
+            console.log("auto saving student to local");
+            try {
+                updateAutoSave("TEACHERS", window.store.getState()["ASSIGNMENT_NAME"], window.store.getState(),
+                    onSuccess, onFailure);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+        var saveFunc;
+        if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
+            if (googleId) saveFunc = saveStudentDoc;
+            else saveFunc = saveStudentToLocal;
+        } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
+            if (googleId) saveFunc = saveTeacherGrading;
+            else saveFunc = saveTeacherToLocal;
+        }
+        setTimeout(function() {
+            currentlyGatheringUpdates = false;
+            // check for the initial state, do not save this
+            if (problems.length === 1) {
+                var steps = problems[0][STEPS];
+                if (steps.length === 1 && steps[0][CONTENT] === '') {
+                    return;
+                }
+            }
+            saveFunc();
+            console.log("update in google drive:" + googleId);
+        }, 2000);
     } else {
         // current other states include mode chooser homepage and view grades "modal"
         return;
@@ -201,6 +335,14 @@ function rootReducer(state, action) {
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
+        }
+    } else if (action.type === SET_GOOGLE_DRIVE_STATE) {
+        return { ...state,
+                 GOOGLE_DRIVE_STATE: action[GOOGLE_DRIVE_STATE]
+        }
+    } else if (action.type === SET_GOOGLE_ID) {
+        return { ...state,
+                 GOOGLE_ID: action[GOOGLE_ID]
         }
     } else if (action.type === SET_KEYBOARD_BUTTON_GROUP) {
         return { ...state,

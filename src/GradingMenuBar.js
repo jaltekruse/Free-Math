@@ -11,6 +11,16 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 
+var GOOGLE_ID = 'GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+
 class GradingMenuBar extends React.Component {
     render() {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -18,15 +28,29 @@ class GradingMenuBar extends React.Component {
         if (typeof(assignmentName) === "undefined" || assignmentName == null) {
             assignmentName = "";
         }
+        var saveStateMsg = '';
+        var googleId = this.props.value[GOOGLE_ID];
+        var saveState = this.props.value[GOOGLE_DRIVE_STATE];
+        if (googleId) {
+            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
+            else if (saveState === SAVING) saveStateMsg = "Saving in Drive...";
+        } else {
+            if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
+            else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
+        }
         return (
             <div className="menuBar">
-                <div className="nav" style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}}>
+                <div className="nav" style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav />
-                    <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
+
+                    <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                        <span style={{margin : "0px 15px 0px 15px"}}>
+                            {saveStateMsg}</span>
+
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
                         (<span>
-                        Assignment Name &nbsp;&nbsp;
+                        Assignment Name &nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
                                 value={this.props.value[ASSIGNMENT_NAME]}
@@ -45,7 +69,7 @@ class GradingMenuBar extends React.Component {
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </span>) : null }
 
-                        <LightButton text="Similar Doc Check" onClick={
+                        <LightButton text="Similar Docs" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -53,7 +77,7 @@ class GradingMenuBar extends React.Component {
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <LightButton text="View Grades" onClick={
+                        <LightButton text="Grades" onClick={
                             function() {
                                 window.location.hash = '';
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;

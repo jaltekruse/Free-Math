@@ -25,6 +25,17 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 var UNDO_STACK = 'UNDO_STACK';
 var REDO_STACK = 'REDO_STACK';
 
+var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+
 function isProblemNumberMissing(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
     allProblems.forEach(function(problem, index, array) {
@@ -283,14 +294,28 @@ export function readSingleFile(evt, discardDataWarning) {
 
 class AssignmentEditorMenubar extends React.Component {
     render() {
-          var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-          return (
+        var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        var saveStateMsg = '';
+        var googleId = this.props.value[GOOGLE_ID];
+        var saveState = this.props.value[GOOGLE_DRIVE_STATE];
+        if (googleId) {
+            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
+            else if (saveState === SAVING) saveStateMsg = "Saving in Drive...";
+        } else {
+            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved temporarily in browser";
+            else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
+        }
+        return (
               <div className="menuBar">
                   <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                       <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
+                      <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                        <span style={{margin : "0px 15px 0px 15px"}}>
+                            {saveStateMsg}</span>
+
                       {!browserIsIOS ?
-                      (<div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                      (<span>
                           Filename &nbsp;&nbsp;
                           <input type="text" id="assignment-name-text" size="20"
                                  name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
@@ -304,7 +329,8 @@ class AssignmentEditorMenubar extends React.Component {
                               function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
                                   saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
                               }) }} /> &nbsp;&nbsp;&nbsp;
-                      </div>) : null}
+                      </span>) : null}
+                    </div>
                   </div>
               </div>
           );

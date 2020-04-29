@@ -148,7 +148,6 @@ class Assignment extends React.Component {
             <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() {
                 addProblem();
             }}/>
-            </div>
             {probList[currProblem][SHOW_TUTORIAL] ?
                     (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
@@ -156,6 +155,7 @@ class Assignment extends React.Component {
                             this.setState({showModal: true});
                     }.bind(this)}/>) : null
             }
+            </div>
             {probList[currProblem][SHOW_TUTORIAL] && !browserIsIOS ?
                 (
                     <div className="answer-partially-correct"
