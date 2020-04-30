@@ -207,7 +207,7 @@ function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
 function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
     var imgFile = evt.target.files[0];
     if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
-            alert("The file is not an image " + imgFile ? imgFile.type : '');
+            alert("The file is not an image - " + (imgFile ? imgFile.type : ''));
             return;
     }
 
