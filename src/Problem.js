@@ -178,7 +178,15 @@ class ImageUploader extends React.Component {
                         handlePicCallback={function(imageSrc) {
                               // strip off the mime type info
                               // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
-                              addImageToEnd(base64ToBlob(imageSrc.split(',')[1]));
+                              var imgFile = base64ToBlob(imageSrc.split(',')[1]);
+
+                              Resizer.imageFileResizer(
+                                  imgFile, 800, 800, 'JPEG', 90, 0,
+                                  imgFile => {
+                                      addImageToEnd(imgFile);
+                                  },
+                                  'blob'
+                              );
                         }}
                 />
 		    </div>);
@@ -224,7 +232,7 @@ function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
         addImg(imgFile, stepIndex, problemIndex, steps);
     } else {
         imgFile = Resizer.imageFileResizer(
-            imgFile, 800, 800, 'JPEG', 100, 0,
+            imgFile, 800, 800, 'JPEG', 90, 0,
             imgFile => {
                 addImg(imgFile, stepIndex, problemIndex, steps);
             },
