@@ -281,7 +281,7 @@ class UserActions extends React.Component {
                         /><br />
 
                         Open Assignment &nbsp;&nbsp;&nbsp;
-                        <input type="file" id="open-file-input" onChange={
+                        <input type="file" accept="*" id="open-file-input" onChange={
                             function(evt) {
                                 // turn on confirmation dialog upon navigation away
                                 window.onbeforeunload = function() {
@@ -354,7 +354,7 @@ class UserActions extends React.Component {
                 </div>
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
-                    Grade Assignments <input type="file" onChange={openAssignments}/>
+                    Grade Assignments <input type="file" accept="*" onChange={openAssignments}/>
                         <br />
                     <small>
                             Select a zip file full of student files. Zip files are generated

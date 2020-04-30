@@ -320,7 +320,7 @@ class WebcamCapture extends React.Component {
                       }.bind(this)} />&nbsp;
                     <div style={{display: 'inline-block'}}>
                         or upload one&nbsp;
-                        <input type="file" onChange={
+                        <input type="file" accept="*" onChange={
                             function(evt) {handlePicUploadCallback(evt)}}/>
                       </div>
                     </span>)
