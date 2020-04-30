@@ -194,6 +194,10 @@ class UserActions extends React.Component {
                     window.localStorage.removeItem(key);
                 }
             }
+
+            const saveIndex = getAutoSaveIndex();
+            saveIndex["TEACHERS"] = {};
+            window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
             // TODO - fix this hack, should not explicitly call render,
             // this should be fixed while addressing TODO below about
             // component directly accessing localStorage
@@ -210,6 +214,9 @@ class UserActions extends React.Component {
                     window.localStorage.removeItem(key);
                 }
             }
+            const saveIndex = getAutoSaveIndex();
+            saveIndex["STUDENTS"] = {};
+            window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
             // TODO - fix this hack, should not explicitly call render,
             // this should be fixed while addressing TODO below about
             // component directly accessing localStorage

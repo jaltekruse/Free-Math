@@ -132,8 +132,16 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
             const cleanOldestDocs = function(docList) {
                 console.log("clean out oldest recovered docs");
                 var sortedDocs = sortByDate(docList);
+                // this diliberately leaves one item, this ensures even if the current save fails for some
+                // reason, like it crosses the threshold of what can be saved, there will still be an older
+                // version around in auto-save, this does cut in half what can be saved in recovered space
+                // TODO -
+                // If I added a lookup table with each browsers size, then I could know before saving if it
+                // would fix and go all the way to the maximum, need to remember to take into account the save index
                 var oldestDocs = sortedDocs .slice(Math.ceil(sortedDocs.length / 2.0));
                 oldestDocs.forEach(function(recoveredDoc) {
+                    // TODO - also should clean up the entry in the auto-save index, but currently that would require
+                    // unzipping and reading the entry, would be good to add the doc ID to the local storage key
                     window.localStorage.removeItem(recoveredDoc);
                 });
                 return oldestDocs.length > 0;
