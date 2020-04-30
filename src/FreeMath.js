@@ -130,11 +130,13 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
             var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
 
             const cleanOldestDocs = function(docList) {
+                console.log("clean out oldest recovered docs");
                 var sortedDocs = sortByDate(docList);
                 var oldestDocs = sortedDocs .slice(Math.ceil(sortedDocs.length / 2.0));
                 oldestDocs.forEach(function(recoveredDoc) {
                     window.localStorage.removeItem(recoveredDoc);
                 });
+                return oldestDocs.length > 0;
             }
 
             const attemptSave = function() {
@@ -147,7 +149,6 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
                     console.log(e);
                     //console.log("Error updating auto-save, likely out of space");
                     // getStudentRecoveredDocs
-                    console.log("clean out oldest recovered docs");
                     var success;
                     if (cleanOldestDocs(getTeacherRecoveredDocs())) {
                         success = attemptSave();
