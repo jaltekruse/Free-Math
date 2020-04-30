@@ -37,6 +37,7 @@ class GradingMenuBar extends React.Component {
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
+            else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
         }
         return (
             <div className="menuBar">
@@ -44,12 +45,15 @@ class GradingMenuBar extends React.Component {
                     <LogoHomeNav />
 
                     <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
-                        <span style={{margin : "0px 15px 0px 15px"}}>
-                            {saveStateMsg}</span>
+
+                        <span style={{margin : "0px 15px 0px 15px",
+                                      color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "white")}}>
+                            {saveStateMsg}
+                        </span>
 
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
-                        (<span>
+                        (<div style={{display:"inline-block"}}>
                         Assignment Name &nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
@@ -61,13 +65,13 @@ class GradingMenuBar extends React.Component {
                                                 ASSIGNMENT_NAME : evt.target.value});
                                     }}
                         />&nbsp;&nbsp;
-                        <LightButton text="Save Graded" onClick={
+                        <LightButton text="Save" onClick={
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(window.store.getState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        </span>) : null }
+                        </div>) : null }
 
                         <LightButton text="Similar Docs" onClick={
                             function() {

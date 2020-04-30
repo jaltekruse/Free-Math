@@ -304,6 +304,7 @@ class AssignmentEditorMenubar extends React.Component {
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "All changes saved temporarily in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
+            else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
         }
         return (
               <div className="menuBar">
@@ -311,8 +312,10 @@ class AssignmentEditorMenubar extends React.Component {
                       <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
                       <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
-                        <span style={{margin : "0px 15px 0px 15px"}}>
-                            {saveStateMsg}</span>
+                        <span style={{margin : "0px 15px 0px 15px",
+                                      color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "white")}}>
+                            {saveStateMsg}
+                        </span>
 
                       {!browserIsIOS ?
                       (<div style={{display:"inline-block"}}>

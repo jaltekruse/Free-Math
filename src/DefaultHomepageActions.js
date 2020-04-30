@@ -743,4 +743,4 @@ class DefaultHomepageActions extends React.Component {
 }
 
 
-export default DefaultHomepageActions;
+export { DefaultHomepageActions as default, getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate};

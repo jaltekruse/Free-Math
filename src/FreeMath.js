@@ -9,6 +9,7 @@ import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
 import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
+import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
 // Application modes
 var APP_MODE = 'APP_MODE';
@@ -127,13 +128,41 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
             var dt = new Date();
             var dateString = datetimeToStr(dt);
             var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
-            try {
-                window.localStorage.setItem(saveKey, base64Data);
-                saveIndex[docType][appState["DOC_ID"]] = saveKey;
-                window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
-            } catch (e) {
-                console.log("Error updating auto-save, likely out of space");
-                console.log(e);
+
+            const cleanOldestDocs = function(docList) {
+                var sortedDocs = sortByDate(docList);
+                var oldestDocs = sortedDocs .slice(Math.ceil(sortedDocs.length / 2.0));
+                oldestDocs.forEach(function(recoveredDoc) {
+                    window.localStorage.removeItem(recoveredDoc);
+                });
+            }
+
+            const attemptSave = function() {
+                try {
+                    window.localStorage.setItem(saveKey, base64Data);
+                    saveIndex[docType][appState["DOC_ID"]] = saveKey;
+                    window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
+                    return true;
+                } catch (e) {
+                    console.log(e);
+                    //console.log("Error updating auto-save, likely out of space");
+                    // getStudentRecoveredDocs
+                    console.log("clean out oldest recovered docs");
+                    var success;
+                    if (cleanOldestDocs(getTeacherRecoveredDocs())) {
+                        success = attemptSave();
+                    }
+                    if (success) {
+                        return true;
+                    } else if (cleanOldestDocs(getStudentRecoveredDocs())) {
+                        return attemptSave();
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            var saveSuccessful = attemptSave();
+            if (!saveSuccessful) {
                 onFailure();
                 return;
             }
