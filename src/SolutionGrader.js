@@ -200,7 +200,7 @@ class ImageStep extends React.Component {
                       menu: ['draw', 'shape', 'text'],
                       initMenu: 'shape',
                       uiSize: {
-                        width: '500px',
+                        width: '600px',
                         height: '700px'
                       },
                       menuBarPosition: 'top'
