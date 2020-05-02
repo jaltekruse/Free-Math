@@ -135,12 +135,12 @@ ga('create', 'UA-70441517-2', 'auto');
       // Authorization scopes required by the API; multiple scopes can be
       // included, separated by spaces.
       var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
-                   'https://www.googleapis.com/auth/drive ' +
+                   //'https://www.googleapis.com/auth/drive ' +
                    'https://www.googleapis.com/auth/classroom.courses.readonly ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me.readonly ' +
-                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ' +
-                   'https://www.googleapis.com/auth/classroom.coursework.students';
+                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ';
+                   //'https://www.googleapis.com/auth/classroom.coursework.students';
 
       var APP_ID = 'quickstart-1561689319732';
 
@@ -551,6 +551,7 @@ ga('create', 'UA-70441517-2', 'auto');
             var xhr = new XMLHttpRequest();
             xhr.open('GET', fileMeta.downloadUrl);
             // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+            console.log(isBinary);
             if (isBinary) {
                 xhr.overrideMimeType('text\/plain; charset=x-user-defined');
             } else {
@@ -683,6 +684,12 @@ ga('create', 'UA-70441517-2', 'auto');
 <link rel="stylesheet" href="lib/cropper.min.css">
 <link rel="stylesheet" href="lib/tui-image-editor.min.css">
 <link rel="stylesheet" href="lib/tui-color-picker.min.css">
+<style>
+/* hack to hide a button I don't want on the toast UI iamge editor */
+.tui-image-editor-controls-buttons {
+    visibility: hidden;
+}
+</style>
 </head>
 <body style="margin-top:40px;background-color:#f9f9f9">
 <div id="root"></div>

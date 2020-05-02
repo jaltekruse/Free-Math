@@ -42,7 +42,7 @@ var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
 // action
-var SET_GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
 // Property name and possible values
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var SAVING = 'SAVING';
@@ -599,6 +599,7 @@ class AssignmentEditorMenubar extends React.Component {
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "All changes saved temporarily in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
+            else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
         }
         var rootState = this.props.value;
         var selectSubmissionCallback = function(submission, selectedClass, selectedAssignment, googleId) {
@@ -613,33 +614,33 @@ class AssignmentEditorMenubar extends React.Component {
                     value={this.props.value}
                     selectSubmissionCallback={selectSubmissionCallback}
                     ref="submissionSelector"/>
-                <div style={{width:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                    <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
-                        <span style={{margin : "0px 15px 0px 15px"}}>
-                            {saveStateMsg}</span>
 
-                    {!browserIsIOS ?
-                    (<span>
-                        Filename &nbsp;&nbsp;
-                        <input type="text" id="assignment-name-text" size="20"
-                               name="assignment name"
-                               value={rootState[ASSIGNMENT_NAME]}
-                               onChange={
-                                    function(evt) {
-                                        window.store.dispatch(
-                                            { type : SET_ASSIGNMENT_NAME,
-                                              ASSIGNMENT_NAME : evt.target.value});
-                            }}
-                        />
+                  <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                    <span style={{margin : "0px 15px 0px 15px",
+                                  color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "white")}}>
+                        {saveStateMsg}
+                    </span>
+
+                      {!browserIsIOS ?
+                      (<div style={{display:"inline-block"}}>
+                          Filename &nbsp;&nbsp;
+                          <input type="text" id="assignment-name-text" size="20"
+                                 name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
+                                 onChange={
+                                      function(evt) {
+                                          window.store.dispatch(
+                                              { type : SET_ASSIGNMENT_NAME,
+                                                ASSIGNMENT_NAME : evt.target.value});
+                                      }}
+                          />&nbsp;&nbsp;
                           <LightButton text="Save" onClick={
                               function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
                                   saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
                               }) }} /> &nbsp;&nbsp;&nbsp;
-                        </span>
-                     ) : null}
-
+                      </div>) : null}
                         <HtmlButton
                             className="fm-button-light"
                             ref="saveToDrive"
@@ -672,8 +673,8 @@ class AssignmentEditorMenubar extends React.Component {
                     </div>
                 </div>
             </div>
-        );
-  }
+          );
+    }
 }
 
 export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment, GoogleClassroomSubmissionSelector};

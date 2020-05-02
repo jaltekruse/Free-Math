@@ -258,7 +258,7 @@ class UserActions extends React.Component {
 
                 loadStudentDocsFromZip(
                     base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
-                    filename, false, matchingDocId);
+                    filename, function() {alert("Loading recovery failed")}, matchingDocId, false);
             }
         };
         var deleteAutoSaveCallback = function(docName) {
@@ -282,6 +282,10 @@ class UserActions extends React.Component {
                     window.localStorage.removeItem(key);
                 }
             }
+
+            const saveIndex = getAutoSaveIndex();
+            saveIndex["TEACHERS"] = {};
+            window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
             // TODO - fix this hack, should not explicitly call render,
             // this should be fixed while addressing TODO below about
             // component directly accessing localStorage
@@ -298,6 +302,9 @@ class UserActions extends React.Component {
                     window.localStorage.removeItem(key);
                 }
             }
+            const saveIndex = getAutoSaveIndex();
+            saveIndex["STUDENTS"] = {};
+            window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
             // TODO - fix this hack, should not explicitly call render,
             // this should be fixed while addressing TODO below about
             // component directly accessing localStorage
@@ -443,7 +450,7 @@ class UserActions extends React.Component {
                                     </div>
                             )} />
                         <br />
-                        <input type="file" id="open-file-input" onChange={
+                        <input type="file" accept="*" id="open-file-input" onChange={
                             function(evt) {
                                 // turn on confirmation dialog upon navigation away
                                 window.onbeforeunload = checkAllSaved;
@@ -559,16 +566,16 @@ class UserActions extends React.Component {
                                     </div>
                             )} />
                         <br />
-                    <input type="file" onChange={openAssignments}/>
+                        Grade Assignments <input type="file" accept="*" onChange={openAssignments}/>
                         <br />
-                    <small>
+                        <small>
                             Select a zip file full of student assignments. Zip files are generated
                             when downloading assignment files from your LMS in bulk.
-                        <br />
-                        <a href="gettingStarted.html">
-                            LMS Integration Info
-                        </a>
-                    </small>
+                            <br />
+                            <a href="gettingStarted.html">
+                                LMS Integration Info
+                            </a>
+                        </small>
                         <br />
                         { (recoveredTeacherDocs.length > 0) ?
                             (<span><h4>Recovered Grading Sessions &nbsp;
@@ -756,7 +763,7 @@ class DefaultHomepageActions extends React.Component {
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee"}}>Demo Student Experience</h3>
+                <h3 style={{color:"#eeeeee"}}>Students Start Here</h3>
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
@@ -797,8 +804,10 @@ class DefaultHomepageActions extends React.Component {
                 <div className="homepage-wrapper">
                     <div className="homepage-text homepage-left homepage-center-mobile">
                         <h2>Students Show Step-by-Step Work</h2>
-                        <p>They create their assignments directly from problems
-                            in your existing materials, no setup required.</p>
+                            <p>Students can start with a blank Free Math document, copying
+                                down and working through problems just as if they were completing work in
+                                paper notebooks.</p>
+                            <p>Students save their work as a file and submit it through an LMS in response to an assignment.</p>
                     </div>
                     <div className="homepage-right homepage-video homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
@@ -811,6 +820,10 @@ class DefaultHomepageActions extends React.Component {
                     <div className="homepage-text homepage-right homepage-center-mobile">
                         <h2>Simultaneously Review All Assignments</h2>
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
+                        <p>You can award partical credit and give feedback on specific steps for students that need help.</p>
+                        <p>You don't need to set up an answer key, Free Math just provides an organized view of all student work.</p>
+                        <p>Your detailed feedback is valuable for students, but it isn't feasible to grade the hundreds of problems
+                           solved by your students across all of your classes every day.</p>
                     </div>
                     <div className="homepage-video homepage-left homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
@@ -829,7 +842,30 @@ class DefaultHomepageActions extends React.Component {
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
                 </div>
-                <div style={{width : "100%", margin:"100px 0px 20px 0px",
+
+                <div className="homepage-wrapper" style={{marginBottom: "100px"}}>
+                    <div className="homepage-text homepage-left homepage-center-mobile">
+                        <h2>No Accounts Or Downloads Required</h2>
+                            <p>The entire experience runs right in your web browser.</p>
+                            <p>Assignments and grading sessions save directly from the browser to files
+                                in your downloads folder. From there you can store the files in any cloud
+                                system like Google Drive, Dropbox, OneDrive, etc.</p>
+                            <p>The files can easily be collected in any LMS, downloaded all together and loaded
+                                for grading. After grading, your LMS also easily provides an individual feedback
+                                file to each student.</p>
+                    </div>
+                    <div className="homepage-right homepage-video homepage-center-mobile">
+                        <img src="images/lms.png" alt="lms logos" style={{width:"100%"}}/>
+                    </div>
+                </div>
+            <div className="homepage-center">
+                <a href="gettingStarted.html">
+                <div className="fm-button" style={{...demoButtonStyle, "float" : "left"}}>
+                    <h2 style={{color:"#eeeeee"}}>Get Started</h2>
+                </div>
+                </a>
+            </div>
+            <div style={{width : "100%", margin:"100px 0px 20px 0px",
                              padding:"50px 0px 50px 0px",
                              background: "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
                              }}>
@@ -888,21 +924,6 @@ class DefaultHomepageActions extends React.Component {
                         src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
-                    <h2>Integrates with Your Favorite LMS<br /></h2>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="google classroom logo"
-                         src="images/google_classroom.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="canvas logo"
-                         src="images/canvas.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="moodle logo"
-                         src="images/moodle.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="blackboard logo"
-                         src="images/blackboard.png"/>
-                </div>
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
                     <h2>Spread the Word</h2>
                     <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
@@ -980,4 +1001,4 @@ class DefaultHomepageActions extends React.Component {
 }
 
 
-export { DefaultHomepageActions as default, render, checkAllSaved };
+export { DefaultHomepageActions as default, render, checkAllSaved, getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate};

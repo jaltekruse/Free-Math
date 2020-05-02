@@ -97,6 +97,11 @@ var GRADE_CLASS_OF_SOLUTIONS = "GRADE_CLASS_OF_SOLUTIONS";
 
 var HIGHLIGHT_STEP = 'HIGHLIGHT_STEP';
 var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
+// allows reverting to the original image submitted by students
+// note this functionality is only preserved within one grading session
+// to save space the original student images are completely replaced by
+// the ones with the teacher annotations in the saved zip file
+var ORIG_STUDENT_STEP = 'ORIG_STUDENT_STEP';
 
 /*
  * Compute a table to show the overall grades for each student
@@ -532,7 +537,8 @@ function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = funct
     var filename;
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
-            separatedAssignments[filename] = makeBackwardsCompatible(separatedAssignments[filename]);
+            separatedAssignments[filename] = makeBackwardsCompatible(
+                removeOriginalStudentImages(separatedAssignments[filename]));
         }
     }
     var zip = new JSZip();
@@ -1049,6 +1055,32 @@ function convertToCurrentFormat2(possiblyOldDoc) {
     } else {
         return possiblyOldDoc;
     }
+}
+
+// TODO - eventually I may want to preserve these, but the image with the annotations
+// added by the teacher is most important to save, and their edits are expected to be
+// non-destructive, just circling/underling and adding text in available whitespace
+// if I saved all of the original student docs it would double the file size
+// might be better to re-evaluate when I have a way to store the output of the image
+// editor as a SVG or some format the describes all of the objects/shapes/text added
+// over the base image, to both reduce filesize and to allow re-editing an moving
+// around the images/text, today they get locked into the image when editing is done
+function removeOriginalStudentImages(newDoc) {
+    var newProbs = newDoc[PROBLEMS].map(function (problem) {
+        var newSteps = problem[STEPS].map(function (step) {
+            var newStep = cloneDeep(step);
+            newStep[ORIG_STUDENT_STEP] = false;
+            return newStep;
+        });
+        return {
+            ...problem,
+            STEPS: newSteps
+        };
+    });
+    return {
+        ...newDoc,
+        PROBLEMS: newProbs
+    };
 }
 
 function makeBackwardsCompatible(newDoc) {

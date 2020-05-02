@@ -1,14 +1,15 @@
 import React from 'react';
 import GradingMenuBar from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
-import TeacherInteractiveGrader, { calculateGradingOverview, saveGradedStudentWorkToBlob } from './TeacherInteractiveGrader.js';
 import { GradesView, SimilarDocChecker } from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
 import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
-import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGradingOverview,
+    makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
 // Application modes
 var APP_MODE = 'APP_MODE';
@@ -62,6 +63,24 @@ var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 
+// TODO - cleanup when merging full google integration
+// this is used to detect some events that shouldn't prompt
+// auto-saves, although the event doesn't fire anywhere on
+// this branch, defining this heare allows keeping the same auto-save
+// logic that is over on that branch
+var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
+
+var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
+// state for google drive auto-save
+// action
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
+// Property name and possible values
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SAVING = 'SAVING';
+var ALL_SAVED = 'ALL_SAVED';
+var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+
 // TODO - make this more efficient, or better yet replace uses with the spread operator
 // to avoid unneeded object creation
 function cloneDeep(oldObject) {
@@ -111,9 +130,6 @@ function getAutoSaveIndex() {
         return { "TEACHERS" : {}, "STUDENTS" : {}};
     }
 }
-
-
-var stillSaving = 0;
 function updateAutoSave(docType, docName, appState, onSuccess = function(){}, onFailure = function(){}) {
     // TODO - validate this against actual saved data on startup
     // or possibly just re-derive it each time?
@@ -122,27 +138,58 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
         var toDelete = saveIndex[docType][appState["DOC_ID"]];
     }
 
-    if (stillSaving === 1) {
-        return;
-    }
-    stillSaving = 1;
-
     const saveBlobToLocalStorage = function(finalBlob, docType) {
         blobToBase64(finalBlob, function(base64Data) {
             // TODO - escape underscores (with double underscore?) in doc name, to allow splitting cleanly
             // and presenting a better name to users
             // nvm will just store a key with spaces
-            console.log(base64Data);
             var dt = new Date();
             var dateString = datetimeToStr(dt);
             var saveKey = "auto save " + docType.toLowerCase() + " " + docName + " " + dateString;
-            try {
-                window.localStorage.setItem(saveKey, base64Data);
-                saveIndex[docType][appState["DOC_ID"]] = saveKey;
-                window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
-            } catch (e) {
-                console.log("Error updating auto-save, likely out of space");
-                console.log(e);
+
+            const cleanOldestDocs = function(docList) {
+                console.log("clean out oldest recovered docs");
+                var sortedDocs = sortByDate(docList);
+                // this diliberately leaves one item, this ensures even if the current save fails for some
+                // reason, like it crosses the threshold of what can be saved, there will still be an older
+                // version around in auto-save, this does cut in half what can be saved in recovered space
+                // TODO -
+                // If I added a lookup table with each browsers size, then I could know before saving if it
+                // would fix and go all the way to the maximum, need to remember to take into account the save index
+                var oldestDocs = sortedDocs .slice(Math.ceil(sortedDocs.length / 2.0));
+                oldestDocs.forEach(function(recoveredDoc) {
+                    // TODO - also should clean up the entry in the auto-save index, but currently that would require
+                    // unzipping and reading the entry, would be good to add the doc ID to the local storage key
+                    window.localStorage.removeItem(recoveredDoc);
+                });
+                return oldestDocs.length > 0;
+            }
+
+            const attemptSave = function() {
+                try {
+                    window.localStorage.setItem(saveKey, base64Data);
+                    saveIndex[docType][appState["DOC_ID"]] = saveKey;
+                    window.localStorage.setItem("save_index", JSON.stringify(saveIndex));
+                    return true;
+                } catch (e) {
+                    console.log(e);
+                    //console.log("Error updating auto-save, likely out of space");
+                    // getStudentRecoveredDocs
+                    var success;
+                    if (cleanOldestDocs(getTeacherRecoveredDocs())) {
+                        success = attemptSave();
+                    }
+                    if (success) {
+                        return true;
+                    } else if (cleanOldestDocs(getStudentRecoveredDocs())) {
+                        return attemptSave();
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            var saveSuccessful = attemptSave();
+            if (!saveSuccessful) {
                 onFailure();
                 return;
             }
@@ -151,7 +198,6 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
                 window.localStorage.removeItem(toDelete);
             }
             onSuccess();
-            stillSaving--;
          });
     };
     if (docType === 'STUDENTS') {
@@ -163,16 +209,6 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
             saveBlobToLocalStorage(finalBlob, docType);
         });
     }
-
-    var checkSaveFinished = function() {
-        if (stillSaving === 0) {
-            return;
-        } else {
-            // if not all of the images are loaded, check again in 50 milliseconds
-            setTimeout(checkSaveFinished, 50);
-        }
-    }
-    checkSaveFinished();
 }
 
 function datetimeToStr(dt) {
@@ -199,6 +235,10 @@ function autoSave() {
         var googleId = appState[GOOGLE_ID];
         // filter out changes to state made in this function, saving state, pending save count
         // also filter out the initial load of the page when a doc opens
+        // TODO - Jason - looks like I did previously have the pending save count in redux
+        // I must have fixed some bug by taking it out, I think the situation has improved, but I
+        // still want to clear this state when switching to a new doc, but I will also need to cancel
+        // pending save actions as they will decrement it, so settting to 0 is not good
         if (previousSaveState !== currentSaveState
            || previousAppMode !== currentAppMode
             // TODO - possibly cleanup, while this prop is set a modal is shown for picking
@@ -224,6 +264,8 @@ function autoSave() {
         }
         currentlyGatheringUpdates = true;
         pendingSaves++;
+        console.log("incremented pendingSave to ");
+        console.log(pendingSaves);
         // kick off an event that will save to google in N seconds, when the timeout
         // expires the current app state will be requested again to capture any
         // more upates that happened in the meantime, and thoe edits will have avoided
@@ -301,13 +343,6 @@ function autoSave() {
         }
         setTimeout(function() {
             currentlyGatheringUpdates = false;
-            // check for the initial state, do not save this
-            if (problems.length === 1) {
-                var steps = problems[0][STEPS];
-                if (steps.length === 1 && steps[0][CONTENT] === '') {
-                    return;
-                }
-            }
             saveFunc();
             console.log("update in google drive:" + googleId);
         }, 2000);

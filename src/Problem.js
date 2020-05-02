@@ -3,8 +3,9 @@ import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
 import { HtmlButton, CloseButton } from './Button.js';
-import { genID } from './FreeMath.js';
+import { genID, base64ToBlob } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
+import Webcam from "react-webcam";
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -144,34 +145,49 @@ class ImageUploader extends React.Component {
         const problemIndex = this.props.problemIndex;
         const steps = this.props.value[STEPS];
         const lastStep = steps[steps.length - 1];
+        const lastStepIndex = steps.length - 1;
+        const addImageToEnd = function(imgFile) {
+            var objUrl = window.URL.createObjectURL(imgFile);
+            if (( typeof lastStep[FORMAT] === 'undefined'
+                  || lastStep[FORMAT] === "MATH"
+                )
+                && lastStep[CONTENT] === '') {
+                window.store.dispatch(
+                    { type : "INSERT_STEP_ABOVE",
+                      "PROBLEM_INDEX" : problemIndex,
+                      STEP_KEY: lastStepIndex,
+                      FORMAT: "IMG", CONTENT: objUrl} );
+            } else {
+                window.store.dispatch(
+                    { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
+                      STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
+                window.store.dispatch(
+                    { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
+            }
+        }
 		return (
             <div style={{display:"inline-block"}}>
-                upload a picture&nbsp;
-                <input type="file"
-                       onChange={function(evt) {
-                            var lastStepIndex = steps.length - 1;
+                <WebcamCapture
+                       handlePicUploadCallback={function(evt) {
                             addNewImage(evt, steps, lastStepIndex, problemIndex,
                                 function(imgFile, stepIndex, problemIndex, steps) {
-                                    var objUrl = window.URL.createObjectURL(imgFile);
-                                    if (( typeof lastStep[FORMAT] === 'undefined'
-                                          || lastStep[FORMAT] === "MATH"
-                                        )
-                                        && lastStep[CONTENT] === '') {
-                                        window.store.dispatch(
-                                            { type : "INSERT_STEP_ABOVE",
-                                              "PROBLEM_INDEX" : problemIndex,
-                                              STEP_KEY: lastStepIndex,
-                                              FORMAT: "IMG", CONTENT: objUrl} );
-                                    } else {
-                                        window.store.dispatch(
-                                            { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
-                                              STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
-                                        window.store.dispatch(
-                                            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
-                                    }
+                                    addImageToEnd(imgFile);
                                 }
                             );
                        }}
+                        handlePicCallback={function(imageSrc) {
+                              // strip off the mime type info
+                              // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
+                              var imgFile = base64ToBlob(imageSrc.split(',')[1]);
+
+                              Resizer.imageFileResizer(
+                                  imgFile, 800, 800, 'JPEG', 90, 0,
+                                  imgFile => {
+                                      addImageToEnd(imgFile);
+                                  },
+                                  'blob'
+                              );
+                        }}
                 />
 		    </div>);
 	}
@@ -199,7 +215,7 @@ function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
 function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
     var imgFile = evt.target.files[0];
     if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
-            alert("The file is not an image " + imgFile ? imgFile.type : '');
+            alert("The file is not an image - " + (imgFile ? imgFile.type : ''));
             return;
     }
 
@@ -242,6 +258,77 @@ function getMimetype(signature) {
             return 'Unknown filetype'
     }
 }
+
+const videoConstraints = { };
+/*
+  width: 1280,
+  height: 720,
+  facingMode: "user"
+};
+*/
+
+class WebcamCapture extends React.Component {
+    state = {
+        cropping : false,
+        takingPicture : false,
+        facingMode : 'environment'
+    };
+
+    render() {
+        // function that handles an image captured from webcam as a base64 encoded string
+        const handlePicCallback = this.props.handlePicCallback;
+        // function to handle image uploaded as a file
+        const handlePicUploadCallback = this.props.handlePicUploadCallback;
+        return (
+            <span>
+              { this.state.takingPicture
+                  ?
+                  <span>
+                  <Button text="Take Picture"
+                    onClick={function() {
+                      const imageSrc = this.webcamRef.getScreenshot();
+                      handlePicCallback(imageSrc);
+                      this.setState({takingPicture: false});
+                  }.bind(this)} />
+                  <Button text="Switch Camera"
+                    onClick={function() {
+                        this.setState({facingMode : this.state.facingMode === 'environment' ? 'user' : 'environment'});
+                  }.bind(this)} />
+                  <Button text="Cancel"
+                    onClick={function() {
+                        this.setState({takingPicture : false});
+                  }.bind(this)} />&nbsp;
+                  <br />
+                  <Webcam
+                    audio={false}
+                    height={"auto"}
+                    ref={elem => {this.webcamRef = elem;}}
+                    screenshotFormat="image/png"
+                    width={350}
+                    minScreenshotWidth={800}
+                    screenshotQuality={0.99}
+                    //forceScreenshotSourceSize={true}
+                    imageSmoothing={true}
+                    videoConstraints={{...videoConstraints, facingMode: this.state.facingMode}}
+                  />
+                  </span>
+                  :
+                  (<span>
+                    <Button text="Snap a Picture"
+                        onClick={function() {
+                            this.setState({takingPicture : true});
+                      }.bind(this)} />&nbsp;
+                    <div style={{display: 'inline-block'}}>
+                        or upload one&nbsp;
+                        <input type="file" accept="*" onChange={
+                            function(evt) {handlePicUploadCallback(evt)}}/>
+                      </div>
+                    </span>)
+              }
+            </span>
+          );
+    }
+};
 
 class ImageStep extends React.Component {
     state = {
@@ -297,13 +384,29 @@ class ImageStep extends React.Component {
         };
 
         return (
-            <div>
+            <div className="mathStepEditor">
                 {step[CONTENT] === ''
                 ?
-                    (<span>
-                    Upload a picture&nbsp;
-                    <input type="file" onChange={ function(evt) {addNewImage(evt, steps, stepIndex, problemIndex) }}/>
-                    </span>)
+                    <WebcamCapture
+                        handlePicCallback={function(imageSrc) {
+                              // strip off the mime type info
+                              // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
+
+                              Resizer.imageFileResizer(
+                                  base64ToBlob(imageSrc.split(',')[1]), 800, 800, 'JPEG', 90, 0,
+                                  imgFile => {
+                                      handleImg(imgFile,
+                                          stepIndex,
+                                          problemIndex,
+                                          steps);
+                                  },
+                                  'blob'
+                              );
+                        }}
+                        handlePicUploadCallback={function(evt)  {
+                            addNewImage(evt, steps, stepIndex, problemIndex);
+                        }}
+                    />
                 :
                     <span>
 
@@ -378,7 +481,7 @@ class Problem extends React.Component {
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div>
                     <div className="problem-editor-buttons"
-                         style={{float:'left', height: "100%", marginRight:"10px"}}>
+                         style={{float:'left', height: "100%", marginRight:"10px", marginBottom: "20px"}}>
 
                         {   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                                : null
@@ -526,7 +629,8 @@ class Problem extends React.Component {
                                         )
                                     :
                                     <MathInput
-                                        key={stepIndex} buttonsVisible='focused' className="mathStepEditor"
+                                        key={stepIndex} buttonsVisible='focused'
+                                        className="mathStepEditor"
                                         styles={{...styles, overflow: 'auto'}}
                                         buttonSets={['trig', 'prealgebra',
                                                      'logarithms', 'calculus']}

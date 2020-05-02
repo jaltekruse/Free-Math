@@ -16,7 +16,7 @@ var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
 // action
-var SET_GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
 // Property name and possible values
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var SAVING = 'SAVING';
@@ -76,39 +76,42 @@ class GradingMenuBar extends React.Component {
             if (saveState === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
             else if (saveState === SAVING) saveStateMsg = "Saving in Drive...";
         } else {
-            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved temporarily in browser";
+            if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
+            else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
         }
         return (
             <div className="menuBar">
                 <div className="nav" style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav />
-                    <div className="navBarElms" style={{float:"right", verticalAlign:"top", lineHeight : 1}}>
-                        <span style={{margin : "0px 15px 0px 15px"}}>
+                    <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+
+                        <span style={{margin : "0px 15px 0px 15px",
+                                      color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "white")}}>
                             {saveStateMsg}
                         </span>
+
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
-                        (<span>
-                            Assignment Name &nbsp;&nbsp;
-                            <input type="text" id="assignment-name-text" size="20"
-                                    name="assignment name"
-                                    value={this.props.value[ASSIGNMENT_NAME]}
-                                    onChange={
-                                        function(evt) {
-                                            window.store.dispatch(
-                                                { type : SET_ASSIGNMENT_NAME,
-                                                    ASSIGNMENT_NAME : evt.target.value});
-                                        }}
-                            />&nbsp;&nbsp;
-                            <LightButton text="Save to Device" onClick={
-                                function() {
-                                    window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
-                                    saveGradedStudentWork(window.store.getState());
-                                }
-                            }/>
-                        </span>)
-                        : null } &nbsp;&nbsp;
+                        (<div style={{display:"inline-block"}}>
+                        Assignment Name &nbsp;
+                        <input type="text" id="assignment-name-text" size="20"
+                                name="assignment name"
+                                value={this.props.value[ASSIGNMENT_NAME]}
+                                onChange={
+                                    function(evt) {
+                                        window.store.dispatch(
+                                            { type : SET_ASSIGNMENT_NAME,
+                                                ASSIGNMENT_NAME : evt.target.value});
+                                    }}
+                        />&nbsp;&nbsp;
+                        <LightButton text="Save" onClick={
+                            function() {
+                                window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
+                                saveGradedStudentWork(window.store.getState());
+                            }
+                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </div>) : null }
 
                         <HtmlButton
                             className="fm-button-light"
@@ -130,7 +133,7 @@ class GradingMenuBar extends React.Component {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Open similar doc check');
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
-                        }/>&nbsp;&nbsp;
+                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <LightButton text="Grades" onClick={
                             function() {
                                 window.location.hash = '';
