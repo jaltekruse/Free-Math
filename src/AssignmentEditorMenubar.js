@@ -193,7 +193,7 @@ function removeExtension(filename) {
 // can throws exception if thw wrong file type is opened
 // successfully opens both the current zip-based format that allows
 // saving images as well as the old format that was just json in a text file
-function openAssignment(content, filename, discardDataWarning, driveFileId = false) {
+function openAssignment(content, filename, driveFileId = false) {
     var new_zip = new JSZip();
     try {
         new_zip.load(content);
@@ -252,8 +252,10 @@ function openAssignment(content, filename, discardDataWarning, driveFileId = fal
         console.log(e);
         // this can throw an exception if it is the wrong file type (like a user opened a PDF)
         var newDoc = openAssignmentOld(
-            ab2str(content),
-            filename, discardDataWarning);
+            // opening from a local file produces an arraybuffer for legacy plain text docs
+            // google drive provides these as strings immediately in the response
+            typeof content == 'string' ? content : ab2str(content),
+            filename, driveFileId);
         return newDoc;
     }
 }
@@ -265,16 +267,7 @@ function ab2str(buf) {
 
 // TODO - consider giving legacy docs an ID upon opening, allows auto-save to work properly when
 // opening older docs
-// TODO - need to pass driveFileID
-function openAssignmentOld(serializedDoc, filename, discardDataWarning, driveFileId = false) {
-    // this is now handled at a higher level, this is mostly triggered by onChange events of "file" input elements
-    // if the user selects "cancel", I want them to be able to try re-opening again. If they pick the same file I
-    // won't get on onChange event without resetting the value, and here I don't have a reference to the DOM element
-    // to reset its value
-    //if (discardDataWarning && !window.confirm("Discard your current work and open the selected document?")) {
-    //    return;
-    //}
-    //
+function openAssignmentOld(serializedDoc, filename, driveFileId = false) {
     var newDoc = JSON.parse(serializedDoc);
     newDoc = convertToCurrentFormat(newDoc);
     newDoc[ASSIGNMENT_NAME] = removeExtension(filename);
@@ -283,7 +276,7 @@ function openAssignmentOld(serializedDoc, filename, discardDataWarning, driveFil
 
 // read a file from the local disk, pass an onChange event from a "file" input type
 // http://www.htmlgoodies.com/beyond/javascript/read-text-files-using-the-javascript-filereader.html
-export function readSingleFile(evt, discardDataWarning, driveFileId = false) {
+export function readSingleFile(evt, driveFileId = false) {
     //Retrieve the first (and only!) File from the FileList object
     var f = evt.target.files[0];
 
@@ -292,7 +285,7 @@ export function readSingleFile(evt, discardDataWarning, driveFileId = false) {
             r.onload = function(e) {
                 try {
                     var contents = e.target.result;
-                    var newDoc = openAssignment(contents, f.name, discardDataWarning);
+                    var newDoc = openAssignment(contents, f.name, driveFileId);
 
                     window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
                         PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,

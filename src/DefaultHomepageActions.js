@@ -130,7 +130,7 @@ class UserActions extends React.Component {
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
                 window.openDriveFile(true, function(name, content, driveFileId) {
-                    var newDoc = openAssignment(content, name, false, driveFileId);
+                    var newDoc = openAssignment(content, name, driveFileId);
 
                     window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
                         PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
@@ -232,8 +232,7 @@ class UserActions extends React.Component {
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
                 recovered = openAssignment(base64ToArrayBuffer(
                     window.localStorage.getItem(autoSaveFullName)),
-                    filename, false);
-                console.log(recovered);
+                    filename);
                 window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
                     ASSIGNMENT_NAME : filename,
                     DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
@@ -336,7 +335,6 @@ class UserActions extends React.Component {
             boxShadow: "0 5px 3px -3px #cfcfcf"
         };
         console.log("state on homepage");
-        console.log(this.props.value);
         console.log(this.props.value);
         return (
             <div className="homepage-user-actions">
@@ -457,7 +455,7 @@ class UserActions extends React.Component {
                                 window.location.hash = '';
                                 window.ga('send', 'event', 'Actions', 'open', 'Open Assignment');
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
-                                readSingleFile(evt, false /*don't warn about data loss*/);
+                                readSingleFile(evt);
                         }}/>
                         <br />
                         <small>

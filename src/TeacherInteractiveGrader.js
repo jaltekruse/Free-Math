@@ -1099,7 +1099,9 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
     var badFiles = [];
     // try opening file as a single student doc
     try {
-        var singleStudentDoc = openAssignment(content, filename, false);
+        // TODO - should I set googleId? Should grading a single student doc save back as a single
+        // student doc file instead of a zip containing a single file?
+        var singleStudentDoc = openAssignment(content, filename);
         console.log(singleStudentDoc);
         allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
     } catch (ex) {
@@ -1134,7 +1136,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
                     try {
                         if (true) { // new path with pics
                             var fileContents = new_zip.file(file).asArrayBuffer();
-                            var newDoc = openAssignment(fileContents, file, false);
+                            var newDoc = openAssignment(fileContents, file);
                             //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
                             allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
 
