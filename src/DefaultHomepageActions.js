@@ -818,10 +818,8 @@ class DefaultHomepageActions extends React.Component {
                     <div className="homepage-text homepage-right homepage-center-mobile">
                         <h2>Simultaneously Review All Assignments</h2>
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
-                        <p>You can award partical credit and give feedback on specific steps for students that need help.</p>
-                        <p>You don't need to set up an answer key, Free Math just provides an organized view of all student work.</p>
-                        <p>Your detailed feedback is valuable for students, but it isn't feasible to grade the hundreds of problems
-                           solved by your students across all of your classes every day.</p>
+                        <p>You can award partical credit and give feedback to students that need help.</p>
+                        <p>You don't need to type in an answer key, Free Math just provides an organized view of all student work.</p>
                     </div>
                     <div className="homepage-video homepage-left homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
@@ -896,7 +894,7 @@ class DefaultHomepageActions extends React.Component {
                                        onChange={function(evt) {
                                                 this.setState({emailString : evt.target.value});
                                        }.bind(this)}/>
-                                <input style={{margin:"10px"}} type="submit"
+                                <input style={{margin:"10px", fontSize: "25px", borderRadius: "30px", padding: "8px 16px"}} type="submit"
                                        value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
                                        className="fm-button-light" onClick={function() {
                                             window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
