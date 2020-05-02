@@ -810,7 +810,7 @@ class DefaultHomepageActions extends React.Component {
                     <div className="homepage-right homepage-video homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
-                            <source src="free_math_assignment.mp4" type="video/mp4" />
+                            <source src="fm_assignment_cropped.mp4" type="video/mp4" />
                         </video>
                     </div>
                 </div>
