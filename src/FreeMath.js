@@ -8,7 +8,7 @@ import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
 import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGradingOverview,
-    makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+    makeBackwardsCompatible, convertToCurrentFormat, saveBackToClassroom } from './TeacherInteractiveGrader.js';
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
 // Application modes
@@ -58,6 +58,8 @@ var BUTTON_GROUP = 'BUTTON_GROUP';
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
+var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
+
 // Problem properties
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var STEPS = 'STEPS';
@@ -80,6 +82,9 @@ var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+var GOOGLE_ORIGIN_SERVICE = 'GOOGLE_ORIGIN_SERVICE';
+var DRIVE = 'DRIVE';
+var CLASSROOM = 'CLASSROOM';
 
 // TODO - make this more efficient, or better yet replace uses with the spread operator
 // to avoid unneeded object creation
@@ -219,6 +224,8 @@ function datetimeToStr(dt) {
 let currentSaveState;
 let currentAppMode;
 let currentlyGatheringUpdates;
+let currentProblemShowing;
+let currentProblemCount;
 let pendingSaves = 0;
 function autoSave() {
     var appState = window.store.getState();
@@ -227,6 +234,13 @@ function autoSave() {
 
     let previousAppMode = currentAppMode;
     currentAppMode = appState[APP_MODE];
+
+
+    let previousProblemShowing = currentProblemShowing;
+    currentProblemShowing = appState[CURRENT_PROBLEM];
+
+    let previousProblemCount = currentProblemCount;
+    currentProblemCount = appState[PROBLEMS] ? appState[PROBLEMS].length : 0;
 
     if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
         appState[APP_MODE] === GRADE_ASSIGNMENTS) {
@@ -241,6 +255,8 @@ function autoSave() {
         // pending save actions as they will decrement it, so settting to 0 is not good
         if (previousSaveState !== currentSaveState
            || previousAppMode !== currentAppMode
+           // don't trigger save if just changing the problme being viewed
+           || (currentProblemShowing !== previousProblemShowing && currentProblemCount == previousProblemCount)
             // TODO - possibly cleanup, while this prop is set a modal is shown for picking
             // where to submit an assignment to google classroom. This state might not belong in
             // redux store, but for now filter out any actions while this modal is active from
@@ -302,7 +318,18 @@ function autoSave() {
                 );
             });
         }
+        // TODO - possibly remove, this is for auto-saving a zip into drive
+        // most people with drive will probably also have classroom
         const saveTeacherGrading = function() {
+            if (appState[GOOGLE_ORIGIN_SERVICE] === CLASSROOM) {
+                // this is deliberately using getState() instead of appState var, will be called
+                // after a delay gathering other updates and other sae events will not be queued
+                // during this time
+                saveBackToClassroom(window.store.getState());
+                // TODO - tie into network requests below "saveBackToClassroom"
+                onSuccess();
+                return;
+            }
             // this does deliberately go grab the app state again, it is called
             // after a 2 second timeout below, want to let edit build up for 2 seconds
             // and then at the end of that we want to auto-save whatever is the current state
@@ -363,7 +390,7 @@ function rootReducer(state, action) {
             ...assignmentReducer(),
             "DOC_ID" : genID(),
             PENDING_SAVES : 0,
-            GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY,
+            GOOGLE_DRIVE_STATE : ALL_SAVED,
             BUTTON_GROUP : 'BASIC',
             APP_MODE : EDIT_ASSIGNMENT
         };
@@ -381,7 +408,8 @@ function rootReducer(state, action) {
         }
     } else if (action.type === SET_GOOGLE_ID) {
         return { ...state,
-                 GOOGLE_ID: action[GOOGLE_ID]
+                 GOOGLE_ID: action[GOOGLE_ID],
+                 GOOGLE_ORIGIN_SERVICE: action[GOOGLE_ORIGIN_SERVICE] ? action[GOOGLE_ORIGIN_SERVICE] : 'DRIVE' // DRIVE OR CLASSROOM
         }
     } else if (action.type === SET_GOOGLE_CLASS_LIST) {
         const ret = { ...state,
@@ -407,10 +435,10 @@ function rootReducer(state, action) {
         return {
             ...action[NEW_STATE],
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
-            GOOGLE_ID: action.GOOGLE_ID,
+            GOOGLE_ID: action[GOOGLE_ID],
             GOOGLE_DRIVE_STATE : ALL_SAVED,
             "GRADING_OVERVIEW" : overview,
-            "CURRENT_PROBLEM" : overview[PROBLEMS][0][PROBLEM_NUMBER],
+            CURRENT_PROBLEM : overview[PROBLEMS][0][PROBLEM_NUMBER],
             APP_MODE : GRADE_ASSIGNMENTS,
         }
     } else if (action.type === SET_ASSIGNMENT_CONTENT) {

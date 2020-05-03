@@ -469,6 +469,7 @@ function calculateGradingOverview(allProblems) {
     return gradeOverview;
 }
 
+
 // PROBLEMS : { "1.a" : {
 //      "POSSIBLE_POINTS : 3,
 //      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
@@ -523,8 +524,44 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
     return assignments;
 }
 
-// TODO - delete me
-//function genStudentWorkZip(gradedWork) {
+function saveBackToClassroom(gradedWork) {
+    var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
+    var filesBeingSaved = 0;
+    for (let filename in separatedAssignments) {
+        if (separatedAssignments.hasOwnProperty(filename)) {
+            filesBeingSaved++;
+
+            const onSuccess = function() {
+                filesBeingSaved--;
+            }
+            // TODO - at least report to users
+            // maybe retry?
+            const onFailure = function() {
+                filesBeingSaved--;
+            }
+
+            saveAssignment(separatedAssignments[filename], function(finalBlob) {
+                window.updateFileWithBinaryContent(
+                    // TODO - fix, can this not include filename?
+                    'graded_assignment.math',
+                    // TODO - filename currently contains drive id, fix this hackiness
+                    finalBlob, filename, 'application/zip',
+                    onSuccess,
+                    onFailure
+                );
+            });
+        }
+    }
+    var checkFilesLoaded = function() {
+        if (filesBeingSaved === 0) {
+            return;
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkFilesLoaded, 50);
+        }
+    }
+    checkFilesLoaded();
+}
 
 function saveGradedStudentWork(gradedWork) {
     saveGradedStudentWorkToBlob(gradedWork, function(finalBlob) {
@@ -1525,6 +1562,7 @@ export { TeacherInteractiveGrader as default,
     calculateGradingOverview,
     convertToCurrentFormat,
     gradingReducer,
-    makeBackwardsCompatible
+    makeBackwardsCompatible,
+    saveBackToClassroom
 };
 

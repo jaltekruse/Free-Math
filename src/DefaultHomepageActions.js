@@ -249,8 +249,14 @@ class UserActions extends React.Component {
                             var aggregatedWork = aggregateStudentWork(allStudentWork);
                             window.store.dispatch(
                                 { type : 'SET_ASSIGNMENTS_TO_GRADE',
+                                  GOOGLE_ID : 'PLACEHOLDER',
                                   NEW_STATE :
-                                    {...aggregatedWork, ASSIGNMENT_NAME: removeExtension("TODO fill in")}});
+                                    {...aggregatedWork,
+                                        GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+                                        // maybe put assignment name here?
+                                        // or refactor auto save to look for GOOGLE_ORIGIN_SERVICE?
+                                        ASSIGNMENT_NAME: removeExtension("TODO fill in")}});
+
                         } else {
                             // if not all of the images are loaded, check again in 50 milliseconds
                             setTimeout(checkFilesLoaded, 50);
