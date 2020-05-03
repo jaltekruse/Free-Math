@@ -511,7 +511,7 @@ const DefaultHomepageActions = createReactClass({
                                     this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
                             >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
-                                    {this.state.showActionsMobile ? "Hide" : "Show Standard "} Actions
+                                    {this.state.showActionsMobile ? "Hide Actions" : "Returning Users" }
                                 </h3>
                             </button>
                     ) : null
@@ -532,7 +532,7 @@ const DefaultHomepageActions = createReactClass({
                     <div className="homepage-text homepage-left homepage-center-mobile">
                         <h2>Students Show Step-by-Step Work</h2>
                             <p>Students can start with a blank Free Math document, copying
-                                down and working through problems just as if they were completing work in
+                                down and working through problems just as they would in
                                 paper notebooks.</p>
                             <p>Students save their work as a file and submit it through an LMS in response to an assignment.</p>
                     </div>
@@ -547,7 +547,7 @@ const DefaultHomepageActions = createReactClass({
                     <div className="homepage-text homepage-right homepage-center-mobile">
                         <h2>Simultaneously Review All Assignments</h2>
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
-                        <p>You can award partical credit and give feedback to students that need help.</p>
+                        <p>You can award partial credit and give feedback to students that need help.</p>
                         <p>You don't need to type in an answer key, Free Math just provides an organized view of all student work.</p>
                     </div>
                     <div className="homepage-video homepage-left homepage-center-mobile">
