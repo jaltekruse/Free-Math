@@ -11,7 +11,7 @@ import demoGradingAction from './demoGradingAction.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import JSZip from 'jszip';
-import { studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat} from './TeacherInteractiveGrader.js';
+import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat} from './TeacherInteractiveGrader.js';
 
 var MathQuill = window.MathQuill;
 
@@ -208,9 +208,56 @@ class UserActions extends React.Component {
         }.bind(this);
 
         var openDriveAssignments = function(assignment) {
+            // hack to make this method accessible to index.html
             window.loadStudentDocsFromZip = loadStudentDocsFromZip;
-            window.downloadClassAssignmentFiles(
-                assignment.assignment.studentWorkFolder.id, function(response) {});
+            console.log(assignment);
+            window.listGoogeClassroomSubmissions(assignment.courseId, assignment.id,
+                function(resp) {
+                    console.log(resp)
+                    var allStudentWork = [];
+                    let pendingOpens = 0;
+                    resp.studentSubmissions.forEach(function(submission) {
+                        // TODO - warn teacher about multiple submissions
+                        // TODO- sort on modification date or attachment date, pick latest
+                        // TODO- handle other types of attahement (just report error)
+                        var submitted = typeof submission.assignmentSubmission.attachments != 'undefined';
+                        // TODO - inform teacher
+                        if (!submitted) {
+                            console.log("skipping");
+                            console.log(submission);
+                            return;
+                        }
+
+                        var attachment = submission.assignmentSubmission.attachments[0].driveFile;
+                        // TODO - pull in student name, don't just show filename
+                        pendingOpens++;
+                        window.downloadFile(attachment.id, true,
+                            function(response, fileId) {
+                                console.log(response);
+                                var newDoc = openAssignment(response, "filename" /* TODO */);
+                                allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
+                                // TODO - also do this on error, and report to user
+                                pendingOpens--;
+                        });
+                    });
+
+                    // TODO - add a timeout
+                    var checkFilesLoaded = function() {
+                        if (pendingOpens === 0) {
+                            console.log(allStudentWork);
+
+                            var aggregatedWork = aggregateStudentWork(allStudentWork);
+                            window.store.dispatch(
+                                { type : 'SET_ASSIGNMENTS_TO_GRADE',
+                                  NEW_STATE :
+                                    {...aggregatedWork, ASSIGNMENT_NAME: removeExtension("TODO fill in")}});
+                        } else {
+                            // if not all of the images are loaded, check again in 50 milliseconds
+                            setTimeout(checkFilesLoaded, 50);
+                        }
+                    }
+                    checkFilesLoaded();
+                }, function(){});
         }
 
         var recoverAutoSaveCallback = function(autoSaveFullName, filename, appMode) {

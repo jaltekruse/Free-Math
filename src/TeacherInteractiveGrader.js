@@ -514,6 +514,12 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
             uniqueAnswers.forEach(handleAllWorkForSingleSolution);
         }
     }
+    for (let filename in assignments) {
+        if (assignments.hasOwnProperty(filename)) {
+            assignments[filename] = makeBackwardsCompatible(
+                removeOriginalStudentImages(assignments[filename]));
+        }
+    }
     return assignments;
 }
 
@@ -534,13 +540,6 @@ function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = funct
     window.onbeforeunload = null;
 
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-    var filename;
-    for (let filename in separatedAssignments) {
-        if (separatedAssignments.hasOwnProperty(filename)) {
-            separatedAssignments[filename] = makeBackwardsCompatible(
-                removeOriginalStudentImages(separatedAssignments[filename]));
-        }
-    }
     var zip = new JSZip();
     var filesBeingAddedToZip = 0;
     for (let filename in separatedAssignments) {
@@ -1069,7 +1068,7 @@ function removeOriginalStudentImages(newDoc) {
     var newProbs = newDoc[PROBLEMS].map(function (problem) {
         var newSteps = problem[STEPS].map(function (step) {
             var newStep = cloneDeep(step);
-            newStep[ORIG_STUDENT_STEP] = false;
+            delete newStep[ORIG_STUDENT_STEP];
             return newStep;
         });
         return {
@@ -1134,22 +1133,12 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
                     // filter out directories which are part of this list
                     if (new_zip.file(file) === null) continue;
                     try {
-                        if (true) { // new path with pics
-                            var fileContents = new_zip.file(file).asArrayBuffer();
-                            var newDoc = openAssignment(fileContents, file);
-                            //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
-                            allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
+                        var fileContents = new_zip.file(file).asArrayBuffer();
+                        var newDoc = openAssignment(fileContents, file);
+                        //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
 
-                            console.log("opened student doc");
-                        } else { // old path, should be handled by making method called above handle both cases for teacher and student case
-                            var fileContents = new_zip.file(file).asText();
-                            // how is this behaviring differrntly than JSOn.parse()?!?!
-                            //var assignmentData = window.$.parseJSON(fileContents);
-                            fileContents = fileContents.trim();
-                            var assignmentData = JSON.parse(fileContents);
-                            assignmentData = convertToCurrentFormat(assignmentData);
-                            allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : assignmentData[PROBLEMS]});
-                        }
+                        console.log("opened student doc");
                     } catch (e) {
                         console.log("failed to parse file: " + file);
                         console.log(e);

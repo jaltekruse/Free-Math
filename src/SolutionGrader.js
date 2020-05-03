@@ -409,10 +409,9 @@ class SolutionGrader extends React.Component {
                         ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
-                    <span style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
+                    <span style={{marginBottom: "10px", visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
                         <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
                     </span>
-                    <br />
                     <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
                     {/* TODO - I need teachers to be able to edit the score, including deleting down to
                                empty string, so they can write a new score. If I add validation when setting
