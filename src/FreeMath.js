@@ -226,6 +226,7 @@ let currentAppMode;
 let currentlyGatheringUpdates;
 let currentProblemShowing;
 let currentProblemCount;
+let currentGoogleId;
 let pendingSaves = 0;
 function autoSave() {
     var appState = window.store.getState();
@@ -242,6 +243,9 @@ function autoSave() {
     let previousProblemCount = currentProblemCount;
     currentProblemCount = appState[PROBLEMS] ? appState[PROBLEMS].length : 0;
 
+    let previousGoogleId = currentGoogleId;
+    currentGoogleId = appState[GOOGLE_ID];
+
     if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
         appState[APP_MODE] === GRADE_ASSIGNMENTS) {
 
@@ -257,6 +261,9 @@ function autoSave() {
            || previousAppMode !== currentAppMode
            // don't trigger save if just changing the problme being viewed
            || (currentProblemShowing !== previousProblemShowing && currentProblemCount == previousProblemCount)
+           // this if for the first call to create a newly saved Google Drive file, it will set the google ID
+           // which doesn't need to trigger another save right away
+           || currentGoogleId !== previousGoogleId
             // TODO - possibly cleanup, while this prop is set a modal is shown for picking
             // where to submit an assignment to google classroom. This state might not belong in
             // redux store, but for now filter out any actions while this modal is active from
@@ -325,9 +332,8 @@ function autoSave() {
                 // this is deliberately using getState() instead of appState var, will be called
                 // after a delay gathering other updates and other sae events will not be queued
                 // during this time
-                saveBackToClassroom(window.store.getState());
+                saveBackToClassroom(window.store.getState(), onSuccess, onFailure);
                 // TODO - tie into network requests below "saveBackToClassroom"
-                onSuccess();
                 return;
             }
             // this does deliberately go grab the app state again, it is called

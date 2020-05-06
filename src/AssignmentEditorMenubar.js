@@ -527,6 +527,13 @@ class AssignmentEditorMenubar extends React.Component {
         // might have been manifesting a different bug leaving out a callback in functions doing
         // the actual requests to google in index.html
         const saveCallback = function(onSuccessCallback = function() {}) {
+            // because the same property is used for drive save state, or localStorage save state,
+            // this doc is currently marked "ALL_SAVED", but reports to user as all saved to browser
+            // because there is no GOOGLE_ID
+            // without this code, as soon as we get a google ID it would report as all saved to Drive
+            // before it is actually saved
+            window.store.dispatch(
+                {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
             saveAssignmentValidatingProblemNumbers(window.store.getState(), function(assignment) {
 
                 var googleId = this.props.value[GOOGLE_ID];

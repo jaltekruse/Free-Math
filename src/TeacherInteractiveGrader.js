@@ -555,44 +555,50 @@ function removeStudentFromGradingView(filename, gradedWork) {
                 ASSIGNMENT_NAME: gradedWork[ASSIGNMENT_NAME]}});
 }
 
-function saveBackToClassroom(gradedWork) {
+function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
     var filesBeingSaved = 0;
     var unsubmittedStudents = [];
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             filesBeingSaved++;
+            console.log("queued save");
+            console.log(filesBeingSaved);
 
+            const saveStudentAssignment = function(filename, onSuccess, onFailure) {
+                saveAssignment(separatedAssignments[filename], function(finalBlob) {
+                    window.updateFileWithBinaryContent(
+                        // TODO - fix, can this not include filename?
+                        'graded_assignment.math',
+                        // TODO - filename currently contains drive id, fix this hackiness
+                        finalBlob, filename, 'application/zip',
+                        onSuccess,
+                        onFailure
+                    );
+                });
+            }
             const onSuccess = function() {
                 filesBeingSaved--;
+                console.log("successful save");
+                console.log(filesBeingSaved);
             }
-            // TODO - at least report to users
-            // maybe retry?
-            const onFailure = function(fileToRemove) {
-                filesBeingSaved--;
-                // TODO - combine these into a single alert
-                removeStudentFromGradingView(fileToRemove, gradedWork);
-                unsubmittedStudents.push(fileToRemove);
+            const onFailure = function() {
+                // TODO - limit number of retries?
+                console.log("failed, retrying");
+                saveStudentAssignment(filename, onSuccess, onFailure);
             }
-
-            saveAssignment(separatedAssignments[filename], function(finalBlob) {
-                window.updateFileWithBinaryContent(
-                    // TODO - fix, can this not include filename?
-                    'graded_assignment.math',
-                    // TODO - filename currently contains drive id, fix this hackiness
-                    finalBlob, filename, 'application/zip',
-                    onSuccess,
-                    function() {onFailure(filename);}
-                );
-            });
+            saveStudentAssignment(filename, onSuccess, onFailure);
         }
     }
     var checkFilesLoaded = function() {
+        console.log("check all saved");
+        console.log(filesBeingSaved);
         if (filesBeingSaved === 0) {
             if (unsubmittedStudents.length > 0) {
                 alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
                       + JSON.stringify(unsubmittedStudents));
             }
+            onSuccess();
             return;
         } else {
             // if not all of the images are loaded, check again in 50 milliseconds
