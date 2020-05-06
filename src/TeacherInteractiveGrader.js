@@ -568,11 +568,11 @@ function saveBackToClassroom(gradedWork) {
             }
             // TODO - at least report to users
             // maybe retry?
-            const onFailure = function() {
+            const onFailure = function(fileToRemove) {
                 filesBeingSaved--;
                 // TODO - combine these into a single alert
-                removeStudentFromGradingView(filename, gradedWork);
-                unsubmittedStudents.push(filename);
+                removeStudentFromGradingView(fileToRemove, gradedWork);
+                unsubmittedStudents.push(fileToRemove);
             }
 
             saveAssignment(separatedAssignments[filename], function(finalBlob) {
@@ -582,7 +582,7 @@ function saveBackToClassroom(gradedWork) {
                     // TODO - filename currently contains drive id, fix this hackiness
                     finalBlob, filename, 'application/zip',
                     onSuccess,
-                    onFailure
+                    function() {onFailure(filename);}
                 );
             });
         }
