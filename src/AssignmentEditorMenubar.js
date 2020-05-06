@@ -316,7 +316,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
         },
         function(errorXhr) {
             if (errorXhr.status == 403) {
-                alert('This assignment was not created using Free Math, ' +
+                alert('This assignment was not created by your teacher using Free Math, ' +
                       'and google only allows 3rd party apps like Free Math ' +
                       'to edit assignments that they create.\n\n' +
                       'Your document has been saved in your Google Drive, you will ' +

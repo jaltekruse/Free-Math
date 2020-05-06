@@ -103,6 +103,8 @@ var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
 // the ones with the teacher annotations in the saved zip file
 var ORIG_STUDENT_STEP = 'ORIG_STUDENT_STEP';
 
+var GOOGLE_ID = 'GOOGLE_ID';
+
 /*
  * Compute a table to show the overall grades for each student
  *
@@ -524,9 +526,38 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
     return assignments;
 }
 
+// Students in google classroom can unsubmit/reclaim their documents, which
+// takes away edit/comment permissions from the teacher. When this happens during
+// a grading session, the user is warned and this student needs to be taken out of
+// view so the auto-save back to classroom doesn't keep erroring
+// TODO - need to enforce uniqueness of identifier
+function removeStudentFromGradingView(filename, gradedWork) {
+    var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
+    console.log(separatedAssignments);
+    delete separatedAssignments[filename];
+    console.log(separatedAssignments);
+
+    var allStudentWork = [];
+    for (let filename in separatedAssignments) {
+        if (separatedAssignments.hasOwnProperty(filename)) {
+            allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : separatedAssignments[filename][PROBLEMS]});
+        }
+    }
+
+    var aggregatedWork = aggregateStudentWork(allStudentWork);
+    window.store.dispatch(
+        { type : SET_ASSIGNMENTS_TO_GRADE,
+          GOOGLE_ID : gradedWork[GOOGLE_ID],
+          GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+          DOC_ID : gradedWork['DOC_ID'],
+          NEW_STATE :
+            {...aggregatedWork, ASSIGNMENT_NAME: gradedWork[ASSIGNMENT_NAME]}});
+}
+
 function saveBackToClassroom(gradedWork) {
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
     var filesBeingSaved = 0;
+    var unsubmittedStudents = [];
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             filesBeingSaved++;
@@ -538,6 +569,9 @@ function saveBackToClassroom(gradedWork) {
             // maybe retry?
             const onFailure = function() {
                 filesBeingSaved--;
+                // TODO - combine these into a single alert
+                removeStudentFromGradingView(filename, gradedWork);
+                unsubmittedStudents.push(filename);
             }
 
             saveAssignment(separatedAssignments[filename], function(finalBlob) {
@@ -554,6 +588,10 @@ function saveBackToClassroom(gradedWork) {
     }
     var checkFilesLoaded = function() {
         if (filesBeingSaved === 0) {
+            if (unsubmittedStudents.length > 0) {
+                alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
+                      + JSON.stringify(unsubmittedStudents));
+            }
             return;
         } else {
             // if not all of the images are loaded, check again in 50 milliseconds
@@ -1485,7 +1523,7 @@ class TeacherInteractiveGrader extends React.Component {
         setupGraph(
             window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],
             ReactDOM.findDOMNode(this.refs.chart));
-      }
+    }
 
     render() {
         // todo - figure out the right way to do this
