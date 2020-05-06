@@ -1445,19 +1445,41 @@ class TeacherInteractiveGrader extends React.Component {
         var labels = [];
         var numberUniqueAnswersData = {
             label: "Unique Answers",
-            backgroundColor: "blue",
+            backgroundColor: ["blue", "blue", "blue"],
             data: []
         };
         var largestAnswerGroups = {
             label: "Largest Group",
-            backgroundColor: "green",
+            backgroundColor: ["green", "green", "green"],
             data: []
         };
         var averageAnswerGroups = {
             label: "Average Group",
-            backgroundColor: "purple",
+            backgroundColor: ["purple", "purple", "purple"],
             data: []
         };
+        var graphOptions =
+            {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        stacked:true
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        stacked:true
+                    }]
+                },
+                onClick: onClickFunc,
+                hover: {
+                    onHover: onHover
+                }
+            };
+
         var graphData = [numberUniqueAnswersData, largestAnswerGroups, averageAnswerGroups];
         // TODO - remvoe direct access to redux store, also do the same in AllProblemGraders
         var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
@@ -1467,6 +1489,7 @@ class TeacherInteractiveGrader extends React.Component {
             largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
+
         var onClickFunc = function(evt) {
             let chart = this.chartRef.current.chartInstance
             var activePoints = chart.getElementsAtEvent(evt);
@@ -1559,19 +1582,7 @@ class TeacherInteractiveGrader extends React.Component {
                             labels: labels,
                             datasets: graphData
                         }}
-                        options={{
-                            scales: {
-                                yAxes: [{
-                                    ticks: {
-                                        beginAtZero:true
-                                    }
-                                }]
-                            },
-                            onClick: onClickFunc,
-                            hover: {
-                                onHover: onHover
-                            }
-                        }}
+                        options={graphOptions}
                 />
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
