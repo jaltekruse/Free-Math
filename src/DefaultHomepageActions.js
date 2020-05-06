@@ -221,9 +221,9 @@ class UserActions extends React.Component {
                         // TODO- sort on modification date or attachment date, pick latest
                         // TODO- handle other types of attahement (just report error)
                         var submitted =
-                            (typeof submission.assignmentSubmission.attachments != 'undefined'
-                              && submission.state !== 'CREATED'
-                              && submission.state !== 'RECLAIMED_BY_STUDENT');
+                            (typeof submission.assignmentSubmission.attachments != 'undefined');
+                              //&& submission.state !== 'CREATED'
+                              //&& submission.state !== 'RECLAIMED_BY_STUDENT');
 
                         // TODO - inform teacher
                         if (!submitted) {

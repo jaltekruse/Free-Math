@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Chart } from 'chart.js';
 import _ from 'underscore';
 import JSZip from 'jszip';
 import { diffJson } from 'diff';
@@ -14,6 +13,8 @@ import FreeMathModal from './Modal.js';
 import { checkAllSaved } from './DefaultHomepageActions.js';
 import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
+import { Chart, Bar } from 'react-chartjs-2';
+import { defaults } from 'react-chartjs-2';
 
 var KAS = window.KAS;
 
@@ -548,10 +549,10 @@ function removeStudentFromGradingView(filename, gradedWork) {
     window.store.dispatch(
         { type : SET_ASSIGNMENTS_TO_GRADE,
           GOOGLE_ID : gradedWork[GOOGLE_ID],
-          GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
           DOC_ID : gradedWork['DOC_ID'],
           NEW_STATE :
-            {...aggregatedWork, ASSIGNMENT_NAME: gradedWork[ASSIGNMENT_NAME]}});
+            {...aggregatedWork, GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+                ASSIGNMENT_NAME: gradedWork[ASSIGNMENT_NAME]}});
 }
 
 function saveBackToClassroom(gradedWork) {
@@ -1432,7 +1433,15 @@ class AllProblemGraders extends React.Component {
     }
 }
 
-function setupGraph(gradingOverview, chart) {
+class TeacherInteractiveGrader extends React.Component {
+    state = { showModal: true };
+    constructor(props) {
+        super(props);
+        this.chartRef = React.createRef();
+    }
+
+    render() {
+
         var labels = [];
         var numberUniqueAnswersData = {
             label: "Unique Answers",
@@ -1450,6 +1459,8 @@ function setupGraph(gradingOverview, chart) {
             data: []
         };
         var graphData = [numberUniqueAnswersData, largestAnswerGroups, averageAnswerGroups];
+        // TODO - remvoe direct access to redux store, also do the same in AllProblemGraders
+        var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
         gradingOverview.forEach(function(problemSummary, index, array) {
             labels.push("Problem " + problemSummary[PROBLEM_NUMBER]);
             numberUniqueAnswersData["data"].push(problemSummary["NUMBER_UNIQUE_ANSWERS"]);
@@ -1457,6 +1468,7 @@ function setupGraph(gradingOverview, chart) {
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
         var onClickFunc = function(evt) {
+            let chart = this.chartRef.current.chartInstance
             var activePoints = chart.getElementsAtEvent(evt);
             var problemNum;
             if (!activePoints || activePoints.length === 0) {
@@ -1479,53 +1491,25 @@ function setupGraph(gradingOverview, chart) {
                 'Change problem being graded');
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
-        };
-        Chart.defaults.global.defaultFontColor = '#010101';
-        Chart.defaults.global.defaultFontSize = 16;
-        chart = new Chart(chart.getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: graphData
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero:true
-                        }
-                    }]
-                },
-                onClick: onClickFunc,
-                hover: {
-                    onHover: function(e) {
-                        var point = this.getElementAtEvent(e);
-                        let mousePoint = Chart.helpers.getRelativePosition(e, this.chart.chart);
-                        let yScale = this.chart.scales['y-axis-0'];
-                        // detect if hitting an element, in this case one of the bars,
-                        // or if anywhere below the graph where users can click on the
-                        // labels to also select problems
-                        if (point.length ||
-                              yScale.getValueForPixel(mousePoint.y) < 0) {
-                            e.target.style.cursor = 'pointer';
-                        }
-                        else e.target.style.cursor = 'default';
-                    }
-                }
+        }.bind(this);
+
+        const onHover = function(e) {
+            let chart = this.chartRef.current.chartInstance
+            var point = chart.getElementAtEvent(e);
+            let mousePoint = Chart.helpers.getRelativePosition(e, chart.chart);
+            let yScale = chart.scales['y-axis-0'];
+            // detect if hitting an element, in this case one of the bars,
+            // or if anywhere below the graph where users can click on the
+            // labels to also select problems
+            if (point.length ||
+                  yScale.getValueForPixel(mousePoint.y) < 0) {
+                e.target.style.cursor = 'pointer';
             }
-        });
-}
+            else e.target.style.cursor = 'default';
+        }.bind(this);
 
-class TeacherInteractiveGrader extends React.Component {
-    state = { showModal: true };
-
-    componentDidMount() {
-        setupGraph(
-            window.store.getState()["GRADING_OVERVIEW"][PROBLEMS],
-            ReactDOM.findDOMNode(this.refs.chart));
-    }
-
-    render() {
+        defaults.global.defaultFontColor = '#010101';
+        defaults.global.defaultFontSize = 16;
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
@@ -1569,7 +1553,26 @@ class TeacherInteractiveGrader extends React.Component {
                     ) : null}
                 <h3>To see student responses to a question,
                     click on the corresponding bars or label in the graph.</h3>
-                <canvas ref="chart" width="400" height="70"></canvas>
+                <Bar width="400" height="70"
+                        ref={this.chartRef}
+                        data={{
+                            labels: labels,
+                            datasets: graphData
+                        }}
+                        options={{
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero:true
+                                    }
+                                }]
+                            },
+                            onClick: onClickFunc,
+                            hover: {
+                                onHover: onHover
+                            }
+                        }}
+                />
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
