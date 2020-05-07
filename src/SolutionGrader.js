@@ -254,7 +254,7 @@ class StudentWork extends React.Component {
                                 :
                                 step[FORMAT] === TEXT
                                 ?
-                                    <div style={{...stepStyle, margin: "5px"}}
+                                    <div className="student-step-grader" style={{...stepStyle, margin: "5px"}}
                                         onClick={function() {
                                                 window.store.dispatch({ type : HIGHLIGHT_STEP,
                                                     PROBLEM_NUMBER : problemNumber,
@@ -265,17 +265,19 @@ class StudentWork extends React.Component {
                                         {step[CONTENT]}
                                     </div>
                                 :
-                                <TeX style={stepStyle} onClick={function() {
-                                    window.store.dispatch({ type : HIGHLIGHT_STEP,
-                                                    PROBLEM_NUMBER : problemNumber,
-                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
-                                                    SOLUTION_INDEX : studentSolutionIndex,
-                                                    STEP_KEY : stepIndex});
-                                    }}>
-                                    {typeof(step[CONTENT]) === 'string'
-                                        ? step[CONTENT]
-                                        : "\\text{corruption occured}"}
-                                </TeX>
+                                <div className="student-step-grader">
+                                    <TeX style={stepStyle} onClick={function() {
+                                        window.store.dispatch({ type : HIGHLIGHT_STEP,
+                                                        PROBLEM_NUMBER : problemNumber,
+                                                        SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                                        SOLUTION_INDEX : studentSolutionIndex,
+                                                        STEP_KEY : stepIndex});
+                                        }}>
+                                        {typeof(step[CONTENT]) === 'string'
+                                            ? step[CONTENT]
+                                            : "\\text{corruption occured}"}
+                                    </TeX>
+                                </div>
                             }
                             </div>
                         </div>

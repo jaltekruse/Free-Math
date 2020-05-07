@@ -261,14 +261,14 @@ function merge(student, teacher) {
     };
 }
 
-function saveStudentDoc(googleId, onSuccess, onFailure) {
+function saveStudentDocToDriveResolvingConflicts(googleId, filenameCallback, onSuccess, onFailure) {
     window.downloadFileMetadata(googleId, function(fileMeta) {
         console.log(fileMeta);
 
         const saveToDrive = function(doc) {
             saveAssignment(doc, function(finalBlob) {
                 window.updateFileWithBinaryContent(
-                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    filenameCallback(),
                     finalBlob, googleId, 'application/zip',
                     onSuccess,
                     onFailure
@@ -291,7 +291,7 @@ function saveStudentDoc(googleId, onSuccess, onFailure) {
                     var mergedDoc;
                     var conflictUnresolvable = false;
                     try {
-                        var mergedDoc = merge(currentLocalDoc, conflictingDoc);
+                        mergedDoc = merge(currentLocalDoc, conflictingDoc);
                     } catch (e) {
                         conflictUnresolvable = true;
                         mergedDoc = currentLocalDoc;
@@ -324,7 +324,6 @@ function autoSave() {
 
     let previousAppMode = currentAppMode;
     currentAppMode = appState[APP_MODE];
-
 
     let previousProblemShowing = currentProblemShowing;
     currentProblemShowing = appState[CURRENT_PROBLEM];
@@ -445,7 +444,10 @@ function autoSave() {
         }
         var saveFunc;
         if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
-            if (googleId) saveFunc = function() {saveStudentDoc(googleId, onSuccess, onFailure)};
+            if (googleId) saveFunc = function() {
+                saveStudentDocToDriveResolvingConflicts(googleId,
+                    function() { return window.store.getState()[ASSIGNMENT_NAME] + '.math'},
+                    onSuccess, onFailure)};
             else saveFunc = saveStudentToLocal;
         } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
             if (googleId) saveFunc = saveTeacherGrading;
@@ -612,4 +614,5 @@ class FreeMath extends React.Component {
     }
 }
 
-export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob, getAutoSaveIndex, merge};
+export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID,
+    base64ToBlob, getAutoSaveIndex, merge, saveStudentDocToDriveResolvingConflicts};

@@ -5,7 +5,7 @@ import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { scaleScore } from './SolutionGrader.js';
-import { cloneDeep, genID } from './FreeMath.js';
+import { cloneDeep, genID, saveStudentDocToDriveResolvingConflicts } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
