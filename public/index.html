@@ -582,6 +582,12 @@ ga('create', 'UA-70441517-2', 'auto');
     }
 
     function downloadFile(fileId, isBinary, callback) {
+        downloadFileMetadata(fileId, function(fileMeta) {
+            directDownloadFile(fileMeta, fileId, isBinary, callback)
+        });
+    }
+
+    function downloadFileMetadata(fileId, callback) {
         var accessToken = gapi.auth.getToken().access_token;
         var xhr = new XMLHttpRequest();
         xhr.open('get', 'https://www.googleapis.com/drive/v2/files/'+fileId);
@@ -590,11 +596,13 @@ ga('create', 'UA-70441517-2', 'auto');
             if (this.readyState === 4) {
                 if (this.status == 200) {
                 try {
-                    var file = JSON.parse(this.responseText);
-                    directDownloadFile(file, fileId, isBinary, callback);
+                    var fileMeta = JSON.parse(this.responseText);
+                    console.log(fileMeta);
+                    callback(fileMeta);
                     } catch (e) {
                         console.log(e);
-                        alert("error reading google's response:" + this.responsetext);
+                        console.log(this.responsetext);
+                        alert("Error reading Google's response.");
                     }
                 } else {
                     alert(this.responsetext);
@@ -625,6 +633,7 @@ ga('create', 'UA-70441517-2', 'auto');
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
             console.log(this);
+            console.log(JSON.parse(this.responseText));
             if (this.readyState === 4) {
                 if (this.status == 200) {
                     callback();

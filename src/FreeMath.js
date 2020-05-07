@@ -294,6 +294,15 @@ function autoSave() {
             }
         }
         const saveStudentDoc = function() {
+            window.downloadFileMetadata(googleId, function(fileMeta) {
+                console.log(fileMeta);
+                // download the concurrently modified version try to merge
+                if (! fileMeta.lastModifyingUser.isAuthenticatedUser) {
+                    alert(fileMeta.lastModifyingUser.displayName +
+                        " has modified this file in Drive, whatever they changed will" +
+                        " be overwritten with the document as you are currently viewing it");
+                }
+            });
             // this does deliberately go grab the app state again, it is called
             // after a 2 second timeout below, want to let edit build up for 2 seconds
             // and then at the end of that we want to auto-save whatever is the current state
