@@ -215,6 +215,9 @@ class UserActions extends React.Component {
                         // TODO - warn teacher about multiple submissions
                         // TODO- sort on modification date or attachment date, pick latest
                         // TODO- handle other types of attahement (just report error)
+                        // should probably rename - this is just checking if an attachment is
+                        // present, google classroom does have a separate status of "submitted/turned in"
+                        // that is no longer being used to filter students docs out of the view
                         var submitted =
                             (typeof submission.assignmentSubmission.attachments !== 'undefined');
                               // this would filter to just submitted docs, preventing conflicts between

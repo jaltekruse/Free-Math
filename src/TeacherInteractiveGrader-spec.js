@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { cloneDeep } from './FreeMath.js';
+import { cloneDeep, merge } from './FreeMath.js';
 import { deepFreeze, compareOverallEditorState } from './utils.js';
 import { assignmentReducer } from './Assignment.js';
 import { convertToCurrentFormat, aggregateStudentWork,
@@ -124,52 +124,6 @@ it('test merging student and teacher edits', () => {
     var observedMergedState = merge(expectedAssignment, convertedBackToStudentModel);
     expect(observedMergedState).toEqual(expectedMergedState);
 });
-
-function merge(student, teacher) {
-    return {...student,
-        PROBLEMS : student[PROBLEMS].map(function (problem, probIndex) {
-            if (! teacher[PROBLEMS]) return problem;
-            else if (! teacher[PROBLEMS][probIndex]) return problem;
-            return {
-                ...problem,
-                FEEDBACK : teacher[PROBLEMS][probIndex][FEEDBACK],
-                STEPS: problem[STEPS].map(function (step, stepIndex) {
-                    let teacherSteps = teacher[PROBLEMS][probIndex][STEPS]
-                    if (!teacherSteps) return step;
-                    else if (!teacherSteps[stepIndex]) return step;
-                    // TODO - is throwing an exception here the right thing to do, untill
-                    // full collaborative editor merging logic is present, stop trying to
-                    // merge if there are edits to steps still in student view, not just adding/removing
-                    // highlights
-                    // Current design, caller need to catch this exception and just keep the current
-                    // local state, and alert the user of another user concurrently modifying the doc
-                    // TODO - might need to detect if the other user was a teacher/student
-                    // and behave a little differently, a teacher making highlights and the step
-                    // no longer being there should probably be silently dropped on student side
-                    // but the teacher should be notified of a refresh of new student state
-                    // preferrable in a non-invasive bit of text local to the problem, not global alert
-                    //    - this current code too aggressively considers this unmergable, kind of
-                    //      targeted at two student mode editors concurrently
-                    /*
-                    else if (teacherStepsteacher[stepIndex][CONTENT] !== step[CONTENT]) {
-                        throw "Umergable concurrent edit";
-                    } else if (teacherStepsteacher[stepIndex][FORMAT] !== step[FORMAT]) {
-                        throw "Umergable concurrent edit";
-                    }
-                    */
-                    // TODO - should this check if the content of the step matches between
-                    // teacher and student before applying the highlight?
-                    return {
-                        ...step,
-                        HIGHLIGHT: teacherSteps[stepIndex][HIGHLIGHT]
-                    }
-                })
-            };
-        })
-    };
-}
-
-
 
 //      [ { "PROBLEM_NUMBER" : "1", POSSIBLE_POINTS : 3, "ANSWER_CLASSES" : [ { SCORE : 1, ANSWERS : ["x=5", "5=x"]}, { "SCORE" : 0.5, ANSWERS : ["x=-5","-5=x"] ],
 //          "GRADE_STRATEGY" : "ALL_ANSWERS_REQUIRED" | "ONE_ANSWER_REQUIRED" | "SUBSET_OF_ANSWERS_REQUIRED", "NUMBER_OF_MATCHING_ANSWERS_REQUIRED" : 2 } ]

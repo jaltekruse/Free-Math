@@ -1,9 +1,9 @@
 import React from 'react';
-import GradingMenuBar from './GradingMenuBar.js';
+import GradingMenuBar, { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
 import { GradesView, SimilarDocChecker } from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
-import { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
+import { openAssignment } from './AssignmentEditorMenubar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
@@ -16,6 +16,12 @@ var APP_MODE = 'APP_MODE';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
 var MODE_CHOOSER = 'MODE_CHOOSER';
+
+var POSSIBLE_POINTS = "POSSIBLE_POINTS";
+var SCORE = "SCORE";
+var FEEDBACK = 'FEEDBACK';
+var HIGHLIGHT = 'HIGHLIGHT';
+var STEPS = 'STEPS';
 
 var VIEW_GRADES = 'VIEW_GRADES';
 
@@ -203,6 +209,107 @@ function datetimeToStr(dt) {
                     ":" + ("00" + dt.getMinutes()).slice(-2) + ":" + ("00" + dt.getSeconds()).slice(-2) + "." + dt.getMilliseconds();
 }
 
+function merge(student, teacher) {
+    console.log("conflict found, merging");
+    console.log("student");
+    console.log(student);
+    console.log("teacher");
+    console.log(teacher);
+
+    return {...student,
+        PROBLEMS : student[PROBLEMS].map(function (problem, probIndex) {
+            if (! teacher[PROBLEMS]) return problem;
+            else if (! teacher[PROBLEMS][probIndex]) return problem;
+            return {
+                ...problem,
+                FEEDBACK : teacher[PROBLEMS][probIndex][FEEDBACK],
+                SCORE : teacher[PROBLEMS][probIndex][SCORE],
+                POSSIBLE_POINTS : teacher[PROBLEMS][probIndex][POSSIBLE_POINTS],
+                STEPS: problem[STEPS].map(function (step, stepIndex) {
+                    let teacherSteps = teacher[PROBLEMS][probIndex][STEPS]
+                    if (!teacherSteps) return step;
+                    else if (!teacherSteps[stepIndex]) return step;
+                    // TODO - is throwing an exception here the right thing to do, untill
+                    // full collaborative editor merging logic is present, stop trying to
+                    // merge if there are edits to steps still in student view, not just adding/removing
+                    // highlights
+                    // Current design, caller need to catch this exception and just keep the current
+                    // local state, and alert the user of another user concurrently modifying the doc
+                    // TODO - might need to detect if the other user was a teacher/student
+                    // and behave a little differently, a teacher making highlights and the step
+                    // no longer being there should probably be silently dropped on student side
+                    // but the teacher should be notified of a refresh of new student state
+                    // preferrable in a non-invasive bit of text local to the problem, not global alert
+                    //    - this current code too aggressively considers this unmergable, kind of
+                    //      targeted at two student mode editors concurrently
+                    /*
+                    else if (teacherStepsteacher[stepIndex][CONTENT] !== step[CONTENT]) {
+                        throw "Umergable concurrent edit";
+                    } else if (teacherStepsteacher[stepIndex][FORMAT] !== step[FORMAT]) {
+                        throw "Umergable concurrent edit";
+                    }
+                    */
+                    // TODO - should this check if the content of the step matches between
+                    // teacher and student before applying the highlight?
+                    return {
+                        ...step,
+                        HIGHLIGHT: teacherSteps[stepIndex][HIGHLIGHT]
+                    }
+                })
+            };
+        })
+    };
+}
+
+function saveStudentDoc(googleId, onSuccess, onFailure) {
+    window.downloadFileMetadata(googleId, function(fileMeta) {
+        console.log(fileMeta);
+
+        const saveToDrive = function(doc) {
+            saveAssignment(doc, function(finalBlob) {
+                window.updateFileWithBinaryContent(
+                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
+                    finalBlob, googleId, 'application/zip',
+                    onSuccess,
+                    onFailure
+                );
+            });
+        };
+
+        if (fileMeta.lastModifyingUser.isAuthenticatedUser) {
+            saveToDrive(window.store.getState());
+        } else {
+            // TODO - cleanup here and elesewhere fileId is same as googleId
+            window.directDownloadFile(fileMeta, googleId, true,
+                function(response, fileId) {
+                    var conflictingDoc = openAssignment(response, "filename" /* TODO */);
+                    // this does deliberately go grab the app state again, it is called
+                    // after a 2 second timeout below, want to let edit build up for 2 seconds
+                    // and then at the end of that we want to auto-save whatever is the current state
+                    var currentLocalDoc = window.store.getState();
+
+                    var mergedDoc;
+                    var conflictUnresolvable = false;
+                    try {
+                        var mergedDoc = merge(currentLocalDoc, conflictingDoc);
+                    } catch (e) {
+                        conflictUnresolvable = true;
+                        mergedDoc = currentLocalDoc;
+                    }
+
+                    window.store.dispatch({ type: 'SET_GLOBAL_STATE', newState : mergedDoc });
+                    saveToDrive(mergedDoc);
+                    if (conflictUnresolvable) {
+                        alert(fileMeta.lastModifyingUser.displayName +
+                            " has modified this file in Drive, whatever they changed will" +
+                            " be overwritten with the document as you are currently viewing it");
+                    }
+                }
+            );
+        }
+    });
+}
+
 let currentSaveState;
 let currentAppMode;
 let currentlyGatheringUpdates;
@@ -275,7 +382,8 @@ function autoSave() {
         // more upates that happened in the meantime, and thoe edits will have avoided
         // creating their own callback with a timeout based on the currentlyGatheringUpdates
         // flag and the check above
-        const onSuccess = function() {
+        // parameter is the document that was saved, doesn't currently have a use here
+        const onSuccess = function(docSaved) {
             pendingSaves--;
             console.log('pendingSaves');
             console.log(pendingSaves);
@@ -293,28 +401,6 @@ function autoSave() {
                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
             }
         }
-        const saveStudentDoc = function() {
-            window.downloadFileMetadata(googleId, function(fileMeta) {
-                console.log(fileMeta);
-                // download the concurrently modified version try to merge
-                if (! fileMeta.lastModifyingUser.isAuthenticatedUser) {
-                    alert(fileMeta.lastModifyingUser.displayName +
-                        " has modified this file in Drive, whatever they changed will" +
-                        " be overwritten with the document as you are currently viewing it");
-                }
-            });
-            // this does deliberately go grab the app state again, it is called
-            // after a 2 second timeout below, want to let edit build up for 2 seconds
-            // and then at the end of that we want to auto-save whatever is the current state
-            saveAssignment(window.store.getState(), function(finalBlob) {
-                window.updateFileWithBinaryContent(
-                    window.store.getState()[ASSIGNMENT_NAME] + '.math',
-                    finalBlob, googleId, 'application/zip',
-                    onSuccess,
-                    onFailure
-                );
-            });
-        }
         // TODO - possibly remove, this is for auto-saving a zip into drive
         // most people with drive will probably also have classroom
         const saveTeacherGrading = function() {
@@ -325,18 +411,19 @@ function autoSave() {
                 saveBackToClassroom(window.store.getState(), onSuccess, onFailure);
                 // TODO - tie into network requests below "saveBackToClassroom"
                 return;
+            } else {
+                // this does deliberately go grab the app state again, it is called
+                // after a 2 second timeout below, want to let edit build up for 2 seconds
+                // and then at the end of that we want to auto-save whatever is the current state
+                saveGradedStudentWorkToBlob(window.store.getState(), function(finalBlob) {
+                    window.updateFileWithBinaryContent (
+                        window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                        finalBlob, googleId, 'application/zip',
+                        onSuccess,
+                        onFailure
+                    );
+                });
             }
-            // this does deliberately go grab the app state again, it is called
-            // after a 2 second timeout below, want to let edit build up for 2 seconds
-            // and then at the end of that we want to auto-save whatever is the current state
-            saveGradedStudentWorkToBlob(window.store.getState(), function(finalBlob) {
-                window.updateFileWithBinaryContent (
-                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
-                    finalBlob, googleId, 'application/zip',
-                    onSuccess,
-                    onFailure
-                );
-            });
         }
         const saveStudentToLocal = function() {
             console.log("auto saving student to local");
@@ -358,7 +445,7 @@ function autoSave() {
         }
         var saveFunc;
         if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
-            if (googleId) saveFunc = saveStudentDoc;
+            if (googleId) saveFunc = function() {saveStudentDoc(googleId, onSuccess, onFailure)};
             else saveFunc = saveStudentToLocal;
         } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
             if (googleId) saveFunc = saveTeacherGrading;
@@ -525,4 +612,4 @@ class FreeMath extends React.Component {
     }
 }
 
-export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob, getAutoSaveIndex };
+export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID, base64ToBlob, getAutoSaveIndex, merge};
