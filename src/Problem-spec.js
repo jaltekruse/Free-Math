@@ -82,8 +82,9 @@ it('test demo creation, undo/redo bug', () => {
 
     const expected = {
         "APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+        "GOOGLE_DRIVE_STATE": "ALL_SAVED",
         "PROBLEMS": [
-            {"PROBLEM_NUMBER": "", "REDO_STACK": [], "STEPS": [{"CONTENT": ""}], "UNDO_STACK": []}
+            {"PROBLEM_NUMBER": "", "REDO_STACK": [], "STEPS": [{"CONTENT": "", FORMAT: "MATH"}], "UNDO_STACK": []}
         ],
         "BUTTON_GROUP": "BASIC",
         "CURRENT_PROBLEM": 0
@@ -99,6 +100,7 @@ it('test demo creation, undo/redo bug', () => {
     const expectedDemo = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
                           "BUTTON_GROUP": "BASIC",
                           "CURRENT_PROBLEM": 0,
+                          "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                           "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
                           "SHOW_TUTORIAL": true, "STEPS": [
                               {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111}
@@ -114,11 +116,16 @@ it('test demo creation, undo/redo bug', () => {
     const expectedState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
                           "BUTTON_GROUP": "BASIC",
                           "CURRENT_PROBLEM": 0,
+                          "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                           "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
-                          "SHOW_TUTORIAL": true, "STEPS": [
+                          "SHOW_TUTORIAL": true,
+                          "STEPS": [
                               {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
                               {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 222222}
-                          ], "UNDO_STACK": [{"INVERSE_ACTION": {"PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}, "STEP_KEY": 0, "type": "DELETE_STEP"}]}]};
+                          ],
+                          "UNDO_STACK": [
+                              { "INVERSE_ACTION": {"PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"},
+                                "STEP_KEY": 1, "type": "DELETE_STEP"}]}]};
 
     compareOverallEditorState(
         expectedState,
@@ -129,11 +136,15 @@ it('test demo creation, undo/redo bug', () => {
 
     const expectedUndoState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
                                "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
+                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
-                                       {"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 0, "type": "DELETE_STEP"},
-                                           "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}
+                                       { "INVERSE_ACTION": {
+                                            "INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"
+                                         },
+                                         "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"
+                                       }
                                      ],
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
@@ -149,11 +160,15 @@ it('test demo creation, undo/redo bug', () => {
 
     const expectedUndoState2 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
                                "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
+                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
-                                       {"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 0, "type": "DELETE_STEP"},
-                                           "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}
+                                       { "INVERSE_ACTION": {
+                                            "INVERSE_ACTION": undefined, "STEP_KEY": 1, "type": "DELETE_STEP"
+                                         },
+                                         "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"
+                                       }
                                      ],
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
@@ -170,10 +185,12 @@ it('test demo creation, undo/redo bug', () => {
     const expectedUndoState3 =
         {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
                                "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
+                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
-                                       {"INVERSE_ACTION": {"INVERSE_ACTION": undefined, "STEP_KEY": 0, "type": "DELETE_STEP"},
+                                       {"INVERSE_ACTION": {"INVERSE_ACTION": undefined,
+                                                            "STEP_KEY": 1, "type": "DELETE_STEP"},
                                            "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"}
                                      ],
                                      "SHOW_TUTORIAL": true,
@@ -207,7 +224,7 @@ it('test adding a problem', () => {
             {"PROBLEM_NUMBER": "2", "REDO_STACK": [], "UNDO_STACK": [],
                 "STEPS": [{"CONTENT": "4-2"}, {"CONTENT": "2"}]},
             {"PROBLEM_NUMBER": "", "REDO_STACK": [],
-                "STEPS": [{"CONTENT": "", "STEP_ID": 137783185}], "UNDO_STACK": []}]
+                "STEPS": [{"CONTENT": "", FORMAT: "MATH", "STEP_ID": 137783185}], "UNDO_STACK": []}]
     };
     deepFreeze(initialAssignment);
 
@@ -352,7 +369,8 @@ it('test adding a step', () => {
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : "2"}],
                        UNDO_STACK :
                        [
-                           {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"}
+                           {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_STEP"},
+                               "STEP_KEY": 2, "type": "DELETE_STEP"}
                        ],
                        REDO_STACK : [] }
         ]
@@ -381,10 +399,10 @@ it('test adding blank step', () => {
         PROBLEMS : [ { PROBLEM_NUMBER : "1",
                        STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : [] },
                      { PROBLEM_NUMBER : "2",
-                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : ""}],
+                         STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : "", FORMAT: "MATH"}],
                        UNDO_STACK : [
                                 {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_BLANK_STEP"},
-                                 "STEP_KEY": 1, "type": "DELETE_STEP"}
+                                 "STEP_KEY": 2, "type": "DELETE_STEP"}
                        ],
                        REDO_STACK : [] }
         ]

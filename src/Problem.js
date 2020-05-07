@@ -753,8 +753,6 @@ class Problem extends React.Component {
  */
 // reducer for an individual problem
 function problemReducer(problem, action) {
-    console.log("problem reducer");
-    console.log(action);
     if (problem === undefined) {
         // TODO - need to convert old docs to add undo stack
         return { PROBLEM_NUMBER : "",
@@ -779,7 +777,6 @@ function problemReducer(problem, action) {
         if ( currFormat === MATH && newFormat === TEXT) {
             if (currContent === newContent) {
                 // make switching between math and text a little easier
-                console.log("replace with normals spaces");
                 newContent = newContent.replace(/\\ /g, ' ');
             }
         } else if (currStep[FORMAT] === TEXT && newFormat === MATH) {
@@ -839,8 +836,6 @@ function problemReducer(problem, action) {
         } else {
             updateLastUndoAction = false;
         }
-        console.log("0000000333333300000000000");
-        console.log(updateLastUndoAction);
 
         let inverseAction = {
             ...action,
@@ -1021,8 +1016,6 @@ function problemReducer(problem, action) {
 
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
-    console.log("problem list reducer");
-    console.log(action);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }

@@ -534,9 +534,7 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
 // TODO - need to enforce uniqueness of identifier
 function removeStudentFromGradingView(filename, gradedWork) {
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-    console.log(separatedAssignments);
     delete separatedAssignments[filename];
-    console.log(separatedAssignments);
 
     var allStudentWork = [];
     for (let filename in separatedAssignments) {
@@ -753,7 +751,6 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     // structure: { "1.1" : { "jason" :true, "taylor" : true }
     var studentWorkFound = {};
     allStudentWork.forEach(function(assignInfo, index, array) {
-        console.log("analyzing 1 student doc");
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
             const lastStep = _.last(problem[STEPS]);
             // image as the last step is treated as blank text as the answer
@@ -910,11 +907,9 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             var uniqueAnswers = aggregatedWork[problemNumber][UNIQUE_ANSWERS];
             possiblePointsAppearing = {};
             uniqueAnswers.forEach(countPossiblePointsValues);
-            console.log(possiblePointsAppearing);
 
             mostCommonPossiblePoints = keyWithMaxValInObj(possiblePointsAppearing);
             mostCommonPossiblePoints = typeof mostCommonPossiblePoints !== 'undefined' ? mostCommonPossiblePoints : 6;
-            console.log(mostCommonPossiblePoints);
             aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints;
             aggregatedWork[problemNumber][POSSIBLE_POINTS_EDITED] = mostCommonPossiblePoints;
 
@@ -984,7 +979,6 @@ function convertToCurrentFormat(possiblyOldDoc) {
 function replaceSpecialCharsWithLatex(possiblyOldDoc) {
     if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
         && possiblyOldDoc[PROBLEMS].length > 0) {
-        console.log("changing special chars to latex");
         // TODO - consider getting rid of this deep clone, but not much object creation
         // to avoid if I want to keep this function pure
         possiblyOldDoc = cloneDeep(possiblyOldDoc);
@@ -1082,6 +1076,7 @@ function replaceSpecialCharsWithLatex(possiblyOldDoc) {
                 step[CONTENT] = step[CONTENT].replace(/Ω/g,"\\Omega");
 
                 if (step[CONTENT] !== orig) {
+                    console.log("changing special chars to latex");
                     console.log(orig);
                     console.log(step[CONTENT]);
                 }
@@ -1165,9 +1160,11 @@ function removeOriginalStudentImages(newDoc) {
 }
 
 function makeBackwardsCompatible(newDoc) {
+    /*
     newDoc[PROBLEMS].forEach(function (problem) {
         problem[LAST_SHOWN_STEP] = problem[STEPS].length - 1;
     });
+    */
     return newDoc;
 }
 
@@ -1183,7 +1180,6 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
         // TODO - should I set googleId? Should grading a single student doc save back as a single
         // student doc file instead of a zip containing a single file?
         var singleStudentDoc = openAssignment(content, filename);
-        console.log(singleStudentDoc);
         allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
     } catch (ex) {
         try {
@@ -1245,8 +1241,8 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
         // TODO - add back answer key
         //console.log(allStudentWork);
         var aggregatedWork = aggregateStudentWork(allStudentWork);
-        console.log("@@@@@@ opened docs");
-        console.log(aggregatedWork);
+        console.log("opened docs");
+        //console.log(aggregatedWork);
         window.store.dispatch(
             { type : SET_ASSIGNMENTS_TO_GRADE,
               GOOGLE_ID : googleId,

@@ -386,7 +386,6 @@ function autoSave() {
 }
 
 function rootReducer(state, action) {
-    console.log(action);
     if (state === undefined || action.type === GO_TO_MODE_CHOOSER) {
         return {
             APP_MODE : MODE_CHOOSER
@@ -395,7 +394,6 @@ function rootReducer(state, action) {
         return {
             ...assignmentReducer(),
             "DOC_ID" : genID(),
-            PENDING_SAVES : 0,
             GOOGLE_DRIVE_STATE : ALL_SAVED,
             BUTTON_GROUP : 'BASIC',
             APP_MODE : EDIT_ASSIGNMENT
@@ -455,7 +453,6 @@ function rootReducer(state, action) {
             PROBLEMS : action.PROBLEMS,
             GOOGLE_ID: action.GOOGLE_ID,
             ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
-            PENDING_SAVES : 0,
             GOOGLE_DRIVE_STATE : ALL_SAVED,
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
@@ -465,8 +462,7 @@ function rootReducer(state, action) {
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
             ...assignmentReducer(state, action),
-            APP_MODE : EDIT_ASSIGNMENT,
-            PENDING_SAVES : 0
+            APP_MODE : EDIT_ASSIGNMENT
         }
     } else if (state[APP_MODE] === GRADE_ASSIGNMENTS
         || state[APP_MODE] === SIMILAR_DOC_CHECK

@@ -114,11 +114,12 @@ it('test merging student and teacher edits', () => {
 
     var convertedBackToStudentModel =
         separateIndividualStudentAssignments(observedTeacherState)[filename];
-    console.log(convertedBackToStudentModel);
 
     var expectedMergedState = cloneDeep(expectedAssignment);
 
     expectedMergedState[PROBLEMS][0][STEPS][1][HIGHLIGHT] = 'ERROR';
+    expectedMergedState[PROBLEMS][0][FEEDBACK] = '';
+    expectedMergedState[PROBLEMS][1][FEEDBACK] = '';
 
     var observedMergedState = merge(expectedAssignment, convertedBackToStudentModel);
     expect(observedMergedState).toEqual(expectedMergedState);
