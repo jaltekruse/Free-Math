@@ -8,7 +8,7 @@ import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
 import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGradingOverview,
-    makeBackwardsCompatible, convertToCurrentFormat, saveBackToClassroom } from './TeacherInteractiveGrader.js';
+                                   saveBackToClassroom } from './TeacherInteractiveGrader.js';
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
 // Application modes
@@ -41,6 +41,11 @@ var GOOGLE_COURSEWORK_LIST = 'GOOGLE_COURSEWORK_LIST';
 var GOOGLE_SELECTED_CLASS_NAME = 'GOOGLE_SELECTED_CLASS_NAME';
 var GOOGLE_SELECTED_ASSIGNMENT_NAME = 'GOOGLE_SELECTED_ASSIGNMENT_NAME';
 
+var GOOGLE_ORIGIN_SERVICE = 'GOOGLE_ORIGIN_SERVICE';
+var CLASSROOM = 'CLASSROOM';
+// also can be DRIVE, although this is currently the default behavior
+// if GOOGLE_ID is set and this property isn't
+
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
@@ -62,29 +67,6 @@ var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 
 // Problem properties
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
-var STEPS = 'STEPS';
-var CONTENT = "CONTENT";
-
-// TODO - cleanup when merging full google integration
-// this is used to detect some events that shouldn't prompt
-// auto-saves, although the event doesn't fire anywhere on
-// this branch, defining this heare allows keeping the same auto-save
-// logic that is over on that branch
-var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
-
-var GOOGLE_ID = 'GOOGLE_ID';
-var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
-// state for google drive auto-save
-// action
-var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
-// Property name and possible values
-var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
-var SAVING = 'SAVING';
-var ALL_SAVED = 'ALL_SAVED';
-var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
-var GOOGLE_ORIGIN_SERVICE = 'GOOGLE_ORIGIN_SERVICE';
-var DRIVE = 'DRIVE';
-var CLASSROOM = 'CLASSROOM';
 
 // TODO - make this more efficient, or better yet replace uses with the spread operator
 // to avoid unneeded object creation
@@ -161,7 +143,7 @@ function updateAutoSave(docType, docName, appState, onSuccess = function(){}, on
                 // TODO -
                 // If I added a lookup table with each browsers size, then I could know before saving if it
                 // would fix and go all the way to the maximum, need to remember to take into account the save index
-                var oldestDocs = sortedDocs .slice(Math.ceil(sortedDocs.length / 2.0));
+                var oldestDocs = sortedDocs.slice(Math.ceil(sortedDocs.length / 2.0));
                 oldestDocs.forEach(function(recoveredDoc) {
                     // TODO - also should clean up the entry in the auto-save index, but currently that would require
                     // unzipping and reading the entry, would be good to add the doc ID to the local storage key
@@ -249,7 +231,6 @@ function autoSave() {
     if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
         appState[APP_MODE] === GRADE_ASSIGNMENTS) {
 
-        var problems = appState[PROBLEMS];
         var googleId = appState[GOOGLE_ID];
         // filter out changes to state made in this function, saving state, pending save count
         // also filter out the initial load of the page when a doc opens
@@ -260,7 +241,7 @@ function autoSave() {
         if (previousSaveState !== currentSaveState
            || previousAppMode !== currentAppMode
            // don't trigger save if just changing the problme being viewed
-           || (currentProblemShowing !== previousProblemShowing && currentProblemCount == previousProblemCount)
+           || (currentProblemShowing !== previousProblemShowing && currentProblemCount === previousProblemCount)
            // this if for the first call to create a newly saved Google Drive file, it will set the google ID
            // which doesn't need to trigger another save right away
            || currentGoogleId !== previousGoogleId
@@ -456,7 +437,6 @@ function rootReducer(state, action) {
             GOOGLE_DRIVE_STATE : ALL_SAVED,
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
-            ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
             BUTTON_GROUP : 'BASIC'
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {

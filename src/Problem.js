@@ -98,7 +98,6 @@ var GREEN = '#D0FFC9';
 
 class ScoreBox extends React.Component {
     render() {
-        var probNumber = this.props.value[PROBLEM_NUMBER];
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
@@ -223,13 +222,13 @@ function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
         // disable for now, they take up lots of space and rotate/crop don't work
         alert("Gifs are not supported");
         return;
-        // TODO - check size, as this isn't as easy to scale down, good to set a max of\
-        // something like 0.5-1MB
+        /*
         if (imgFile.size > 1024 * 1024) {
             alert("Beyond max size allowed for gifs (1 MB)");
             return;
         }
         addImg(imgFile, stepIndex, problemIndex, steps);
+        */
     } else {
         imgFile = Resizer.imageFileResizer(
             imgFile, 800, 800, 'JPEG', 90, 0,
@@ -368,7 +367,7 @@ class ImageStep extends React.Component {
                         // something like 0.5-1MB
                         alert("Cannot rotate gifs");
                     } else {
-                        imgFile = Resizer.imageFileResizer(
+                        Resizer.imageFileResizer(
                             imgFile, 800, 800, 'JPEG', 90, degrees,
                             imgFile => {
                                 handleImg(imgFile, stepIndex, problemIndex, steps);
@@ -452,7 +451,8 @@ class ImageStep extends React.Component {
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
-                                <img src={step[CONTENT]} style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
+                                <img src={step[CONTENT]} alt="Uploaded student work"
+                                     style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
                             </span>
                         }
                     </span>
@@ -469,7 +469,6 @@ class Problem extends React.Component {
 
     render() {
         const value = this.props.value;
-        const stepIndex = this.props.stepIndex;
         const probNumber = this.props.value[PROBLEM_NUMBER];
         const problemIndex = this.props.id;
         const showTutorial = this.props.value[SHOW_TUTORIAL];
@@ -770,7 +769,7 @@ function problemReducer(problem, action) {
         var latestUndo = problem[UNDO_STACK].length > 0 ? problem[UNDO_STACK][0] : false;
         const currStep = problem[STEPS][action[STEP_KEY]];
         const currContent = currStep[CONTENT];
-        var newContent = action[NEW_STEP_CONTENT];
+        let newContent = action[NEW_STEP_CONTENT];
         const currFormat = currStep[FORMAT];
         const newFormat = action[FORMAT];
 
@@ -906,7 +905,7 @@ function problemReducer(problem, action) {
             REDO_STACK : []
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
-        var newContent;
+        let newContent;
         var newFormat = undefined;
         // non-blank inserations in the middle of work currently only used for undo/redo
         if (CONTENT in action) {

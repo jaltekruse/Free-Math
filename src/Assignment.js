@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import './App.css';
 import Problem from './Problem.js';
 import { ScoreBox } from './Problem.js';
@@ -7,8 +6,6 @@ import { problemListReducer } from './Problem.js';
 import Button from './Button.js';
 import { CloseButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
-
-var MathQuill = window.MathQuill;
 
 // editing assignmnt mode actions
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
@@ -28,7 +25,6 @@ var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 var SCORE = "SCORE";
-var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 
 // reducer for an overall assignment
 function assignmentReducer(state, action) {

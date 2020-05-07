@@ -10,8 +10,7 @@ import { CloseButton, LightButton, HtmlButton } from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
-import JSZip from 'jszip';
-import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip, convertToCurrentFormat} from './TeacherInteractiveGrader.js';
+import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
 
 var MathQuill = window.MathQuill;
 
@@ -29,13 +28,9 @@ var CONTENT = "CONTENT";
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
 var GOOGLE_ID = 'GOOGLE_ID';
-var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
-// action
-var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
-// Property name and possible values
+// Property name and possible values, also can be DIRTY_WORKING_COPY, SAVING
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
-var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 
 var APP_MODE = 'APP_MODE';
@@ -52,7 +47,7 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 function checkAllSaved() {
     const appState = window.store.getState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
-        !(appState[GOOGLE_ID] && appState[GOOGLE_DRIVE_STATE] == ALL_SAVED)) {
+        !(appState[GOOGLE_ID] && appState[GOOGLE_DRIVE_STATE] === ALL_SAVED)) {
         return true;
     } else {
         return null;
@@ -221,7 +216,11 @@ class UserActions extends React.Component {
                         // TODO- sort on modification date or attachment date, pick latest
                         // TODO- handle other types of attahement (just report error)
                         var submitted =
-                            (typeof submission.assignmentSubmission.attachments != 'undefined');
+                            (typeof submission.assignmentSubmission.attachments !== 'undefined');
+                              // this would filter to just submitted docs, preventing conflicts between
+                              // teacher and student edits, unfortunately students can unsubmit whenever
+                              // and this would eliminate a teachers ability to see in-progress work
+                              // so for now trying to work out concurrent editing by teacher and student
                               //&& submission.state !== 'CREATED'
                               //&& submission.state !== 'RECLAIMED_BY_STUDENT');
 
@@ -951,8 +950,9 @@ class DefaultHomepageActions extends React.Component {
                                        onChange={function(evt) {
                                                 this.setState({emailString : evt.target.value});
                                        }.bind(this)}/>
-                                <input style={{margin:"10px", fontSize: "25px", borderRadius: "30px", padding: "8px 16px"}} type="submit"
-                                       value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
+                                &nbsp;
+                                <LightButton style={{fontSize: "25px", borderRadius: "30px", padding: "8px 16px"}}
+                                       text="Subscribe" id="mc-embedded-subscribe"
                                        className="fm-button-light" onClick={function() {
                                             window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
                                 }} />

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import _ from 'underscore';
 import JSZip from 'jszip';
 import { diffJson } from 'diff';
@@ -10,7 +9,6 @@ import { cloneDeep, genID } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
-import { checkAllSaved } from './DefaultHomepageActions.js';
 import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
 import { Chart, Bar } from 'react-chartjs-2';
@@ -532,6 +530,7 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
 // a grading session, the user is warned and this student needs to be taken out of
 // view so the auto-save back to classroom doesn't keep erroring
 // TODO - need to enforce uniqueness of identifier
+// eslint-disable-next-line no-unused-vars
 function removeStudentFromGradingView(filename, gradedWork) {
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
     delete separatedAssignments[filename];
@@ -557,35 +556,39 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
     var filesBeingSaved = 0;
     var unsubmittedStudents = [];
+    const saveStudentAssignment = function(filename, onSuccess, onFailure) {
+        saveAssignment(separatedAssignments[filename], function(finalBlob) {
+            window.updateFileWithBinaryContent(
+                // TODO - fix, can this not include filename? Just let the filename stay as is
+                'graded_assignment.math',
+                // TODO - filename currently contains drive id, fix this hackiness
+                finalBlob, filename, 'application/zip',
+                onSuccess,
+                onFailure
+            );
+        });
+    }
+    const onIndividualFileSuccess = function() {
+        filesBeingSaved--;
+        console.log("successful save");
+        console.log(filesBeingSaved);
+    }
+    const onIndividualFailure = function(filename) {
+        // TODO - limit number of retries?
+        console.log("failed, retrying");
+        saveStudentAssignment(filename, onIndividualFileSuccess, function() { onIndividualFailure(filename) });
+    }
+    const onFailureWrapped = function(filename) {
+        return function() {
+            return onIndividualFailure(filename);
+        }
+    };
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             filesBeingSaved++;
             console.log("queued save");
             console.log(filesBeingSaved);
-
-            const saveStudentAssignment = function(filename, onSuccess, onFailure) {
-                saveAssignment(separatedAssignments[filename], function(finalBlob) {
-                    window.updateFileWithBinaryContent(
-                        // TODO - fix, can this not include filename?
-                        'graded_assignment.math',
-                        // TODO - filename currently contains drive id, fix this hackiness
-                        finalBlob, filename, 'application/zip',
-                        onSuccess,
-                        onFailure
-                    );
-                });
-            }
-            const onSuccess = function() {
-                filesBeingSaved--;
-                console.log("successful save");
-                console.log(filesBeingSaved);
-            }
-            const onFailure = function() {
-                // TODO - limit number of retries?
-                console.log("failed, retrying");
-                saveStudentAssignment(filename, onSuccess, onFailure);
-            }
-            saveStudentAssignment(filename, onSuccess, onFailure);
+            saveStudentAssignment(filename, onIndividualFileSuccess, onFailureWrapped(filename));
         }
     }
     var checkFilesLoaded = function() {
@@ -622,19 +625,22 @@ function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = funct
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
     var zip = new JSZip();
     var filesBeingAddedToZip = 0;
+    const handleBlobFunc = function(filename) {
+        return function(studentAssignmentBlob) {
+        // studentAssignment is itself a zip
+            var fr = new FileReader();
+            fr.addEventListener('load', function() {
+                var data = this.result;
+                zip.file(filename, data);
+                filesBeingAddedToZip--;
+            });
+            fr.readAsArrayBuffer(studentAssignmentBlob);
+        };
+    };
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             filesBeingAddedToZip++;
-            saveAssignment(separatedAssignments[filename], function(studentAssignmentBlob) {
-                // studentAssignment is itself a zip
-                var fr = new FileReader();
-                fr.addEventListener('load', function() {
-                    var data = this.result;
-                    zip.file(filename, data);
-                    filesBeingAddedToZip--;
-                });
-                fr.readAsArrayBuffer(studentAssignmentBlob);
-            });
+            saveAssignment(separatedAssignments[filename], handleBlobFunc(filename));
         }
     }
 
@@ -1187,7 +1193,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
             new_zip.load(content);
 
             var docCount = 0;
-            for (var file in new_zip.files) {
+            for (let file in new_zip.files) {
                 if (new_zip.files.hasOwnProperty(file)) {
                     if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
                     else if (new_zip.file(file) === null) continue;
@@ -1196,7 +1202,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
             }
             console.log("opening " + docCount + " files.");
             // you now have every files contained in the loaded zip
-            for (var file in new_zip.files) {
+            for (let file in new_zip.files) {
                 // don't get properties from prototype
                 if (new_zip.files.hasOwnProperty(file)) {
                     // extra directory added when zipping files on mac

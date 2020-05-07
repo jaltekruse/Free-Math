@@ -13,7 +13,7 @@ var FEEDBACK = "FEEDBACK";
 var CONTENT = "CONTENT";
 var FORMAT = "FORMAT";
 var IMG = "IMG";
-var MATH = "MATH";
+// var MATH = "MATH";
 var TEXT = "TEXT";
 
 // action properties
@@ -184,7 +184,7 @@ class ImageStep extends React.Component {
                                 STEP_KEY : stepIndex,
                                 STEP_DATA : step[ORIG_STUDENT_STEP]
                             });
-                        }.bind(this)}
+                        }}
                     />
                     : null)
             }
@@ -214,7 +214,7 @@ class ImageStep extends React.Component {
                     usageStatistics={false}
                   />
                 :
-                <img src={step[CONTENT]}
+                <img src={step[CONTENT]} alt="Uploaded student work"
                      style={{margin : "10px", maxWidth: "98%"}}/>
             }
             </span>
@@ -280,7 +280,7 @@ class StudentWork extends React.Component {
                             </div>
                         </div>
                     );
-                }.bind(this))}
+                })}
             </div>
         );
     }

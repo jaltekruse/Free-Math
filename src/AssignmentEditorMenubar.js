@@ -3,12 +3,11 @@ import ReactDOM from 'react-dom';
 import { saveAs } from 'file-saver';
 import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
-import { loadStudentDocsFromZip, makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
+import { makeBackwardsCompatible, convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
-import { cloneDeep, genID } from './FreeMath.js';
 import JSZip from 'jszip';
 
 var STEPS = 'STEPS';
@@ -114,7 +113,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
                 xhr.responseType = 'blob';
                 imagesBeingAddedToZip++;
                 xhr.onload = function(e) {
-                  if (this.status == 200) {
+                  if (this.status === 200) {
                     var imgBlob = this.response;
                     // imgBlob is now the blob that the object URL pointed to.
                     var fr = new FileReader();
@@ -198,10 +197,8 @@ function openAssignment(content, filename, driveFileId = false) {
     try {
         new_zip.load(content);
 
-        var allStudentWork = [];
-
-        var failureCount = 0;
-        var badFiles = [];
+        // this will be set when we find the file in the zip called mainDoc
+        let newDoc;
         var images = {};
         // you now have every files contained in the loaded zip
         for (var file in new_zip.files) {
@@ -218,14 +215,14 @@ function openAssignment(content, filename, driveFileId = false) {
                 if (new_zip.file(file) === null) continue;
                 try {
                     if (file === "mainDoc") {
-                        var fileContents = new_zip.file(file).asText();
-                        var newDoc = JSON.parse(fileContents);
+                        let fileContents = new_zip.file(file).asText();
+                        newDoc = JSON.parse(fileContents);
                         // compatibility for old files, need to convert the old proerty names as
                         // well as add the LAST_SHOWN_STEP
                         newDoc = convertToCurrentFormat(newDoc);
                     } else {
                         // should be an image
-                        var fileContents = new_zip.file(file).asArrayBuffer();
+                        let fileContents = new_zip.file(file).asArrayBuffer();
                         images[file] = window.URL.createObjectURL(new Blob([fileContents]));
                     }
                 } catch (e) {
@@ -251,10 +248,10 @@ function openAssignment(content, filename, driveFileId = false) {
     } catch (e) {
         console.log(e);
         // this can throw an exception if it is the wrong file type (like a user opened a PDF)
-        var newDoc = openAssignmentOld(
+        let newDoc = openAssignmentOld(
             // opening from a local file produces an arraybuffer for legacy plain text docs
             // google drive provides these as strings immediately in the response
-            typeof content == 'string' ? content : ab2str(content),
+            typeof content === 'string' ? content : ab2str(content),
             filename, driveFileId);
         return newDoc;
     }
@@ -315,7 +312,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             alert('Successfully submitted to classroom.');
         },
         function(errorXhr) {
-            if (errorXhr.status == 403) {
+            if (errorXhr.status === 403) {
                 alert('This assignment was not created by your teacher using Free Math, ' +
                       'and google only allows 3rd party apps like Free Math ' +
                       'to edit assignments that they create.\n\n' +
@@ -340,7 +337,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
 
     listClasses = () => {
         window.listGoogeClassroomCourses(function(response) {
-            if (response.courses.length == 1) {
+            if (response.courses.length === 1) {
                 var classList = response;
                 var classInfo = response.courses[0];
                 window.listGoogeClassroomAssignments(classInfo.id,
@@ -402,7 +399,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                 assignment.id,
                 function(response) {
                     console.log(response);
-                    if (response.studentSubmissions.length == 1) {
+                    if (response.studentSubmissions.length === 1) {
                         var submission = response.studentSubmissions[0];
                         // close the modal by setting null class list, and also set "SELECTED_ASSIGNMENT"
                         // which is needed for next method call to save the submission
@@ -587,9 +584,6 @@ class AssignmentEditorMenubar extends React.Component {
 
     render() {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        const responseGoogle = (response) => {
-            console.log(response);
-        }
         var saveStateMsg = '';
         var googleId = this.props.value[GOOGLE_ID];
         var saveState = this.props.value[GOOGLE_DRIVE_STATE];
@@ -601,7 +595,6 @@ class AssignmentEditorMenubar extends React.Component {
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
             else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
         }
-        var rootState = this.props.value;
         var selectSubmissionCallback = function(submission, selectedClass, selectedAssignment, googleId) {
             submitAssignment(submission,
                             selectedClass,

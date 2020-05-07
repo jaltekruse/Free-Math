@@ -60,6 +60,7 @@ class LightButton extends React.Component {
     render() {
         const onClick = this.props.onClick;
         const title = this.props.title;
+        const style =  this.props.style;
         const className = this.props.className ? this.props.className : "fm-button-light";
         return (
             <button
@@ -68,6 +69,7 @@ class LightButton extends React.Component {
                     onClick();
                 }}
                 title={title}
+                style={{...style}}
             >
                 <div style={{display:"inline-block"}}>
                 <div style={{float: "left", paddingTop: "4px"}}>{this.props.text}</div>
