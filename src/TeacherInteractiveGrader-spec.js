@@ -1,13 +1,10 @@
 import JSZip from 'jszip';
-import _ from 'underscore';
-import { deepFreeze } from './utils.js';
-import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
-import { aggregateStudentWork } from './TeacherInteractiveGrader.js';
-import { separateIndividualStudentAssignments } from './TeacherInteractiveGrader.js';
-import { gradeSingleProblem } from './TeacherInteractiveGrader.js';
-import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
-import { gradingReducer } from './TeacherInteractiveGrader.js';
-import { singleSolutionReducer } from './TeacherInteractiveGrader.js';
+import { cloneDeep } from './FreeMath.js';
+import { deepFreeze, compareOverallEditorState } from './utils.js';
+import { assignmentReducer } from './Assignment.js';
+import { convertToCurrentFormat, aggregateStudentWork,
+         separateIndividualStudentAssignments, gradeSingleProblem,
+         calculateGradingOverview, gradingReducer, singleSolutionReducer } from './TeacherInteractiveGrader.js';
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
@@ -40,6 +37,117 @@ var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 // until the field is submitted (with a button, pressing enter key or focus loss)
 var POSSIBLE_POINTS_EDITED = "POSSIBLE_POINTS_EDITED";
 var SCORE = "SCORE";
+
+var NEW_BLANK_STEP = 'NEW_BLANK_STEP';
+
+var PROBLEMS = 'PROBLEMS';
+var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
+var STUDENT_WORK = 'STUDENT_WORK';
+
+it('test merging student and teacher edits', () => {
+    /*
+     - start with a student doc
+     - make teacher model out of it (aggerateStudentWork)
+         - perform teacher action
+         - extract back out individual student doc
+     - with copy of same starting student doc, call student modification action
+     - then take the two docs and pass into new merge function
+         - doesn't need to be general purpose merge of arbitrary edits, just one teacher and one student editor
+         - does the person who will view the result of the merge impact the result?
+             - probably shouldn't as this is intended to support concurrent updates
+             - so teacher loses, which should only happen when student deletes stuff
+             - don't bring back student problems/steps just because there was a taecher comment on them
+     */
+
+    // copied from test add blank step in Problem-spec
+    var initialAssignment = {
+        APP_MODE : EDIT_ASSIGNMENT,
+        ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : []},
+                     { PROBLEM_NUMBER : "2",
+                       STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], UNDO_STACK : [], REDO_STACK : []}
+        ]
+    }
+    var expectedAssignment = {
+        APP_MODE : EDIT_ASSIGNMENT,
+        ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : [] },
+                     { PROBLEM_NUMBER : "2",
+                         STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : "", FORMAT : "MATH"}],
+                       UNDO_STACK : [
+                                {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_BLANK_STEP"},
+                                 "STEP_KEY": 2, "type": "DELETE_STEP"}
+                       ],
+                       REDO_STACK : [] }
+        ]
+    }
+    deepFreeze(initialAssignment);
+    compareOverallEditorState(
+        assignmentReducer(convertToCurrentFormat(initialAssignment), { type : NEW_BLANK_STEP, PROBLEM_INDEX : 1}),
+        expectedAssignment
+    );
+
+    const filename = "test student name";
+    var allStudentWork = [
+        { STUDENT_FILE : filename,
+          ASSIGNMENT: initialAssignment[PROBLEMS]
+        }
+    ];
+    // TODO - figure out how to include depedencies like KAS in webpack so I can test them, currently included
+    // in the app using global script tags in index.html
+    var aggregated = aggregateStudentWork(allStudentWork, {}, function(expr1, expr2) {return expr1 === expr2;});
+
+    var action = { type : HIGHLIGHT_STEP,
+                    PROBLEM_NUMBER : "1",
+                    SOLUTION_CLASS_INDEX : 0,
+                    SOLUTION_INDEX : 0,
+                    STEP_KEY : 1};
+    deepFreeze(aggregated);
+    var expectedTeacherState = cloneDeep(aggregated);
+    expectedTeacherState[PROBLEMS]["1"][UNIQUE_ANSWERS][0][STUDENT_WORK][0][STEPS][1][HIGHLIGHT] = 'ERROR';
+    var observedTeacherState = gradingReducer(aggregated, action);
+
+    expect(observedTeacherState).toEqual(expectedTeacherState);
+
+    var convertedBackToStudentModel =
+        separateIndividualStudentAssignments(observedTeacherState)[filename];
+    console.log(convertedBackToStudentModel);
+
+    var expectedMergedState = cloneDeep(expectedAssignment);
+
+    expectedMergedState[PROBLEMS][0][STEPS][1][HIGHLIGHT] = 'ERROR';
+
+    var observedMergedState = merge(expectedAssignment, convertedBackToStudentModel);
+    expect(observedMergedState).toEqual(expectedMergedState);
+});
+
+function merge(student, teacher) {
+    return {...student,
+        PROBLEMS : student[PROBLEMS].map(function (problem, probIndex) {
+            if (! teacher[PROBLEMS]) return problem;
+            else if (!teacher[PROBLEMS][probIndex]) return problem;
+            return {
+                ...problem,
+                FEEDBACK : teacher[PROBLEMS][probIndex][FEEDBACK],
+                STEPS: problem[STEPS].map(function (step, stepIndex) {
+                    if (!teacher[PROBLEMS][probIndex][STEPS]) return step;
+                    else if (!teacher[PROBLEMS][probIndex][STEPS][stepIndex]) return step;
+                    // TODO - should this check if the content of the step matches between
+                    // teacher and student before applying the highlight?
+                    return {
+                        ...step,
+                        HIGHLIGHT: teacher[PROBLEMS][probIndex][STEPS][stepIndex][HIGHLIGHT]
+                    }
+                })
+            };
+        })
+    };
+}
+
+
 
 //      [ { "PROBLEM_NUMBER" : "1", POSSIBLE_POINTS : 3, "ANSWER_CLASSES" : [ { SCORE : 1, ANSWERS : ["x=5", "5=x"]}, { "SCORE" : 0.5, ANSWERS : ["x=-5","-5=x"] ],
 //          "GRADE_STRATEGY" : "ALL_ANSWERS_REQUIRED" | "ONE_ANSWER_REQUIRED" | "SUBSET_OF_ANSWERS_REQUIRED", "NUMBER_OF_MATCHING_ANSWERS_REQUIRED" : 2 } ]

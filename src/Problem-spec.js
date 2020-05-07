@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { deepFreeze } from './utils.js';
+import { deepFreeze, compareOverallEditorState } from './utils.js';
 import { assignmentReducer } from './Assignment.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { problemReducer } from './Problem.js';
@@ -167,7 +167,7 @@ it('test demo creation, undo/redo bug', () => {
 
     const afterThirdUndo = rootReducer(afterSecondUndo, {type : "UNDO", PROBLEM_INDEX : 0});
 
-    const expectedUndoState3 = 
+    const expectedUndoState3 =
         {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
                                "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
                                "PROBLEMS": [
@@ -199,14 +199,14 @@ it('test adding a problem', () => {
     }
     var expectedAssignment = {
         "APP_MODE": "EDIT_ASSIGNMENT",
-        "ASSIGNMENT_NAME": "Untitled Assignment", 
+        "ASSIGNMENT_NAME": "Untitled Assignment",
         "CURRENT_PROBLEM": 2,
         "PROBLEMS": [
             {"PROBLEM_NUMBER": "1", "REDO_STACK": [], "UNDO_STACK": [],
                 "STEPS": [{"CONTENT": "1+2"}, {"CONTENT": "3"}]},
             {"PROBLEM_NUMBER": "2", "REDO_STACK": [], "UNDO_STACK": [],
                 "STEPS": [{"CONTENT": "4-2"}, {"CONTENT": "2"}]},
-            {"PROBLEM_NUMBER": "", "REDO_STACK": [], 
+            {"PROBLEM_NUMBER": "", "REDO_STACK": [],
                 "STEPS": [{"CONTENT": "", "STEP_ID": 137783185}], "UNDO_STACK": []}]
     };
     deepFreeze(initialAssignment);
@@ -216,30 +216,6 @@ it('test adding a problem', () => {
         assignmentReducer(convertToCurrentFormat(initialAssignment), { type : ADD_PROBLEM })
     );
 });
-
-// Comparision function that ignores randomly generated IDs
-// Still checks that the IDs are set and non-zero, because the fact that
-// they are present is important, there values just aren't deterministic.
-function compareOverallEditorState(expected, actual) {
-    try {
-    expect({...actual, DOC_ID : null, PROBLEMS : null}).toEqual({...expected, DOC_ID : null, PROBLEMS : null});
-    expected[PROBLEMS].forEach(function (problem, index, arr) {
-        compareSingleProblem(problem, actual[PROBLEMS][index]);
-    });
-    } catch(ex) {
-        console.log(ex);
-        // Note: diff view is more useful than the low level comparison error for debugging:
-        expect(actual).toEqual(expected);
-    }
-}
-
-// similar to above function for overall editor state, but just for a single problem
-function compareSingleProblem(expected, actual) {
-    expect({...actual, STEPS : null}).toEqual({...expected, STEPS : null});
-    expected[STEPS].forEach(function (step, index, arr) {
-        expect({...actual[STEPS][index], STEP_ID : null}).toEqual({...step, STEP_ID: null});
-    });
-}
 
 it('test removing a problem', () => {
     var initialAssignment = {
@@ -340,7 +316,7 @@ it('test editing a step', () => {
                        STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : [] },
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "5"}],
-                       "UNDO_STACK": [{"INVERSE_ACTION": {"EDIT_TYPE": undefined, 
+                       "UNDO_STACK": [{"INVERSE_ACTION": {"EDIT_TYPE": undefined,
                                        "NEW_STEP_CONTENT": "5", "POS": undefined,
                                        "PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "EDIT_STEP"},
                                        "NEW_STEP_CONTENT": "2", "STEP_KEY": 1, "type": "EDIT_STEP"}
@@ -374,9 +350,9 @@ it('test adding a step', () => {
                        STEPS : [{CONTENT : "1+2"}, {CONTENT : "3"}], UNDO_STACK : [], REDO_STACK : [] },
                      { PROBLEM_NUMBER : "2",
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}, {CONTENT : "2"}],
-                       UNDO_STACK : 
+                       UNDO_STACK :
                        [
-                           {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"} 
+                           {"INVERSE_ACTION": {"PROBLEM_INDEX": 1, "STEP_KEY": 1, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"}
                        ],
                        REDO_STACK : [] }
         ]
