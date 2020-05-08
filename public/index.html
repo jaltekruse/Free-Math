@@ -375,6 +375,7 @@ ga('create', 'UA-70441517-2', 'auto');
         xhr.send();
     }
 
+	// TODO - delete me
     function doStuff(response) {
         console.log(response);
         downloadFile(response.res, true, function(data) {
@@ -391,14 +392,24 @@ ga('create', 'UA-70441517-2', 'auto');
         }
 
         var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        var url = 'https://script.google.com/macros/s/AKfycbx_WIQz1e4fg8YFWq-SOGstwZrEu-eDrsU9EB2jnxPCxF2sHoQ/exec?folderid=' + 
-                    folderId + '&callback=?';
-        $.getJSON( url, 
-            function( returnValue ){
-                console.log(response);
-                callback(response);
-            });
+        //var xhr = new XMLHttpRequest();
+		var url = 'https://script.googleapis.com/v1/scripts/MGYjxQjA6arll0LOVfJ_NShFNWAID1Q4W:run'
+        //var url = 'https://script.google.com/macros/s/MGYjxQjA6arll0LOVfJ_NShFNWAID1Q4W/exec?folderid=' + 
+        //            folderId + '&callback=?';
+        $.ajax( {
+			type: "POST",
+			url : url, 
+			contentType: 'application/json',
+			data: JSON.stringify({
+				function: "doGet",
+				parameters : [{ folderid : folderId}]
+			}),
+            success: function( returnValue ){
+                console.log(returnValue);
+                callback(returnValue);
+            },
+			headers: {'Authorization': 'Bearer ' + accessToken}
+		});
 
         /*
         xhr.open('get', url);
