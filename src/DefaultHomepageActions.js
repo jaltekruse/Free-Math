@@ -205,6 +205,17 @@ class UserActions extends React.Component {
         var openDriveAssignments = function(assignment) {
             // hack to make this method accessible to index.html
             window.loadStudentDocsFromZip = loadStudentDocsFromZip;
+
+            window.downloadClassAssignmentFiles(
+                assignment.assignment.studentWorkFolder.id, function(response) {
+                    console.log(response);
+                    window.downloadFile(response, true, function(data) {
+                        setTimeout(function() {
+                            loadStudentDocsFromZip(data, "temp", response.res);
+                        }.bind(this), 50);
+                    });
+                });
+
             console.log(assignment);
             window.listGoogeClassroomSubmissions(assignment.courseId, assignment.id,
                 function(resp) {
