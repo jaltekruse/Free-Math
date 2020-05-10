@@ -32,6 +32,7 @@ var GOOGLE_ID = 'GOOGLE_ID';
 // Property name and possible values, also can be DIRTY_WORKING_COPY, SAVING
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var ALL_SAVED = 'ALL_SAVED';
+var SET_GOOGLE_CLASS_LIST = 'SET_GOOGLE_CLASS_LIST';
 
 var APP_MODE = 'APP_MODE';
 var MODE_CHOOSER = 'MODE_CHOOSER';
@@ -206,70 +207,79 @@ class UserActions extends React.Component {
             // hack to make this method accessible to index.html
             window.loadStudentDocsFromZip = loadStudentDocsFromZip;
             console.log(assignment);
-            window.listGoogeClassroomSubmissions(assignment.courseId, assignment.id,
-                function(resp) {
-                    console.log(resp)
-                    var allStudentWork = [];
-                    let pendingOpens = 0;
-                    resp.studentSubmissions.forEach(function(submission) {
-                        // TODO - warn teacher about multiple submissions
-                        // TODO- sort on modification date or attachment date, pick latest
-                        // TODO- handle other types of attahement (just report error)
-                        // should probably rename - this is just checking if an attachment is
-                        // present, google classroom does have a separate status of "submitted/turned in"
-                        // that is no longer being used to filter students docs out of the view
-                        var submitted =
-                            (typeof submission.assignmentSubmission.attachments !== 'undefined');
-                              // this would filter to just submitted docs, preventing conflicts between
-                              // teacher and student edits, unfortunately students can unsubmit whenever
-                              // and this would eliminate a teachers ability to see in-progress work
-                              // so for now trying to work out concurrent editing by teacher and student
-                              //&& submission.state !== 'CREATED'
-                              //&& submission.state !== 'RECLAIMED_BY_STUDENT');
+            alert("The google drive folder with your students submissions will show next.\n\n" +
+                   "To give Free Math access to modify the files with your grades and feedback " +
+                   "you need to highlight all of the files and click 'Select'.\n\n" +
+                   "To highlight multiple files, click on the first file, scroll to the end of the list " +
+                   "and hold the shift key while clicking the last file.");
+            window.openDriveFile(true, function(name, content, driveFileId) {
+                // TODO - message to users if they didn't select all necessary files
+                window.listGoogeClassroomSubmissions(assignment.courseId, assignment.id,
+                    function(resp) {
+                        console.log(resp)
+                        var allStudentWork = [];
+                        let pendingOpens = 0;
+                        resp.studentSubmissions.forEach(function(submission) {
+                            // TODO - warn teacher about multiple submissions
+                            // TODO- sort on modification date or attachment date, pick latest
+                            // TODO- handle other types of attahement (just report error)
+                            // should probably rename - this is just checking if an attachment is
+                            // present, google classroom does have a separate status of "submitted/turned in"
+                            // that is no longer being used to filter students docs out of the view
+                            var submitted =
+                                (typeof submission.assignmentSubmission.attachments !== 'undefined');
+                                  // this would filter to just submitted docs, preventing conflicts between
+                                  // teacher and student edits, unfortunately students can unsubmit whenever
+                                  // and this would eliminate a teachers ability to see in-progress work
+                                  // so for now trying to work out concurrent editing by teacher and student
+                                  //&& submission.state !== 'CREATED'
+                                  //&& submission.state !== 'RECLAIMED_BY_STUDENT');
 
-                        // TODO - inform teacher
-                        if (!submitted) {
-                            console.log("skipping");
-                            console.log(submission);
-                            return;
-                        }
+                            // TODO - inform teacher
+                            if (!submitted) {
+                                console.log("skipping");
+                                console.log(submission);
+                                return;
+                            }
 
-                        var attachment = submission.assignmentSubmission.attachments[0].driveFile;
-                        // TODO - pull in student name, don't just show filename
-                        pendingOpens++;
-                        window.downloadFile(attachment.id, true,
-                            function(response, fileId) {
-                                console.log(response);
-                                var newDoc = openAssignment(response, "filename" /* TODO */);
-                                allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
-                                // TODO - also do this on error, and report to user
-                                pendingOpens--;
+                            var attachment = submission.assignmentSubmission.attachments[0].driveFile;
+                            // TODO - pull in student name, don't just show filename
+                            pendingOpens++;
+                            window.downloadFile(attachment.id, true,
+                                function(response, fileId) {
+                                    console.log(response);
+                                    var newDoc = openAssignment(response, "filename" /* TODO */);
+                                    allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
+                                    // TODO - also do this on error, and report to user
+                                    pendingOpens--;
+                            });
                         });
-                    });
 
-                    // TODO - add a timeout
-                    var checkFilesLoaded = function() {
-                        if (pendingOpens === 0) {
-                            console.log(allStudentWork);
+                        // TODO - add a timeout
+                        var checkFilesLoaded = function() {
+                            if (pendingOpens === 0) {
+                                console.log(allStudentWork);
 
-                            var aggregatedWork = aggregateStudentWork(allStudentWork);
-                            window.store.dispatch(
-                                { type : 'SET_ASSIGNMENTS_TO_GRADE',
-                                  GOOGLE_ID : 'PLACEHOLDER',
-                                  NEW_STATE :
-                                    {...aggregatedWork,
-                                        GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
-                                        // maybe put assignment name here?
-                                        // or refactor auto save to look for GOOGLE_ORIGIN_SERVICE?
-                                        ASSIGNMENT_NAME: removeExtension("TODO fill in")}});
+                                var aggregatedWork = aggregateStudentWork(allStudentWork);
+                                window.store.dispatch(
+                                    { type : 'SET_ASSIGNMENTS_TO_GRADE',
+                                      GOOGLE_ID : 'PLACEHOLDER',
+                                      NEW_STATE :
+                                        {...aggregatedWork,
+                                            GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+                                            // maybe put assignment name here?
+                                            // or refactor auto save to look for GOOGLE_ORIGIN_SERVICE?
+                                            ASSIGNMENT_NAME: removeExtension("TODO fill in")}});
 
-                        } else {
-                            // if not all of the images are loaded, check again in 50 milliseconds
-                            setTimeout(checkFilesLoaded, 50);
+                            } else {
+                                // if not all of the images are loaded, check again in 50 milliseconds
+                                setTimeout(checkFilesLoaded, 50);
+                            }
                         }
-                    }
-                    checkFilesLoaded();
-                }, function(){});
+                        checkFilesLoaded();
+                    }, function(){});
+
+            }, assignment.assignment.studentWorkFolder.id);
         }
 
         var recoverAutoSaveCallback = function(autoSaveFullName, filename, appMode) {
@@ -399,7 +409,13 @@ class UserActions extends React.Component {
             <div className="homepage-user-actions">
             <GoogleClassroomSubmissionSelector
                 value={this.props.value}
-                selectAssignmentCallback={openDriveAssignments}
+                selectAssignmentCallback={function(assignment) {
+                    // this closes the modal
+                    window.store.dispatch(
+                        { type : SET_GOOGLE_CLASS_LIST,
+                          GOOGLE_CLASS_LIST : undefined});
+                    openDriveAssignments(assignment);
+                }}
                 ref="submissionSelector"/>
             <FreeMathModal
                 showModal={this.state.showModal}

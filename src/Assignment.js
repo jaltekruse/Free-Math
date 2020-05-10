@@ -119,7 +119,9 @@ class Assignment extends React.Component {
                                 ?
                                 <ScoreBox value={problem} />
                                 :
-                                <div style={{visibility:"hidden"}}><ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1}} /> </div>)
+                                <div style={{visibility:"hidden"}}>
+                                    <ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1, STEPS: []}} />
+                                </div>)
                             : null
                     }
                     <div>
@@ -162,7 +164,9 @@ class Assignment extends React.Component {
                 marginRight: '15px'}}>
                 {/* bit of a hack for alignment */
                     probList.filter(function(problem) { return problem[SCORE] !== undefined } ).length > 0
-                        ? (<div style={{visibility:"hidden"}}><ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1}} /> </div>)
+                        ? (<div style={{visibility:"hidden"}}>
+                            <ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1, STEPS: []}} />
+                           </div>)
                         : null
                 }
                 <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() {

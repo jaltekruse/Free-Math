@@ -130,11 +130,19 @@ ga('create', 'UA-70441517-2', 'auto');
         gapi.load('drive');
       }
 
-      // Client ID and API key from the Developer Console
-      var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
+    // --- prod ----
+    //var PROJECT_NUMBER = '412119895810';
+    // Client ID and API key from the Developer Console
+    //var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
+
+    // --- dev ----
+    var PROJECT_NUMBER = '726134963224';
+    var CLIENT_ID = '726134963224-rcc5nqsnsvr61cdjrin5tgeloidssfcf.apps.googleusercontent.com';
+
       // Authorization scopes required by the API; multiple scopes can be
       // included, separated by spaces.
       var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
+                   //'https://www.googleapis.com/auth/drive.readonly ' +
                    //'https://www.googleapis.com/auth/drive ' +
                    'https://www.googleapis.com/auth/classroom.courses.readonly ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me ' +
@@ -520,16 +528,24 @@ ga('create', 'UA-70441517-2', 'auto');
     }
 
     // callback takes 2 parameters filename and content
-      function openDriveFile(isBinary, callback){
+      function openDriveFile(isBinary, callback, folder = null){
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
         var accessToken = gapi.auth.getToken().access_token;
-          var picker = new google.picker.PickerBuilder()
-              .addView(new google.picker.DocsView())
+          var docsView = new google.picker.DocsView();
+          if (folder) {
+              docsView.setParent(folder);
+          }
+          var pickerBuilder = new google.picker.PickerBuilder();
+          pickerBuilder
+              // yes despite the different labels this is the right thing to pass here
+              .setAppId(PROJECT_NUMBER)
+              .addView(docsView)
               .addView(new google.picker.DocsUploadView())
               .setOAuthToken(accessToken)
+              .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
               .setCallback(function(data) {
                   var url = 'nothing';
                   if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
@@ -540,8 +556,9 @@ ga('create', 'UA-70441517-2', 'auto');
                         callback(doc.name, data, doc.id);
                     });
                   }
-              })
-              .build();
+              });
+
+          var picker = pickerBuilder.build();
           picker.setVisible(true);
       }
 

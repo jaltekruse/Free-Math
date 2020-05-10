@@ -101,6 +101,12 @@ class ScoreBox extends React.Component {
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
+        console.log(this.props.value);
+        var feedback = this.props.value[FEEDBACK] ||
+            this.props.value[STEPS].filter(
+                step => step[HIGHLIGHT] || (step[FEEDBACK] && step[FEEDBACK].trim() !== '')
+            ).length > 0;
+
         if (score === '') {
             scoreClass = 'show-complete-div';
         } else if (score >= possiblePoints) {
@@ -130,7 +136,21 @@ class ScoreBox extends React.Component {
                             <div style={{visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
                                 <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
                             </div>
-                            <div className={scoreClass}><b>{scoreMessage}</b></div>
+                            <div className={scoreClass}>
+                                <div style={{padding:"3px 0px 1px 0px", display:"inline-block"
+                                            /* alignment because of border on teacher feedback indicator*/ }}>
+                                    <b>{scoreMessage}</b>
+                                </div>
+                                { feedback
+                                    ? (<div title="Teacher feedback or highlights"
+                                            className="answer-partially-correct"
+                                            style={{display:"inline-block", margin:"0px 5px",
+                                                    borderRadius: "15px",
+                                                    backgroundColor: "#ffd743",
+                                                    padding:"2px 10px 0px 10px"}}>
+                                         <b>!</b>
+                                       </div>) : null }
+                            </div>
                             </div>)
                         : null
                 }
@@ -482,11 +502,11 @@ class Problem extends React.Component {
                     <div className="problem-editor-buttons"
                          style={{float:'left', height: "100%", marginRight:"10px", marginBottom: "20px"}}>
 
-                        {   score !== undefined ? (<ScoreBox value={this.props.value} />)
+                        {/*   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                                : null
-                        }
+                        */}
                         {   this.props.value[FEEDBACK] !== undefined
-                                ? (<div>
+                                ? (<div className="answer-partially-correct">
                                         <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''} Teacher Feedback</b><br />
                                         {this.props.value[FEEDBACK]}
                                    </div>) : null
