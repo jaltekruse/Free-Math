@@ -108,13 +108,13 @@ class ScoreBox extends React.Component {
                 step => step[HIGHLIGHT] || (step[FEEDBACK] && step[FEEDBACK].trim() !== '')
             ).length > 0;
 
-        score = Number(score);
-        possiblePoints = Number(possiblePoints);
+        var scoreNum = Number(score);
+        var possiblePointsNum = Number(possiblePoints);
         if (score === '') {
             scoreClass = 'show-complete-div';
-        } else if (score >= possiblePoints) {
+        } else if (scoreNum >= possiblePointsNum) {
             scoreClass = 'show-correct-div';
-        } else if (score === 0) {
+        } else if (scoreNum === 0) {
             scoreClass = 'show-incorrect-div';
         } else {
             scoreClass = 'show-partially-correct-div';
