@@ -117,7 +117,9 @@ class Assignment extends React.Component {
                         probList.filter(function(problem) { return problem[SCORE] !== undefined } ).length > 0
                             ? ( problem[SCORE] !== undefined /* show the real score box, or a fake hidden one for alignment */
                                 ?
-                                <ScoreBox value={problem} />
+                                <ScoreBox value={problem} onClick={function() {
+                                    window.store.dispatch(
+                                        {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}}/>
                                 :
                                 <div style={{visibility:"hidden"}}>
                                     <ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1, STEPS: []}} />

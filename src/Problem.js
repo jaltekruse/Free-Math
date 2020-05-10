@@ -100,6 +100,7 @@ class ScoreBox extends React.Component {
     render() {
         var scoreClass = undefined;
         var score = this.props.value[SCORE];
+        var onClick = this.props.onClick;
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
         console.log(this.props.value);
         var feedback = this.props.value[FEEDBACK] ||
@@ -107,6 +108,8 @@ class ScoreBox extends React.Component {
                 step => step[HIGHLIGHT] || (step[FEEDBACK] && step[FEEDBACK].trim() !== '')
             ).length > 0;
 
+        score = Number(score);
+        possiblePoints = Number(possiblePoints);
         if (score === '') {
             scoreClass = 'show-complete-div';
         } else if (score >= possiblePoints) {
@@ -129,7 +132,7 @@ class ScoreBox extends React.Component {
         else if (score !== undefined)
             scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
         return (
-            <div>
+            <div onClick={onClick}>
                 {
                     score !== undefined
                         ? (<div>
@@ -147,7 +150,7 @@ class ScoreBox extends React.Component {
                                             style={{display:"inline-block", margin:"0px 5px",
                                                     borderRadius: "15px",
                                                     backgroundColor: "#ffd743",
-                                                    padding:"2px 10px 0px 10px"}}>
+                                                    padding:"2px 11px 0px 10px"}}>
                                          <b>!</b>
                                        </div>) : null }
                             </div>
