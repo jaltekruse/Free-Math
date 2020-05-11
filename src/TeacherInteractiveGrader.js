@@ -598,6 +598,12 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
                       NEW_STATE :
                         // TODO - fix filename
                         {...aggregatedWork, GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+                            // ALL_SAVED here is a bit hacky, there might still be pending
+                            // saves of the other student docs, the status will switch back
+                            // to SAVING based on the onSuccess method back in FreeMath.autoSave
+                            // conditioned on there being more pendingSaves
+                            // setting ALL_SAVED here prevents autoSave from generating another event
+                            // to save in response to this action
                             GOOGLE_DRIVE_STATE : ALL_SAVED,
                             CURRENT_PROBLEM : tempRootState[CURRENT_PROBLEM],
                             ASSIGNMENT_NAME: 'merged student work'}});
