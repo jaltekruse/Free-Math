@@ -523,6 +523,8 @@ class UserActions extends React.Component {
                                     </div>
                             )} />
                         <br />
+                        <p>
+                        Open a Free Math file from your device
                         <input type="file" accept="*" id="open-file-input" onChange={
                             function(evt) {
                                 // turn on confirmation dialog upon navigation away
@@ -532,7 +534,7 @@ class UserActions extends React.Component {
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt);
                         }}/>
-                        <br />
+                        </p>
                         <small>
                                 Select a Free Math file you previously saved, or one that your teacher
                                 returned to you after grading.
@@ -607,7 +609,9 @@ class UserActions extends React.Component {
                                             alt="Google logo"
                                             height="16px"/>
                                 </div>
-                        )} /><br />
+                        )} />
+                    <br />
+                    <br />
                     Grade Assignments <br />
                     <HtmlButton
                         className="fm-button"
@@ -625,22 +629,11 @@ class UserActions extends React.Component {
                                             height="16px"/>
                                 </div>
                         )} /> <br />
-                        <HtmlButton
-                            className="fm-button"
-                            ref="teacherDriveOpen"
-                            title="Open zip file of student assignments from Google Drive"
-                            onClick={function(){} /* action assigned in didMount to hook into google auth */}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                            src="images/google_drive_small_logo.png"
-                                            alt="google logo" />
-                                    </div>
-                            )} />
-                        <br />
-                        Grade Assignments <input type="file" accept="*" onChange={openAssignments}/>
-                        <br />
+                        <p>
+                            Open a zip file from your device
+                            <br />
+                            <input type="file" accept="*" onChange={openAssignments}/>
+                        </p>
                         <small>
                             Select a zip file full of student assignments. Zip files are generated
                             when downloading assignment files from your LMS in bulk.

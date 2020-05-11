@@ -105,7 +105,7 @@ class GradingMenuBar extends React.Component {
                                                 ASSIGNMENT_NAME : evt.target.value});
                                     }}
                         />&nbsp;&nbsp;
-                        <LightButton text="Save" onClick={
+                        <LightButton text="Save to Device" onClick={
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(window.store.getState());
@@ -113,19 +113,6 @@ class GradingMenuBar extends React.Component {
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </div>) : null }
 
-                        <HtmlButton
-                            className="fm-button-light"
-                            ref="saveToDrive"
-                            title="Save to Google Drive"
-                            onClick={function() {}}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Save to&nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                                src="images/google_drive_small_logo.png"
-                                                alt="google logo" />
-                                    </div>
-                            )} />&nbsp;&nbsp;
                         <LightButton text="Similar Docs" onClick={
                             function() {
                                 window.location.hash = '';
