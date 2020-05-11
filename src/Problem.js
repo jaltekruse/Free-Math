@@ -496,7 +496,6 @@ class Problem extends React.Component {
         const problemIndex = this.props.id;
         const showTutorial = this.props.value[SHOW_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
-        const score = this.props.value[SCORE];
         const steps = this.props.value[STEPS];
         return (
             <div>

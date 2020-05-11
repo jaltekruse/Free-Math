@@ -261,11 +261,16 @@ function merge(student, teacher) {
     };
 }
 
-function saveStudentDocToDriveResolvingConflicts(googleId, filenameCallback, onSuccess, onFailure) {
+function saveStudentDocToDriveResolvingConflicts(
+        currentlyStudent, googleId, docContentCallback, filenameCallback,
+        onSuccess, onFailure, handleMergedDoc) {
     window.downloadFileMetadata(googleId, function(fileMeta) {
         console.log(fileMeta);
 
         const saveToDrive = function(doc) {
+            console.log("update with bin content");
+            console.log(googleId);
+            console.log(filenameCallback());
             saveAssignment(doc, function(finalBlob) {
                 window.updateFileWithBinaryContent(
                     filenameCallback(),
@@ -277,7 +282,7 @@ function saveStudentDocToDriveResolvingConflicts(googleId, filenameCallback, onS
         };
 
         if (fileMeta.lastModifyingUser.isAuthenticatedUser) {
-            saveToDrive(window.store.getState());
+            saveToDrive(docContentCallback());
         } else {
             // TODO - cleanup here and elesewhere fileId is same as googleId
             window.directDownloadFile(fileMeta, googleId, true,
@@ -286,23 +291,27 @@ function saveStudentDocToDriveResolvingConflicts(googleId, filenameCallback, onS
                     // this does deliberately go grab the app state again, it is called
                     // after a 2 second timeout below, want to let edit build up for 2 seconds
                     // and then at the end of that we want to auto-save whatever is the current state
-                    var currentLocalDoc = window.store.getState();
+                    var currentLocalDoc = docContentCallback();
 
                     var mergedDoc;
                     var conflictUnresolvable = false;
                     try {
-                        mergedDoc = merge(currentLocalDoc, conflictingDoc);
+                        if (currentlyStudent) {
+                            mergedDoc = merge(currentLocalDoc, conflictingDoc);
+                        } else {
+                            mergedDoc = merge(conflictingDoc, currentLocalDoc);
+                        }
+                        handleMergedDoc(mergedDoc);
                     } catch (e) {
                         conflictUnresolvable = true;
                         mergedDoc = currentLocalDoc;
                     }
 
-                    window.store.dispatch({ type: 'SET_GLOBAL_STATE', newState : mergedDoc });
                     saveToDrive(mergedDoc);
                     if (conflictUnresolvable) {
                         alert(fileMeta.lastModifyingUser.displayName +
                             " has modified this file in Drive, whatever they changed will" +
-                            " be overwritten with the document as you are currently viewing it");
+                            " be overwritten with the document as you are currently viewing it.");
                     }
                 }
             );
@@ -407,7 +416,21 @@ function autoSave() {
                 // this is deliberately using getState() instead of appState var, will be called
                 // after a delay gathering other updates and other sae events will not be queued
                 // during this time
-                saveBackToClassroom(window.store.getState(), onSuccess, onFailure);
+                console.log("save back to classroom");
+                saveBackToClassroom(window.store.getState(),
+                    function() {
+                        pendingSaves--;
+                        if (pendingSaves > 0) {
+                            window.store.dispatch(
+                                {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
+                        } else  if (pendingSaves === 0) {
+                            var currState = window.store.getState();
+                            if (currState[GOOGLE_DRIVE_STATE] === SAVING) {
+                                window.store.dispatch(
+                                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
+                            }
+                        }
+                    }, onFailure);
                 // TODO - tie into network requests below "saveBackToClassroom"
                 return;
             } else {
@@ -444,11 +467,21 @@ function autoSave() {
         }
         var saveFunc;
         if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
-            if (googleId) saveFunc = function() {
-                saveStudentDocToDriveResolvingConflicts(googleId,
-                    function() { return window.store.getState()[ASSIGNMENT_NAME] + '.math'},
-                    onSuccess, onFailure)};
-            else saveFunc = saveStudentToLocal;
+            if (googleId) {
+                saveFunc = function() {
+                    saveStudentDocToDriveResolvingConflicts(true, googleId,
+                        function() { return window.store.getState() },
+                        function() { return window.store.getState()[ASSIGNMENT_NAME] + '.math'},
+                        onSuccess, onFailure,
+                        function(mergedDoc) {
+                            window.store.dispatch(
+                                { type: 'SET_GLOBAL_STATE', newState : mergedDoc });
+                        }
+                    )
+                }
+            } else {
+                saveFunc = saveStudentToLocal;
+            }
         } else if (appState[APP_MODE] === GRADE_ASSIGNMENTS) {
             if (googleId) saveFunc = saveTeacherGrading;
             else saveFunc = saveTeacherToLocal;
@@ -457,7 +490,7 @@ function autoSave() {
             currentlyGatheringUpdates = false;
             saveFunc();
             console.log("update in google drive:" + googleId);
-        }, 2000);
+        }, 5000);
     } else {
         // current other states include mode chooser homepage and view grades "modal"
         return;
@@ -465,6 +498,7 @@ function autoSave() {
 }
 
 function rootReducer(state, action) {
+    console.log(action);
     if (state === undefined || action.type === GO_TO_MODE_CHOOSER) {
         return {
             APP_MODE : MODE_CHOOSER
@@ -516,12 +550,12 @@ function rootReducer(state, action) {
         // overview comes sorted by LARGEST_ANSWER_GROUPS_SIZE ascending (least number of common answers first)
         var overview = calculateGradingOverview(action[NEW_STATE][PROBLEMS]);
         return {
+            CURRENT_PROBLEM : overview[PROBLEMS][0][PROBLEM_NUMBER],
             ...action[NEW_STATE],
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
             GOOGLE_ID: action[GOOGLE_ID],
             GOOGLE_DRIVE_STATE : ALL_SAVED,
             "GRADING_OVERVIEW" : overview,
-            CURRENT_PROBLEM : overview[PROBLEMS][0][PROBLEM_NUMBER],
             APP_MODE : GRADE_ASSIGNMENTS,
         }
     } else if (action.type === SET_ASSIGNMENT_CONTENT) {

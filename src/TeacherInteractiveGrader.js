@@ -102,7 +102,11 @@ var EDIT_STUDENT_STEP = 'EDIT_STUDENT_STEP';
 // the ones with the teacher annotations in the saved zip file
 var ORIG_STUDENT_STEP = 'ORIG_STUDENT_STEP';
 
+var DOC_ID = 'DOC_ID';
 var GOOGLE_ID = 'GOOGLE_ID';
+
+var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
+var ALL_SAVED = 'ALL_SAVED';
 
 /*
  * Compute a table to show the overall grades for each student
@@ -219,7 +223,7 @@ function gradingReducer(state, action) {
     } else if (action.type === "SET_CURENT_PROBLEM") {
         return {
             ...state,
-            "CURRENT_PROBLEM" : action[PROBLEM_NUMBER]
+            CURRENT_PROBLEM : action[PROBLEM_NUMBER]
         };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS ||
            action.type === EDIT_POSSIBLE_POINTS ||
@@ -557,16 +561,48 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var filesBeingSaved = 0;
     var unsubmittedStudents = [];
     const saveStudentAssignment = function(filename, onSuccess, onFailure) {
-        saveAssignment(separatedAssignments[filename], function(finalBlob) {
-            window.updateFileWithBinaryContent(
-                // TODO - fix, can this not include filename? Just let the filename stay as is
-                'graded_assignment.math',
-                // TODO - filename currently contains drive id, fix this hackiness
-                finalBlob, filename, 'application/zip',
-                onSuccess,
-                onFailure
-            );
-        });
+        console.log("saveStudentDocToDriveResolvingConflicts");
+        saveStudentDocToDriveResolvingConflicts(
+            false,
+            filename,
+            function() {
+                let tempSeparatedAssignments = separateIndividualStudentAssignments(
+                    window.store.getState());
+                return tempSeparatedAssignments[filename];
+            },
+            function() { return filename },
+            onSuccess, onFailure,
+            function(mergedDoc) {
+                console.log("------------=============----------------");
+                console.log("should be merged");
+                console.log(separatedAssignments);
+                let tempRootState = window.store.getState();
+                let tempSeparatedAssignments = separateIndividualStudentAssignments(
+                    tempRootState);
+                tempSeparatedAssignments[filename] = mergedDoc;
+                var allStudentWork = [];
+                for (let filename in tempSeparatedAssignments) {
+                    if (tempSeparatedAssignments.hasOwnProperty(filename)) {
+                        allStudentWork.push(
+                            {STUDENT_FILE : filename,
+                                ASSIGNMENT : tempSeparatedAssignments[filename][PROBLEMS]});
+                    }
+                }
+                var aggregatedWork = aggregateStudentWork(allStudentWork);
+                console.log("opened docs");
+                //console.log(aggregatedWork);
+                window.store.dispatch(
+                    { type : SET_ASSIGNMENTS_TO_GRADE,
+                      GOOGLE_ID : gradedWork[GOOGLE_ID],
+                      DOC_ID : gradedWork[DOC_ID],
+                      NEW_STATE :
+                        // TODO - fix filename
+                        {...aggregatedWork, GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+                            GOOGLE_DRIVE_STATE : ALL_SAVED,
+                            CURRENT_PROBLEM : tempRootState[CURRENT_PROBLEM],
+                            ASSIGNMENT_NAME: 'merged student work'}});
+            }
+        );
     }
     const onIndividualFileSuccess = function() {
         filesBeingSaved--;
@@ -595,10 +631,12 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         console.log("check all saved");
         console.log(filesBeingSaved);
         if (filesBeingSaved === 0) {
+            /* TODO - likely delete, teachers don't lose access on unsubmit
             if (unsubmittedStudents.length > 0) {
                 alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
                       + JSON.stringify(unsubmittedStudents));
             }
+            */
             onSuccess();
             return;
         } else {
