@@ -604,7 +604,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
                             // conditioned on there being more pendingSaves
                             // setting ALL_SAVED here prevents autoSave from generating another event
                             // to save in response to this action
-                            GOOGLE_DRIVE_STATE : ALL_SAVED,
+                            //GOOGLE_DRIVE_STATE : ALL_SAVED,
                             CURRENT_PROBLEM : tempRootState[CURRENT_PROBLEM],
                             ASSIGNMENT_NAME: 'merged student work'}});
             }
