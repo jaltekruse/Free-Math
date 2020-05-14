@@ -1,4 +1,4 @@
-<!DOCTYPE html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-70441517-2")</script><meta name="viewport" content="width=624"><meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!"><title>Free Math - Homework software that is easy to use and powerful</title><link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"><link rel="stylesheet" href="support/home.css"><script src="expect.min.js"></script><script src="lib/jquery.js"></script><script src="lib/underscore.js"></script><script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script><script src="lib/kas.js"></script><script src="lib/i18n.js"></script><script src="lib/mathjax/2.1/MathJax.js"/><script type="text/javascript" src="katexA11.js"></script><script type="text/javascript" src="kas.min.js"></script><link rel="stylesheet" href="katex.min.css"><script src="katex.min.js"></script><link rel="stylesheet" href="build/mathquill.css"><script type="text/javascript" src="build/mathquill.js"></script><script type="text/javascript">/**
+<!DOCTYPE html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-70441517-2")</script><script>!function(e,t,a,n,c,o,s){e.GoogleAnalyticsObject=c,e[c]=e[c]||function(){(e[c].q=e[c].q||[]).push(arguments)},e[c].l=1*new Date,o=t.createElement(a),s=t.getElementsByTagName(a)[0],o.async=1,o.src="https://www.google-analytics.com/analytics.js",s.parentNode.insertBefore(o,s)}(window,document,"script",0,"ga"),ga("create","UA-70441517-2","auto")</script><meta name="viewport" content="width=624,user-scalable=no"><meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!"><title>Free Math - Homework software that is easy to use and powerful</title><link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"><script src="expect.min.js"></script><script src="lib/jquery.js"></script><script src="lib/underscore.js"></script><script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script><script src="lib/kas.js"></script><script src="lib/i18n.js"></script><script src="lib/mathjax/2.1/MathJax.js"/><script type="text/javascript" src="katexA11.js"></script><script type="text/javascript" src="kas.min.js"></script><link rel="stylesheet" href="katex.min.css"><script src="katex.min.js"></script><link rel="stylesheet" href="build/mathquill.css"><script type="text/javascript">/**
        *  On load, called to load the auth2 library and API client library.
        */
       function handleClientLoad() {
@@ -7,17 +7,25 @@
         gapi.load('drive');
       }
 
-      // Client ID and API key from the Developer Console
-      var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
+    // --- prod ----
+    //var PROJECT_NUMBER = '412119895810';
+    // Client ID and API key from the Developer Console
+    //var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
+
+    // --- dev ----
+    var PROJECT_NUMBER = '726134963224';
+    var CLIENT_ID = '726134963224-rcc5nqsnsvr61cdjrin5tgeloidssfcf.apps.googleusercontent.com';
+
       // Authorization scopes required by the API; multiple scopes can be
       // included, separated by spaces.
       var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
-                   'https://www.googleapis.com/auth/drive ' +
+                   //'https://www.googleapis.com/auth/drive.readonly ' +
+                   //'https://www.googleapis.com/auth/drive ' +
                    'https://www.googleapis.com/auth/classroom.courses.readonly ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me.readonly ' +
-                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ' +
-                   'https://www.googleapis.com/auth/classroom.coursework.students';
+                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ';
+                   //'https://www.googleapis.com/auth/classroom.coursework.students';
 
       var APP_ID = 'quickstart-1561689319732';
 
@@ -397,16 +405,24 @@
     }
 
     // callback takes 2 parameters filename and content
-      function openDriveFile(isBinary, callback){
+      function openDriveFile(isBinary, callback, folder = null){
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
         var accessToken = gapi.auth.getToken().access_token;
-          var picker = new google.picker.PickerBuilder()
-              .addView(new google.picker.DocsView())
+          var docsView = new google.picker.DocsView();
+          if (folder) {
+              docsView.setParent(folder);
+          }
+          var pickerBuilder = new google.picker.PickerBuilder();
+          pickerBuilder
+              // yes despite the different labels this is the right thing to pass here
+              .setAppId(PROJECT_NUMBER)
+              .addView(docsView)
               .addView(new google.picker.DocsUploadView())
               .setOAuthToken(accessToken)
+              .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
               .setCallback(function(data) {
                   var url = 'nothing';
                   if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
@@ -417,8 +433,9 @@
                         callback(doc.name, data, doc.id);
                     });
                   }
-              })
-              .build();
+              });
+
+          var picker = pickerBuilder.build();
           picker.setVisible(true);
       }
 
@@ -428,6 +445,7 @@
             var xhr = new XMLHttpRequest();
             xhr.open('GET', fileMeta.downloadUrl);
             // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+            console.log(isBinary);
             if (isBinary) {
                 xhr.overrideMimeType('text\/plain; charset=x-user-defined');
             } else {
@@ -458,6 +476,12 @@
     }
 
     function downloadFile(fileId, isBinary, callback) {
+        downloadFileMetadata(fileId, function(fileMeta) {
+            directDownloadFile(fileMeta, fileId, isBinary, callback)
+        });
+    }
+
+    function downloadFileMetadata(fileId, callback) {
         var accessToken = gapi.auth.getToken().access_token;
         var xhr = new XMLHttpRequest();
         xhr.open('get', 'https://www.googleapis.com/drive/v2/files/'+fileId);
@@ -466,11 +490,13 @@
             if (this.readyState === 4) {
                 if (this.status == 200) {
                 try {
-                    var file = JSON.parse(this.responseText);
-                    directDownloadFile(file, fileId, isBinary, callback);
+                    var fileMeta = JSON.parse(this.responseText);
+                    console.log(fileMeta);
+                    callback(fileMeta);
                     } catch (e) {
                         console.log(e);
-                        alert("error reading google's response:" + this.responsetext);
+                        console.log(this.responsetext);
+                        alert("Error reading Google's response.");
                     }
                 } else {
                     alert(this.responsetext);
@@ -501,6 +527,7 @@
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
             console.log(this);
+            console.log(JSON.parse(this.responseText));
             if (this.readyState === 4) {
                 if (this.status == 200) {
                     callback();
@@ -546,4 +573,4 @@
             }
         };
         xhr.send(payload);
-      }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><link href="static/css/main.5e339757.css" rel="stylesheet"></head><body style="margin-top:40px"><div id="root"></div><script type="text/javascript" src="static/js/main.674baffa.js"></script></body></html>
+      }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><script type="text/javascript" src="build/mathquill.min.js"></script><link rel="stylesheet" href="lib/cropper.min.css"><link rel="stylesheet" href="lib/tui-image-editor.min.css"><link rel="stylesheet" href="lib/tui-color-picker.min.css"><style>.tui-image-editor-controls-buttons{visibility:hidden}</style><link href="static/css/main.62c21f49.css" rel="stylesheet"></head><body style="margin-top:40px;background-color:#f9f9f9"><div id="root"></div><script type="text/javascript" src="static/js/main.807056a6.js"></script></body></html>
