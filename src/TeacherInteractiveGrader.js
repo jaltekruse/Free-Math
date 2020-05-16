@@ -39,6 +39,12 @@ var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 
 var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 var PROBLEMS = 'PROBLEMS';
+
+// Note: this is a little different for student view
+// for students problems can safely be addressed by position in the list
+// this allows new problems to be spawned with blank nubmers and fixed later
+// here CURRENT_PROBLEM will refer to the string typed in by users
+var SET_CURRENT_PROBLEM = 'SET_CURRENT_PROBLEM';
 var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 
 var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
@@ -51,6 +57,8 @@ var STEPS = 'STEPS';
 var UNDO_STACK = 'UNDO_STACK';
 var REDO_STACK = 'REDO_STACK';
 var STEP_ID = 'STEP_ID';
+
+var GRADING_OVERVIEW = 'GRADING_OVERVIEW';
 
 var VIEW_GRADES = 'VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
@@ -105,6 +113,7 @@ var ORIG_STUDENT_STEP = 'ORIG_STUDENT_STEP';
 var DOC_ID = 'DOC_ID';
 var GOOGLE_ID = 'GOOGLE_ID';
 
+var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var ALL_SAVED = 'ALL_SAVED';
 
@@ -219,11 +228,6 @@ function gradingReducer(state, action) {
             // hurt anything happening in both cases.
             SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined,
             APP_MODE : GRADE_ASSIGNMENTS,
-        };
-    } else if (action.type === "SET_CURENT_PROBLEM") {
-        return {
-            ...state,
-            CURRENT_PROBLEM : action[PROBLEM_NUMBER]
         };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS ||
            action.type === EDIT_POSSIBLE_POINTS ||
@@ -605,7 +609,6 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
                             // setting ALL_SAVED here prevents autoSave from generating another event
                             // to save in response to this action
                             //GOOGLE_DRIVE_STATE : ALL_SAVED,
-                            CURRENT_PROBLEM : tempRootState[CURRENT_PROBLEM],
                             ASSIGNMENT_NAME: 'merged student work'}});
             }
         );
@@ -1299,6 +1302,9 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
               DOC_ID : docId,
               NEW_STATE :
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
+
+        window.ephemeralStore.dispatch(
+            {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
     } catch (e) {
         // TODO - try to open a single student doc
         console.log(e);
@@ -1447,6 +1453,12 @@ class AllProblemGraders extends React.Component {
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
         var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
         var currentProblem = state["CURRENT_PROBLEM"];
+        // clean up defensively, this same property is used for the teacher view or student view
+        // but here it represents a string typed as a problem number, but for students it is an
+        // integer index into the list of problems
+        if (typeof currentProblem !== 'string' || typeof problems[currentProblem] === 'undefined') {
+            currentProblem = this.props.value[GRADING_OVERVIEW][PROBLEMS][0][PROBLEM_NUMBER];
+        }
 
         return (
             <div>
@@ -1512,7 +1524,7 @@ class TeacherInteractiveGrader extends React.Component {
         };
         var graphData = [numberUniqueAnswersData, largestAnswerGroups, averageAnswerGroups];
         // TODO - remvoe direct access to redux store, also do the same in AllProblemGraders
-        var gradingOverview = this.props.value["GRADING_OVERVIEW"][PROBLEMS];
+        var gradingOverview = this.props.value[GRADING_OVERVIEW][PROBLEMS];
         gradingOverview.forEach(function(problemSummary, index, array) {
             labels.push("Problem " + problemSummary[PROBLEM_NUMBER]);
             numberUniqueAnswersData["data"].push(problemSummary["NUMBER_UNIQUE_ANSWERS"]);
@@ -1541,8 +1553,8 @@ class TeacherInteractiveGrader extends React.Component {
             problemNum = problemNum.replace("Problem ", "");
             window.ga('send', 'event', 'Actions', 'edit',
                 'Change problem being graded');
-            window.store.dispatch({ type : "SET_CURENT_PROBLEM",
-                                    PROBLEM_NUMBER : problemNum});
+            window.ephemeralStore.dispatch({ type : SET_CURRENT_PROBLEM,
+                                    CURRENT_PROBLEM : problemNum});
         }.bind(this);
 
         const onHover = function(e) {

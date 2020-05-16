@@ -34,19 +34,13 @@ function assignmentReducer(state, action) {
             CURRENT_PROBLEM: 0,
             PROBLEMS : problemListReducer(undefined, action)
         };
-    } else if (action.type === SET_CURRENT_PROBLEM) {
-        return { ...state,
-                 CURRENT_PROBLEM: action[PROBLEM_INDEX]
-        };
     } else if (action.type === REMOVE_PROBLEM) {
         return { ...state,
-                 PROBLEMS : problemListReducer(state[PROBLEMS], action),
-                 CURRENT_PROBLEM: Math.max(0, state[CURRENT_PROBLEM] - 1)
+                 PROBLEMS : problemListReducer(state[PROBLEMS], action)
         };
     } else if (action.type === ADD_PROBLEM) {
         return { ...state,
-                 PROBLEMS : problemListReducer(state[PROBLEMS], action),
-                 CURRENT_PROBLEM: state[PROBLEMS].length
+                 PROBLEMS : problemListReducer(state[PROBLEMS], action)
         };
 
     } else {
@@ -66,12 +60,22 @@ class Assignment extends React.Component {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var probList = this.props.value[PROBLEMS];
         var currProblem = this.props.value[CURRENT_PROBLEM];
+
+        // clean up defensively, this same property is used for the teacher view or student view
+        // but here it represents an integer index into the list of problems, but for the teacher
+        // view it is a string typed as a problem number
+        if (typeof probList[currProblem] === 'undefined') {
+            let probs = this.props.value[PROBLEMS];
+            currProblem = probs.length - 1;
+            this.props.value[CURRENT_PROBLEM] = currProblem;
+        }
         var addProblem = function() {
             var probs = this.props.value[PROBLEMS];
             var lastProb = probs[probs.length - 1];
             window.ga('send', 'event', 'Actions', 'edit',
                 'Add Problem - last problem steps = ', lastProb[STEPS].length);
             window.store.dispatch({ type : ADD_PROBLEM});
+            window.ephemeralStore.dispatch({ type : SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probs.length });
         }.bind(this);
         return (
         <div style={{height: "100%", backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
@@ -118,8 +122,8 @@ class Assignment extends React.Component {
                             ? ( problem[SCORE] !== undefined /* show the real score box, or a fake hidden one for alignment */
                                 ?
                                 <ScoreBox value={problem} onClick={function() {
-                                    window.store.dispatch(
-                                        {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}}/>
+                                    window.ephemeralStore.dispatch(
+                                        {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: problemIndex})}}/>
                                 :
                                 <div style={{visibility:"hidden"}}>
                                     <ScoreBox value={{SCORE: 1, POSSIBLE_POINTS: 1, STEPS: []}} />
@@ -132,8 +136,8 @@ class Assignment extends React.Component {
                                             "fm-button-selected " : "") +
                                       "fm-button-left fm-button"}
                             onClick={function() {
-                                window.store.dispatch(
-                                    {type: SET_CURRENT_PROBLEM, PROBLEM_INDEX: problemIndex})}}
+                                window.ephemeralStore.dispatch(
+                                    {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: problemIndex})}}
                         />
                         <HtmlButton text="&#10005;" title="Delete problem" key={problemIndex + " close"}
                             className={(problemIndex === currProblem ?

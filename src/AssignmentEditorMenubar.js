@@ -288,6 +288,9 @@ export function readSingleFile(evt, driveFileId = false) {
                     window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
                         PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
                         ASSIGNMENT_NAME : removeExtension(f.name)});
+
+                    window.ephemeralStore.dispatch(
+                        {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
                 } catch (e) {
                     console.log(e);
                     window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );

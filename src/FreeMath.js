@@ -69,6 +69,7 @@ var BUTTON_GROUP = 'BUTTON_GROUP';
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
+var SET_CURRENT_PROBLEM = 'SET_CURRENT_PROBLEM';
 var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 
 // Problem properties
@@ -525,6 +526,15 @@ function ephemeralStateReducer(state, action) {
         return {
             BUTTON_GROUP : 'BASIC'
         };
+    } else if (action.type === SET_CURRENT_PROBLEM) {
+        // Note: this is a little different for student view
+        // for students problems can safely be addressed by position in the list
+        // this allows new problems to be spawned with blank nubmers and fixed later
+        // here CURRENT_PROBLEM will refer to the string typed in by users
+        return {
+            ...state,
+            CURRENT_PROBLEM : action[CURRENT_PROBLEM]
+        };
     } else if (action.type === SET_KEYBOARD_BUTTON_GROUP) {
         return { ...state,
                  BUTTON_GROUP : action[BUTTON_GROUP]
@@ -581,12 +591,11 @@ function rootReducer(state, action) {
         // overview comes sorted by LARGEST_ANSWER_GROUPS_SIZE ascending (least number of common answers first)
         var overview = calculateGradingOverview(action[NEW_STATE][PROBLEMS]);
         return {
-            CURRENT_PROBLEM : overview[PROBLEMS][0][PROBLEM_NUMBER],
             ...action[NEW_STATE],
-            "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
+            "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID(),
             GOOGLE_ID: action[GOOGLE_ID],
             GOOGLE_DRIVE_STATE : ALL_SAVED,
-            "GRADING_OVERVIEW" : overview,
+            GRADING_OVERVIEW : overview,
             APP_MODE : GRADE_ASSIGNMENTS,
         }
     } else if (action.type === SET_ASSIGNMENT_CONTENT) {
