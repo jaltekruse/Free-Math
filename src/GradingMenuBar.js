@@ -39,7 +39,7 @@ class GradingMenuBar extends React.Component {
                     googleId,
                     'application/zip',
                     function() {
-                        window.store.dispatch(
+                        window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_DRIVE_STATE,
                                 GOOGLE_DRIVE_STATE : ALL_SAVED});
                     }
@@ -50,10 +50,10 @@ class GradingMenuBar extends React.Component {
                     content,
                     'application/zip',
                     function(driveFileId) {
-                        window.store.dispatch({type : SET_GOOGLE_ID,
+                        window.ephemeralStore.dispatch({type : SET_GOOGLE_ID,
                             GOOGLE_ID: driveFileId,
                         });
-                        window.store.dispatch(
+                        window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_DRIVE_STATE,
                                 GOOGLE_DRIVE_STATE : ALL_SAVED});
                     }

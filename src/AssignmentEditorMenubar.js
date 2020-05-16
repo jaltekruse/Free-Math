@@ -308,7 +308,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
         function(response) {
             console.log(response);
             // clear the class list to stop showing the modal
-            window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+            window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
                 GOOGLE_CLASS_LIST : undefined});
             alert('Successfully submitted to classroom.');
         },
@@ -326,7 +326,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
 
             // in the case of error also close the modal
             // and make them select a different class/assignment
-            window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+            window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
                 GOOGLE_CLASS_LIST : undefined});
         }
     );
@@ -343,7 +343,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                 var classInfo = response.courses[0];
                 window.listGoogeClassroomAssignments(classInfo.id,
                     function(response) {
-                        window.store.dispatch(
+                        window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
                               GOOGLE_CLASS_LIST :
                                 classList,
@@ -354,7 +354,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                     }
                 );
             } else {
-                window.store.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
                     GOOGLE_CLASS_LIST : response});
             }
         });
@@ -376,7 +376,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                     window.listGoogeClassroomAssignments(classInfo.id,
                                         function(response) {
 
-                                        window.store.dispatch(
+                                        window.ephemeralStore.dispatch(
                                             { type : SET_GOOGLE_CLASS_LIST,
                                               GOOGLE_CLASS_LIST :
                                                 rootState[GOOGLE_CLASS_LIST],
@@ -406,7 +406,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                         // which is needed for next method call to save the submission
                         // TODO - make suer to show a spinner or somthing while waiting
                         // for the final request to save the assignment
-                        window.store.dispatch(
+                        window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
                               GOOGLE_CLASS_LIST :
                                 null,
@@ -423,7 +423,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                         assignment.id,
                                         rootState[GOOGLE_ID]);
                     } else {
-                        window.store.dispatch(
+                        window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
                               GOOGLE_CLASS_LIST :
                                 rootState[GOOGLE_CLASS_LIST],
@@ -495,7 +495,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                      onClick={
                                         function() {
                                             // this closes the modal
-                                            window.store.dispatch(
+                                            window.ephemeralStore.dispatch(
                                                 { type : SET_GOOGLE_CLASS_LIST,
                                                   GOOGLE_CLASS_LIST : undefined});
                                         }
@@ -530,7 +530,7 @@ class AssignmentEditorMenubar extends React.Component {
             // because there is no GOOGLE_ID
             // without this code, as soon as we get a google ID it would report as all saved to Drive
             // before it is actually saved
-            window.store.dispatch(
+            window.ephemeralStore.dispatch(
                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
             saveAssignmentValidatingProblemNumbers(getPersistentState(), function(assignment) {
 
@@ -543,7 +543,7 @@ class AssignmentEditorMenubar extends React.Component {
                         googleId,
                         'application/json',
                         function() {
-                            window.store.dispatch(
+                            window.ephemeralStore.dispatch(
                                 { type : SET_GOOGLE_DRIVE_STATE,
                                     GOOGLE_DRIVE_STATE : ALL_SAVED});
                             onSuccessCallback();
@@ -555,10 +555,10 @@ class AssignmentEditorMenubar extends React.Component {
                         assignment,
                         'application/json',
                         function(driveFileId) {
-                            window.store.dispatch({type : SET_GOOGLE_ID,
+                            window.ephemeralStore.dispatch({type : SET_GOOGLE_ID,
                                 GOOGLE_ID: driveFileId,
                             });
-                            window.store.dispatch(
+                            window.ephemeralStore.dispatch(
                                 { type : SET_GOOGLE_DRIVE_STATE,
                                     GOOGLE_DRIVE_STATE : ALL_SAVED});
                             onSuccessCallback();

@@ -332,7 +332,7 @@ function getPersistentState() {
 
 // TODO - fixme, separate this out from persistent state
 function getEphemeralState() {
-    return window.store.getState();
+    return window.ephemeralStore.getState();
 }
 
 function getCompositeState() {
@@ -396,7 +396,7 @@ function autoSave() {
         // try to bundle together a few updates, wait 2 seconds before calling save. assume
         // some more keystrokes are incomming
         if (appState[GOOGLE_DRIVE_STATE] !== SAVING) {
-            window.store.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
+            window.ephemeralStore.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
         }
         // assume users will type multiple characters rapidly, don't eagerly send a request
         // to google for each update, let them batch up for a bit first
@@ -419,7 +419,7 @@ function autoSave() {
             console.log('pendingSaves');
             console.log(pendingSaves);
             if (pendingSaves === 0) {
-                window.store.dispatch(
+                window.ephemeralStore.dispatch(
                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
             }
         }
@@ -428,7 +428,7 @@ function autoSave() {
             console.log('pendingSaves');
             console.log(pendingSaves);
             if (pendingSaves === 0) {
-                window.store.dispatch(
+                window.ephemeralStore.dispatch(
                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
             }
         }
@@ -444,12 +444,12 @@ function autoSave() {
                     function() {
                         pendingSaves--;
                         if (pendingSaves > 0) {
-                            window.store.dispatch(
+                            window.ephemeralStore.dispatch(
                                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
                         } else  if (pendingSaves === 0) {
                             var currState = getPersistentState();
                             if (currState[GOOGLE_DRIVE_STATE] === SAVING) {
-                                window.store.dispatch(
+                                window.ephemeralStore.dispatch(
                                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
                             }
                         }
@@ -520,27 +520,14 @@ function autoSave() {
     }
 }
 
-function rootReducer(state, action) {
-    console.log(action);
-    if (state === undefined || action.type === GO_TO_MODE_CHOOSER) {
+function ephemeralStateReducer(state, action) {
+    if (state === undefined) {
         return {
-            APP_MODE : MODE_CHOOSER
+            BUTTON_GROUP : 'BASIC'
         };
-    } else if (action.type === "NEW_ASSIGNMENT") {
-        return {
-            ...assignmentReducer(),
-            "DOC_ID" : genID(),
-            GOOGLE_DRIVE_STATE : ALL_SAVED,
-            BUTTON_GROUP : 'BASIC',
-            APP_MODE : EDIT_ASSIGNMENT
-        };
-    } else if (action.type === "SET_GLOBAL_STATE") {
-        return {...action.newState,
-            BUTTON_GROUP : 'BASIC',
-        };
-    } else if (action.type === SET_ASSIGNMENT_NAME) {
+    } else if (action.type === SET_KEYBOARD_BUTTON_GROUP) {
         return { ...state,
-                 ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
+                 BUTTON_GROUP : action[BUTTON_GROUP]
         }
     } else if (action.type === SET_GOOGLE_DRIVE_STATE) {
         return { ...state,
@@ -563,9 +550,30 @@ function rootReducer(state, action) {
         };
         console.log(ret);
         return ret;
-    } else if (action.type === SET_KEYBOARD_BUTTON_GROUP) {
+    } else {
+        return state;
+    }
+}
+
+function rootReducer(state, action) {
+    console.log(action);
+    if (state === undefined || action.type === GO_TO_MODE_CHOOSER) {
+        return {
+            APP_MODE : MODE_CHOOSER
+        };
+    } else if (action.type === "NEW_ASSIGNMENT") {
+        return {
+            ...assignmentReducer(),
+            "DOC_ID" : genID(),
+            GOOGLE_DRIVE_STATE : ALL_SAVED,
+            APP_MODE : EDIT_ASSIGNMENT
+        };
+    } else if (action.type === "SET_GLOBAL_STATE") {
+        return {...action.newState,
+        };
+    } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
-                 BUTTON_GROUP : action[BUTTON_GROUP]
+                 ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
         }
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
@@ -592,7 +600,6 @@ function rootReducer(state, action) {
             GOOGLE_DRIVE_STATE : ALL_SAVED,
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
-            BUTTON_GROUP : 'BASIC'
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
@@ -671,6 +678,6 @@ class FreeMath extends React.Component {
     }
 }
 
-export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID,
+export {FreeMath as default, autoSave, rootReducer, ephemeralStateReducer, cloneDeep, genID,
     base64ToBlob, getAutoSaveIndex, merge, saveStudentDocToDriveResolvingConflicts,
     getPersistentState, getEphemeralState, getCompositeState};

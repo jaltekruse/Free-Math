@@ -1,6 +1,6 @@
 import { createStore } from 'redux';
 import './index.css';
-import { rootReducer } from './FreeMath';
+import { rootReducer, ephemeralStateReducer } from './FreeMath';
 import { render } from './DefaultHomepageActions';
 import { autoSave } from './FreeMath.js';
 import { unregister } from './registerServiceWorker';
@@ -16,6 +16,8 @@ window.onload = function() {
     */
     // TODO - remove use of window global var
     window.store = createStore(rootReducer);
+    window.ephemeralStore = createStore(ephemeralStateReducer);
+    window.ephemeralStore.subscribe(render);
     window.store.subscribe(render);
     window.store.subscribe(autoSave);
     render();

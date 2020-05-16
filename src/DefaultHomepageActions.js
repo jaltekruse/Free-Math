@@ -411,7 +411,7 @@ class UserActions extends React.Component {
                 value={this.props.value}
                 selectAssignmentCallback={function(assignment) {
                     // this closes the modal
-                    window.store.dispatch(
+                    window.ephemeralStore.dispatch(
                         { type : SET_GOOGLE_CLASS_LIST,
                           GOOGLE_CLASS_LIST : undefined});
                     openDriveAssignments(assignment);
