@@ -1302,9 +1302,6 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
               DOC_ID : docId,
               NEW_STATE :
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
-
-        window.ephemeralStore.dispatch(
-            {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
     } catch (e) {
         // TODO - try to open a single student doc
         console.log(e);

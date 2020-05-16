@@ -49,6 +49,8 @@ var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 
+var PENDING_SAVES = 'PENDING_SAVES';
+
 function isProblemNumberMissing(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
     allProblems.forEach(function(problem, index, array) {
@@ -598,6 +600,9 @@ class AssignmentEditorMenubar extends React.Component {
             if (saveState === ALL_SAVED) saveStateMsg = "All changes saved temporarily in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
             else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
+        }
+        if (this.props.value[PENDING_SAVES]) {
+            saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
         }
         var selectSubmissionCallback = function(submission, selectedClass, selectedAssignment, googleId) {
             submitAssignment(submission,

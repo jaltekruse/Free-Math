@@ -52,6 +52,10 @@ var CLASSROOM = 'CLASSROOM';
 // also can be DRIVE, although this is currently the default behavior
 // if GOOGLE_ID is set and this property isn't
 
+var MODIFY_PENDING_SAVES = 'MODIFY_PENDING_SAVES';
+var DELTA = 'DELTA';
+var PENDING_SAVES = 'PENDING_SAVES';
+
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
@@ -343,57 +347,14 @@ function getCompositeState() {
     }
 }
 
-let currentSaveState;
-let currentAppMode;
 let currentlyGatheringUpdates;
-let currentProblemShowing;
-let currentProblemCount;
-let currentGoogleId;
-let pendingSaves = 0;
 function autoSave() {
     var appState = getPersistentState();
-    let previousSaveState = currentSaveState;
-    currentSaveState = appState[GOOGLE_DRIVE_STATE];
-
-    let previousAppMode = currentAppMode;
-    currentAppMode = appState[APP_MODE];
-
-    let previousProblemShowing = currentProblemShowing;
-    currentProblemShowing = appState[CURRENT_PROBLEM];
-
-    let previousProblemCount = currentProblemCount;
-    currentProblemCount = appState[PROBLEMS] ? appState[PROBLEMS].length : 0;
-
-    let previousGoogleId = currentGoogleId;
-    currentGoogleId = appState[GOOGLE_ID];
 
     if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
         appState[APP_MODE] === GRADE_ASSIGNMENTS) {
 
         var googleId = appState[GOOGLE_ID];
-        // filter out changes to state made in this function, saving state, pending save count
-        // also filter out the initial load of the page when a doc opens
-        // TODO - Jason - looks like I did previously have the pending save count in redux
-        // I must have fixed some bug by taking it out, I think the situation has improved, but I
-        // still want to clear this state when switching to a new doc, but I will also need to cancel
-        // pending save actions as they will decrement it, so settting to 0 is not good
-        if (previousSaveState !== currentSaveState
-           || previousAppMode !== currentAppMode
-           // don't trigger save if just changing the problme being viewed
-           || (currentProblemShowing !== previousProblemShowing && currentProblemCount === previousProblemCount)
-           // this if for the first call to create a newly saved Google Drive file, it will set the google ID
-           // which doesn't need to trigger another save right away
-           || currentGoogleId !== previousGoogleId
-            // TODO - possibly cleanup, while this prop is set a modal is shown for picking
-            // where to submit an assignment to google classroom. This state might not belong in
-            // redux store, but for now filter out any actions while this modal is active from
-            // triggering auto-saves, otherwise it confusingly reports re-saving while the modal
-            // is up, but users should be confident that the docs is saved in drive the whole time.
-           || appState[GOOGLE_CLASS_LIST]) {
-            // ignore the changes to the drive state, none of them should trigger auto-save events
-            // especially as we kick off an update to this value within this function
-            return;
-        }
         // try to bundle together a few updates, wait 2 seconds before calling save. assume
         // some more keystrokes are incomming
         if (appState[GOOGLE_DRIVE_STATE] !== SAVING) {
@@ -406,9 +367,9 @@ function autoSave() {
             return;
         }
         currentlyGatheringUpdates = true;
-        pendingSaves++;
+        window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: 1});
         console.log("incremented pendingSave to ");
-        console.log(pendingSaves);
+        console.log(getEphemeralState()[PENDING_SAVES]);
         // kick off an event that will save to google in N seconds, when the timeout
         // expires the current app state will be requested again to capture any
         // more upates that happened in the meantime, and thoe edits will have avoided
@@ -416,7 +377,8 @@ function autoSave() {
         // flag and the check above
         // parameter is the document that was saved, doesn't currently have a use here
         const onSuccess = function(docSaved) {
-            pendingSaves--;
+            window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: -1});
+            let pendingSaves = getEphemeralState()[PENDING_SAVES];
             console.log('pendingSaves');
             console.log(pendingSaves);
             if (pendingSaves === 0) {
@@ -425,7 +387,8 @@ function autoSave() {
             }
         }
         const onFailure = function() {
-            pendingSaves--;
+            window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: -1});
+            let pendingSaves = getEphemeralState()[PENDING_SAVES];
             console.log('pendingSaves');
             console.log(pendingSaves);
             if (pendingSaves === 0) {
@@ -443,16 +406,14 @@ function autoSave() {
                 console.log("save back to classroom");
                 saveBackToClassroom(getPersistentState(),
                     function() {
-                        pendingSaves--;
+                        window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: -1});
+                        let pendingSaves = getEphemeralState()[PENDING_SAVES];
                         if (pendingSaves > 0) {
                             window.ephemeralStore.dispatch(
                                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
                         } else  if (pendingSaves === 0) {
-                            var currState = getPersistentState();
-                            if (currState[GOOGLE_DRIVE_STATE] === SAVING) {
-                                window.ephemeralStore.dispatch(
-                                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
-                            }
+                            window.ephemeralStore.dispatch(
+                                {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
                         }
                     }, onFailure);
                 // TODO - tie into network requests below "saveBackToClassroom"
@@ -514,7 +475,7 @@ function autoSave() {
             currentlyGatheringUpdates = false;
             saveFunc();
             console.log("update in google drive:" + googleId);
-        }, 5000);
+        }, 2000);
     } else {
         // current other states include mode chooser homepage and view grades "modal"
         return;
@@ -524,8 +485,14 @@ function autoSave() {
 function ephemeralStateReducer(state, action) {
     if (state === undefined) {
         return {
-            BUTTON_GROUP : 'BASIC'
+            BUTTON_GROUP : 'BASIC',
+            PENDING_SAVES : 0
         };
+    } else if (action.type === MODIFY_PENDING_SAVES) {
+        return {
+            ...state,
+            PENDING_SAVES: state[PENDING_SAVES] + action[DELTA]
+        }
     } else if (action.type === SET_CURRENT_PROBLEM) {
         // Note: this is a little different for student view
         // for students problems can safely be addressed by position in the list
@@ -575,7 +542,6 @@ function rootReducer(state, action) {
         return {
             ...assignmentReducer(),
             "DOC_ID" : genID(),
-            GOOGLE_DRIVE_STATE : ALL_SAVED,
             APP_MODE : EDIT_ASSIGNMENT
         };
     } else if (action.type === "SET_GLOBAL_STATE") {
@@ -594,7 +560,6 @@ function rootReducer(state, action) {
             ...action[NEW_STATE],
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID(),
             GOOGLE_ID: action[GOOGLE_ID],
-            GOOGLE_DRIVE_STATE : ALL_SAVED,
             GRADING_OVERVIEW : overview,
             APP_MODE : GRADE_ASSIGNMENTS,
         }
@@ -606,7 +571,6 @@ function rootReducer(state, action) {
             PROBLEMS : action.PROBLEMS,
             GOOGLE_ID: action.GOOGLE_ID,
             ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
-            GOOGLE_DRIVE_STATE : ALL_SAVED,
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
         };
