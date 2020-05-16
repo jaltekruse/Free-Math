@@ -56,6 +56,13 @@ var MODIFY_PENDING_SAVES = 'MODIFY_PENDING_SAVES';
 var DELTA = 'DELTA';
 var PENDING_SAVES = 'PENDING_SAVES';
 
+// separate state for the progress indication while saving back list of docs
+// into google Classroom, SAVING_COUNT takes a delta
+const MODIFY_CLASSROOM_SAVING_COUNT = 'MODIFY_CLASSROOM_SAVING_COUNT';
+const CLASSROOM_SAVING_COUNT = 'CLASSROOM_SAVING_COUNT';
+const MODIFY_CLASSROOM_TOTAL_TO_SAVE = 'MODIFY_CLASSROOM_TOTAL_TO_SAVE';
+const CLASSROOM_TOTAL_TO_SAVE = 'CLASSROOM_TOTAL_TO_SAVE';
+
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
@@ -347,8 +354,31 @@ function getCompositeState() {
     }
 }
 
-let currentlyGatheringUpdates;
+/**
+ * Filter out if we are currently grading files from google dirve, otherwise auto-save
+ * to drive or browser local storage
+ */
 function autoSave() {
+    var appState = getCompositeState();
+    var googleId = appState[GOOGLE_ID];
+
+    console.log("should this auto-save event be filtered out?");
+    console.log(appState);
+
+    if (appState[APP_MODE] === GRADE_ASSIGNMENTS
+        && googleId
+        && appState[GOOGLE_ORIGIN_SERVICE] === 'CLASSROOM') {
+        // don't auto-save teacher grading docs from Google Classroom,
+        // sending all docs to Google is too slow
+        window.ephemeralStore.dispatch(
+            {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
+        return;
+    }
+    saveToLocalStorageOrDrive();
+}
+
+let currentlyGatheringUpdates;
+function saveToLocalStorageOrDrive(delayMillis = 2000) {
     var appState = getPersistentState();
 
     if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
@@ -475,7 +505,7 @@ function autoSave() {
             currentlyGatheringUpdates = false;
             saveFunc();
             console.log("update in google drive:" + googleId);
-        }, 2000);
+        }, delayMillis);
     } else {
         // current other states include mode chooser homepage and view grades "modal"
         return;
@@ -493,6 +523,18 @@ function ephemeralStateReducer(state, action) {
             ...state,
             PENDING_SAVES: state[PENDING_SAVES] + action[DELTA]
         }
+    } else if (action.type === MODIFY_CLASSROOM_SAVING_COUNT) {
+        return {
+            ...state,
+            CLASSROOM_SAVING_COUNT: state[CLASSROOM_SAVING_COUNT] + action[DELTA]
+        }
+    } else if (action.type === MODIFY_CLASSROOM_TOTAL_TO_SAVE) {
+        return {
+            ...state,
+            CLASSROOM_TOTAL_TO_SAVE: action[CLASSROOM_TOTAL_TO_SAVE],
+            // if resetting to 0, also reset the saving count to 0, otherwise leave it alone
+            CLASSROOM_SAVING_COUNT: action[CLASSROOM_TOTAL_TO_SAVE] === 0 ? 0 : state[CLASSROOM_SAVING_COUNT]
+        }
     } else if (action.type === SET_CURRENT_PROBLEM) {
         // Note: this is a little different for student view
         // for students problems can safely be addressed by position in the list
@@ -509,11 +551,6 @@ function ephemeralStateReducer(state, action) {
     } else if (action.type === SET_GOOGLE_DRIVE_STATE) {
         return { ...state,
                  GOOGLE_DRIVE_STATE: action[GOOGLE_DRIVE_STATE]
-        }
-    } else if (action.type === SET_GOOGLE_ID) {
-        return { ...state,
-                 GOOGLE_ID: action[GOOGLE_ID],
-                 GOOGLE_ORIGIN_SERVICE: action[GOOGLE_ORIGIN_SERVICE] ? action[GOOGLE_ORIGIN_SERVICE] : 'DRIVE' // DRIVE OR CLASSROOM
         }
     } else if (action.type === SET_GOOGLE_CLASS_LIST) {
         const ret = { ...state,
@@ -551,6 +588,11 @@ function rootReducer(state, action) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
         }
+    } else if (action.type === SET_GOOGLE_ID) {
+        return { ...state,
+                 GOOGLE_ID: action[GOOGLE_ID],
+                 GOOGLE_ORIGIN_SERVICE: action[GOOGLE_ORIGIN_SERVICE] ? action[GOOGLE_ORIGIN_SERVICE] : 'DRIVE' // DRIVE OR CLASSROOM
+        }
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
         // TODO - get similar assignment list from comparing the assignments
@@ -569,7 +611,7 @@ function rootReducer(state, action) {
         return {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
-            GOOGLE_ID: action.GOOGLE_ID,
+            GOOGLE_ID: action[GOOGLE_ID],
             ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
@@ -653,4 +695,4 @@ class FreeMath extends React.Component {
 
 export {FreeMath as default, autoSave, rootReducer, ephemeralStateReducer, cloneDeep, genID,
     base64ToBlob, getAutoSaveIndex, merge, saveStudentDocToDriveResolvingConflicts,
-    getPersistentState, getEphemeralState, getCompositeState};
+    getPersistentState, getEphemeralState, getCompositeState, saveToLocalStorageOrDrive};

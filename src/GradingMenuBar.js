@@ -4,7 +4,7 @@ import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork, saveGradedStudentWorkToBlob} from './TeacherInteractiveGrader.js';
 import { LightButton, HtmlButton } from './Button.js';
-import { getPersistentState, getEphemeralState } from './FreeMath.js';
+import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
@@ -51,7 +51,7 @@ class GradingMenuBar extends React.Component {
                     content,
                     'application/zip',
                     function(driveFileId) {
-                        window.ephemeralStore.dispatch({type : SET_GOOGLE_ID,
+                        window.store.dispatch({type : SET_GOOGLE_ID,
                             GOOGLE_ID: driveFileId,
                         });
                         window.ephemeralStore.dispatch(
@@ -115,6 +115,12 @@ class GradingMenuBar extends React.Component {
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(getPersistentState());
+                            }
+                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <LightButton text="Save to Classroom" onClick={
+                            function() {
+                                window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
+                                saveToLocalStorageOrDrive(0);
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </div>) : null }

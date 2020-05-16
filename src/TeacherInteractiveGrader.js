@@ -5,7 +5,8 @@ import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { scaleScore } from './SolutionGrader.js';
-import { cloneDeep, genID, getPersistentState, saveStudentDocToDriveResolvingConflicts } from './FreeMath.js';
+import { cloneDeep, genID, getPersistentState,
+         getEphemeralState, saveStudentDocToDriveResolvingConflicts } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
@@ -116,6 +117,12 @@ var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var ALL_SAVED = 'ALL_SAVED';
+
+const MODIFY_CLASSROOM_SAVING_COUNT = 'MODIFY_CLASSROOM_SAVING_COUNT';
+const CLASSROOM_SAVING_COUNT = 'CLASSROOM_SAVING_COUNT';
+const MODIFY_CLASSROOM_TOTAL_TO_SAVE = 'MODIFY_CLASSROOM_TOTAL_TO_SAVE';
+const CLASSROOM_TOTAL_TO_SAVE = 'CLASSROOM_TOTAL_TO_SAVE';
+const DELTA = 'DELTA';
 
 /*
  * Compute a table to show the overall grades for each student
@@ -562,7 +569,13 @@ function removeStudentFromGradingView(filename, gradedWork) {
 
 function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-    var filesBeingSaved = 0;
+
+    // clear previous value, although this is supposed to be zero before this is called
+    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+        CLASSROOM_TOTAL_TO_SAVE: 0
+    });
+
+    var totalToSave = 0;
     var unsubmittedStudents = [];
     const saveStudentAssignment = function(filename, onSuccess, onFailure) {
         console.log("saveStudentDocToDriveResolvingConflicts");
@@ -614,9 +627,8 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         );
     }
     const onIndividualFileSuccess = function() {
-        filesBeingSaved--;
+        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
         console.log("successful save");
-        console.log(filesBeingSaved);
     }
     const onIndividualFailure = function(filename) {
         // TODO - limit number of retries?
@@ -630,15 +642,18 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     };
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
-            filesBeingSaved++;
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
+            totalToSave++;
             console.log("queued save");
-            console.log(filesBeingSaved);
             saveStudentAssignment(filename, onIndividualFileSuccess, onFailureWrapped(filename));
         }
     }
+    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+        CLASSROOM_TOTAL_TO_SAVE: totalToSave
+    });
     var checkFilesLoaded = function() {
         console.log("check all saved");
-        console.log(filesBeingSaved);
+        var filesBeingSaved = getEphemeralState()[CLASSROOM_SAVING_COUNT];
         if (filesBeingSaved === 0) {
             /* TODO - likely delete, teachers don't lose access on unsubmit
             if (unsubmittedStudents.length > 0) {
@@ -646,6 +661,9 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
                       + JSON.stringify(unsubmittedStudents));
             }
             */
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+                CLASSROOM_TOTAL_TO_SAVE: 0
+            });
             onSuccess();
             return;
         } else {
@@ -1592,6 +1610,34 @@ class TeacherInteractiveGrader extends React.Component {
                                 src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
                                 allowFullScreen frameBorder="0"
                                 style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                        </div>
+                        )
+                    } />
+                <FreeMathModal
+                    showModal={this.props.value[CLASSROOM_TOTAL_TO_SAVE]}
+                    content={(
+                        <div width="600px">
+                            <CloseButton onClick={function() {
+                                window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+                                    CLASSROOM_TOTAL_TO_SAVE: 0
+                                });
+                            }.bind(this)} />
+
+                            <div style={{width:"400px", alignItems: "center", textAlign: "center"}}>
+                                <img style={{
+                                    "display": "flex",
+                                    "marginLeft":"auto",
+                                    "marginRight": "auto"
+                                     }}
+                                     src="images/Ajax-loader.gif" alt="loading spinner" /><br />
+                                <br />
+                                Saving to Classroom...
+                                <br />
+                                {this.props.value[CLASSROOM_TOTAL_TO_SAVE] - this.props.value[CLASSROOM_SAVING_COUNT]}
+                                &nbsp; / &nbsp;
+                                {this.props.value[CLASSROOM_TOTAL_TO_SAVE]}
+                                &nbsp; saved
+                            </div>
                         </div>
                         )
                     } />

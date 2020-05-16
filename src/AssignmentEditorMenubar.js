@@ -560,7 +560,7 @@ class AssignmentEditorMenubar extends React.Component {
                         assignment,
                         'application/json',
                         function(driveFileId) {
-                            window.ephemeralStore.dispatch({type : SET_GOOGLE_ID,
+                            window.store.dispatch({type : SET_GOOGLE_ID,
                                 GOOGLE_ID: driveFileId,
                             });
                             window.ephemeralStore.dispatch(
