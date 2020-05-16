@@ -23,7 +23,7 @@ class HtmlButton extends React.Component {
         return (
             <button
                 className={className}
-                style={{...unselectable, ...style}}
+                style={{padding: "4px 8px 2px 8px", ...unselectable, ...style}}
                 onClick={function() {
                      onClick();
                  }}

@@ -139,7 +139,9 @@ class Assignment extends React.Component {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: problemIndex})}}
                         />
-                        <HtmlButton text="&#10005;" title="Delete problem" key={problemIndex + " close"}
+                        <HtmlButton text="&#10005;"
+                            title="Delete problem" key={problemIndex + " close"}
+                            style={{ padding: "4px 8px"}}
                             className={(problemIndex === currProblem ?
                                             "fm-button-selected " : "") +
                                       "fm-button-right fm-button"}
