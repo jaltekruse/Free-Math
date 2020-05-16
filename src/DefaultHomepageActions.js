@@ -4,7 +4,7 @@ import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
-import FreeMath, { getAutoSaveIndex } from './FreeMath.js';
+import FreeMath, { getPersistentState, getEphemeralState, getCompositeState, getAutoSaveIndex } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton, LightButton, HtmlButton } from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
@@ -46,7 +46,7 @@ var PROBLEMS = 'PROBLEMS';
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 function checkAllSaved() {
-    const appState = window.store.getState();
+    const appState = getEphemeralState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
         !(appState[GOOGLE_ID] && appState[GOOGLE_DRIVE_STATE] === ALL_SAVED)) {
         return true;
@@ -58,7 +58,7 @@ function checkAllSaved() {
 function render() {
     window.MathQuill = MathQuill.getInterface(1);
     ReactDOM.render(
-        <FreeMath value={window.store.getState()} />,
+        <FreeMath value={getCompositeState()} />,
         document.getElementById('root')
     );
 }

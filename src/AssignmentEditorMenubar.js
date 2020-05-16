@@ -8,6 +8,7 @@ import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
+import { getPersistentState } from './FreeMath.js';
 import JSZip from 'jszip';
 
 var STEPS = 'STEPS';
@@ -531,7 +532,7 @@ class AssignmentEditorMenubar extends React.Component {
             // before it is actually saved
             window.store.dispatch(
                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
-            saveAssignmentValidatingProblemNumbers(window.store.getState(), function(assignment) {
+            saveAssignmentValidatingProblemNumbers(getPersistentState(), function(assignment) {
 
                 var googleId = this.props.value[GOOGLE_ID];
                 if (googleId) {
@@ -630,9 +631,12 @@ class AssignmentEditorMenubar extends React.Component {
                                       }}
                           />&nbsp;&nbsp;
                           <LightButton text="Save" onClick={
-                              function() { saveAssignmentValidatingProblemNumbers(window.store.getState(), function(finalBlob) {
-                                  saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.math');
-                              }) }} /> &nbsp;&nbsp;&nbsp;
+                              function() {
+                                  var persistentState = getPersistentState();
+                                  saveAssignmentValidatingProblemNumbers(persistentState, function(finalBlob) {
+                                        saveAs(finalBlob, persistentState[ASSIGNMENT_NAME] + '.math');
+                                  });
+                              }} /> &nbsp;&nbsp;&nbsp;
                       </div>) : null}
                         <HtmlButton
                             className="fm-button-light"

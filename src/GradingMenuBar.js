@@ -4,6 +4,7 @@ import './App.css';
 import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork, saveGradedStudentWorkToBlob} from './TeacherInteractiveGrader.js';
 import { LightButton, HtmlButton } from './Button.js';
+import { getPersistentState, getEphemeralState } from './FreeMath.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
@@ -26,13 +27,14 @@ var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 class GradingMenuBar extends React.Component {
     componentDidMount() {
         const saveCallback = function() {
-            var zip = saveGradedStudentWorkToBlob(window.store.getState());
+            var persistentState = getPersistentState();
+            var zip = saveGradedStudentWorkToBlob(persistentState);
             var content = zip.generate({type: "blob"});
-            var googleId = window.store.getState()[GOOGLE_ID];
+            var googleId = getEphemeralState()[GOOGLE_ID];
             console.log("update in google drive:" + googleId);
             if (googleId) {
                 window.updateFileWithBinaryContent (
-                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                    persistentState[ASSIGNMENT_NAME] + '.zip',
                     content,
                     googleId,
                     'application/zip',
@@ -44,7 +46,7 @@ class GradingMenuBar extends React.Component {
                 );
             } else {
                 window.createFileWithBinaryContent (
-                    window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                    persistentState[ASSIGNMENT_NAME] + '.zip',
                     content,
                     'application/zip',
                     function(driveFileId) {
@@ -108,7 +110,7 @@ class GradingMenuBar extends React.Component {
                         <LightButton text="Save to Device" onClick={
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
-                                saveGradedStudentWork(window.store.getState());
+                                saveGradedStudentWork(getPersistentState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         </div>) : null }

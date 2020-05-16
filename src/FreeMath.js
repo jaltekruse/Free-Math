@@ -319,6 +319,29 @@ function saveStudentDocToDriveResolvingConflicts(
     });
 }
 
+/**
+ * Using sparingly, most accesses of state should be passed down to
+ * components through the render tree.
+ *
+ * This is only used currently in the save path to grab the most recent
+ * root persistent state to save it externally somehwere (local filesystem, html5 localstorage, HTTP request).
+ */
+function getPersistentState() {
+    return window.store.getState();
+}
+
+// TODO - fixme, separate this out from persistent state
+function getEphemeralState() {
+    return window.store.getState();
+}
+
+function getCompositeState() {
+    return {
+        ...getPersistentState(),
+        ...getEphemeralState()
+    }
+}
+
 let currentSaveState;
 let currentAppMode;
 let currentlyGatheringUpdates;
@@ -327,7 +350,7 @@ let currentProblemCount;
 let currentGoogleId;
 let pendingSaves = 0;
 function autoSave() {
-    var appState = window.store.getState();
+    var appState = getPersistentState();
     let previousSaveState = currentSaveState;
     currentSaveState = appState[GOOGLE_DRIVE_STATE];
 
@@ -417,14 +440,14 @@ function autoSave() {
                 // after a delay gathering other updates and other sae events will not be queued
                 // during this time
                 console.log("save back to classroom");
-                saveBackToClassroom(window.store.getState(),
+                saveBackToClassroom(getPersistentState(),
                     function() {
                         pendingSaves--;
                         if (pendingSaves > 0) {
                             window.store.dispatch(
                                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
                         } else  if (pendingSaves === 0) {
-                            var currState = window.store.getState();
+                            var currState = getPersistentState();
                             if (currState[GOOGLE_DRIVE_STATE] === SAVING) {
                                 window.store.dispatch(
                                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
@@ -437,9 +460,9 @@ function autoSave() {
                 // this does deliberately go grab the app state again, it is called
                 // after a 2 second timeout below, want to let edit build up for 2 seconds
                 // and then at the end of that we want to auto-save whatever is the current state
-                saveGradedStudentWorkToBlob(window.store.getState(), function(finalBlob) {
+                saveGradedStudentWorkToBlob(getPersistentState(), function(finalBlob) {
                     window.updateFileWithBinaryContent (
-                        window.store.getState()[ASSIGNMENT_NAME] + '.zip',
+                        getPersistentState()[ASSIGNMENT_NAME] + '.zip',
                         finalBlob, googleId, 'application/zip',
                         onSuccess,
                         onFailure
@@ -450,7 +473,7 @@ function autoSave() {
         const saveStudentToLocal = function() {
             console.log("auto saving student to local");
             try {
-                updateAutoSave("STUDENTS", window.store.getState()["ASSIGNMENT_NAME"], window.store.getState(),
+                updateAutoSave("STUDENTS", getPersistentState()[ASSIGNMENT_NAME], getPersistentState(),
                     onSuccess, onFailure);
             } catch (e) {
                 console.log(e);
@@ -459,7 +482,7 @@ function autoSave() {
         const saveTeacherToLocal = function() {
             console.log("auto saving student to local");
             try {
-                updateAutoSave("TEACHERS", window.store.getState()["ASSIGNMENT_NAME"], window.store.getState(),
+                updateAutoSave("TEACHERS", getPersistentState()[ASSIGNMENT_NAME], getPersistentState(),
                     onSuccess, onFailure);
             } catch (e) {
                 console.log(e);
@@ -470,8 +493,8 @@ function autoSave() {
             if (googleId) {
                 saveFunc = function() {
                     saveStudentDocToDriveResolvingConflicts(true, googleId,
-                        function() { return window.store.getState() },
-                        function() { return window.store.getState()[ASSIGNMENT_NAME] + '.math'},
+                        function() { return getPersistentState() },
+                        function() { return getPersistentState()[ASSIGNMENT_NAME] + '.math'},
                         onSuccess, onFailure,
                         function(mergedDoc) {
                             window.store.dispatch(
@@ -649,4 +672,5 @@ class FreeMath extends React.Component {
 }
 
 export {FreeMath as default, autoSave, rootReducer, cloneDeep, genID,
-    base64ToBlob, getAutoSaveIndex, merge, saveStudentDocToDriveResolvingConflicts};
+    base64ToBlob, getAutoSaveIndex, merge, saveStudentDocToDriveResolvingConflicts,
+    getPersistentState, getEphemeralState, getCompositeState};

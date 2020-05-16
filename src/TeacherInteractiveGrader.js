@@ -5,7 +5,7 @@ import { diffJson } from 'diff';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { scaleScore } from './SolutionGrader.js';
-import { cloneDeep, genID, saveStudentDocToDriveResolvingConflicts } from './FreeMath.js';
+import { cloneDeep, genID, getPersistentState, saveStudentDocToDriveResolvingConflicts } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
@@ -567,7 +567,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             filename,
             function() {
                 let tempSeparatedAssignments = separateIndividualStudentAssignments(
-                    window.store.getState());
+                    getPersistentState());
                 return tempSeparatedAssignments[filename];
             },
             function() { return filename },
@@ -576,7 +576,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
                 console.log("------------=============----------------");
                 console.log("should be merged");
                 console.log(separatedAssignments);
-                let tempRootState = window.store.getState();
+                let tempRootState = getPersistentState();
                 let tempSeparatedAssignments = separateIndividualStudentAssignments(
                     tempRootState);
                 tempSeparatedAssignments[filename] = mergedDoc;
@@ -655,7 +655,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
 
 function saveGradedStudentWork(gradedWork) {
     saveGradedStudentWorkToBlob(gradedWork, function(finalBlob) {
-        saveAs(finalBlob, window.store.getState()[ASSIGNMENT_NAME] + '.zip');
+        saveAs(finalBlob, getPersistentState()[ASSIGNMENT_NAME] + '.zip');
     });
 }
 
@@ -1333,9 +1333,9 @@ class SimilarDocChecker extends React.Component {
     render() {
         return (
             <div>
-                <SimilarGroupSelector />
+                <SimilarGroupSelector value={this.props.value} />
                 { (this.props.value[SIMILAR_ASSIGNMENT_GROUP_INDEX] !== undefined)
-                    ? <AllProblemGraders />
+                    ? <AllProblemGraders value={this.props.value}/>
                     : null }
             </div>
         );
@@ -1344,7 +1344,7 @@ class SimilarDocChecker extends React.Component {
 
 class SimilarGroupSelector extends React.Component {
     render() {
-        var state = window.store.getState();
+        var state = this.props.value;
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
         var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
         return(
@@ -1442,7 +1442,7 @@ class GradesView extends React.Component {
 
 class AllProblemGraders extends React.Component {
     render() {
-        var state = window.store.getState();
+        var state = this.props.value;
         var problems = state[PROBLEMS];
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
         var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
@@ -1512,7 +1512,7 @@ class TeacherInteractiveGrader extends React.Component {
         };
         var graphData = [numberUniqueAnswersData, largestAnswerGroups, averageAnswerGroups];
         // TODO - remvoe direct access to redux store, also do the same in AllProblemGraders
-        var gradingOverview = window.store.getState()["GRADING_OVERVIEW"][PROBLEMS];
+        var gradingOverview = this.props.value["GRADING_OVERVIEW"][PROBLEMS];
         gradingOverview.forEach(function(problemSummary, index, array) {
             labels.push("Problem " + problemSummary[PROBLEM_NUMBER]);
             numberUniqueAnswersData["data"].push(problemSummary["NUMBER_UNIQUE_ANSWERS"]);
@@ -1567,7 +1567,7 @@ class TeacherInteractiveGrader extends React.Component {
         //        the most important to review problem first, rather than just the
         //        problems in order?
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-        var showTutorial = window.store.getState()[SHOW_TUTORIAL];
+        var showTutorial = this.props.value[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
                 <br />
@@ -1628,7 +1628,7 @@ class TeacherInteractiveGrader extends React.Component {
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
-                <AllProblemGraders />
+                <AllProblemGraders value={this.props.value}/>
                 <h3>To grade other problems use the bar graph at the top of the page to select them.</h3>
                 <Button text="Scroll to Top" onClick={
                             function() {

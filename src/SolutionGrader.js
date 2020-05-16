@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import TeX from './TeX.js';
 import Button from './Button.js';
+import { getPersistentState } from './FreeMath.js';
 import ImageEditor from '@toast-ui/react-image-editor'
 
 var STUDENT_FILE = 'STUDENT_FILE';
@@ -312,7 +313,8 @@ class SolutionGrader extends React.Component {
         var problemNumber = this.props.problemNumber;
         var solutionClassIndex = this.props.solutionClassIndex;
 
-        var globalState = window.store.getState();
+        // TODO - little bit of a hack accessing global state here
+        var globalState = getPersistentState();
         var groupSize = globalState[PROBLEMS][problemNumber][UNIQUE_ANSWERS][solutionClassIndex][STUDENT_WORK].length;
         window.ga('send', 'event', 'Actions', 'edit', 'Apply Score to All', groupSize);
         // TODO - check if any unique grades have been applied to student solutions other than this one in
