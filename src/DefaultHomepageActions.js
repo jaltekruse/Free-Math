@@ -642,27 +642,12 @@ const DefaultHomepageActions = createReactClass({
                     </div>
                    ) : null }
                 <div className="homepage-center"
-                     style={{width:"70%", height: "0",
+                     style={{marginTop: "100px", width:"70%", height: "0",
                              position:"relative", padding:"0px 0px 39.375% 0px"}}>
                 <iframe title="Free Math Video"
                         src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
-                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
-                    <h2>Integrates with Your Favorite LMS<br /></h2>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="google classroom logo"
-                         src="images/google_classroom.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="canvas logo"
-                         src="images/canvas.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="moodle logo"
-                         src="images/moodle.png"/>
-                    <img style={{margin : "20px", height : "200px"}}
-                         alt="blackboard logo"
-                         src="images/blackboard.png"/>
-                </div>
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
                     <h2>Spread the Word</h2>
                     <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
