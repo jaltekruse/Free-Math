@@ -232,6 +232,7 @@ class UserActions extends React.Component {
                         var allStudentWork = [];
                         let pendingOpens = 0;
                         let downloadQueue = [];
+                        let errorsDownloading = 0;
                         //resp.studentSubmissions.forEach(function(submission) {
                         docs.forEach(function(doc) {
                             var submission = {
@@ -266,31 +267,12 @@ class UserActions extends React.Component {
                             downloadQueue.push(attachment.id);
                         });
 
-                        const downloadFile = function(fileId) {
-                            window.downloadFile(fileId, true,
-                                function(response, fileId) {
-                                    console.log(response);
-                                    var newDoc = openAssignment(response, "filename" /* TODO */);
-                                    allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
-                                    // TODO - also do this on error, and report to user
-                                    pendingOpens--;
-                                    if (downloadQueue.length > 0) {
-                                        downloadFile(downloadQueue.pop());
-                                    }
-                                },
-                                function() {} // failure callback
-                            );
-                        };
-
-                        let CONCURRENT_REQUESTS = 15;
-                        let i;
-                        for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
-                            downloadFile(downloadQueue.pop());
-                        }
-
-                        // TODO - add a timeout
-                        var checkFilesLoaded = function() {
+                        const checkAllDownloaded = function() {
                             if (pendingOpens === 0) {
+
+                                if (errorsDownloading) {
+                                    alert("One or more student docs failed to save, please try again");
+                                }
                                 console.log(allStudentWork);
 
                                 var aggregatedWork = aggregateStudentWork(allStudentWork);
@@ -302,14 +284,45 @@ class UserActions extends React.Component {
                                             GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
                                             // maybe put assignment name here?
                                             // or refactor auto save to look for GOOGLE_ORIGIN_SERVICE?
-                                            ASSIGNMENT_NAME: removeExtension("TODO fill in")}});
-
+                                            ASSIGNMENT_NAME: removeExtension("TODO fill in")}
+                                    });
+                                return true;
                             } else {
-                                // if not all of the images are loaded, check again in 50 milliseconds
-                                setTimeout(checkFilesLoaded, 50);
+                                return false;
                             }
+                        };
+
+                        const downloadFile = function(fileId) {
+                            window.downloadFile(fileId, true,
+                                function(response, fileId) {
+                                    console.log(response);
+                                    var newDoc = openAssignment(response, "filename" /* TODO */);
+                                    allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
+                                    // TODO - also do this on error, and report to user
+                                    pendingOpens--;
+                                    if (downloadQueue.length > 0) {
+                                        downloadFile(downloadQueue.pop());
+                                    } else {
+                                        checkAllDownloaded();
+                                    }
+                                },
+                                function() { // failure callback
+                                    errorsDownloading++;
+                                    pendingOpens--;
+                                    if (downloadQueue.length > 0) {
+                                        downloadFile(downloadQueue.pop());
+                                    } else {
+                                        checkAllDownloaded();
+                                    }
+                                }
+                            );
+                        };
+
+                        let CONCURRENT_REQUESTS = 15;
+                        let i;
+                        for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
+                            downloadFile(downloadQueue.pop());
                         }
-                        checkFilesLoaded();
                     }, function(){});
 
             }, assignment.assignment.studentWorkFolder.id);

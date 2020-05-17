@@ -600,12 +600,38 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         });
 
     }
+
+    var checkFilesLoaded = function() {
+        console.log("check all saved");
+        var filesBeingSaved = getEphemeralState()[CLASSROOM_SAVING_COUNT];
+        if (filesBeingSaved === 0) {
+            /* TODO - likely delete, teachers don't lose access on unsubmit
+            if (unsubmittedStudents.length > 0) {
+                alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
+                      + JSON.stringify(unsubmittedStudents));
+            }
+            */
+            if (errorsSaving) {
+                alert("One or more student docs failed to save, please try again");
+            }
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+                CLASSROOM_TOTAL_TO_SAVE: 0
+            });
+            onSuccess();
+            return true;
+        } else {
+            return false;
+        }
+    }
     const onIndividualFileSuccess = function() {
         console.log("successful save");
         window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
         if (uploadQueue.length > 0) {
             let nextFilename = uploadQueue.pop();
             saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
+        } else {
+            let allLoaded = checkFilesLoaded();
+            if (allLoaded) return;
         }
     }
     const onIndividualFailure = function(filename) {
@@ -617,6 +643,9 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         if (uploadQueue.length > 0) {
             let nextFilename = uploadQueue.pop();
             saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
+        } else {
+            let allLoaded = checkFilesLoaded();
+            if (allLoaded) return;
         }
     }
     const onFailureWrapped = function(filename) {
@@ -645,30 +674,6 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
         CLASSROOM_TOTAL_TO_SAVE: totalToSave
     });
-    var checkFilesLoaded = function() {
-        console.log("check all saved");
-        var filesBeingSaved = getEphemeralState()[CLASSROOM_SAVING_COUNT];
-        if (filesBeingSaved === 0) {
-            /* TODO - likely delete, teachers don't lose access on unsubmit
-            if (unsubmittedStudents.length > 0) {
-                alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
-                      + JSON.stringify(unsubmittedStudents));
-            }
-            */
-            if (errorsSaving) {
-                alert("One or more student docs failed to save, please try again");
-            }
-            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
-                CLASSROOM_TOTAL_TO_SAVE: 0
-            });
-            onSuccess();
-            return;
-        } else {
-            // if not all of the images are loaded, check again in 50 milliseconds
-            setTimeout(checkFilesLoaded, 50);
-        }
-    }
-    checkFilesLoaded();
 }
 
 function saveBackToClassroomMerging(gradedWork, onSuccess, onFailure) {
