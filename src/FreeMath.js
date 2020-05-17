@@ -276,10 +276,11 @@ function merge(student, teacher) {
 function saveStudentDocToDriveResolvingConflicts(
         currentlyStudent, googleId, docContentCallback, filenameCallback,
         onSuccess, onFailure, handleMergedDoc) {
+    let currentAppMode = getPersistentState()[APP_MODE];
     window.downloadFileMetadata(googleId, function(fileMeta) {
         console.log(fileMeta);
 
-        const saveToDrive = function(doc) {
+        const saveToDrive = function(doc, handleMergedDocCallback) {
             console.log("update with bin content");
             console.log(googleId);
             console.log(filenameCallback());
@@ -287,14 +288,27 @@ function saveStudentDocToDriveResolvingConflicts(
                 window.updateFileWithBinaryContent(
                     filenameCallback(),
                     finalBlob, googleId, 'application/zip',
-                    onSuccess,
+                    function() {
+                        handleMergedDocCallback();
+                        onSuccess();
+                    },
                     onFailure
                 );
             });
         };
+        // might not be in the right app state by the time the request for file metadata returns
+        // if so, abort the save
+        //
+        var appMode = getPersistentState()[APP_MODE];
+        console.log(appMode);
+        console.log(currentAppMode);
+        if (appMode !== currentAppMode) {
+            onFailure();
+            return;
+        }
 
         if (fileMeta.lastModifyingUser.isAuthenticatedUser) {
-            saveToDrive(docContentCallback());
+            saveToDrive(docContentCallback(), function() {});
         } else {
             // TODO - cleanup here and elesewhere fileId is same as googleId
             window.directDownloadFile(fileMeta, googleId, true,
@@ -305,6 +319,13 @@ function saveStudentDocToDriveResolvingConflicts(
                     // and then at the end of that we want to auto-save whatever is the current state
                     var currentLocalDoc = docContentCallback();
 
+                    // might not be in the right app state by the time the request to fetch the conflicting doc returns
+                    // if so, abort the save
+                    if (getPersistentState()[APP_MODE] !== currentAppMode) {
+                        onFailure();
+                        return;
+                    }
+
                     var mergedDoc;
                     var conflictUnresolvable = false;
                     try {
@@ -313,13 +334,14 @@ function saveStudentDocToDriveResolvingConflicts(
                         } else {
                             mergedDoc = merge(conflictingDoc, currentLocalDoc);
                         }
-                        handleMergedDoc(mergedDoc);
                     } catch (e) {
                         conflictUnresolvable = true;
                         mergedDoc = currentLocalDoc;
                     }
 
-                    saveToDrive(mergedDoc);
+                    // only update the local state to be the merged version on successful save
+                    // to avoid infinite save loop if current user doesn't have edit permissions
+                    saveToDrive(mergedDoc, function() {handleMergedDoc(mergedDoc)});
                     if (conflictUnresolvable) {
                         alert(fileMeta.lastModifyingUser.displayName +
                             " has modified this file in Drive, whatever they changed will" +
@@ -501,9 +523,29 @@ function saveToLocalStorageOrDrive(delayMillis = 2000) {
             if (googleId) saveFunc = saveTeacherGrading;
             else saveFunc = saveTeacherToLocal;
         }
+        let currentAppMode = appState[APP_MODE];
         setTimeout(function() {
             currentlyGatheringUpdates = false;
-            saveFunc();
+            try {
+                // if the user has changed modes before saving could complete, abort the save, it no longer
+                // can access the app state that we wanted to be saving
+                if (getPersistentState()[APP_MODE] !== currentAppMode) {
+                    onFailure();
+                    return;
+                }
+                saveFunc();
+            } catch (e) {
+                // if this fails, allow continued editing, users should always be able
+                // to hit the "save to device" button as a last resort to avoid losing work
+                // Note: one failure mode this is catching is an attempt to after the user
+                // has navigated back to the homepage. There is an opportunity for improvement
+                // here, deferred actions are used when saving, to batch up updates, and when
+                // they go off they grab the current state. If the state no longer is editing
+                // as a teacher or student, passing this state into the save methods will
+                // cause errors, or worse writing a useless app state into the file instead
+                // of a real document.
+                console.log(e);
+            }
             console.log("update in google drive:" + googleId);
         }, delayMillis);
     } else {
@@ -603,7 +645,12 @@ function rootReducer(state, action) {
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID(),
             GOOGLE_ID: action[GOOGLE_ID],
             GRADING_OVERVIEW : overview,
-            APP_MODE : GRADE_ASSIGNMENTS,
+            // if already in one of the grading states, leave the mode alone
+            // while changing the content, if not in of these states go into the
+            // default view for grading
+            APP_MODE : ( state[APP_MODE] === GRADE_ASSIGNMENTS
+                  || state[APP_MODE] === SIMILAR_DOC_CHECK
+                  || state[APP_MODE] === VIEW_GRADES ) ? state[APP_MODE] : GRADE_ASSIGNMENTS
         }
     } else if (action.type === SET_ASSIGNMENT_CONTENT) {
         // TODO - consider serializing DOC_ID and other future top level attributes into file

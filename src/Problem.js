@@ -102,7 +102,6 @@ class ScoreBox extends React.Component {
         var score = this.props.value[SCORE];
         var onClick = this.props.onClick;
         var possiblePoints = this.props.value[POSSIBLE_POINTS];
-        console.log(this.props.value);
         var feedback = this.props.value[FEEDBACK] ||
             this.props.value[STEPS].filter(
                 step => step[HIGHLIGHT] || (step[FEEDBACK] && step[FEEDBACK].trim() !== '')

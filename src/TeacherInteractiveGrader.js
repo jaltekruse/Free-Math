@@ -17,6 +17,8 @@ import { defaults } from 'react-chartjs-2';
 
 var KAS = window.KAS;
 
+var APP_MODE = 'APP_MODE';
+
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
@@ -568,6 +570,7 @@ function removeStudentFromGradingView(filename, gradedWork) {
 }
 
 function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
+    let currentAppMode = gradedWork[APP_MODE];
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
 
     // clear previous value, although this is supposed to be zero before this is called
@@ -594,6 +597,19 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
                 console.log("should be merged");
                 console.log(separatedAssignments);
                 let tempRootState = getPersistentState();
+
+                // might not be in the right app state by the time the save request finishes
+                // if so, abort the action to set the app state to the newly saved merged doc
+                // most likely this is a navigation back to home
+                // TODO ... but it might be opening the view grades or similar doc view
+                // this would be simplified if I just didn't let people close the saving overlay which
+                // prevents other actions while save is still in progress...
+                if (tempRootState[APP_MODE] !== currentAppMode) {
+                    console.log("app mode changed aborting save");
+                    onFailure();
+                    return;
+                }
+
                 let tempSeparatedAssignments = separateIndividualStudentAssignments(
                     tempRootState);
                 tempSeparatedAssignments[filename] = mergedDoc;
