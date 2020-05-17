@@ -264,7 +264,7 @@ function splitKey(compositeKey) {
 function findSimilarStudentAssignments(allStudentWork) {
 
     if (allStudentWork.length > 100) {
-        alert("Too many assignments to perform overall document similarity check.\n" + 
+        alert("Too many assignments to perform overall document similarity check.\n" +
             "To use this feature you can open up documents in groups of 100 students or less at a time.");
         return [];
     }
@@ -617,9 +617,9 @@ function areExpressionsSimilar(expression1, expression2) {
 // SIMILAR_ASSIGNMENT_SETS : [ [ "jason", "emma", "matt"], ["jim", "tim"] ],
 // PROBLEMS : { "1.a" : {
 //      "POSSIBLE_POINTS : 3,
-//      "UNIQUE_ANSWERS" : [ 
+//      "UNIQUE_ANSWERS" : [
 //              { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE",
-//                STUDENT_WORK : [ 
+//                STUDENT_WORK : [
 //                      { STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
 //                             STEPS : [ { CONTENT : "2x=14"},
 //                                       { CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
@@ -774,7 +774,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
             mostCommonPossiblePoints = keyWithMaxValInObj(possiblePointsAppearing);
             mostCommonPossiblePoints = typeof mostCommonPossiblePoints !== 'undefined' ? mostCommonPossiblePoints : 6;
             console.log(mostCommonPossiblePoints);
-            aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints; 
+            aggregatedWork[problemNumber][POSSIBLE_POINTS] = mostCommonPossiblePoints;
             aggregatedWork[problemNumber][POSSIBLE_POINTS_EDITED] = mostCommonPossiblePoints;
 
             aggregatedWork[problemNumber][UNIQUE_ANSWERS] =  uniqueAnswers.map(function(uniqueAnswer, index, arr) {
@@ -813,7 +813,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
 
 // TODO - delete this, highlights now shown in student experience for viewing
 // feedback on a graded assignment.
-// 
+//
 // Still used in the legacy document upgrade code below.
 //
 // This was from a very old version of the software, likely safe to
@@ -1043,7 +1043,10 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, go
             }
         }
         if (failureCount > 0) {
-            alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+            alert("Failed to open " + failureCount + " student documents.\n\n" +
+                  "Your browser might be holding on to an old version of the site, try a hard refresh with " +
+                  "Ctrl-Shift-R (Windows/Chromebooks) or Command-Shift-R (Mac) to see if that fixes it.\n\n" +
+                  badFiles.join("\n"));
             window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
             window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
         }
@@ -1288,7 +1291,7 @@ function setupGraph(gradingOverview, chart) {
                 problemNum = labels[activePoints[0]["_index"]];
             }
             problemNum = problemNum.replace("Problem ", "");
-            window.ga('send', 'event', 'Actions', 'edit', 
+            window.ga('send', 'event', 'Actions', 'edit',
                 'Change problem being graded');
             window.store.dispatch({ type : "SET_CURENT_PROBLEM",
                                     PROBLEM_NUMBER : problemNum});
@@ -1333,7 +1336,7 @@ const TeacherInteractiveGrader = createReactClass({
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the
         //        problems in order?
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var showTutorial = window.store.getState()[SHOW_TUTORIAL];
         return (
             <div style={{padding:"0px 20px 0px 20px"}}>
@@ -1353,11 +1356,11 @@ const TeacherInteractiveGrader = createReactClass({
                         </div>
                         )
                     } />
-                {browserIsIOS ? 
+                {browserIsIOS ?
                     (
                         <div className="answer-incorrect"
                          style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can 
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can
                                   be used to try out the experience, but you will need to visit the site on your Mac,
                                   Widows PC, Chromebook or Android device to actually use the site.</span>
                         </div>) :
