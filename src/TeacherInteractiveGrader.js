@@ -581,6 +581,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     window.ephemeralStore.dispatch({ type: RESET_CLASSROOM_SAVING_COUNT });
 
     var totalToSave = 0;
+    var errorsSaving = 0;
     var unsubmittedStudents = [];
     const saveStudentAssignment = function(filename, onSuccess, onFailure) {
         console.log("saveStudentDocToDriveResolvingConflicts");
@@ -645,13 +646,14 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         );
     }
     const onIndividualFileSuccess = function() {
-        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
         console.log("successful save");
+        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
     }
     const onIndividualFailure = function(filename) {
+        console.log("failed saving one student doc");
+        errorsSaving++;
         // TODO - limit number of retries?
-        console.log("failed, retrying");
-        saveStudentAssignment(filename, onIndividualFileSuccess, function() { onIndividualFailure(filename) });
+        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
     }
     const onFailureWrapped = function(filename) {
         return function() {
@@ -679,6 +681,9 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
                       + JSON.stringify(unsubmittedStudents));
             }
             */
+            if (errorsSaving) {
+                alert("One or more student docs failed to save, please try again");
+            }
             window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
                 CLASSROOM_TOTAL_TO_SAVE: 0
             });
