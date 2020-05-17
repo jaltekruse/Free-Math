@@ -231,6 +231,7 @@ class UserActions extends React.Component {
                         console.log(resp)
                         var allStudentWork = [];
                         let pendingOpens = 0;
+                        let downloadQueue = [];
                         //resp.studentSubmissions.forEach(function(submission) {
                         docs.forEach(function(doc) {
                             var submission = {
@@ -262,17 +263,30 @@ class UserActions extends React.Component {
                             // TODO - pull in student name, don't just show filename
                             pendingOpens++;
                             console.log(attachment.id);
-                            window.downloadFile(attachment.id, true,
+                            downloadQueue.push(attachment.id);
+                        });
+
+                        const downloadFile = function(fileId) {
+                            window.downloadFile(fileId, true,
                                 function(response, fileId) {
                                     console.log(response);
                                     var newDoc = openAssignment(response, "filename" /* TODO */);
                                     allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
                                     // TODO - also do this on error, and report to user
                                     pendingOpens--;
+                                    if (downloadQueue.length > 0) {
+                                        downloadFile(downloadQueue.pop());
+                                    }
                                 },
                                 function() {} // failure callback
                             );
-                        });
+                        };
+
+                        let CONCURRENT_REQUESTS = 15;
+                        let i;
+                        for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
+                            downloadFile(downloadQueue.pop());
+                        }
 
                         // TODO - add a timeout
                         var checkFilesLoaded = function() {

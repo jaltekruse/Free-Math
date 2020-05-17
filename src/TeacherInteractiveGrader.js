@@ -294,9 +294,9 @@ function splitKey(compositeKey) {
 //
 function findSimilarStudentAssignments(allStudentWork) {
 
-    if (allStudentWork.length > 100) {
+    if (allStudentWork.length > 40) {
         alert("Too many assignments to perform overall document similarity check.\n" +
-            "To use this feature you can open up documents in groups of 100 students or less at a time.");
+            "To use this feature you can open up documents in groups of 40 students or less at a time.");
         return [];
     }
     // Similarity check does a generic diff on JSON docs, for re-opened docs this
@@ -583,6 +583,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var totalToSave = 0;
     var errorsSaving = 0;
     var unsubmittedStudents = [];
+
     const saveStudentAssignment = function(filename, onSuccess, onFailure) {
 
         let tempSeparatedAssignments = separateIndividualStudentAssignments(
@@ -602,26 +603,45 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     const onIndividualFileSuccess = function() {
         console.log("successful save");
         window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+        if (uploadQueue.length > 0) {
+            let nextFilename = uploadQueue.pop();
+            saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
+        }
     }
     const onIndividualFailure = function(filename) {
         console.log("failed saving one student doc");
         errorsSaving++;
         // TODO - limit number of retries?
         window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+
+        if (uploadQueue.length > 0) {
+            let nextFilename = uploadQueue.pop();
+            saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
+        }
     }
     const onFailureWrapped = function(filename) {
         return function() {
             return onIndividualFailure(filename);
         }
     };
+
+    let uploadQueue = [];
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
             totalToSave++;
             console.log("queued save");
-            saveStudentAssignment(filename, onIndividualFileSuccess, onFailureWrapped(filename));
+            uploadQueue.push(filename);
         }
     }
+
+    let CONCURRENT_REQUESTS = 15;
+    let i;
+    for (i = 0; i < CONCURRENT_REQUESTS && uploadQueue.length > 0; i++) {
+        let filename = uploadQueue.pop();
+        saveStudentAssignment(filename, onIndividualFileSuccess, onFailureWrapped(filename));
+    }
+
     window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
         CLASSROOM_TOTAL_TO_SAVE: totalToSave
     });
