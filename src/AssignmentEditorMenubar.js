@@ -55,7 +55,7 @@ function saveAssignment() {
             JSON.stringify({
             PROBLEMS : removeUndoRedoHistory(
                         makeBackwardsCompatible(
-                           overallState 
+                           overallState
                         )
                     )[PROBLEMS]
             })],
@@ -117,7 +117,11 @@ export function readSingleFile(evt, discardDataWarning) {
                 } catch (e) {
                     console.log(e);
                     window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
-                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
+                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates.\n\n" +
+                        "Your browser might be holding on to an old version of the site, try a hard refresh with " +
+                        "Ctrl-Shift-R (Windows/Chromebooks) or Command-Shift-R (Mac) to see if that fixes it.\n\n" +
+                        "If that doesn't fix it, and you saved this file with Free Math please send it to " +
+                        "developers@freemathapp.org to allow us to debug the issue.");
                 }
         }
         r.readAsText(f);
@@ -128,13 +132,13 @@ export function readSingleFile(evt, discardDataWarning) {
 
 var AssignmentEditorMenubar = createReactClass({
   render: function() {
-        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        var browserIsIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div className="menuBar">
                 <div style={{maxWidth:1024,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    
-                    {!browserIsIOS ? 
+
+                    {!browserIsIOS ?
                     (<div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
                         Filename &nbsp;&nbsp;
                         <input type="text" id="assignment-name-text" size="25"
