@@ -125,34 +125,46 @@ class UserActions extends React.Component {
         const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
-                window.openDriveFile(true, function(name, content, driveFileId) {
-                    var newDoc = openAssignment(content, name, driveFileId);
+                window.openDriveFile(true, false, function(docs) {
+                    let name = docs[0].name;
+                    let driveFileId = docs[0].id;
+                    window.downloadFile(driveFileId, true, function(content) {
+                        var newDoc = openAssignment(content, name, driveFileId);
 
-                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                        PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
-                        ASSIGNMENT_NAME : removeExtension(name)});
-                    // turn on confirmation dialog upon navigation away
-                    window.onbeforeunload = checkAllSaved;
-                    window.location.hash = '';
-                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                            PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
+                            ASSIGNMENT_NAME : removeExtension(name)});
+                        // turn on confirmation dialog upon navigation away
+                        window.onbeforeunload = checkAllSaved;
+                        window.location.hash = '';
+                        document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    },
+                    function() {} // failure callback
+                    );
                 });
-            }, function(){/* TODO - on sign in error*/})
+            }, function(){/* TODO - on sign in error*/});
 
         const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
             function() {
-                window.openDriveFile(true, function(name, content, googleId) {
-                    // turn on confirmation dialog upon navigation away
+                window.openDriveFile(true, false, function(docs) {
+                    console.log(docs);
+                    let name = docs[0].name;
+                    let driveFileId = docs[0].id;
                     window.onbeforeunload = checkAllSaved;
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
                     // TODO - also show this while downloading file
                     this.openSpinner();
                     setTimeout(function() {
-                        loadStudentDocsFromZip(content, name,
-                            function() {}, googleId);
-                        this.closeSpinner();
-                        }.bind(this), 50);
+                        window.downloadFile(driveFileId, true, function(content) {
+                            loadStudentDocsFromZip(content, name,
+                                function() {this.closeSpinner();}.bind(this), driveFileId);
+                            this.closeSpinner();
+                        }.bind(this),
+                        function() { this.closeSpinner() }.bind(this) // failure callback
+                        );
+                    }.bind(this), 50);
                 }.bind(this));
             }.bind(this), function(){/* TODO - on sign in error*/});
 
@@ -209,17 +221,21 @@ class UserActions extends React.Component {
             console.log(assignment);
             alert("The google drive folder with your students submissions will show next.\n\n" +
                    "To give Free Math access to modify the files with your grades and feedback " +
-                   "you need to highlight all of the files and click 'Select'.\n\n" +
-                   "To highlight multiple files, click on the first file, scroll to the end of the list " +
-                   "and hold the shift key while clicking the last file.");
-            window.openDriveFile(true, function(name, content, driveFileId) {
+                   "highlight all of the files and click 'Select'.\n\n" +
+                   "To quickly highlight all of the files, the keyboard shortcut Ctrl-A " +
+                   "(Windows and Chrombooks) or Command-A (Mac) can be used.");
+            window.openDriveFile(true, true, function(docs) {
                 // TODO - message to users if they didn't select all necessary files
                 window.listGoogeClassroomSubmissions(assignment.courseId, assignment.id,
                     function(resp) {
                         console.log(resp)
                         var allStudentWork = [];
                         let pendingOpens = 0;
-                        resp.studentSubmissions.forEach(function(submission) {
+                        //resp.studentSubmissions.forEach(function(submission) {
+                        docs.forEach(function(doc) {
+                            var submission = {
+                                assignmentSubmission: { attachments: [ {driveFile: {id : doc.id}}] }
+                            };
                             // TODO - warn teacher about multiple submissions
                             // TODO- sort on modification date or attachment date, pick latest
                             // TODO- handle other types of attahement (just report error)
@@ -245,6 +261,7 @@ class UserActions extends React.Component {
                             var attachment = submission.assignmentSubmission.attachments[0].driveFile;
                             // TODO - pull in student name, don't just show filename
                             pendingOpens++;
+                            console.log(attachment.id);
                             window.downloadFile(attachment.id, true,
                                 function(response, fileId) {
                                     console.log(response);
@@ -252,7 +269,9 @@ class UserActions extends React.Component {
                                     allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
                                     // TODO - also do this on error, and report to user
                                     pendingOpens--;
-                            });
+                                },
+                                function() {} // failure callback
+                            );
                         });
 
                         // TODO - add a timeout

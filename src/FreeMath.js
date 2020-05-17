@@ -312,7 +312,7 @@ function saveStudentDocToDriveResolvingConflicts(
             saveToDrive(docContentCallback(), function() {});
         } else {
             // TODO - cleanup here and elesewhere fileId is same as googleId
-            window.directDownloadFile(fileMeta, googleId, true,
+            window.directDownloadFile(googleId, true,
                 function(response, fileId) {
                     var conflictingDoc = openAssignment(response, "filename" /* TODO */);
                     // this does deliberately go grab the app state again, it is called

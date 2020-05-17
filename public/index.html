@@ -131,13 +131,13 @@ ga('create', 'UA-70441517-2', 'auto');
       }
 
     // --- prod ----
-    //var PROJECT_NUMBER = '412119895810';
+    var PROJECT_NUMBER = '412119895810';
     // Client ID and API key from the Developer Console
-    //var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
+    var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
 
     // --- dev ----
-    var PROJECT_NUMBER = '726134963224';
-    var CLIENT_ID = '726134963224-rcc5nqsnsvr61cdjrin5tgeloidssfcf.apps.googleusercontent.com';
+    //var PROJECT_NUMBER = '726134963224';
+    //var CLIENT_ID = '726134963224-rcc5nqsnsvr61cdjrin5tgeloidssfcf.apps.googleusercontent.com';
 
       // Authorization scopes required by the API; multiple scopes can be
       // included, separated by spaces.
@@ -147,8 +147,8 @@ ga('create', 'UA-70441517-2', 'auto');
                    'https://www.googleapis.com/auth/classroom.courses.readonly ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me.readonly ' +
-                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ';
-                   //'https://www.googleapis.com/auth/classroom.coursework.students';
+                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.students';
 
       var APP_ID = 'quickstart-1561689319732';
 
@@ -528,7 +528,7 @@ ga('create', 'UA-70441517-2', 'auto');
     }
 
     // callback takes 2 parameters filename and content
-      function openDriveFile(isBinary, callback, folder = null){
+      function openDriveFile(isBinary, multiSelect, callback, folder = null){
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
@@ -545,28 +545,27 @@ ga('create', 'UA-70441517-2', 'auto');
               .addView(docsView)
               .addView(new google.picker.DocsUploadView())
               .setOAuthToken(accessToken)
-              .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
               .setCallback(function(data) {
                   var url = 'nothing';
                   if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-                    var doc = data[google.picker.Response.DOCUMENTS][0];
-                    //url = doc[google.picker.Document.URL];
-                    console.log(doc);
-                    downloadFile(doc.id, isBinary, function(data) {
-                        callback(doc.name, data, doc.id);
-                    });
+                    callback(data[google.picker.Response.DOCUMENTS]);
                   }
               });
+
+          if (multiSelect) {
+            pickerBuilder.enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+          }
 
           var picker = pickerBuilder.build();
           picker.setVisible(true);
       }
 
-    function directDownloadFile(fileMeta, fileId, isBinary, callback) {
-        if (fileMeta.downloadUrl) {
+    function directDownloadFile(fileId, isBinary, callback, failureCallback = function() {}) {
+        // TODO - test what happens when selecting google docs elements instead of binary files with this change
+        if (true) { //fileMeta.downloadUrl) {
             var accessToken = gapi.auth.getToken().access_token;
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', fileMeta.downloadUrl);
+            xhr.open('get', 'https://www.googleapis.com/drive/v2/files/' + fileId + '?alt=media&source=downloadUrl');
             // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
             console.log(isBinary);
             if (isBinary) {
@@ -590,18 +589,17 @@ ga('create', 'UA-70441517-2', 'auto');
             xhr.onerror = function() {
               console.log(this);
               alert("Something went wrong: " + this.status);
+              failureCallback();
             };
             xhr.send();
         } else {
-            console.log(fileMeta);
-            alert("Error opening file from Drive. Note Free Math only opens files it creates itself.");
+            alert("Cannot open google docs, google sheets or google slides in Free Math. Free Math only opens files it creates itself.");
+            failureCallback();
         }
     }
 
-    function downloadFile(fileId, isBinary, callback) {
-        downloadFileMetadata(fileId, function(fileMeta) {
-            directDownloadFile(fileMeta, fileId, isBinary, callback)
-        });
+    function downloadFile(fileId, isBinary, callback, failureCallback) {
+        directDownloadFile(fileId, isBinary, callback, failureCallback)
     }
 
     function downloadFileMetadata(fileId, callback) {
@@ -612,17 +610,17 @@ ga('create', 'UA-70441517-2', 'auto');
         xhr.onload = function() {
             if (this.readyState === 4) {
                 if (this.status == 200) {
-                try {
-                    var fileMeta = JSON.parse(this.responseText);
-                    console.log(fileMeta);
-                    callback(fileMeta);
+                    try {
+                        var fileMeta = JSON.parse(this.responseText);
+                        console.log(fileMeta);
+                        callback(fileMeta);
                     } catch (e) {
                         console.log(e);
                         console.log(this.responsetext);
                         alert("Error reading Google's response.");
                     }
                 } else {
-                    alert(this.responsetext);
+                    alert("Error getting file metadata: " + this.status + " " + this.responsetext);
                 }
             } else {
                 // ignore other events for request still in progress
@@ -689,7 +687,7 @@ ga('create', 'UA-70441517-2', 'auto');
                         alert("error reading google's response:" + this.responsetext);
                     }
                 } else {
-                    alert(this.responsetext);
+                    alert("Error creating file: " + this.status + " " + this.responsetext);
                 }
             } else {
                 // ignore other events for request still in progress

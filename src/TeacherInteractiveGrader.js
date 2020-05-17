@@ -584,6 +584,87 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var errorsSaving = 0;
     var unsubmittedStudents = [];
     const saveStudentAssignment = function(filename, onSuccess, onFailure) {
+
+        let tempSeparatedAssignments = separateIndividualStudentAssignments(
+            getPersistentState());
+        let doc = tempSeparatedAssignments[filename];
+        saveAssignment(doc, function(finalBlob) {
+            window.updateFileWithBinaryContent(
+                filename,
+                // TODO - filename currently hacky and has googleId in it
+                finalBlob, filename, 'application/zip',
+                onSuccess,
+                onFailure
+            );
+        });
+
+    }
+    const onIndividualFileSuccess = function() {
+        console.log("successful save");
+        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+    }
+    const onIndividualFailure = function(filename) {
+        console.log("failed saving one student doc");
+        errorsSaving++;
+        // TODO - limit number of retries?
+        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+    }
+    const onFailureWrapped = function(filename) {
+        return function() {
+            return onIndividualFailure(filename);
+        }
+    };
+    for (let filename in separatedAssignments) {
+        if (separatedAssignments.hasOwnProperty(filename)) {
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
+            totalToSave++;
+            console.log("queued save");
+            saveStudentAssignment(filename, onIndividualFileSuccess, onFailureWrapped(filename));
+        }
+    }
+    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+        CLASSROOM_TOTAL_TO_SAVE: totalToSave
+    });
+    var checkFilesLoaded = function() {
+        console.log("check all saved");
+        var filesBeingSaved = getEphemeralState()[CLASSROOM_SAVING_COUNT];
+        if (filesBeingSaved === 0) {
+            /* TODO - likely delete, teachers don't lose access on unsubmit
+            if (unsubmittedStudents.length > 0) {
+                alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
+                      + JSON.stringify(unsubmittedStudents));
+            }
+            */
+            if (errorsSaving) {
+                alert("One or more student docs failed to save, please try again");
+            }
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+                CLASSROOM_TOTAL_TO_SAVE: 0
+            });
+            onSuccess();
+            return;
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkFilesLoaded, 50);
+        }
+    }
+    checkFilesLoaded();
+}
+
+function saveBackToClassroomMerging(gradedWork, onSuccess, onFailure) {
+    let currentAppMode = gradedWork[APP_MODE];
+    var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
+
+    // clear previous value, although this is supposed to be zero before this is called
+    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+        CLASSROOM_TOTAL_TO_SAVE: 0
+    });
+    window.ephemeralStore.dispatch({ type: RESET_CLASSROOM_SAVING_COUNT });
+
+    var totalToSave = 0;
+    var errorsSaving = 0;
+    var unsubmittedStudents = [];
+    const saveStudentAssignment = function(filename, onSuccess, onFailure) {
         console.log("saveStudentDocToDriveResolvingConflicts");
         saveStudentDocToDriveResolvingConflicts(
             false,
