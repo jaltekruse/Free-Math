@@ -125,6 +125,7 @@ const CLASSROOM_SAVING_COUNT = 'CLASSROOM_SAVING_COUNT';
 const MODIFY_CLASSROOM_TOTAL_TO_SAVE = 'MODIFY_CLASSROOM_TOTAL_TO_SAVE';
 const CLASSROOM_TOTAL_TO_SAVE = 'CLASSROOM_TOTAL_TO_SAVE';
 const DELTA = 'DELTA';
+const RESET_CLASSROOM_SAVING_COUNT = 'RESET_CLASSROOM_SAVING_COUNT';
 
 /*
  * Compute a table to show the overall grades for each student
@@ -577,6 +578,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
         CLASSROOM_TOTAL_TO_SAVE: 0
     });
+    window.ephemeralStore.dispatch({ type: RESET_CLASSROOM_SAVING_COUNT });
 
     var totalToSave = 0;
     var unsubmittedStudents = [];

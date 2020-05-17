@@ -62,6 +62,7 @@ const MODIFY_CLASSROOM_SAVING_COUNT = 'MODIFY_CLASSROOM_SAVING_COUNT';
 const CLASSROOM_SAVING_COUNT = 'CLASSROOM_SAVING_COUNT';
 const MODIFY_CLASSROOM_TOTAL_TO_SAVE = 'MODIFY_CLASSROOM_TOTAL_TO_SAVE';
 const CLASSROOM_TOTAL_TO_SAVE = 'CLASSROOM_TOTAL_TO_SAVE';
+const RESET_CLASSROOM_SAVING_COUNT = 'RESET_CLASSROOM_SAVING_COUNT';
 
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
@@ -570,12 +571,15 @@ function ephemeralStateReducer(state, action) {
             ...state,
             CLASSROOM_SAVING_COUNT: state[CLASSROOM_SAVING_COUNT] + action[DELTA]
         }
+    } else if (action.type === RESET_CLASSROOM_SAVING_COUNT) {
+        return {
+            ...state,
+            CLASSROOM_SAVING_COUNT: 0
+        }
     } else if (action.type === MODIFY_CLASSROOM_TOTAL_TO_SAVE) {
         return {
             ...state,
             CLASSROOM_TOTAL_TO_SAVE: action[CLASSROOM_TOTAL_TO_SAVE],
-            // if resetting to 0, also reset the saving count to 0, otherwise leave it alone
-            CLASSROOM_SAVING_COUNT: action[CLASSROOM_TOTAL_TO_SAVE] === 0 ? 0 : state[CLASSROOM_SAVING_COUNT]
         }
     } else if (action.type === SET_CURRENT_PROBLEM) {
         // Note: this is a little different for student view
