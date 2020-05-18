@@ -50,9 +50,9 @@ class GradingMenuBar extends React.Component {
                     persistentState[ASSIGNMENT_NAME] + '.zip',
                     content,
                     'application/zip',
-                    function(driveFileId) {
+                    function(response) {
                         window.store.dispatch({type : SET_GOOGLE_ID,
-                            GOOGLE_ID: driveFileId,
+                            GOOGLE_ID: response.id,
                         });
                         window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_DRIVE_STATE,

@@ -45,6 +45,9 @@ var PROBLEMS = 'PROBLEMS';
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
+// when grading google classroom docs, show student name instead of filename
+var STUDENT_NAME = 'STUDENT_NAME';
+
 function checkAllSaved() {
     const appState = getEphemeralState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
@@ -233,11 +236,13 @@ class UserActions extends React.Component {
                         let pendingOpens = 0;
                         let downloadQueue = [];
                         let errorsDownloading = 0;
-                        //resp.studentSubmissions.forEach(function(submission) {
+                        resp.studentSubmissions.forEach(function(submission) {
+                        /*
                         docs.forEach(function(doc) {
                             var submission = {
                                 assignmentSubmission: { attachments: [ {driveFile: {id : doc.id}}] }
                             };
+                            */
                             // TODO - warn teacher about multiple submissions
                             // TODO- sort on modification date or attachment date, pick latest
                             // TODO- handle other types of attahement (just report error)
@@ -259,12 +264,13 @@ class UserActions extends React.Component {
                                 console.log(submission);
                                 return;
                             }
+                            console.log(submission);
 
                             var attachment = submission.assignmentSubmission.attachments[0].driveFile;
                             // TODO - pull in student name, don't just show filename
                             pendingOpens++;
                             console.log(attachment.id);
-                            downloadQueue.push(attachment.id);
+                            downloadQueue.push({ GOOGLE_ID: attachment.id, STUDENT_NAME: 'FIXME'});
                         });
 
                         const checkAllDownloaded = function() {
@@ -292,16 +298,19 @@ class UserActions extends React.Component {
                             }
                         };
 
-                        const downloadFile = function(fileId) {
+                        const downloadFile = function(fileId, studentName) {
                             window.downloadFile(fileId, true,
-                                function(response, fileId) {
+                                function(response) {
                                     console.log(response);
                                     var newDoc = openAssignment(response, "filename" /* TODO */);
-                                    allStudentWork.push({STUDENT_FILE : fileId, ASSIGNMENT : newDoc[PROBLEMS]});
+                                    allStudentWork.push(
+                                        { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
+                                          ASSIGNMENT : newDoc[PROBLEMS]});
                                     // TODO - also do this on error, and report to user
                                     pendingOpens--;
                                     if (downloadQueue.length > 0) {
-                                        downloadFile(downloadQueue.pop());
+                                        let next = downloadQueue.pop();
+                                        downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
                                     } else {
                                         checkAllDownloaded();
                                     }
@@ -321,7 +330,8 @@ class UserActions extends React.Component {
                         let CONCURRENT_REQUESTS = 15;
                         let i;
                         for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
-                            downloadFile(downloadQueue.pop());
+                            let next = downloadQueue.pop();
+                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
                         }
                     }, function(){});
 

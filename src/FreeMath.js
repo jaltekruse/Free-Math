@@ -311,9 +311,8 @@ function saveStudentDocToDriveResolvingConflicts(
         if (fileMeta.lastModifyingUser.isAuthenticatedUser) {
             saveToDrive(docContentCallback(), function() {});
         } else {
-            // TODO - cleanup here and elesewhere fileId is same as googleId
             window.directDownloadFile(googleId, true,
-                function(response, fileId) {
+                function(response) {
                     var conflictingDoc = openAssignment(response, "filename" /* TODO */);
                     // this does deliberately go grab the app state again, it is called
                     // after a 2 second timeout below, want to let edit build up for 2 seconds

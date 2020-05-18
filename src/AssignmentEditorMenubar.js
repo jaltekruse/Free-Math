@@ -559,9 +559,9 @@ class AssignmentEditorMenubar extends React.Component {
                         this.props.value[ASSIGNMENT_NAME] + '.math',
                         assignment,
                         'application/json',
-                        function(driveFileId) {
+                        function(response) {
                             window.store.dispatch({type : SET_GOOGLE_ID,
-                                GOOGLE_ID: driveFileId,
+                                GOOGLE_ID: response.id,
                             });
                             window.ephemeralStore.dispatch(
                                 { type : SET_GOOGLE_DRIVE_STATE,
