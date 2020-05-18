@@ -342,11 +342,11 @@ class GoogleClassroomSubmissionSelector extends React.Component {
     }
 
     listClasses = () => {
-        window.listGoogeClassroomCourses(function(response) {
+        window.listGoogleClassroomCourses(function(response) {
             if (response.courses.length === 1) {
                 var classList = response;
                 var classInfo = response.courses[0];
-                window.listGoogeClassroomAssignments(classInfo.id,
+                window.listGoogleClassroomAssignments(classInfo.id,
                     function(response) {
                         window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
@@ -378,7 +378,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                         return (
                             <Button text={classInfo.name}
                                 onClick={function() {
-                                    window.listGoogeClassroomAssignments(classInfo.id,
+                                    window.listGoogleClassroomAssignments(classInfo.id,
                                         function(response) {
 
                                         window.ephemeralStore.dispatch(
@@ -400,7 +400,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         };
 
         const listSubmissionsSubmitIfOnlyOne = function(assignment) {
-            window.listGoogeClassroomSubmissions(
+            window.listGoogleClassroomSubmissions(
                 rootState[GOOGLE_SELECTED_CLASS],
                 assignment.id,
                 function(response) {

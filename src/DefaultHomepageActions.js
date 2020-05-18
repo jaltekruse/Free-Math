@@ -128,7 +128,7 @@ class UserActions extends React.Component {
         const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
-                window.openDriveFile(true, false, function(docs) {
+                window.openDriveFile(true, false, null, function(docs) {
                     let name = docs[0].name;
                     let driveFileId = docs[0].id;
                     window.downloadFile(driveFileId, true, function(content) {
@@ -150,7 +150,7 @@ class UserActions extends React.Component {
         const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
             function() {
-                window.openDriveFile(true, false, function(docs) {
+                window.openDriveFile(true, false, null, function(docs) {
                     console.log(docs);
                     let name = docs[0].name;
                     let driveFileId = docs[0].id;
@@ -174,7 +174,7 @@ class UserActions extends React.Component {
         const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
             function() {
-                window.listGoogeClassroomCourses(function(response) {
+                window.listGoogleClassroomCourses(function(response) {
                     this.setState({GOOGLE_CLASS_LIST : response});
                     // TODO - make this safe when no classes
                     this.setState({courseId: response.courses[0].id});
@@ -227,115 +227,124 @@ class UserActions extends React.Component {
                    "highlight all of the files and click 'Select'.\n\n" +
                    "To quickly highlight all of the files, the keyboard shortcut Ctrl-A " +
                    "(Windows and Chrombooks) or Command-A (Mac) can be used.");
-            window.openDriveFile(true, true, function(docs) {
+            window.openDriveFile(true, true, assignment.assignment.studentWorkFolder.id, function(docs) {
                 // TODO - message to users if they didn't select all necessary files
-                window.listGoogeClassroomSubmissions(assignment.courseId, assignment.id,
-                    function(resp) {
-                        console.log(resp)
-                        var allStudentWork = [];
-                        let pendingOpens = 0;
-                        let downloadQueue = [];
-                        let errorsDownloading = 0;
-                        resp.studentSubmissions.forEach(function(submission) {
-                        /*
-                        docs.forEach(function(doc) {
-                            var submission = {
-                                assignmentSubmission: { attachments: [ {driveFile: {id : doc.id}}] }
-                            };
-                            */
-                            // TODO - warn teacher about multiple submissions
-                            // TODO- sort on modification date or attachment date, pick latest
-                            // TODO- handle other types of attahement (just report error)
-                            // should probably rename - this is just checking if an attachment is
-                            // present, google classroom does have a separate status of "submitted/turned in"
-                            // that is no longer being used to filter students docs out of the view
-                            var submitted =
-                                (typeof submission.assignmentSubmission.attachments !== 'undefined');
-                                  // this would filter to just submitted docs, preventing conflicts between
-                                  // teacher and student edits, unfortunately students can unsubmit whenever
-                                  // and this would eliminate a teachers ability to see in-progress work
-                                  // so for now trying to work out concurrent editing by teacher and student
-                                  //&& submission.state !== 'CREATED'
-                                  //&& submission.state !== 'RECLAIMED_BY_STUDENT');
 
-                            // TODO - inform teacher
-                            if (!submitted) {
-                                console.log("skipping");
+                window.listClassroomStudents(assignment.courseId, function(studentList) {
+                    let students = {};
+                    studentList.students.forEach(function(student) {
+                        console.log(student);
+                        students[student.userId] = student.profile.name.fullName;
+                    });
+                    console.log(students);
+                    window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
+                        function(resp) {
+                            console.log(resp)
+                            var allStudentWork = [];
+                            let pendingOpens = 0;
+                            let downloadQueue = [];
+                            let errorsDownloading = 0;
+                            resp.studentSubmissions.forEach(function(submission) {
+                            /*
+                            docs.forEach(function(doc) {
+                                var submission = {
+                                    assignmentSubmission: { attachments: [ {driveFile: {id : doc.id}}] }
+                                };
+                                */
+                                // TODO - warn teacher about multiple submissions
+                                // TODO- sort on modification date or attachment date, pick latest
+                                // TODO- handle other types of attahement (just report error)
+                                // should probably rename - this is just checking if an attachment is
+                                // present, google classroom does have a separate status of "submitted/turned in"
+                                // that is no longer being used to filter students docs out of the view
+                                var submitted =
+                                    (typeof submission.assignmentSubmission.attachments !== 'undefined');
+                                      // this would filter to just submitted docs, preventing conflicts between
+                                      // teacher and student edits, unfortunately students can unsubmit whenever
+                                      // and this would eliminate a teachers ability to see in-progress work
+                                      // so for now trying to work out concurrent editing by teacher and student
+                                      //&& submission.state !== 'CREATED'
+                                      //&& submission.state !== 'RECLAIMED_BY_STUDENT');
+
+                                // TODO - inform teacher
+                                if (!submitted) {
+                                    console.log("skipping");
+                                    console.log(submission);
+                                    return;
+                                }
                                 console.log(submission);
-                                return;
-                            }
-                            console.log(submission);
 
-                            var attachment = submission.assignmentSubmission.attachments[0].driveFile;
-                            // TODO - pull in student name, don't just show filename
-                            pendingOpens++;
-                            console.log(attachment.id);
-                            downloadQueue.push({ GOOGLE_ID: attachment.id, STUDENT_NAME: 'FIXME'});
-                        });
+                                var attachment = submission.assignmentSubmission.attachments[0].driveFile;
+                                // TODO - pull in student name, don't just show filename
+                                pendingOpens++;
+                                console.log(attachment.id);
+                                downloadQueue.push({ GOOGLE_ID: attachment.id, STUDENT_NAME: students[submission.userId]});
+                            });
 
-                        const checkAllDownloaded = function() {
-                            if (pendingOpens === 0) {
+                            const checkAllDownloaded = function() {
+                                if (pendingOpens === 0) {
 
-                                if (errorsDownloading) {
-                                    alert("One or more student docs failed to save, please try again");
-                                }
-                                console.log(allStudentWork);
-
-                                var aggregatedWork = aggregateStudentWork(allStudentWork);
-                                window.store.dispatch(
-                                    { type : 'SET_ASSIGNMENTS_TO_GRADE',
-                                      GOOGLE_ID : 'PLACEHOLDER',
-                                      NEW_STATE :
-                                        {...aggregatedWork,
-                                            GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
-                                            // maybe put assignment name here?
-                                            // or refactor auto save to look for GOOGLE_ORIGIN_SERVICE?
-                                            ASSIGNMENT_NAME: removeExtension("TODO fill in")}
-                                    });
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        };
-
-                        const downloadFile = function(fileId, studentName) {
-                            window.downloadFile(fileId, true,
-                                function(response) {
-                                    console.log(response);
-                                    var newDoc = openAssignment(response, "filename" /* TODO */);
-                                    allStudentWork.push(
-                                        { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
-                                          ASSIGNMENT : newDoc[PROBLEMS]});
-                                    // TODO - also do this on error, and report to user
-                                    pendingOpens--;
-                                    if (downloadQueue.length > 0) {
-                                        let next = downloadQueue.pop();
-                                        downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
-                                    } else {
-                                        checkAllDownloaded();
+                                    if (errorsDownloading) {
+                                        alert("One or more student docs failed to save, please try again");
                                     }
-                                },
-                                function() { // failure callback
-                                    errorsDownloading++;
-                                    pendingOpens--;
-                                    if (downloadQueue.length > 0) {
-                                        downloadFile(downloadQueue.pop());
-                                    } else {
-                                        checkAllDownloaded();
-                                    }
+                                    console.log(allStudentWork);
+
+                                    var aggregatedWork = aggregateStudentWork(allStudentWork);
+                                    window.store.dispatch(
+                                        { type : 'SET_ASSIGNMENTS_TO_GRADE',
+                                          GOOGLE_ID : 'PLACEHOLDER',
+                                          NEW_STATE :
+                                            {...aggregatedWork,
+                                                GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+                                                // maybe put assignment name here?
+                                                // or refactor auto save to look for GOOGLE_ORIGIN_SERVICE?
+                                                ASSIGNMENT_NAME: removeExtension(assignment.title)}
+                                        });
+                                    return true;
+                                } else {
+                                    return false;
                                 }
-                            );
-                        };
+                            };
 
-                        let CONCURRENT_REQUESTS = 15;
-                        let i;
-                        for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
-                            let next = downloadQueue.pop();
-                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
-                        }
-                    }, function(){});
+                            const downloadFile = function(fileId, studentName) {
+                                window.downloadFile(fileId, true,
+                                    function(response) {
+                                        console.log(response);
+                                        var newDoc = openAssignment(response, "filename" /* TODO */);
+                                        allStudentWork.push(
+                                            { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
+                                              ASSIGNMENT : newDoc[PROBLEMS]});
+                                        // TODO - also do this on error, and report to user
+                                        pendingOpens--;
+                                        if (downloadQueue.length > 0) {
+                                            let next = downloadQueue.pop();
+                                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
+                                        } else {
+                                            checkAllDownloaded();
+                                        }
+                                    },
+                                    function() { // failure callback
+                                        errorsDownloading++;
+                                        pendingOpens--;
+                                        if (downloadQueue.length > 0) {
+                                            downloadFile(downloadQueue.pop());
+                                        } else {
+                                            checkAllDownloaded();
+                                        }
+                                    }
+                                );
+                            };
 
-            }, assignment.assignment.studentWorkFolder.id);
+                            let CONCURRENT_REQUESTS = 15;
+                            let i;
+                            for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
+                                let next = downloadQueue.pop();
+                                downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
+                            }
+                        }, function(){});
+
+                });
+            });
         }
 
         var recoverAutoSaveCallback = function(autoSaveFullName, filename, appMode) {

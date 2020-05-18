@@ -66,6 +66,9 @@ var GRADING_OVERVIEW = 'GRADING_OVERVIEW';
 var VIEW_GRADES = 'VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 
+// when grading google classroom docs, show student name instead of filename
+var STUDENT_NAME = 'STUDENT_NAME';
+
 // Object model for teacher grading experience, see return value in the aggreateStudentWork() method
 var STUDENT_FILE = 'STUDENT_FILE';
 var ASSIGNMENT = 'ASSIGNMENT';
@@ -591,7 +594,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         let doc = tempSeparatedAssignments[filename];
         saveAssignment(doc, function(finalBlob) {
             window.updateFileWithBinaryContent(
-                filename,
+                null,
                 // TODO - filename currently hacky and has googleId in it
                 finalBlob, filename, 'application/zip',
                 onSuccess,
@@ -1023,6 +1026,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                 {
                   ...problem,
                   STUDENT_FILE : assignInfo[STUDENT_FILE],
+                  STUDENT_NAME : assignInfo[STUDENT_NAME],
                   AUTOMATICALLY_ASSIGNED_SCORE : automaticallyAssignedGrade,
                   SCORE : automaticallyAssignedGrade,
                   FEEDBACK : feedback,

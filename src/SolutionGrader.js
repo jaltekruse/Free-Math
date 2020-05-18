@@ -5,6 +5,8 @@ import Button from './Button.js';
 import { getPersistentState } from './FreeMath.js';
 import ImageEditor from '@toast-ui/react-image-editor'
 
+// when grading google classroom docs, show student name instead of filename
+var STUDENT_NAME = 'STUDENT_NAME';
 var STUDENT_FILE = 'STUDENT_FILE';
 
 var SCORE = "SCORE";
@@ -410,13 +412,23 @@ class SolutionGrader extends React.Component {
         return (
             <div className={classes} style={{float:"left"}}> {/*<!-- container for nav an equation list --> */}
                 { viewingSimilarGroup
-                        ? (<div> {showStudentName ? data[STUDENT_FILE] : "" }</div>)
+                        ? (<div><b> {showStudentName
+                                        /* When editing docs from google classroom filename set to google file ID,
+                                         * show student name instead */
+                                        ?  (data[STUDENT_NAME] ? data[STUDENT_NAME] : data[STUDENT_FILE])
+                                        : "" }</b></div>)
                         : ( /* Hide grading actions if viewing similar work group */
                     <div>
                     <span style={{marginBottom: "10px", visibility: (gradingNotice !== '') ? "visible" : "hidden"}}>
                         <small><span style={{color:"#545454"}}>{gradingNotice}</span><br /></small>
                     </span>
-                    <span> {showStudentName ? data[STUDENT_FILE] : "" }</span>
+                    <span><b>
+                        {showStudentName
+                                        /* When editing docs from google classroom filename set to google file ID,
+                                         * show student name instead */
+                                        ?  (data[STUDENT_NAME] ? data[STUDENT_NAME] : data[STUDENT_FILE])
+                                        : "" }
+                    </b></span>
                     {/* TODO - I need teachers to be able to edit the score, including deleting down to
                                empty string, so they can write a new score. If I add validation when setting
                                the value in the reducer the field won't be editable. Look up react best pratices

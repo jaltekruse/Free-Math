@@ -148,7 +148,8 @@ ga('create', 'UA-70441517-2', 'auto');
                    'https://www.googleapis.com/auth/classroom.coursework.me ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me.readonly ' +
                    'https://www.googleapis.com/auth/classroom.coursework.students.readonly ' +
-                   'https://www.googleapis.com/auth/classroom.coursework.students';
+                   'https://www.googleapis.com/auth/classroom.coursework.students ' +
+                   'https://www.googleapis.com/auth/classroom.rosters.readonly';
 
     var APP_ID = 'quickstart-1561689319732';
 
@@ -207,19 +208,22 @@ ga('create', 'UA-70441517-2', 'auto');
       gapi.auth2.getAuthInstance().signOut();
     }
 
-    function listGoogeClassroomCourses(callback, errorCallback = function(){}) {
+    function listGoogleClassroomCourses(callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses';
         googleGet(url, callback, errorCallback);
     }
 
-    function listGoogeClassroomAssignments(courseId, callback, errorCallback = function(){}) {
+    function listGoogleClassroomAssignments(courseId, callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
         googleGet(url, callback, errorCallback);
     }
 
-    // https://classroom.googleapis.com/v1/courses/{courseId}/students
+    function listClassroomStudents(courseId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/students';
+        googleGet(url, callback, errorCallback);
+    }
 
-    function listGoogeClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
+    function listGoogleClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                     courseWorkId + '/studentSubmissions';
         googleGet(url, callback, errorCallback);
@@ -274,7 +278,11 @@ ga('create', 'UA-70441517-2', 'auto');
 
         let url = 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart';
         // NOTE: in v2 api title is used instead of name, changed in v3
-        var meta = {title: name, mimeType: fileType};
+        var meta = {mimeType: fileType};
+        // don't update the name if null is passed
+        if (name !== null) {
+            meta.title = name;
+        }
         var payload = new FormData();
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
         payload.append('file', content);
@@ -301,7 +309,7 @@ ga('create', 'UA-70441517-2', 'auto');
     }
 
     // callback takes 2 parameters filename and content
-    function openDriveFile(isBinary, multiSelect, callback, folder = null){
+    function openDriveFile(isBinary, multiSelect, folder, callback){
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
