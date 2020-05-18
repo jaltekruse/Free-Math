@@ -47,6 +47,8 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 // when grading google classroom docs, show student name instead of filename
 var STUDENT_NAME = 'STUDENT_NAME';
+// needed to update the student grade while saving to classroom
+var STUDENT_SUBMISSION_ID = 'STUDENT_SUBMISSION_ID';
 
 function checkAllSaved() {
     const appState = getEphemeralState();
@@ -222,30 +224,65 @@ class UserActions extends React.Component {
             // hack to make this method accessible to index.html
             window.loadStudentDocsFromZip = loadStudentDocsFromZip;
             console.log(assignment);
-            alert("The google drive folder with your students submissions will show next.\n\n" +
-                   "To give Free Math access to modify the files with your grades and feedback " +
-                   "highlight all of the files and click 'Select'.\n\n" +
-                   "To quickly highlight all of the files, the keyboard shortcut Ctrl-A " +
-                   "(Windows and Chrombooks) or Command-A (Mac) can be used.");
-            window.openDriveFile(true, true, assignment.assignment.studentWorkFolder.id, function(docs) {
-                // TODO - message to users if they didn't select all necessary files
 
-                window.listClassroomStudents(assignment.courseId, function(studentList) {
-                    let students = {};
-                    studentList.students.forEach(function(student) {
-                        console.log(student);
-                        students[student.userId] = student.profile.name.fullName;
+            window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
+                function(resp) {
+
+                    let isSubmitted = function(submission) {
+                        return ( typeof submission.assignmentSubmission.attachments !== 'undefined'
+                                  // this would filter to just submitted docs, preventing conflicts between
+                                  // teacher and student edits, unfortunately students can unsubmit whenever
+                                  // and this would eliminate a teachers ability to see in-progress work
+                                  // so for now trying to work out concurrent editing by teacher and student
+                                  // Update - merging updates from students and teachers is partly working
+                                  // but there are some known issues around truely concurrent requests, so
+                                  // defering this for now and will remove unsubmitted from view when they are detected
+                                  && submission.state !== 'CREATED'
+                                  && submission.state !== 'RECLAIMED_BY_STUDENT');
+                    };
+
+                    var atLeastOneSubmitted = false;
+                    resp.studentSubmissions.forEach(function(submission) {
+                        // loop through and keep setting atLestOneSubmitted to the current value
+                        // until it becomes true, no early exit, but it works
+                        if (! atLeastOneSubmitted ) {
+                            atLeastOneSubmitted = isSubmitted(submission);
+                        }
                     });
-                    console.log(students);
-                    window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
-                        function(resp) {
-                            console.log(resp)
+                    if (! atLeastOneSubmitted) {
+                        alert("No students have submitted their assignments for review yet.");
+                        return;
+                    }
+                    console.log(resp)
+                    alert("The google drive folder with your students submissions will show next.\n\n" +
+                           "To give Free Math access to modify the files with your grades and feedback " +
+                           "highlight all of the files and click 'Select'.\n\n" +
+                           "Please note that draft and submitted files will show in the list, " +
+                           "you will only be able to grade submitted files.\n\n" +
+                           "To quickly highlight all of the files, the keyboard shortcut Ctrl-A " +
+                           "(Windows and Chrombooks) or Command-A (Mac) can be used.");
+                    window.openDriveFile(true, true, assignment.assignment.studentWorkFolder.id, function(docs) {
+                        // TODO - message to users if they didn't select all necessary files
+                        let selectedDocs = {};
+                        docs.forEach(function(doc) {
+                            selectedDocs[doc.id] = true;
+                        });
+
+                        this.openSpinner();
+                        window.listClassroomStudents(assignment.courseId, function(studentList) {
+                            let students = {};
+                            studentList.students.forEach(function(student) {
+                                console.log(student);
+                                students[student.userId] = student.profile.name.fullName;
+                            });
+                            console.log(students);
                             var allStudentWork = [];
                             let pendingOpens = 0;
                             let downloadQueue = [];
                             let errorsDownloading = 0;
                             resp.studentSubmissions.forEach(function(submission) {
-                            /*
+                            /* NOTE - temp code to read all selected files from folder regardless of what is submitted in classrom
+                             *        Good for stress testing without making a bunch of students accounts
                             docs.forEach(function(doc) {
                                 var submission = {
                                     assignmentSubmission: { attachments: [ {driveFile: {id : doc.id}}] }
@@ -257,14 +294,8 @@ class UserActions extends React.Component {
                                 // should probably rename - this is just checking if an attachment is
                                 // present, google classroom does have a separate status of "submitted/turned in"
                                 // that is no longer being used to filter students docs out of the view
-                                var submitted =
-                                    (typeof submission.assignmentSubmission.attachments !== 'undefined');
-                                      // this would filter to just submitted docs, preventing conflicts between
-                                      // teacher and student edits, unfortunately students can unsubmit whenever
-                                      // and this would eliminate a teachers ability to see in-progress work
-                                      // so for now trying to work out concurrent editing by teacher and student
-                                      //&& submission.state !== 'CREATED'
-                                      //&& submission.state !== 'RECLAIMED_BY_STUDENT');
+                                var submitted = isSubmitted(submission)
+                                        && selectedDocs[submission.assignmentSubmission.attachments[0].driveFile.id];
 
                                 // TODO - inform teacher
                                 if (!submitted) {
@@ -278,7 +309,8 @@ class UserActions extends React.Component {
                                 // TODO - pull in student name, don't just show filename
                                 pendingOpens++;
                                 console.log(attachment.id);
-                                downloadQueue.push({ GOOGLE_ID: attachment.id, STUDENT_NAME: students[submission.userId]});
+                                downloadQueue.push({ GOOGLE_ID: attachment.id, STUDENT_NAME: students[submission.userId],
+                                                     STUDENT_SUBMISSION_ID: submission.id });
                             });
 
                             const checkAllDownloaded = function() {
@@ -296,6 +328,8 @@ class UserActions extends React.Component {
                                           NEW_STATE :
                                             {...aggregatedWork,
                                                 GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
+                                                COURSE_ID: assignment.courseId,
+                                                COURSEWORK_ID: assignment.id,
                                                 // maybe put assignment name here?
                                                 // or refactor auto save to look for GOOGLE_ORIGIN_SERVICE?
                                                 ASSIGNMENT_NAME: removeExtension(assignment.title)}
@@ -306,19 +340,19 @@ class UserActions extends React.Component {
                                 }
                             };
 
-                            const downloadFile = function(fileId, studentName) {
+                            const downloadFile = function(fileId, studentName, submissionId) {
                                 window.downloadFile(fileId, true,
                                     function(response) {
-                                        console.log(response);
                                         var newDoc = openAssignment(response, "filename" /* TODO */);
                                         allStudentWork.push(
                                             { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
+                                              STUDENT_SUBMISSION_ID: submissionId,
                                               ASSIGNMENT : newDoc[PROBLEMS]});
                                         // TODO - also do this on error, and report to user
                                         pendingOpens--;
                                         if (downloadQueue.length > 0) {
                                             let next = downloadQueue.pop();
-                                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
+                                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
                                         } else {
                                             checkAllDownloaded();
                                         }
@@ -327,25 +361,30 @@ class UserActions extends React.Component {
                                         errorsDownloading++;
                                         pendingOpens--;
                                         if (downloadQueue.length > 0) {
-                                            downloadFile(downloadQueue.pop());
+                                            let next = downloadQueue.pop();
+                                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
                                         } else {
                                             checkAllDownloaded();
                                         }
                                     }
                                 );
                             };
-
+                            if (downloadQueue.length === 0) {
+                                alert("No selected students have submitted their assignments for review yet.");
+                                this.closeSpinner();
+                                return;
+                            }
                             let CONCURRENT_REQUESTS = 15;
                             let i;
                             for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
                                 let next = downloadQueue.pop();
-                                downloadFile(next[GOOGLE_ID], next[STUDENT_NAME]);
+                                downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
                             }
-                        }, function(){});
+                        }.bind(this), function(){this.closeSpinner()}.bind(this));
 
-                });
-            });
-        }
+                }.bind(this), function() {this.closeSpinner()}.bind(this));
+            }.bind(this));
+        }.bind(this);
 
         var recoverAutoSaveCallback = function(autoSaveFullName, filename, appMode) {
             // turn on confirmation dialog upon navigation away
@@ -492,7 +531,7 @@ class UserActions extends React.Component {
                             "marginRight": "auto"
                              }}
                              src="images/Ajax-loader.gif" alt="loading spinner" /><br />
-                        Analyzing and grouping student work...
+                        Opening, analyzing and grouping student work...
                     </div>)}
             />
             <FreeMathModal

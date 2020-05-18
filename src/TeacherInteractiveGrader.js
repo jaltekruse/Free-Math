@@ -68,6 +68,11 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 
 // when grading google classroom docs, show student name instead of filename
 var STUDENT_NAME = 'STUDENT_NAME';
+// needed to update the student grade while saving to classroom
+var STUDENT_SUBMISSION_ID = 'STUDENT_SUBMISSION_ID';
+
+var COURSE_ID = 'COURSE_ID';
+var COURSEWORK_ID = 'COURSEWORK_ID';
 
 // Object model for teacher grading experience, see return value in the aggreateStudentWork() method
 var STUDENT_FILE = 'STUDENT_FILE';
@@ -139,6 +144,7 @@ const RESET_CLASSROOM_SAVING_COUNT = 'RESET_CLASSROOM_SAVING_COUNT';
  * returns:
  *    {
  *       STUDENT_GRADES : { "student_name_from_filename" : 6, "other_student_name" : 8 },
+ *       GOOGLE_STUDENT_GRADES : { "student_submission_id" : 6, "student_submission_id" : 8 },
  *       POSSIBLE_POINTS : 10,
  *    }
  */
@@ -149,10 +155,13 @@ const RESET_CLASSROOM_SAVING_COUNT = 'RESET_CLASSROOM_SAVING_COUNT';
 function calculateGrades(allProblems) {
     var totalPossiblePoints = 0;
     var overallGrades = {};
+    // map from google student work submission IDs to grades, for use in updating google classroom
+    var overallGradesForGoogle = {};
 
     var handleSingleSolution =
         function(singleSolution, index, arr) {
             var studentAssignmentName = singleSolution[STUDENT_FILE];
+            var studentSubmissionId = singleSolution[STUDENT_SUBMISSION_ID];
             var runningScore = overallGrades[studentAssignmentName];
             runningScore = (typeof runningScore !== 'undefined') ? runningScore : 0;
             // empty string is considered ungraded, which defaults to "complete" and full credit
@@ -162,6 +171,7 @@ function calculateGrades(allProblems) {
                 runningScore += Number(singleSolution[SCORE]);
             }
             overallGrades[studentAssignmentName] = runningScore;
+            overallGradesForGoogle[studentSubmissionId] = runningScore;
         };
 
     var handleSingleUnqiueAnswer =
@@ -172,7 +182,7 @@ function calculateGrades(allProblems) {
 
     for (var problemNumber in allProblems) {
         if (allProblems.hasOwnProperty(problemNumber)) {
-            var possiblePoints = allProblems[problemNumber][POSSIBLE_POINTS];
+            var possiblePoints = Number(allProblems[problemNumber][POSSIBLE_POINTS]);
             totalPossiblePoints += possiblePoints;
             var uniqueAnswers = allProblems[problemNumber][UNIQUE_ANSWERS];
             uniqueAnswers.forEach(handleSingleUnqiueAnswer);
@@ -180,6 +190,7 @@ function calculateGrades(allProblems) {
     }
     return {
         STUDENT_GRADES : overallGrades,
+        GOOGLE_STUDENT_GRADES : overallGradesForGoogle,
         POSSIBLE_POINTS : totalPossiblePoints
     };
 }
@@ -574,9 +585,23 @@ function removeStudentFromGradingView(filename, gradedWork) {
 }
 
 function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
+
+    // TODO - block reporting success until this request complete as well as the file saves
+    // save grades to google classroom
+    var grades = calculateGrades(gradedWork[PROBLEMS]);
+    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
+    window.updateGrades(gradedWork[COURSE_ID], gradedWork[COURSEWORK_ID], grades /* map from submissionId to grade */,
+        function() {
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+            // TODO - decrement count here
+            // thinking I can just add one more to the saving count and subtract it out
+            // so it isn't siplayed to users, it can still block completion, but I think
+            // users would be comfused if the count didn't match the number of students
+            // and I don't think it makes sense to add text to explain it
+    });
+
     let currentAppMode = gradedWork[APP_MODE];
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-
     // clear previous value, although this is supposed to be zero before this is called
     window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
         CLASSROOM_TOTAL_TO_SAVE: 0
@@ -1027,6 +1052,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                   ...problem,
                   STUDENT_FILE : assignInfo[STUDENT_FILE],
                   STUDENT_NAME : assignInfo[STUDENT_NAME],
+                  STUDENT_SUBMISSION_ID : assignInfo[STUDENT_SUBMISSION_ID],
                   AUTOMATICALLY_ASSIGNED_SCORE : automaticallyAssignedGrade,
                   SCORE : automaticallyAssignedGrade,
                   FEEDBACK : feedback,
@@ -1766,7 +1792,8 @@ class TeacherInteractiveGrader extends React.Component {
                                 <br />
                                 Saving to Classroom...
                                 <br />
-                                {this.props.value[CLASSROOM_TOTAL_TO_SAVE] - this.props.value[CLASSROOM_SAVING_COUNT]}
+                                {/* subract one for the request to save grades, only show user count matching total students*/}
+                                {this.props.value[CLASSROOM_TOTAL_TO_SAVE] - (this.props.value[CLASSROOM_SAVING_COUNT] - 1)}
                                 &nbsp; / &nbsp;
                                 {this.props.value[CLASSROOM_TOTAL_TO_SAVE]}
                                 &nbsp; saved

@@ -273,6 +273,40 @@ ga('create', 'UA-70441517-2', 'auto');
         googleGet(url, callback, errorCallback);
     }
 
+    function updateGrades(courseId, courseWorkId, grades /* map from submissionId to grade */,
+                          callback, errorCallback = function() {}) {
+
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+        var accessToken = gapi.auth.getToken().access_token;
+        let url = 'https://classroom.googleapis.com/batch';
+
+        var payload = new FormData();
+        var i = 0;
+        grades = grades['GOOGLE_STUDENT_GRADES'];
+        for (var submissionId in grades) {
+            if ( grades.hasOwnProperty(submissionId)) {
+                let innerPayload = new FormData();
+                let grade = Number(grades[submissionId]);
+                console.log(grade);
+                payload.append('grade_' + i, new Blob(
+                    [
+                        'PATCH https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                                courseWorkId + '/studentSubmissions/' + submissionId + '?updateMask=draftGrade' + "\n" +
+                        'Content-Type: application/json; charset=UTF-8' + "\n" +
+                        'Authorization: Bearer ' + accessToken + "\n\n" +
+                        JSON.stringify({draftGrade: grade})
+                    ], {type: 'application/http'})
+                );
+                i++;
+            }
+        }
+        console.log(payload);
+        googleRequestBinaryResponse(url, 'post', payload, 'multipart/mixed', callback, errorCallback);
+    }
+
     function updateFileWithBinaryContent(name, content, googleId,
                                          fileType='application/zip', callback, errorCallback = function(){}) {
 
