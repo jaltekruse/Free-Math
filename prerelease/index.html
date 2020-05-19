@@ -1,11 +1,13 @@
-<!DOCTYPE html><html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-70441517-2")</script><script>!function(e,t,a,n,c,o,s){e.GoogleAnalyticsObject=c,e[c]=e[c]||function(){(e[c].q=e[c].q||[]).push(arguments)},e[c].l=1*new Date,o=t.createElement(a),s=t.getElementsByTagName(a)[0],o.async=1,o.src="https://www.google-analytics.com/analytics.js",s.parentNode.insertBefore(o,s)}(window,document,"script",0,"ga"),ga("create","UA-70441517-2","auto")</script><meta name="viewport" content="width=624,user-scalable=no"><meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!"><title>Free Math - Homework software that is easy to use and powerful</title><link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"><script src="expect.min.js"></script><script src="lib/jquery.js"></script><script src="lib/underscore.js"></script><script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script><script src="lib/kas.js"></script><script src="lib/i18n.js"></script><script src="lib/mathjax/2.1/MathJax.js"/><script type="text/javascript" src="katexA11.js"></script><script type="text/javascript" src="kas.min.js"></script><link rel="stylesheet" href="katex.min.css"><script src="katex.min.js"></script><link rel="stylesheet" href="build/mathquill.css"><script type="text/javascript">/**
-       *  On load, called to load the auth2 library and API client library.
-       */
-      function handleClientLoad() {
-        gapi.load('client:auth2', initClient);
-        gapi.load('picker');
-        gapi.load('drive');
-      }
+<html><head><script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script><script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-70441517-2")</script><script>!function(e,t,a,n,c,o,s){e.GoogleAnalyticsObject=c,e[c]=e[c]||function(){(e[c].q=e[c].q||[]).push(arguments)},e[c].l=1*new Date,o=t.createElement(a),s=t.getElementsByTagName(a)[0],o.async=1,o.src="https://www.google-analytics.com/analytics.js",s.parentNode.insertBefore(o,s)}(window,document,"script",0,"ga"),ga("create","UA-70441517-2","auto")</script><meta name="viewport" content="width=624,user-scalable=no"><meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!"><title>Free Math - Homework software that is easy to use and powerful</title><link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"><script src="expect.min.js"></script><script src="lib/jquery.js"></script><script src="lib/underscore.js"></script><script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script><script src="lib/kas.js"></script><script src="lib/i18n.js"></script><script src="lib/mathjax/2.1/MathJax.js"/><script type="text/javascript" src="katexA11.js"></script><script type="text/javascript" src="kas.min.js"></script><link rel="stylesheet" href="katex.min.css"><script src="katex.min.js"></script><link rel="stylesheet" href="build/mathquill.css"><script type="text/javascript">/**
+     *  On load, called to load the auth2 library and API client library.
+     */
+    function handleClientLoad() {
+      gapi.load('client:auth2', initClient);
+      gapi.load('picker');
+      gapi.load('drive');
+    }
+
+    var DEFAULT_MIME = 'text\/plain; charset=utf8';
 
     // --- prod ----
     var PROJECT_NUMBER = '412119895810';
@@ -16,396 +18,214 @@
     //var PROJECT_NUMBER = '726134963224';
     //var CLIENT_ID = '726134963224-rcc5nqsnsvr61cdjrin5tgeloidssfcf.apps.googleusercontent.com';
 
-      // Authorization scopes required by the API; multiple scopes can be
-      // included, separated by spaces.
-      var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
-                   //'https://www.googleapis.com/auth/drive.readonly ' +
-                   //'https://www.googleapis.com/auth/drive ' +
+    // Authorization scopes required by the API; multiple scopes can be
+    // included, separated by spaces.
+    var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
                    'https://www.googleapis.com/auth/classroom.courses.readonly ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me ' +
                    'https://www.googleapis.com/auth/classroom.coursework.me.readonly ' +
-                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ';
-                   //'https://www.googleapis.com/auth/classroom.coursework.students';
+                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.students ' +
+                   'https://www.googleapis.com/auth/classroom.rosters.readonly';
 
-      var APP_ID = 'quickstart-1561689319732';
+    var APP_ID = 'quickstart-1561689319732';
 
-      // TODO FIXME HACKS
-      var loadStudentDocsFromZip = function() {}
+    // TODO FIXME HACKS
+    var loadStudentDocsFromZip = function() {}
 
-      /**
-       *  Initializes the API client library and sets up sign-in state
-       *  listeners.
-       */
-      function initClient() {
+    /**
+     *  Initializes the API client library and sets up sign-in state
+     *  listeners.
+     */
+    function initClient() {
 
-        // Array of API discovery doc URLs for APIs used by the quickstart
-        var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 
-        gapi.client.init({
-          clientId: CLIENT_ID,
-          discoveryDocs: DISCOVERY_DOCS,
-          scope: SCOPES
-        }).then(function () {
-          // Listen for sign-in state changes.
-          console.log("stuff");
-          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+      gapi.client.init({
+        clientId: CLIENT_ID,
+        discoveryDocs: DISCOVERY_DOCS,
+        scope: SCOPES
+      }).then(function () {
+        // Listen for sign-in state changes.
+        console.log("stuff");
+        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-          // Handle the initial sign-in state.
-          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-        }, function(error) {
-          //appendPre(JSON.stringify(error, null, 2));
-        });
-      }
-
-      /**
-       *  Called when the signed in status changes, to update the UI
-       *  appropriately. After a sign-in, the API is called.
-       */
-      function updateSigninStatus(isSignedIn) {
-        if (isSignedIn) {
-            console.log("signed in");
-        } else {
-            console.log("not signed in");
-        }
-      }
-
-      /**
-       *  Sign in the user upon button click.
-       */
-      function handleAuthClick(event) {
-        gapi.auth2.getAuthInstance().signIn();
-      }
-
-      /**
-       *  Sign out the user upon button click.
-       */
-      function handleSignoutClick(event) {
-        gapi.auth2.getAuthInstance().signOut();
-      }
-
-      /**
-       * Append a pre element to the body containing the given message
-       * as its text node. Used to display the results of the API call.
-       *
-       * @param {string} message Text to be placed in pre element.
-       */
-      function appendPre(message) {
-        var pre = document.getElementById('content');
-        var textContent = document.createTextNode(message + '\n');
-        //pre.appendChild(textContent);
-      }
-
-    function downloadAllGoogeClassroomSubmissions(driveFolderId, callback, errorCallback = function(){}) {
-        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Need to authorize access to Google Services.');
-            handleAuthClick();
-        }
-
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', 'https://classroom.googleapis.com/v1/courses');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback();
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send();
+        // Handle the initial sign-in state.
+        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+      }, function(error) {
+          console.log(error);
+          alert("Error connecting to google.");
+      });
     }
 
-    function listGoogeClassroomCourses(callback, errorCallback = function(){}) {
-        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Need to authorize access to Google Services.');
-            handleAuthClick();
-        }
-
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', 'https://classroom.googleapis.com/v1/courses');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback();
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send();
+    /**
+     *  Called when the signed in status changes, to update the UI
+     *  appropriately. After a sign-in, the API is called.
+     */
+    function updateSigninStatus(isSignedIn) {
+      if (isSignedIn) {
+          console.log("signed in");
+      } else {
+          console.log("not signed in");
+      }
     }
 
-    function listGoogeClassroomAssignments(courseId, callback, errorCallback = function(){}) {
-        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Need to authorize access to Google Services.');
-            handleAuthClick();
-        }
-
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback();
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send();
+    /**
+     *  Sign in the user upon button click.
+     */
+    function handleAuthClick(event) {
+      gapi.auth2.getAuthInstance().signIn();
     }
 
-    function listGoogeClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
-        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Need to authorize access to Google Services.');
-            handleAuthClick();
-        }
+    /**
+     *  Sign out the user upon button click.
+     */
+    function handleSignoutClick(event) {
+      gapi.auth2.getAuthInstance().signOut();
+    }
 
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
-                    courseWorkId + '/studentSubmissions');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        console.log(this.responseText);
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback();
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send();
+    function listGoogleClassroomCourses(callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses';
+        googleGet(url, callback, errorCallback);
+    }
+
+    function listGoogleClassroomAssignments(courseId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
+        // filter out list to just type ASSIGNMENT
+        googleGet(url, function(response) {
+            response.courseWork = response.courseWork.filter(x => x.workType === 'ASSIGNMENT');
+            console.log(response);
+            callback(response);
+        }, errorCallback);
+    }
+
+    function listClassroomStudents(courseId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/students';
+        googleGet(url, callback, errorCallback);
+    }
+
+    function listGoogleClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions';
+        googleGet(url, callback, errorCallback);
     }
 
     function listFilesInFolder(folderId, callback, errorCallback = function(){}) {
-        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Need to authorize access to Google Services.');
-            handleAuthClick();
-        }
-
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        
-        xhr.open('get', 'https://www.googleapis.com/drive/v2/files/' + folderId + '/children');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        //xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        console.log(this.responseText);
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback();
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send();
-    }
-
-    function doStuff(response) {
-        console.log(response);
-        downloadFile(response.res, true, function(data) {
-            setTimeout(function() {
-                loadStudentDocsFromZip(data, "temp", response.res);
-            }.bind(this), 50);
-        });
-    }
-
-    function downloadClassAssignmentFiles(folderId, callback, errorCallback = function(){} ) {
-        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Need to authorize access to Google Services.');
-            handleAuthClick();
-        }
-
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        var url = 'https://script.google.com/macros/s/AKfycbx_WIQz1e4fg8YFWq-SOGstwZrEu-eDrsU9EB2jnxPCxF2sHoQ/exec?folderid=' + 
-                    folderId + '&callback=?';
-        $.getJSON( url, 
-            function( returnValue ){
-                console.log(response);
-                callback(response);
-            });
-
-        /*
-        xhr.open('get', url);
-        //xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        console.log(this.responseText);
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback();
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send();
-        */
+        let url = 'https://www.googleapis.com/drive/v2/files/' + folderId + '/children';
+        googleGet(url, callback, errorCallback);
     }
 
     // TODO - most of the time users will want to overwrite their previous work, but this currently
     // just adds a new file to their submission each time
     // it would be best to push users towards opening their previous submission, as soon as we know
     // one is associated with their assignment they are trying to work on
-    function modifyGoogeClassroomSubmission(
-        courseId, courseWorkId, submissionId, driveFileId, callback, errorCallback = function(){}) {
-
-        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            alert('Need to authorize access to Google Services.');
-            handleAuthClick();
-        }
-
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        xhr.open('post', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
-                    courseWorkId + '/studentSubmissions/' + submissionId + ':modifyAttachments');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback(this);
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        var payload = {
-          "addAttachments": [
-            {
-                "driveFile": {
-                    "id" : driveFileId
-                }
-            }
-          ]
-        };
-        console.log(payload);
-        xhr.send(JSON.stringify(payload));
+    function modifyGoogeClassroomSubmission(courseId, courseWorkId, submissionId, driveFileId,
+                                            callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions/' + submissionId + ':modifyAttachments';
+        let payload = { "addAttachments": [ { "driveFile": { "id" : driveFileId } } ] };
+        googlePostJson(url, payload, callback, errorCallback);
     }
 
-    function createGoogeClassroomAssignment(
-        courseId, title, description, callback, errorCallback = function(){}) {
+    function createGoogeClassroomAssignment(courseId, title, description, callback, errorCallback = function(){}) {
+
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
+        // TODO - add due date
+        let payload = { title: title, description: description,
+                        workType : "ASSIGNMENT", state : "DRAFT"};
+        googlePostJson(url, payload, callback, errorCallback);
+    }
+
+    function directDownloadFile(fileId, isBinary, callback, errorCallback = function() {}) {
+        // TODO - test what happens when selecting google docs elements instead of binary files with this change
+
+        let url = 'https://www.googleapis.com/drive/v2/files/' + fileId + '?alt=media&source=downloadUrl';
+        // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+        let mime = isBinary ? 'text\/plain; charset=x-user-defined' : DEFAULT_MIME;
+        googleRequestBinaryResponse(url, 'get', false, mime, callback, errorCallback);
+    }
+
+    function downloadFile(fileId, isBinary, callback, failureCallback) {
+        directDownloadFile(fileId, isBinary, callback, failureCallback)
+    }
+
+    function downloadFileMetadata(fileId, callback, errorCallback = function() {}) {
+        let url = 'https://www.googleapis.com/drive/v2/files/' + fileId;
+        googleGet(url, callback, errorCallback);
+    }
+
+    function updateGrades(courseId, courseWorkId, grades /* map from submissionId to grade */,
+                          callback, errorCallback = function() {}) {
 
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
-
         var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        xhr.open('post', 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            console.log(this);
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    try {
-                        var response = JSON.parse(this.responseText);
-                        callback(response);
-                    } catch (e) {
-                        console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
-                    }
-                } else {
-                    console.log(this.responseText);
-                    errorCallback();
-                }
-            } else {
-                // ignore other events for request still in progress
+        let url = 'https://classroom.googleapis.com/batch';
+
+        var payload = new FormData();
+        var i = 0;
+        grades = grades['GOOGLE_STUDENT_GRADES'];
+        for (var submissionId in grades) {
+            if ( grades.hasOwnProperty(submissionId)) {
+                let innerPayload = new FormData();
+                let grade = Number(grades[submissionId]);
+                console.log(grade);
+                payload.append('grade_' + i, new Blob(
+                    [
+                        'PATCH https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                                courseWorkId + '/studentSubmissions/' + submissionId + '?updateMask=draftGrade' + "\n" +
+                        'Content-Type: application/json; charset=UTF-8' + "\n" +
+                        'Authorization: Bearer ' + accessToken + "\n\n" +
+                        JSON.stringify({draftGrade: grade})
+                    ], {type: 'application/http'})
+                );
+                i++;
             }
-        };
-        // TODO - add due date
-        var payload = {
-            title: title,
-            description: description,
-            workType : "ASSIGNMENT",
-            state : "PUBLISHED"
-        };
+        }
         console.log(payload);
-        xhr.send(JSON.stringify(payload));
+        googleRequestBinaryResponse(url, 'post', payload, 'multipart/mixed', callback, errorCallback);
+    }
+
+    function updateFileWithBinaryContent(name, content, googleId,
+                                         fileType='application/zip', callback, errorCallback = function(){}) {
+
+        let url = 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart';
+        // NOTE: in v2 api title is used instead of name, changed in v3
+        var meta = {mimeType: fileType};
+        // don't update the name if null is passed
+        if (name !== null) {
+            meta.title = name;
+        }
+        var payload = new FormData();
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
+        payload.append('file', content);
+        googleRequestJsonResponse(url, 'put', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    function createFileWithBinaryContent(name, content, fileType='application/zip', callback,
+                                         errorCallback = function(){}) {
+        let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+        // NOTE: in v2 api title is used instead of name
+        let meta = {name: name, mimeType: fileType};
+        let payload = new FormData();
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
+        payload.append('file', content);
+        googleRequestJsonResponse(url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    function googleGet(url, callback, errorCallback = function(){}) {
+        googleRequestJsonResponse(url, 'get', false, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    function googlePostJson(url, payload, callback, errorCallback) {
+        googleRequestJsonResponse(url, 'post', JSON.stringify(payload), DEFAULT_MIME, callback, errorCallback);
     }
 
     // callback takes 2 parameters filename and content
-      function openDriveFile(isBinary, callback, folder = null){
+    function openDriveFile(isBinary, multiSelect, folder, callback){
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
@@ -422,155 +242,74 @@
               .addView(docsView)
               .addView(new google.picker.DocsUploadView())
               .setOAuthToken(accessToken)
-              .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
               .setCallback(function(data) {
                   var url = 'nothing';
                   if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-                    var doc = data[google.picker.Response.DOCUMENTS][0];
-                    //url = doc[google.picker.Document.URL];
-                    console.log(doc);
-                    downloadFile(doc.id, isBinary, function(data) {
-                        callback(doc.name, data, doc.id);
-                    });
+                    callback(data[google.picker.Response.DOCUMENTS]);
                   }
               });
 
+          if (multiSelect) {
+            pickerBuilder.enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+          }
+
           var picker = pickerBuilder.build();
           picker.setVisible(true);
-      }
-
-    function directDownloadFile(fileMeta, fileId, isBinary, callback) {
-        if (fileMeta.downloadUrl) {
-            var accessToken = gapi.auth.getToken().access_token;
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', fileMeta.downloadUrl);
-            // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
-            console.log(isBinary);
-            if (isBinary) {
-                xhr.overrideMimeType('text\/plain; charset=x-user-defined');
-            } else {
-                xhr.overrideMimeType('text\/plain; charset=utf8');
-            }
-            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-            xhr.onload = function() {
-                console.log(this);
-                if (this.readyState === 4) {
-                    if (this.status == 200) {
-                        callback(this.response, fileId);
-                    } else {
-                        alert("Something went wrong: " + this.status);
-                    }
-                } else {
-                    // ignore other events for request still in progress
-                }
-            };
-            xhr.onerror = function() {
-              console.log(this);
-              alert("Something went wrong: " + this.status);
-            };
-            xhr.send();
-        } else {
-            console.log(fileMeta);
-            alert("Error opening file from Drive. Note Free Math only opens files it creates itself.");
-        }
     }
 
-    function downloadFile(fileId, isBinary, callback) {
-        downloadFileMetadata(fileId, function(fileMeta) {
-            directDownloadFile(fileMeta, fileId, isBinary, callback)
-        });
+    function googleRequestBinaryResponse(url, verb, payload, mime, callback, errorCallback = function(){}) {
+        googleRequest(url, verb, payload, mime,
+            function(responseXhr) {
+                callback(responseXhr.response);
+            },
+            errorCallback);
     }
 
-    function downloadFileMetadata(fileId, callback) {
-        var accessToken = gapi.auth.getToken().access_token;
-        var xhr = new XMLHttpRequest();
-        xhr.open('get', 'https://www.googleapis.com/drive/v2/files/'+fileId);
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                try {
-                    var fileMeta = JSON.parse(this.responseText);
-                    console.log(fileMeta);
-                    callback(fileMeta);
-                    } catch (e) {
-                        console.log(e);
-                        console.log(this.responsetext);
-                        alert("Error reading Google's response.");
-                    }
-                } else {
-                    alert(this.responsetext);
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send();
-      }
+    function googleRequestJsonResponse(url, verb, payload, mime, callback, errorCallback = function(){}) {
+        googleRequest(url, verb, payload, mime,
+            function(responseXhr) {
+                callback(JSON.parse(responseXhr.responseText));
+            },
+            errorCallback);
+    }
 
-      var updateFileWithBinaryContent = function(name, content, googleId,
-          fileType='application/zip', callback, errorCallback = function(){}) {
-
+    function googleRequest(url, verb, payload, mime, callback, errorCallback = function(){}) {
         if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            errorCallback();
-            alert('Need to re-authorize access to Google Services.');
+            alert('Need to authorize access to Google Services.');
             handleAuthClick();
-            return;
         }
-        var meta = {title: name, mimeType: fileType};
-        var accessToken = gapi.auth.getToken().access_token;
-        var payload = new FormData();
-        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
-        payload.append('file', content);
-        var xhr = new XMLHttpRequest();
-        xhr.open('put', 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-        xhr.onload = function() {
-            console.log(this);
-            console.log(JSON.parse(this.responseText));
-            if (this.readyState === 4) {
-                if (this.status == 200) {
-                    callback();
-                } else {
-                    errorCallback();
-                    console.log(this.status + " " + this.responseText);
-                    alert(this.status + " " + this.responseText);
-                }
-            } else {
-                // ignore other events for request still in progress
-            }
-        };
-        xhr.send(payload);
-      }
 
-      var createFileWithBinaryContent = function(name, content, fileType='application/zip', callback) {
-
-        //var content = new Blob([file]);
-        var meta = {name: name, mimeType: fileType};
         var accessToken = gapi.auth.getToken().access_token;
-        var payload = new FormData();
-        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
-        payload.append('file', content);
         var xhr = new XMLHttpRequest();
-        xhr.open('post', 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+        xhr.open(verb, url);
+        xhr.overrideMimeType(mime);
         xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
         xhr.onload = function() {
             console.log(this);
             if (this.readyState === 4) {
                 if (this.status == 200) {
                     try {
-                        var response = JSON.parse(this.responseText);
-                        callback(response.id);
+                        callback(this);
                     } catch (e) {
                         console.log(e);
-                        alert("error reading google's response:" + this.responsetext);
+                        alert("Error reading google's response:" + this.responseText);
                     }
                 } else {
-                    alert(this.responsetext);
+                    console.log(this.responseText);
+                    errorCallback(this);
                 }
             } else {
                 // ignore other events for request still in progress
             }
         };
-        xhr.send(payload);
-      }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><script type="text/javascript" src="build/mathquill.min.js"></script><link rel="stylesheet" href="lib/cropper.min.css"><link rel="stylesheet" href="lib/tui-image-editor.min.css"><link rel="stylesheet" href="lib/tui-color-picker.min.css"><style>.tui-image-editor-controls-buttons{visibility:hidden}</style><link href="static/css/main.62c21f49.css" rel="stylesheet"></head><body style="margin-top:40px;background-color:#f9f9f9"><div id="root"></div><script type="text/javascript" src="static/js/main.807056a6.js"></script></body></html>
+        xhr.onerror = function() {
+          console.log(this);
+          alert("Error when making google request: " + this.status);
+          failureCallback();
+        };
+        if (payload) {
+            xhr.send(payload);
+        } else {
+            xhr.send();
+        }
+    }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><script type="text/javascript" src="build/mathquill.min.js"></script><link rel="stylesheet" href="lib/cropper.min.css"><link rel="stylesheet" href="lib/tui-image-editor.min.css"><link rel="stylesheet" href="lib/tui-color-picker.min.css"><style>.tui-image-editor-controls-buttons{visibility:hidden}</style><link href="static/css/main.62c21f49.css" rel="stylesheet"></head><body style="margin-top:40px;background-color:#f9f9f9"><div id="root"></div><script type="text/javascript" src="static/js/main.1deb145c.js"></script></body></html>
