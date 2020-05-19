@@ -10,7 +10,8 @@ import { CloseButton, LightButton, HtmlButton } from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
-import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip } from './TeacherInteractiveGrader.js';
+import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
+         calculateGrades, removeStudentFromGradingView } from './TeacherInteractiveGrader.js';
 
 var MathQuill = window.MathQuill;
 
@@ -317,9 +318,54 @@ class UserActions extends React.Component {
                                 if (pendingOpens === 0) {
 
                                     if (errorsDownloading) {
-                                        alert("One or more student docs failed to save, please try again");
+                                        alert("One or more student docs failed to download.");
                                     }
                                     console.log(allStudentWork);
+
+                                    // check student submissions every 30 seconds, if they have unsubmitted
+                                    // remove them from view
+                                    const checkForUnsubmits = function() {
+                                        let state = getPersistentState();
+                                        var grades = calculateGrades(state[PROBLEMS]);
+                                        console.log('checking for unsubmits');
+                                        window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
+                                            function(resp) {
+                                                // array of obj { fileId: '134', name: 'Bob Doe'}{
+                                                let toRemove = [];
+                                                resp.studentSubmissions.forEach(function(submission) {
+                                                    let isSubmitted = function(submission) {
+                                                        return ( typeof submission.assignmentSubmission.attachments !== 'undefined'
+                                                                  && submission.state !== 'CREATED'
+                                                                  && submission.state !== 'RECLAIMED_BY_STUDENT');
+                                                    };
+                                                    console.log('check still submitted');
+                                                    console.log(submission.id);
+                                                    console.log(grades);
+                                                    if ( typeof grades['GOOGLE_STUDENT_GRADES'][submission.id] !== 'undefined'
+                                                         && !isSubmitted(submission)) {
+                                                        console.log('removing student from view');
+                                                        toRemove.push({fileId : submission.assignmentSubmission.attachments[0].driveFile.id,
+                                                                       name : students[submission.userId]
+                                                        });
+                                                    }
+                                                });
+                                                if (toRemove.length > 0) {
+                                                    let allStudents = toRemove.map(unsubmitted => unsubmitted.name).join();
+                                                    alert("One or more students unsubmitted, removing them from the grading page to prevent " +
+                                                           "your updates from overwriting their edits:\n\n" + allStudents);
+                                                    toRemove.forEach(function(removeMe) {
+                                                        removeStudentFromGradingView(
+                                                                removeMe.fileId, state);
+                                                    });
+                                                }
+                                        });
+                                    }
+                                    setTimeout(function() {
+                                        checkForUnsubmits();
+                                        setTimeout(function() {
+                                            checkForUnsubmits();
+                                        }, 1000 * 10);
+                                    }, 1000 * 10);
 
                                     var aggregatedWork = aggregateStudentWork(allStudentWork);
                                     window.store.dispatch(

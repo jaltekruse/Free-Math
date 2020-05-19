@@ -557,10 +557,15 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
     return assignments;
 }
 
-// Students in google classroom can unsubmit/reclaim their documents, which
-// takes away edit/comment permissions from the teacher. When this happens during
-// a grading session, the user is warned and this student needs to be taken out of
-// view so the auto-save back to classroom doesn't keep erroring
+// Students in google classroom can unsubmit/reclaim their documents.
+// When this happens during a grading session, the teacher is warned
+// and this student needs to be taken out of view so they don't overwrite
+// the new student work.
+//
+// TODO - there is a partial implementation of merging student and teacher
+//        edits happening during concurrent sessions, but currently it will
+//        not work if requests are inflight at the exact same time. When this
+//        is fixed it should be safe for teachers to comment on in-progress things.
 // TODO - need to enforce uniqueness of identifier
 // eslint-disable-next-line no-unused-vars
 function removeStudentFromGradingView(filename, gradedWork) {
@@ -1863,11 +1868,13 @@ export { TeacherInteractiveGrader as default,
     loadStudentDocsFromZip,
     studentSubmissionsZip,
     saveGradedStudentWork,
+    removeStudentFromGradingView,
     saveGradedStudentWorkToBlob,
     gradeSingleProblem,
     aggregateStudentWork,
     separateIndividualStudentAssignments,
     calculateGradingOverview,
+    calculateGrades,
     convertToCurrentFormat,
     gradingReducer,
     makeBackwardsCompatible,
