@@ -148,7 +148,10 @@ class UserActions extends React.Component {
                     function() {} // failure callback
                     );
                 });
-            }, function(){/* TODO - on sign in error*/});
+            }, function(e){
+                alert("error signing in to google");
+                console.log(e);
+            });
 
         const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
@@ -172,7 +175,10 @@ class UserActions extends React.Component {
                         );
                     }.bind(this), 50);
                 }.bind(this));
-            }.bind(this), function(){/* TODO - on sign in error*/});
+            }.bind(this), function(e){
+                alert("error signing in to google");
+                console.log(e);
+            });
 
         const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
@@ -193,8 +199,10 @@ class UserActions extends React.Component {
 
         const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
-            gradeClassroomAssignmentCallback, function(){/* TODO - on sign in error*/})
-
+            gradeClassroomAssignmentCallback, function(e){
+                alert("error signing in to google");
+                console.log(e);
+            });
     }
 
     closeSpinner = () => {
