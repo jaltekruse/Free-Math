@@ -388,11 +388,14 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         var selectAssignmentCallback = this.props.selectAssignmentCallback;
 
         const courseList = function() {
-            return (<div>
+            return (
+                <div>
                 <div>Pick a class</div>
+                <div style={{overflow:"auto", maxHeight: "90vh"}}>
                 {rootState[GOOGLE_CLASS_LIST].courses
                     .map(function(classInfo, index) {
                         return (
+                            <span>
                             <Button text={classInfo.name}
                                 onClick={function() {
                                     window.listGoogleClassroomAssignments(classInfo.id,
@@ -409,10 +412,11 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                     });
                                     // load docs for this class id
                                     // classInfo.id
-                                }} />
+                                }} /><br /></span>
                         )
                     })
                 }
+                </div>
             </div>)
         };
 
@@ -464,10 +468,14 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         const assignmentList = function() {
             return (
                 <div>
-                    <div>Pick an assignment - {rootState[GOOGLE_SELECTED_CLASS_NAME]}</div>
+                    <div>
+                        Pick an assignment - {rootState[GOOGLE_SELECTED_CLASS_NAME]}
+                    </div>
+                    <div style={{overflow:"auto", maxHeight: "90vh"}}>
                         {rootState[GOOGLE_ASSIGNMENT_LIST].courseWork
                             .map(function(assignment, index) {
                                 return (
+                                    <span>
                                     <Button text={assignment.title}
                                         onClick={
                                             function() {
@@ -478,9 +486,10 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                                 }
                                             }
                                         }
-                                    />)
+                                    /><br /></span>)
                             })
                         }
+                    </div>
                 </div>
             )
         };
@@ -488,10 +497,13 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         const courseWorkList = function() {
             return (
                 <div>
-                    <div>Pick an submission - {rootState[GOOGLE_SELECTED_ASSIGNMENT_NAME]}</div>
+                    <div>
+                        Pick a submission - {rootState[GOOGLE_SELECTED_ASSIGNMENT_NAME]}</div>
+                        <div style={{overflow:"auto", maxHeight: "90vh"}}>
                         {rootState[GOOGLE_COURSEWORK_LIST].studentSubmissions
                             .map(function(submission, index) {
                                 return (
+                                    <span>
                                     <Button text={submission.creationTime}
                                         onClick={function() {
                                             // TODO - auto save doc to drive before doing this
@@ -501,10 +513,11 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                                             rootState[GOOGLE_ID]
                                             );
                                         }}
-                                    />
+                                    /><br /></span>
                                 );
                             })
                         }
+                        </div>
                 </div>
             );
         };

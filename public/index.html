@@ -215,7 +215,12 @@ ga('create', 'UA-70441517-2', 'auto');
 
     function listGoogleClassroomAssignments(courseId, callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
-        googleGet(url, callback, errorCallback);
+        // filter out list to just type ASSIGNMENT
+        googleGet(url, function(response) {
+            response.courseWork = response.courseWork.filter(x => x.workType === 'ASSIGNMENT');
+            console.log(response);
+            callback(response);
+        }, errorCallback);
     }
 
     function listClassroomStudents(courseId, callback, errorCallback = function(){}) {
