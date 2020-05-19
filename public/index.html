@@ -251,7 +251,7 @@ ga('create', 'UA-70441517-2', 'auto');
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
         // TODO - add due date
         let payload = { title: title, description: description,
-                        workType : "ASSIGNMENT", state : "PUBLISHED"};
+                        workType : "ASSIGNMENT", state : "DRAFT"};
         googlePostJson(url, payload, callback, errorCallback);
     }
 

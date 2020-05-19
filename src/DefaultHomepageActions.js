@@ -587,7 +587,8 @@ class UserActions extends React.Component {
                                 function(response) {
                                     console.log(response);
                                     this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : false});
-                                    alert("successfully created asignment");
+                                    alert("Successfully created draft asignment, " +
+                                        "use Google Classroom to set a due date, attach any needed files, and publish it.");
                                 }.bind(this)
                             );
                         }.bind(this)}
