@@ -42,8 +42,6 @@ class FreeMathModal extends React.Component {
           return {
             position: 'absolute',
             maxHeight:"90%",
-            minHeight:"400px",
-            minWidth:"500px",
             top: top + '%', left: left + '%',
             transform: `translate(-${top}%, -${left}%)`,
             border: '1px solid #e5e5e5',
