@@ -100,7 +100,7 @@ class GradingMenuBar extends React.Component {
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
                         (<div style={{display:"inline-block"}}>
-                        Assignment Name &nbsp;
+                        Assignment &nbsp;
                         <input type="text" id="assignment-name-text" size="20"
                                 name="assignment name"
                                 value={this.props.value[ASSIGNMENT_NAME]}
@@ -116,13 +116,25 @@ class GradingMenuBar extends React.Component {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(getPersistentState());
                             }
-                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <LightButton text="Save to Classroom" onClick={
-                            function() {
-                                window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
+                        }/>&nbsp;&nbsp;&nbsp;
+                        <HtmlButton
+                            className="fm-button-light"
+                            title="Save feedback and grades to Google Classroom"
+                            onClick={function() {
+                                window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs to Classroom');
                                 saveToLocalStorageOrDrive(0);
-                            }
-                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            }}
+                            content={(
+                                    <div style={{display: "inline-block"}}>
+                                        <div style={{float: "left", paddingTop: "4px"}}>
+                                            Submit to Classroom&nbsp;
+                                        </div>
+                                         <img style={{paddingTop: "2px"}}
+                                                src="images/google_classroom_small.png"
+                                                alt="Google Classroom logo"
+                                                height="16px"/>
+                                    </div>
+                            )} />&nbsp;&nbsp;&nbsp;
                         </div>) : null }
 
                         <LightButton text="Similar Docs" onClick={
@@ -132,7 +144,7 @@ class GradingMenuBar extends React.Component {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Open similar doc check');
                                 window.store.dispatch({type : SET_TO_SIMILAR_DOC_CHECK});
                             }
-                        }/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        }/>&nbsp;&nbsp;&nbsp;
                         <LightButton text="Grades" onClick={
                             function() {
                                 window.location.hash = '';

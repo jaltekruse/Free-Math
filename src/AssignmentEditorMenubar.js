@@ -91,6 +91,23 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
 }
 
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
+    var blob =
+        new Blob([
+            JSON.stringify({
+            ...studentDoc,
+            PROBLEMS : removeUndoRedoHistory(
+                        makeBackwardsCompatible(
+                          studentDoc
+                        )
+                    )[PROBLEMS]
+            })],
+        {type: "application/octet-stream"});
+        //{type: "text/plain;charset=utf-8"});
+
+    handleFinalBlobCallback(blob);
+}
+
+function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
     var allProblems = studentDoc[PROBLEMS];
     var zip = new JSZip();
     var imagesBeingAddedToZip = 0;
