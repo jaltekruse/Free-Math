@@ -591,6 +591,32 @@ function removeStudentFromGradingView(filename, gradedWork) {
 
 function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
 
+    // clear previous value, although this is supposed to be zero before this is called
+    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+        CLASSROOM_TOTAL_TO_SAVE: 0
+    });
+    window.ephemeralStore.dispatch({ type: RESET_CLASSROOM_SAVING_COUNT });
+
+    var checkFilesLoaded = function() {
+        console.log("check all saved");
+        var filesBeingSaved = getEphemeralState()[CLASSROOM_SAVING_COUNT];
+        if (filesBeingSaved === 0) {
+            /* TODO - likely delete, teachers don't lose access on unsubmit
+            if (unsubmittedStudents.length > 0) {
+                alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
+                      + JSON.stringify(unsubmittedStudents));
+            }
+            */
+            if (errorsSaving) {
+                alert("One or more student docs failed to save, please try again");
+            }
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
+                CLASSROOM_TOTAL_TO_SAVE: 0
+            });
+            onSuccess();
+        }
+    }
+
     // TODO - block reporting success until this request complete as well as the file saves
     // save grades to google classroom
     var grades = calculateGrades(gradedWork[PROBLEMS]);
@@ -603,17 +629,16 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             // so it isn't siplayed to users, it can still block completion, but I think
             // users would be comfused if the count didn't match the number of students
             // and I don't think it makes sense to add text to explain it
+            let allLoaded = checkFilesLoaded();
     });
 
     let currentAppMode = gradedWork[APP_MODE];
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-    // clear previous value, although this is supposed to be zero before this is called
-    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
-        CLASSROOM_TOTAL_TO_SAVE: 0
-    });
-    window.ephemeralStore.dispatch({ type: RESET_CLASSROOM_SAVING_COUNT });
 
-    var totalToSave = 0;
+    // to include the grades request made above
+    // subtracted out when displaying to users, because it will probably be confusing to
+    // show them a number different than the number of students they are deailing with
+    var totalToSave = 1;
     var errorsSaving = 0;
     var unsubmittedStudents = [];
 
@@ -634,28 +659,6 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
 
     }
 
-    var checkFilesLoaded = function() {
-        console.log("check all saved");
-        var filesBeingSaved = getEphemeralState()[CLASSROOM_SAVING_COUNT];
-        if (filesBeingSaved === 0) {
-            /* TODO - likely delete, teachers don't lose access on unsubmit
-            if (unsubmittedStudents.length > 0) {
-                alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
-                      + JSON.stringify(unsubmittedStudents));
-            }
-            */
-            if (errorsSaving) {
-                alert("One or more student docs failed to save, please try again");
-            }
-            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
-                CLASSROOM_TOTAL_TO_SAVE: 0
-            });
-            onSuccess();
-            return true;
-        } else {
-            return false;
-        }
-    }
     const onIndividualFileSuccess = function() {
         console.log("successful save");
         window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
@@ -663,8 +666,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             let nextFilename = uploadQueue.pop();
             saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
         } else {
-            let allLoaded = checkFilesLoaded();
-            if (allLoaded) return;
+            checkFilesLoaded();
         }
     }
     const onIndividualFailure = function(filename) {
@@ -677,8 +679,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             let nextFilename = uploadQueue.pop();
             saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
         } else {
-            let allLoaded = checkFilesLoaded();
-            if (allLoaded) return;
+            checkFilesLoaded();
         }
     }
     const onFailureWrapped = function(filename) {
@@ -1797,10 +1798,14 @@ class TeacherInteractiveGrader extends React.Component {
                                 <br />
                                 Saving to Classroom...
                                 <br />
-                                {/* subract one for the request to save grades, only show user count matching total students*/}
-                                {this.props.value[CLASSROOM_TOTAL_TO_SAVE] - (this.props.value[CLASSROOM_SAVING_COUNT] - 1)}
+                                {/* subtract one for the request to save grades, only show user count matching total students
+                                    Also "undercounts" the number of successful requests, so that the dialog doesn't hang around
+                                    with N / N successful while waiting for the last request to finish, hence the max with 0,
+                                    otherwise the calculation would should -1 if nothing was successful yet
+                                    */}
+                                {Math.max(0, this.props.value[CLASSROOM_TOTAL_TO_SAVE] - 1 - (this.props.value[CLASSROOM_SAVING_COUNT]))}
                                 &nbsp; / &nbsp;
-                                {this.props.value[CLASSROOM_TOTAL_TO_SAVE]}
+                                {this.props.value[CLASSROOM_TOTAL_TO_SAVE] - 1}
                                 &nbsp; saved
                             </div>
                         </div>

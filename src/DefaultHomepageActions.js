@@ -372,12 +372,7 @@ class UserActions extends React.Component {
                                                 }
                                         });
                                     }
-                                    setTimeout(function() {
-                                        checkForUnsubmits();
-                                        setTimeout(function() {
-                                            checkForUnsubmits();
-                                        }, 1000 * 10);
-                                    }, 1000 * 10);
+                                    setInterval(checkForUnsubmits, 1000 * 10);
 
                                     var aggregatedWork = aggregateStudentWork(allStudentWork);
                                     window.store.dispatch(
