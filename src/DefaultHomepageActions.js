@@ -149,10 +149,13 @@ class UserActions extends React.Component {
                     );
                 });
             }, function(e){
-                alert("error signing in to google");
+                //alert("error signing in to google");
                 console.log(e);
             });
 
+        /* Disabled for now, this is confusing to have alongside the Google Classroom support
+         * might be useful in the future to give people with other LMSes, but also a google
+         * account a way to more easily back up grading sessions in the cloud
         const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
         window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
             function() {
@@ -179,6 +182,7 @@ class UserActions extends React.Component {
                 alert("error signing in to google");
                 console.log(e);
             });
+            */
 
         const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
@@ -200,7 +204,7 @@ class UserActions extends React.Component {
         const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
             gradeClassroomAssignmentCallback, function(e){
-                alert("error signing in to google");
+                //alert("error signing in to google");
                 console.log(e);
             });
     }
