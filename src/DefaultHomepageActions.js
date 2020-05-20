@@ -292,6 +292,7 @@ class UserActions extends React.Component {
                             var allStudentWork = [];
                             let pendingOpens = 0;
                             let downloadQueue = [];
+                            let studentWithMultipleSubmissions = [];
                             let errorsDownloading = 0;
                             resp.studentSubmissions.forEach(function(submission) {
                             /* NOTE - temp code to read all selected files from folder regardless of what is submitted in classrom
@@ -307,18 +308,32 @@ class UserActions extends React.Component {
                                 // should probably rename - this is just checking if an attachment is
                                 // present, google classroom does have a separate status of "submitted/turned in"
                                 // that is no longer being used to filter students docs out of the view
-                                var submitted = isSubmitted(submission)
-                                        && selectedDocs[submission.assignmentSubmission.attachments[0].driveFile.id];
+                                var submitted = isSubmitted(submission);
 
+                                let attachments = null;
                                 // TODO - inform teacher
                                 if (!submitted) {
-                                    console.log("skipping");
+                                    console.log("skipping - not submited");
                                     console.log(submission);
                                     return;
+                                } else {
+                                    attachments  = submission.assignmentSubmission.attachments;
+                                    if (attachments.length === 0) {
+                                        console.log("skipping - no attachments");
+                                        return;
+                                    } else {
+                                        // if no drive file is listed with the submission, or it wasn't selected in the picker
+                                        if (! attachments[0].driveFile && ! selectedDocs[attachments[0].driveFile]) {
+                                            console.log("skipping - no drive file");
+                                            return;
+                                        }
+                                        if (attachments.length > 1) {
+                                            studentWithMultipleSubmissions.push(students[submission.userId]);
+                                        }
+                                    }
                                 }
                                 console.log(submission);
-
-                                var attachment = submission.assignmentSubmission.attachments[0].driveFile;
+                                var attachment = attachments[0].driveFile;
                                 // TODO - pull in student name, don't just show filename
                                 pendingOpens++;
                                 console.log(attachment.id);
@@ -332,6 +347,11 @@ class UserActions extends React.Component {
                                     if (errorsDownloading) {
                                         alert("One or more student docs failed to download.");
                                     }
+                                    if (studentWithMultipleSubmissions.length > 0) {
+                                        alert("One or more students had multiple attachments, this isn't recommended.\n\n"
+                                        + studentWithMultipleSubmissions.join());
+                                    }
+
                                     console.log(allStudentWork);
 
                                     // check student submissions every 30 seconds, if they have unsubmitted
