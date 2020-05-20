@@ -127,7 +127,7 @@ class GradingMenuBar extends React.Component {
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "4px"}}>
-                                            Submit to Classroom&nbsp;
+                                            Save to Classroom&nbsp;
                                         </div>
                                          <img style={{paddingTop: "2px"}}
                                                 src="images/google_classroom_small.png"
