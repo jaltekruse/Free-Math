@@ -438,11 +438,17 @@ function saveToLocalStorageOrDrive(delayMillis = 2000) {
                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
             }
         }
-        const onFailure = function() {
+        const onFailure = function(response) {
             window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: -1});
             let pendingSaves = getEphemeralState()[PENDING_SAVES];
             console.log('pendingSaves');
             console.log(pendingSaves);
+            if (response.status === 403) {
+                alert("You cannot edit assignments that are submitted, " +
+                      "you need to unsbumit over in Google Classroom first.");
+            } else {
+                alert("Error saving to google Drive");
+            }
             if (pendingSaves === 0) {
                 window.ephemeralStore.dispatch(
                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});

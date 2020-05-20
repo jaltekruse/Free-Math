@@ -293,7 +293,7 @@ class UserActions extends React.Component {
                             let pendingOpens = 0;
                             let downloadQueue = [];
                             let studentWithMultipleSubmissions = [];
-                            let errorsDownloading = 0;
+                            let errorsDownloading = [];
                             resp.studentSubmissions.forEach(function(submission) {
                             /* NOTE - temp code to read all selected files from folder regardless of what is submitted in classrom
                              *        Good for stress testing without making a bunch of students accounts
@@ -344,8 +344,11 @@ class UserActions extends React.Component {
                             const checkAllDownloaded = function() {
                                 if (pendingOpens === 0) {
 
-                                    if (errorsDownloading) {
-                                        alert("One or more student docs failed to download.");
+                                    if (errorsDownloading.length > 0) {
+                                        alert("One or more student docs failed to download, " +
+                                              "or they submitted a file that wasn't a Free Math document.\n\n" +
+                                              errorsDownloading.join()
+                                        );
                                     }
                                     if (studentWithMultipleSubmissions.length > 0) {
                                         alert("One or more students had multiple attachments, this isn't recommended.\n\n"
@@ -431,7 +434,7 @@ class UserActions extends React.Component {
                                         }
                                     },
                                     function() { // failure callback
-                                        errorsDownloading++;
+                                        errorsDownloading.push(studentName);
                                         pendingOpens--;
                                         if (downloadQueue.length > 0) {
                                             let next = downloadQueue.pop();
@@ -694,7 +697,7 @@ class UserActions extends React.Component {
                             onClick={/* contrlled by google auth in componentDidMount*/function(){}}
                             content={(
                                     <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "2px"}}>Open from&nbsp;</div>
+                                        <div style={{float: "left", paddingTop: "2px"}}>Open from Drive &nbsp;</div>
                                          <img style={{paddingTop: "2px"}}
                                             src="images/google_drive_small_logo.png"
                                             alt="google logo" />

@@ -582,6 +582,14 @@ class AssignmentEditorMenubar extends React.Component {
                                 { type : SET_GOOGLE_DRIVE_STATE,
                                     GOOGLE_DRIVE_STATE : ALL_SAVED});
                             onSuccessCallback();
+                        },
+                        function(response) {
+                            if (response.status === 403) {
+                                alert("You cannot edit assignments that are submitted, " +
+                                      "you need to unsbumit over in Google Classroom first.");
+                            } else {
+                                alert("Error saving to google Drive");
+                            }
                         }
                     );
                 } else {
@@ -597,6 +605,14 @@ class AssignmentEditorMenubar extends React.Component {
                                 { type : SET_GOOGLE_DRIVE_STATE,
                                     GOOGLE_DRIVE_STATE : ALL_SAVED});
                             onSuccessCallback();
+                        },
+                        function(response) {
+                            if (response.status === 403) {
+                                alert("You cannot edit assignments that are submitted, " +
+                                      "you need to unsbumit over in Classroom first.");
+                            } else {
+                                alert("Error saving to google Drive");
+                            }
                         }
                     );
                 }

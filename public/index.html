@@ -255,8 +255,8 @@ ga('create', 'UA-70441517-2', 'auto');
 
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
         // TODO - add due date
-        let payload = { title: title, description: description,
-                        workType : "ASSIGNMENT", state : "DRAFT"};
+        let payload = { title: "[Free Math] " + title, description: description,
+                        workType : "ASSIGNMENT", state : "DRAFT", maxPoints: 100};
         googlePostJson(url, payload, callback, errorCallback);
     }
 
@@ -414,8 +414,8 @@ ga('create', 'UA-70441517-2', 'auto');
                     try {
                         callback(this);
                     } catch (e) {
+                        errorCallback(this);
                         console.log(e);
-                        alert("Error reading google's response:" + this.responseText);
                     }
                 } else {
                     console.log(this.responseText);
