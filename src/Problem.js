@@ -553,7 +553,7 @@ class Problem extends React.Component {
                         />
                     </div>
                         <div className="equation-list">
-                        Type math here or&nbsp;
+                        Type math here
                         {/*<ImageUploader problemIndex={problemIndex} value={this.props.value}/>*/}
                         <br />
 

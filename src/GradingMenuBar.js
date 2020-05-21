@@ -76,8 +76,8 @@ class GradingMenuBar extends React.Component {
         var googleId = this.props.value[GOOGLE_ID];
         var saveState = this.props.value[GOOGLE_DRIVE_STATE];
         if (googleId) {
-            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
-            else if (saveState === SAVING) saveStateMsg = "Saving in Drive...";
+            if (saveState === ALL_SAVED) saveStateMsg = "Grades and Feedback saved in Classroom";
+            else if (saveState === SAVING) saveStateMsg = "Saving in Classroom...";
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
@@ -92,50 +92,70 @@ class GradingMenuBar extends React.Component {
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
 
-                        <span style={{margin : "0px 15px 0px 15px",
-                                      color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "white")}}>
+                        <span style={{ textOverflow: "ellipsis", overflow: "hidden", maxWidth: "320px",
+                                       display: "inline-block", whiteSpace: "nowrap",
+                                       marginLeft: "15px", marginRight: "15px",
+                                       color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "inherit")}}>
                             {saveStateMsg}
                         </span>
+                        {googleId
+                            ?
+                                <span style={{ textOverflow: "ellipsis", overflow: "hidden", maxWidth: "200px",
+                                               display: "inline-block", whiteSpace: "nowrap",
+                                               marginLeft: "15px", marginRight: "15px"}}
+                                          title={this.props.value[ASSIGNMENT_NAME]}>
+                                        {this.props.value[ASSIGNMENT_NAME]}
+                                </span>
+                            : null}
 
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
-                        (<div style={{display:"inline-block"}}>
-                        Assignment &nbsp;
-                        <input type="text" id="assignment-name-text" size="20"
-                                name="assignment name"
-                                value={this.props.value[ASSIGNMENT_NAME]}
-                                onChange={
-                                    function(evt) {
-                                        window.store.dispatch(
-                                            { type : SET_ASSIGNMENT_NAME,
-                                                ASSIGNMENT_NAME : evt.target.value});
-                                    }}
-                        />&nbsp;&nbsp;
+                        (<span>
+                            {googleId
+                            ?
+                                <span>
+                                    <HtmlButton
+                                        className="fm-button-light"
+                                        title="Save feedback and grades to Google Classroom"
+                                        onClick={function() {
+                                            window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs to Classroom');
+                                            saveToLocalStorageOrDrive(0);
+                                        }}
+                                        content={(
+                                                <div style={{display: "inline-block"}}>
+                                                    <div style={{float: "left", paddingTop: "4px"}}>
+                                                        Save to Classroom&nbsp;
+                                                    </div>
+                                                     <img style={{paddingTop: "2px"}}
+                                                            src="images/google_classroom_small.png"
+                                                            alt="Google Classroom logo"
+                                                            height="16px"/>
+                                                </div>
+                                        )} />&nbsp;&nbsp;&nbsp;
+                                </span>
+                            :
+                                <span>
+                                Assignment &nbsp;
+                                <input type="text" id="assignment-name-text" size="20"
+                                        name="assignment name"
+                                        value={this.props.value[ASSIGNMENT_NAME]}
+                                        onChange={
+                                            function(evt) {
+                                                window.store.dispatch(
+                                                    { type : SET_ASSIGNMENT_NAME,
+                                                        ASSIGNMENT_NAME : evt.target.value});
+                                            }}
+                                />
+                                </span>
+                        }
+                        &nbsp;&nbsp;
                         <LightButton text="Save to Device" onClick={
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(getPersistentState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;
-                        <HtmlButton
-                            className="fm-button-light"
-                            title="Save feedback and grades to Google Classroom"
-                            onClick={function() {
-                                window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs to Classroom');
-                                saveToLocalStorageOrDrive(0);
-                            }}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>
-                                            Save to Classroom&nbsp;
-                                        </div>
-                                         <img style={{paddingTop: "2px"}}
-                                                src="images/google_classroom_small.png"
-                                                alt="Google Classroom logo"
-                                                height="16px"/>
-                                    </div>
-                            )} />&nbsp;&nbsp;&nbsp;
-                        </div>) : null }
+                        </span>) : null }
 
                         <LightButton text="Similar Docs" onClick={
                             function() {
