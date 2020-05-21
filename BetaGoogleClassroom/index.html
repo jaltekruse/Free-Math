@@ -302,10 +302,13 @@
                 // ignore other events for request still in progress
             }
         };
-        xhr.onerror = function() {
+        xhr.onerror = function(xhr) {
           console.log(this);
-          alert("Error when making google request: " + this.status);
-          failureCallback();
+          console.log(xhr);
+          if (! this.status === 0) {
+           alert("Error when making google request: " + this.status);
+          }
+          errorCallback(this);
         };
         if (payload) {
             xhr.send(payload);
