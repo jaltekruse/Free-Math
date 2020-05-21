@@ -141,7 +141,7 @@ class Assignment extends React.Component {
                         />
                         <HtmlButton text="&#10005;"
                             title="Delete problem" key={problemIndex + " close"}
-                            style={{ padding: "4px 8px"}}
+                            style={{ padding: "5px 8px 7px 4px"}}
                             className={(problemIndex === currProblem ?
                                             "fm-button-selected " : "") +
                                       "fm-button-right fm-button"}
