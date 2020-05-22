@@ -399,11 +399,25 @@ function autoSave() {
 }
 
 let currentlyGatheringUpdates;
+let currentAppMode;
 function saveToLocalStorageOrDrive(delayMillis = 15000) {
     var appState = getPersistentState();
 
+    console.log(appState);
+    let previousAppMode = currentAppMode;
+    currentAppMode = appState[APP_MODE];
+
     if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
         appState[APP_MODE] === GRADE_ASSIGNMENTS) {
+
+        // bit hacky, this prevent the intial load of a document or grading session from
+        // kicking off an auto-save event
+        console.log(currentAppMode);
+        // TODO - very weird bug, for some reaso I can't use currentAppMode in this comparison
+        // Even though the line above logs the correct value?!?!?
+        if (previousAppMode !== appState[APP_MODE]) {
+            return;
+        }
 
         var googleId = appState[GOOGLE_ID];
         // try to bundle together a few updates, wait 2 seconds before calling save. assume
@@ -508,15 +522,15 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
         if (appState[APP_MODE] === EDIT_ASSIGNMENT) {
             if (googleId) {
                 saveFunc = function() {
-                    saveStudentDocToDriveResolvingConflicts(true, googleId,
-                        function() { return getPersistentState() },
-                        function() { return getPersistentState()[ASSIGNMENT_NAME] + '.math'},
-                        onSuccess, onFailure,
-                        function(mergedDoc) {
-                            window.store.dispatch(
-                                { type: 'SET_GLOBAL_STATE', newState : mergedDoc });
-                        }
-                    )
+                    let doc = getPersistentState();
+                    saveAssignment(doc, function(finalBlob) {
+                        window.updateFileWithBinaryContent(
+                            doc[ASSIGNMENT_NAME],
+                            finalBlob, googleId, 'application/json',
+                            onSuccess,
+                            onFailure
+                        );
+                    });
                 }
             } else {
                 saveFunc = saveStudentToLocal;

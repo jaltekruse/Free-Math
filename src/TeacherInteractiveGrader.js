@@ -710,6 +710,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     });
 }
 
+// TODO - not currently used, there are some issues with the merging
 function saveBackToClassroomMerging(gradedWork, onSuccess, onFailure) {
     let currentAppMode = gradedWork[APP_MODE];
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
@@ -735,6 +736,10 @@ function saveBackToClassroomMerging(gradedWork, onSuccess, onFailure) {
             },
             function() { return filename },
             onSuccess, onFailure,
+            // TODO - I took this concept out trying to fix a bug with dissapearing edits
+            // between when the merge happened and the save wa successful
+            // - this caused other problems so just totally disabling merging for both uers
+            //   for now
             function(mergedDoc) {
                 console.log("------------=============----------------");
                 console.log("should be merged");
