@@ -415,7 +415,8 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
         console.log(currentAppMode);
         // TODO - very weird bug, for some reaso I can't use currentAppMode in this comparison
         // Even though the line above logs the correct value?!?!?
-        if (previousAppMode !== appState[APP_MODE]) {
+        // Always allow explicit saves, which can use this method passing in a delay of 0
+        if (delayMillis !== 0 && previousAppMode !== appState[APP_MODE]) {
             return;
         }
 
