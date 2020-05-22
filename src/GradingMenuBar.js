@@ -84,7 +84,7 @@ class GradingMenuBar extends React.Component {
             else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
         }
         if (this.props.value[PENDING_SAVES]) {
-            saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
+            //saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
         }
         return (
             <div className="menuBar">

@@ -648,7 +648,7 @@ class AssignmentEditorMenubar extends React.Component {
             else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
         }
         if (this.props.value[PENDING_SAVES]) {
-            saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
+            //saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
         }
         var selectSubmissionCallback = function(submission, selectedClass, selectedAssignment, googleId) {
             submitAssignment(submission,

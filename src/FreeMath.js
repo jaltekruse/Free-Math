@@ -281,7 +281,7 @@ function saveStudentDocToDriveResolvingConflicts(
     window.downloadFileMetadata(googleId, function(fileMeta) {
         console.log(fileMeta);
 
-        const saveToDrive = function(doc, handleMergedDocCallback) {
+        const saveToDrive = function(doc) {
             console.log("update with bin content");
             console.log(googleId);
             console.log(filenameCallback());
@@ -290,7 +290,6 @@ function saveStudentDocToDriveResolvingConflicts(
                     filenameCallback(),
                     finalBlob, googleId, 'application/zip',
                     function() {
-                        handleMergedDocCallback();
                         onSuccess();
                     },
                     onFailure
@@ -309,7 +308,7 @@ function saveStudentDocToDriveResolvingConflicts(
         }
 
         if (fileMeta.lastModifyingUser.isAuthenticatedUser) {
-            saveToDrive(docContentCallback(), function() {});
+            saveToDrive(docContentCallback());
         } else {
             window.directDownloadFile(googleId, true,
                 function(response) {
@@ -334,14 +333,13 @@ function saveStudentDocToDriveResolvingConflicts(
                         } else {
                             mergedDoc = merge(conflictingDoc, currentLocalDoc);
                         }
+                        handleMergedDoc(mergedDoc)
                     } catch (e) {
                         conflictUnresolvable = true;
                         mergedDoc = currentLocalDoc;
                     }
 
-                    // only update the local state to be the merged version on successful save
-                    // to avoid infinite save loop if current user doesn't have edit permissions
-                    saveToDrive(mergedDoc, function() {handleMergedDoc(mergedDoc)});
+                    saveToDrive(mergedDoc);
                     if (conflictUnresolvable) {
                         alert(fileMeta.lastModifyingUser.displayName +
                             " has modified this file in Drive, whatever they changed will" +
@@ -387,20 +385,20 @@ function autoSave() {
     console.log("should this auto-save event be filtered out?");
     console.log(appState);
 
+    window.ephemeralStore.dispatch(
+        {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
     if (appState[APP_MODE] === GRADE_ASSIGNMENTS
         && googleId
         && appState[GOOGLE_ORIGIN_SERVICE] === 'CLASSROOM') {
         // don't auto-save teacher grading docs from Google Classroom,
         // sending all docs to Google is too slow
-        window.ephemeralStore.dispatch(
-            {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
         return;
     }
     saveToLocalStorageOrDrive();
 }
 
 let currentlyGatheringUpdates;
-function saveToLocalStorageOrDrive(delayMillis = 2000) {
+function saveToLocalStorageOrDrive(delayMillis = 15000) {
     var appState = getPersistentState();
 
     if (appState[APP_MODE] === EDIT_ASSIGNMENT ||
@@ -409,9 +407,9 @@ function saveToLocalStorageOrDrive(delayMillis = 2000) {
         var googleId = appState[GOOGLE_ID];
         // try to bundle together a few updates, wait 2 seconds before calling save. assume
         // some more keystrokes are incomming
-        if (appState[GOOGLE_DRIVE_STATE] !== SAVING) {
-            window.ephemeralStore.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
-        }
+        // Note - unlike previously. not setting a SAVING state when this gathering time starts
+        // it just makes it look like there is extra network delay
+
         // assume users will type multiple characters rapidly, don't eagerly send a request
         // to google for each update, let them batch up for a bit first
         if (currentlyGatheringUpdates) {
@@ -419,9 +417,6 @@ function saveToLocalStorageOrDrive(delayMillis = 2000) {
             return;
         }
         currentlyGatheringUpdates = true;
-        window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: 1});
-        console.log("incremented pendingSave to ");
-        console.log(getEphemeralState()[PENDING_SAVES]);
         // kick off an event that will save to google in N seconds, when the timeout
         // expires the current app state will be requested again to capture any
         // more upates that happened in the meantime, and thoe edits will have avoided
@@ -539,6 +534,12 @@ function saveToLocalStorageOrDrive(delayMillis = 2000) {
                     onFailure();
                     return;
                 }
+                if (appState[GOOGLE_DRIVE_STATE] !== SAVING) {
+                    window.ephemeralStore.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
+                }
+                window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: 1});
+                console.log("incremented pendingSave to ");
+                console.log(getEphemeralState()[PENDING_SAVES]);
                 saveFunc();
             } catch (e) {
                 // if this fails, allow continued editing, users should always be able
