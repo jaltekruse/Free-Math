@@ -74,6 +74,7 @@ var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+var ERROR_DOC_TOO_BIG = 'ERROR_DOC_TOO_BIG';
 var SET_KEYBOARD_BUTTON_GROUP = 'SET_KEYBOARD_BUTTON_GROUP';
 var BUTTON_GROUP = 'BUTTON_GROUP';
 
@@ -446,7 +447,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
             }
             if (pendingSaves === 0) {
                 window.ephemeralStore.dispatch(
-                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
+                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ERROR_DOC_TOO_BIG});
             }
         }
         // TODO - possibly remove, this is for auto-saving a zip into drive
