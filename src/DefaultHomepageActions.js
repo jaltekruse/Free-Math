@@ -1046,8 +1046,19 @@ class DefaultHomepageActions extends React.Component {
                 <UserActions value={this.props.value} />
             </div>
             </div>
+            <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
+                    <h2>Welcome to the Google Classroom Integration Beta</h2>
+            </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <br />
+                <div className="homepage-center"
+                     style={{width:"70%", height: "0",
+                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
+                    <iframe title="Free Math Video"
+                            src="https://www.youtube.com/embed/RBkJvBLZDm8?ecver=2"
+                            width="80%" height="auto" allowFullScreen frameBorder="0"
+                            style={{width:"100%", height:"100%", position: "absolute", }}></iframe>
+                </div>
                 <div className="homepage-wrapper">
                     <div className="homepage-text homepage-left homepage-center-mobile">
                         <h2>Students Show Step-by-Step Work</h2>
