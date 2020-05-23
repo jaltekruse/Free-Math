@@ -648,6 +648,25 @@ const DefaultHomepageActions = createReactClass({
                         src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
+
+                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px"}}>
+                    <h2>Office Hours</h2>
+                    <p>
+                            Have questions about how to get started with Free Math? <br />
+                            Want to talk with the development team about a feature suggestion? <br />
+                            Interested in meeting other teachers improving their classrooms with Free Math? <br />
+                        <br />
+                        Come to office hours on Google Hangouts, held Monday, Wednesday and Friday at 8:30-9:30am CST <br />
+                        <br />
+                        <div className="homepage-center">
+                            <a href="https://hangouts.google.com/call/zI50_reQkvH6k_ruzkOKAEEE">
+                            <div className="fm-button" style={{...demoButtonStyle, "float" : "left"}}>
+                                <h2 style={{color:"#eeeeee"}}>Join the Conversation!</h2>
+                            </div>
+                            </a>
+                        </div>
+                    </p>
+                </div>
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
                     <h2>Spread the Word</h2>
                     <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
