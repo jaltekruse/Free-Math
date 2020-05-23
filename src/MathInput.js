@@ -262,7 +262,7 @@ var TexButtons = createReactClass({
                         }}>
                         <TeX>{"\\downarrow"}</TeX>
                     </button>
-                    <button title="\\text [Enter]" className="tex-button wide-tex-button"
+                    <button title={"\\text [Enter]"} className="tex-button wide-tex-button"
                         style={{display: "inline-block", float: "none"}}
                               onClick={() => {
                             this.props.onInsert(input => {
