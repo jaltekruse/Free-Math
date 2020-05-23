@@ -17,6 +17,9 @@ Copied from persus project
   background-color: white;
   border-radius: 5px;
 }
+.wide-tex-button {
+  width: 100px;
+}
 .tex-button:hover {
   cursor: pointer;
   background-color: #f0f0f0;
