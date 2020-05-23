@@ -23,6 +23,7 @@ var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var SAVING = 'SAVING';
 var ALL_SAVED = 'ALL_SAVED';
 var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
+var ERROR_DOC_TOO_BIG = 'ERROR_DOC_TOO_BIG';
 var PENDING_SAVES = 'PENDING_SAVES';
 
 class GradingMenuBar extends React.Component {
@@ -81,7 +82,7 @@ class GradingMenuBar extends React.Component {
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
-            else if (saveState === DIRTY_WORKING_COPY) saveStateMsg = "Too big to save recovery doc in browser";
+            else if (saveState === ERROR_DOC_TOO_BIG) saveStateMsg = "Too big to save recovery doc in browser";
         }
         if (this.props.value[PENDING_SAVES]) {
             //saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
