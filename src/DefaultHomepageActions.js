@@ -1063,7 +1063,7 @@ class DefaultHomepageActions extends React.Component {
                     <div className="homepage-text homepage-left homepage-center-mobile">
                         <h2>Students Show Step-by-Step Work</h2>
                             <p>Students can start with a blank Free Math document, copying
-                                down and working through problems just as if they were completing work in
+                                down and working through problems just as they would in
                                 paper notebooks.</p>
                             <p>Students save their work as a file and submit it through an LMS in response to an assignment.</p>
                     </div>
@@ -1078,7 +1078,7 @@ class DefaultHomepageActions extends React.Component {
                     <div className="homepage-text homepage-right homepage-center-mobile">
                         <h2>Simultaneously Review All Assignments</h2>
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
-                        <p>You can award partical credit and give feedback to students that need help.</p>
+                        <p>You can award partial credit and give feedback to students that need help.</p>
                         <p>You don't need to type in an answer key, Free Math just provides an organized view of all student work.</p>
                     </div>
                     <div className="homepage-video homepage-left homepage-center-mobile">
@@ -1122,9 +1122,9 @@ class DefaultHomepageActions extends React.Component {
                 </a>
             </div>
             <div style={{width : "100%", margin:"100px 0px 20px 0px",
-                             padding:"50px 0px 50px 0px",
-                             background: "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
-                             }}>
+                         padding:"50px 0px 50px 0px",
+                         background: "linear-gradient(180deg, rgba(10,0,30,1) 0%, rgba(41,0,70,1) 65%)"
+                         }}>
 		    <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
 			<form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&amp;id=ed42803cd3"
                               method="post" id="mc-embedded-subscribe-form"
@@ -1175,7 +1175,7 @@ class DefaultHomepageActions extends React.Component {
                     </div>
                    ) : null }
                 <div className="homepage-center"
-                     style={{width:"70%", height: "0",
+                     style={{marginTop: "100px", width:"70%", height: "0",
                              position:"relative", padding:"0px 0px 39.375% 0px"}}>
                 <iframe title="Free Math Video"
                         src="https://www.youtube.com/embed/XYiRdKe4Zd8?ecver=2"

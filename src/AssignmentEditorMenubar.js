@@ -314,7 +314,11 @@ export function readSingleFile(evt, driveFileId = false) {
                 } catch (e) {
                     console.log(e);
                     window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
-                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates. If you saved this file with Free Math please send it to developers@freemathapp.org to allow us to debug the issue.");
+                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates.\n\n" +
+                        "Your browser might be holding on to an old version of the site, try a hard refresh with " +
+                        "Ctrl-Shift-R (Windows/Chromebooks) or Command-Shift-R (Mac) to see if that fixes it.\n\n" +
+                        "If that doesn't fix it, and you saved this file with Free Math please send it to " +
+                        "developers@freemathapp.org to allow us to debug the issue.");
                 }
         }
         r.readAsArrayBuffer(f);
@@ -665,7 +669,6 @@ class AssignmentEditorMenubar extends React.Component {
                     ref="submissionSelector"/>
                 <div style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
 
                   <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
                     <span style={{margin : "0px 15px 0px 15px",
