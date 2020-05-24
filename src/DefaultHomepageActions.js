@@ -155,7 +155,7 @@ class UserActions extends React.Component {
                 window.openDriveFile(true, false, null, function(docs) {
                     let name = docs[0].name;
                     let driveFileId = docs[0].id;
-                    window.downloadFile(driveFileId, true, function(content) {
+                    window.downloadFileNoFailureAlert(driveFileId, true, function(content) {
                         var newDoc = openAssignment(content, name, driveFileId);
 
                         window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
@@ -166,7 +166,13 @@ class UserActions extends React.Component {
                         window.location.hash = '';
                         document.body.scrollTop = document.documentElement.scrollTop = 0;
                     },
-                    function() {} // failure callback
+                    function(xhr) {
+                        if (xhr.status === 200) {
+                            alert("Error reading file, make sure you are selecting a file created using Free Math");
+                        } else {
+                            alert("Error downloading file from Google Drive.");
+                        }
+                    } // failure callback
                     );
                 });
             }, function(e){
@@ -390,7 +396,8 @@ class UserActions extends React.Component {
                                     if (allStudentWork.length === 0) {
                                         alert("No student work is currently accessible, you need to make sure to select " +
                                               "all of the files from the Google Drive folder. If that doesn't work then none of " +
-                                              "your students have submitted yet, or we are having trouble downloading from Google Drive right now");
+                                              "your students have submitted a Free Math file yet, or we are having trouble " +
+                                              "downloading from Google Drive right now.");
                                         this.closeSpinner();
                                         return;
                                     }
@@ -434,6 +441,7 @@ class UserActions extends React.Component {
                                     setInterval(checkForUnsubmits, 1000 * 10);
 
                                     var aggregatedWork = aggregateStudentWork(allStudentWork);
+                                    this.closeSpinner();
                                     window.store.dispatch(
                                         { type : 'SET_ASSIGNMENTS_TO_GRADE',
                                           GOOGLE_ID : 'PLACEHOLDER',
@@ -453,7 +461,7 @@ class UserActions extends React.Component {
                             }.bind(this);
 
                             const downloadFile = function(fileId, studentName, submissionId) {
-                                window.downloadFile(fileId, true,
+                                window.downloadFileNoFailureAlert(fileId, true,
                                     function(response) {
                                         var newDoc = openAssignment(response, "filename" /* TODO */);
                                         allStudentWork.push(

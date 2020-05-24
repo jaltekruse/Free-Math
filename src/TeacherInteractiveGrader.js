@@ -657,7 +657,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             getPersistentState());
         let doc = tempSeparatedAssignments[filename];
         saveAssignment(doc, function(finalBlob) {
-            window.updateFileWithBinaryContent(
+            window.updateFileWithBinaryContentNoFailureAlert(
                 null,
                 // TODO - filename currently hacky and has googleId in it
                 finalBlob, filename, 'application/zip',

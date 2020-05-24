@@ -209,14 +209,15 @@ ga('create', 'UA-70441517-2', 'auto');
 
     function listGoogleClassroomCourses(callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses';
-        googleGet(url, callback, errorCallback);
+        googleGet(true, url, callback, errorCallback);
     }
 
     function listGoogleClassroomAssignments(courseId, callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
         // filter out list to just type ASSIGNMENT
-        googleGet(url, function(response) {
-            response.courseWork = response.courseWork.filter(function(x) { x.workType === 'ASSIGNMENT'} );
+        googleGet(true, url, function(response) {
+            console.log(response);
+            response.courseWork = response.courseWork.filter(function(x) { return x.workType === 'ASSIGNMENT'} );
             console.log(response);
             callback(response);
         }, errorCallback);
@@ -224,18 +225,18 @@ ga('create', 'UA-70441517-2', 'auto');
 
     function listClassroomStudents(courseId, callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/students';
-        googleGet(url, callback, errorCallback);
+        googleGet(true, url, callback, errorCallback);
     }
 
     function listGoogleClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                     courseWorkId + '/studentSubmissions';
-        googleGet(url, callback, errorCallback);
+        googleGet(true, url, callback, errorCallback);
     }
 
     function listFilesInFolder(folderId, callback, errorCallback = function(){}) {
         let url = 'https://www.googleapis.com/drive/v2/files/' + folderId + '/children';
-        googleGet(url, callback, errorCallback);
+        googleGet(true, url, callback, errorCallback);
     }
 
     // TODO - most of the time users will want to overwrite their previous work, but this currently
@@ -247,7 +248,9 @@ ga('create', 'UA-70441517-2', 'auto');
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                     courseWorkId + '/studentSubmissions/' + submissionId + ':modifyAttachments';
         let payload = { "addAttachments": [ { "driveFile": { "id" : driveFileId } } ] };
-        googlePostJson(url, payload, callback, errorCallback);
+        // special hanlding for alerts is at callers, can give more specific message about unsubmitting
+        // not just generic permissions message
+        googlePostJson(false, url, payload, callback, errorCallback);
     }
 
     function createGoogeClassroomAssignment(courseId, title, description, callback, errorCallback = function(){}) {
@@ -256,21 +259,29 @@ ga('create', 'UA-70441517-2', 'auto');
         // TODO - add due date
         let payload = { title: "[Free Math] " + title, description: description,
                         workType : "ASSIGNMENT", state : "DRAFT", maxPoints: 100};
-        googlePostJson(url, payload, callback, errorCallback);
+        googlePostJson(true, url, payload, callback, errorCallback);
+    }
+
+    function downloadFileNoFailureAlert(fileId, isBinary, callback, errorCallback) {
+        downloadFileInternal(false, fileId, isBinary, callback, errorCallback);
     }
 
     function downloadFile(fileId, isBinary, callback, errorCallback) {
+        downloadFileInternal(true, fileId, isBinary, callback, errorCallback);
+    }
+
+    function downloadFileInternal(alertOnFailure, fileId, isBinary, callback, errorCallback) {
         // TODO - test what happens when selecting google docs elements instead of binary files with this change
 
         let url = 'https://www.googleapis.com/drive/v2/files/' + fileId + '?alt=media&source=downloadUrl';
         // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
         let mime = isBinary ? 'text\/plain; charset=x-user-defined' : DEFAULT_MIME;
-        googleRequestBinaryResponse(url, 'get', false, mime, callback, errorCallback);
+        googleRequestBinaryResponse(alertOnFailure, url, 'get', false, mime, callback, errorCallback);
     }
 
     function downloadFileMetadata(fileId, callback, errorCallback = function() {}) {
         let url = 'https://www.googleapis.com/drive/v2/files/' + fileId;
-        googleGet(url, callback, errorCallback);
+        googleGet(true, url, callback, errorCallback);
     }
 
     function updateGrades(courseId, courseWorkId, grades /* map from submissionId to grade */,
@@ -304,10 +315,20 @@ ga('create', 'UA-70441517-2', 'auto');
             }
         }
         console.log(payload);
-        googleRequestBinaryResponse(url, 'post', payload, 'multipart/mixed', callback, errorCallback);
+        googleRequestBinaryResponse(false, url, 'post', payload, 'multipart/mixed', callback, errorCallback);
+    }
+
+    function updateFileWithBinaryContentNoFailureAlert(name, content, googleId,
+                                         fileType='application/zip', callback, errorCallback = function(){}) {
+        updateFileWithBinaryContentInternal(false, name, content, googlId, fileType, callback, errorCallback);
     }
 
     function updateFileWithBinaryContent(name, content, googleId,
+                                         fileType='application/zip', callback, errorCallback = function(){}) {
+        updateFileWithBinaryContentInternal(true, name, content, googlId, fileType, callback, errorCallback);
+    }
+
+    function updateFileWithBinaryContentInternal(alertOnFailure, name, content, googleId,
                                          fileType='application/zip', callback, errorCallback = function(){}) {
 
         let url = 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart';
@@ -320,7 +341,7 @@ ga('create', 'UA-70441517-2', 'auto');
         var payload = new FormData();
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
         payload.append('file', content);
-        googleRequestJsonResponse(url, 'put', payload, DEFAULT_MIME, callback, errorCallback);
+        googleRequestJsonResponse(alertOnFailure, url, 'put', payload, DEFAULT_MIME, callback, errorCallback);
     }
 
     function createFileWithBinaryContent(name, content, fileType='application/zip', callback,
@@ -331,15 +352,15 @@ ga('create', 'UA-70441517-2', 'auto');
         let payload = new FormData();
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
         payload.append('file', content);
-        googleRequestJsonResponse(url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
+        googleRequestJsonResponse(true, url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
     }
 
-    function googleGet(url, callback, errorCallback = function(){}) {
-        googleRequestJsonResponse(url, 'get', false, DEFAULT_MIME, callback, errorCallback);
+    function googleGet(alertOnFailure, url, callback, errorCallback = function(){}) {
+        googleRequestJsonResponse(alertOnFailure, url, 'get', false, DEFAULT_MIME, callback, errorCallback);
     }
 
-    function googlePostJson(url, payload, callback, errorCallback) {
-        googleRequestJsonResponse(url, 'post', JSON.stringify(payload), DEFAULT_MIME, callback, errorCallback);
+    function googlePostJson(alertOnFailure, url, payload, callback, errorCallback) {
+        googleRequestJsonResponse(alertOnFailure, url, 'post', JSON.stringify(payload), DEFAULT_MIME, callback, errorCallback);
     }
 
     // callback takes 2 parameters filename and content
@@ -363,7 +384,13 @@ ga('create', 'UA-70441517-2', 'auto');
               .setCallback(function(data) {
                   var url = 'nothing';
                   if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
-                    callback(data[google.picker.Response.DOCUMENTS]);
+                    var docs = data[google.picker.Response.DOCUMENTS];
+                    console.log(docs);
+                    if (docs.length == 1 && docs[0].type !== "file") {
+                        alert("Cannot open Google Docs, Slides or Sheets, you must select a file created by Free Math");
+                        return;
+                    }
+                    callback(docs);
                   }
               });
 
@@ -375,20 +402,40 @@ ga('create', 'UA-70441517-2', 'auto');
           picker.setVisible(true);
     }
 
-    function googleRequestBinaryResponse(url, verb, payload, mime, callback, errorCallback = function(){}) {
+    function googleRequestBinaryResponse(alertOnFailure, url, verb, payload, mime, callback, errorCallback = function(){}) {
         googleRequest(url, verb, payload, mime,
             function(responseXhr) {
                 callback(responseXhr.response);
             },
-            errorCallback);
+            function(responseXhr) {
+                if (alertOnFailure) {
+                    try {
+                        var resp = JSON.parse(responseXhr.responseText);
+                        alert(resp.error.message);
+                    } catch(e) {
+                        alert("Failure during request to Google.");
+                    }
+                }
+                errorCallback(responseXhr);
+            });
     }
 
-    function googleRequestJsonResponse(url, verb, payload, mime, callback, errorCallback = function(){}) {
+    function googleRequestJsonResponse(alertOnFailure, url, verb, payload, mime, callback, errorCallback = function(){}) {
         googleRequest(url, verb, payload, mime,
             function(responseXhr) {
                 callback(JSON.parse(responseXhr.responseText));
             },
-            errorCallback);
+            function(responseXhr) {
+                if (alertOnFailure) {
+                    try {
+                        var resp = JSON.parse(responseXhr.responseText);
+                        alert(resp.error.message);
+                    } catch(e) {
+                        alert("Failure during request to Google.");
+                    }
+                }
+                errorCallback(responseXhr);
+            });
     }
 
     function googleRequest(url, verb, payload, mime, callback, errorCallback = function(){}) {
