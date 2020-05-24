@@ -212,7 +212,9 @@ class UserActions extends React.Component {
                 window.listGoogleClassroomCourses(function(response) {
                     this.setState({GOOGLE_CLASS_LIST : response});
                     // TODO - make this safe when no classes
-                    //this.setState({courseId: response.courses[0].id});
+                    if (response && response.courses && response.courses.length > 0) {
+                        this.setState({courseId: response.courses[0].id});
+                    }
 
                     this.createAssignment();
                 }.bind(this));

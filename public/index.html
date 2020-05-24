@@ -216,7 +216,7 @@ ga('create', 'UA-70441517-2', 'auto');
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
         // filter out list to just type ASSIGNMENT
         googleGet(url, function(response) {
-            response.courseWork = response.courseWork.filter(x => x.workType === 'ASSIGNMENT');
+            response.courseWork = response.courseWork.filter(function(x) { x.workType === 'ASSIGNMENT'} );
             console.log(response);
             callback(response);
         }, errorCallback);
