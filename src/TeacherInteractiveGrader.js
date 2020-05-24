@@ -568,15 +568,24 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
 //        is fixed it should be safe for teachers to comment on in-progress things.
 // TODO - need to enforce uniqueness of identifier
 // eslint-disable-next-line no-unused-vars
-function removeStudentFromGradingView(filename, gradedWork) {
+function removeStudentsFromGradingView(filenamesToRemove, gradedWork) {
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-    delete separatedAssignments[filename];
+
+    filenamesToRemove.forEach(function(removeMe) {
+        delete separatedAssignments[removeMe];
+    });
 
     var allStudentWork = [];
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
             allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : separatedAssignments[filename][PROBLEMS]});
         }
+    }
+
+    if (allStudentWork.length === 0) {
+        alert('Lost permission to view all student work due to unsubmits, navigating back to homepage.');
+        window.store.dispatch({type : "GO_TO_MODE_CHOOSER"});
+        return;
     }
 
     var aggregatedWork = aggregateStudentWork(allStudentWork);
@@ -1878,7 +1887,7 @@ export { TeacherInteractiveGrader as default,
     loadStudentDocsFromZip,
     studentSubmissionsZip,
     saveGradedStudentWork,
-    removeStudentFromGradingView,
+    removeStudentsFromGradingView,
     saveGradedStudentWorkToBlob,
     gradeSingleProblem,
     aggregateStudentWork,

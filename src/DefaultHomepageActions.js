@@ -11,7 +11,7 @@ import demoGradingAction from './demoGradingAction.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
-         calculateGrades, removeStudentFromGradingView } from './TeacherInteractiveGrader.js';
+         calculateGrades, removeStudentsFromGradingView } from './TeacherInteractiveGrader.js';
 
 var MathQuill = window.MathQuill;
 
@@ -356,6 +356,13 @@ class UserActions extends React.Component {
                                     }
 
                                     console.log(allStudentWork);
+                                    if (allStudentWork.length === 0) {
+                                        alert("No student work is currently accessible, you need to make sure to select " +
+                                              "all of the files from the Google Drive folder. If that doesn't work then none of " +
+                                              "your students have submitted yet, or we are having trouble downloading from Google Drive right now");
+                                        this.closeSpinner();
+                                        return;
+                                    }
 
                                     // check student submissions every 30 seconds, if they have unsubmitted
                                     // remove them from view
@@ -385,13 +392,11 @@ class UserActions extends React.Component {
                                                     }
                                                 });
                                                 if (toRemove.length > 0) {
-                                                    let allStudents = toRemove.map(unsubmitted => unsubmitted.name).join();
+                                                    let allUnsubmittedStudents = toRemove.map(unsubmitted => unsubmitted.name);
                                                     alert("One or more students unsubmitted, removing them from the grading page to prevent " +
-                                                           "your updates from overwriting their edits:\n\n" + allStudents);
-                                                    toRemove.forEach(function(removeMe) {
-                                                        removeStudentFromGradingView(
-                                                                removeMe.fileId, state);
-                                                    });
+                                                           "your updates from overwriting their edits:\n\n" + allUnsubmittedStudents.join());
+                                                    let allUnsubmittedFileIds = toRemove.map(unsubmitted => unsubmitted.fileId);
+                                                    removeStudentsFromGradingView(allUnsubmittedFileIds, state);
                                                 }
                                         });
                                     }
@@ -414,7 +419,7 @@ class UserActions extends React.Component {
                                 } else {
                                     return false;
                                 }
-                            };
+                            }.bind(this);
 
                             const downloadFile = function(fileId, studentName, submissionId) {
                                 window.downloadFile(fileId, true,
