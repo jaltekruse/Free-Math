@@ -657,6 +657,7 @@ class UserActions extends React.Component {
                     Description<br />
                     <textarea
                        value={this.state.assignmentDescription}
+                       cols="60" rows="8"
                        onChange={function(evt) {
                                 this.setState({assignmentDescription: evt.target.value});
                        }.bind(this)}/><br />
