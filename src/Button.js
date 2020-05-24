@@ -24,6 +24,7 @@ class HtmlButton extends React.Component {
             <button
                 className={className}
                 style={{...unselectable, ...style}}
+                disabled={this.props.disabled}
                 onClick={function() {
                      onClick();
                  }}
@@ -45,6 +46,7 @@ class Button extends React.Component {
             <button
                 className={className}
                 style={{...unselectable, ...style}}
+                disabled={this.props.disabled}
                 onClick={function() {
                      onClick();
                  }}
@@ -70,6 +72,7 @@ class LightButton extends React.Component {
                 }}
                 title={title}
                 style={{...style}}
+                disabled={this.props.disabled}
             >
                 <div style={{display:"inline-block"}}>
                 <div style={{float: "left", paddingTop: "4px"}}>{this.props.text}</div>

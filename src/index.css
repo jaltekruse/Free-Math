@@ -109,6 +109,10 @@ h1 small {
   outline: none;
 }
 
+.fm-button-light:disabled {
+  background-color: #eaeaea;
+}
+
 .fm-button {
   border: 2px solid transparent;
   padding: 4px 8px;
@@ -120,7 +124,12 @@ h1 small {
   font-weight: 600;
 }
 
-.fm-button:hover
+.fm-button:disabled {
+  background-color: #eaeaea;
+  color: #212121;
+}
+
+.fm-button:hover:enabled
 {
   cursor: pointer;
   background-color: #052d66;

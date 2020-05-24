@@ -212,7 +212,7 @@ class UserActions extends React.Component {
                 window.listGoogleClassroomCourses(function(response) {
                     this.setState({GOOGLE_CLASS_LIST : response});
                     // TODO - make this safe when no classes
-                    this.setState({courseId: response.courses[0].id});
+                    //this.setState({courseId: response.courses[0].id});
 
                     this.createAssignment();
                 }.bind(this));
@@ -657,26 +657,35 @@ class UserActions extends React.Component {
                     />
                     <div><b>Create Assignment</b></div>
                     <br />
-                    Class &nbsp;&nbsp;
-                    {this.state['GOOGLE_CLASS_LIST'] === undefined ? null :
-                        (<select onChange={
-                            function(event) {
-                                this.setState({courseId: event.target.value});
-                            }.bind(this)}
-                        >
-                            {this.state['GOOGLE_CLASS_LIST'].courses
-                                .map(function(classInfo, index) {
-                                    return (
-                                        <option value={classInfo.id}>{classInfo.name}</option>
-                                    )
-                                })
-                            }
-                        </select>
+                    {this.state['GOOGLE_CLASS_LIST'] === undefined
+                            || this.state['GOOGLE_CLASS_LIST'].courses === undefined
+                            ? (
+                                <div className="answer-partially-correct">
+                                  This Google account is not an instructor of any Classroom classes.
+                                </div>
+                              )
+                            :
+                        (
+                            <div>
+                            Class &nbsp;&nbsp;
+                            <select onChange={
+                                function(event) {
+                                    this.setState({courseId: event.target.value});
+                                }.bind(this)}
+                            >
+                                {this.state['GOOGLE_CLASS_LIST'].courses
+                                    .map(function(classInfo, index) {
+                                        return (
+                                            <option value={classInfo.id}>{classInfo.name}</option>
+                                        )
+                                    })
+                                }
+                            </select>
+                            </div>
                         )
                     }
                     {/* TODO - required field validation */}
                     {/* TODO - add due date*/}
-                    <br />
                     <br />
                     Title * &nbsp;<input type="text"
                        value={this.state.assignmentName}
@@ -691,8 +700,10 @@ class UserActions extends React.Component {
                        onChange={function(evt) {
                                 this.setState({assignmentDescription: evt.target.value});
                        }.bind(this)}/><br />
-                    <Button type="submit" text="Create" onClick={
-                        function() {
+                    <Button type="submit" text="Create"
+                        disabled={this.state['GOOGLE_CLASS_LIST'] === undefined
+                                    || this.state['GOOGLE_CLASS_LIST'].courses === undefined}
+                        onClick={ function() {
                             window.createGoogeClassroomAssignment(
                                 this.state.courseId, this.state.assignmentName,
                                 this.state.assignmentDescription,
@@ -700,7 +711,8 @@ class UserActions extends React.Component {
                                     console.log(response);
                                     this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : false});
                                     alert("Successfully created draft asignment, " +
-                                        "use Google Classroom to set a due date, attach any needed files, and publish it.");
+                                        "use Google Classroom to set a due date, attach " +
+                                        "any needed files, and publish it.");
                                 }.bind(this)
                             );
                         }.bind(this)}

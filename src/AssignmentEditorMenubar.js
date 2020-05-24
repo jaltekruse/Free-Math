@@ -406,6 +406,13 @@ class GoogleClassroomSubmissionSelector extends React.Component {
 
     listClasses = () => {
         window.listGoogleClassroomCourses(function(response) {
+            if ( ! response.courses || response.courses.length === 0) {
+                alert("You are not enrolled in any Google Classroom courses.");
+                // close the modal
+                window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                    GOOGLE_CLASS_LIST : undefined});
+                return;
+            }
             if (response.courses.length === 1) {
                 var classList = response;
                 var classInfo = response.courses[0];
@@ -472,6 +479,10 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                 assignment.id,
                 function(response) {
                     console.log(response);
+                    if (! response.studentSubmissions) {
+                        alert("It looks like there are no students in this class yet.");
+                        return;
+                    }
                     if (response.studentSubmissions.length === 1) {
                         var submission = response.studentSubmissions[0];
                         // close the modal by setting null class list, and also set "SELECTED_ASSIGNMENT"
