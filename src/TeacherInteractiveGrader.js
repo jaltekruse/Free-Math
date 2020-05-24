@@ -1420,7 +1420,7 @@ function makeBackwardsCompatible(newDoc) {
 
 // TODO - be careful merging in the google branch, changed the signature here to include docId,
 // as this codepath is now used for restoring auto-saves from html5 localStorage, not just reading from files
-function loadStudentDocsFromZip(content, filename, onFailure = function() {}, docId, googleId = false) {
+function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, googleId = false) {
     var new_zip = new JSZip();
     var allStudentWork = [];
     var failureCount = 0;
@@ -1490,6 +1490,10 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
         window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
         // TODO - add back answer key
         //console.log(allStudentWork);
+        if (allStudentWork.length === 0) {
+            alert("Zip file did not contain any valid Free Math files.");
+            return;
+        }
         var aggregatedWork = aggregateStudentWork(allStudentWork);
         console.log("opened docs");
         //console.log(aggregatedWork);
@@ -1499,6 +1503,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
               DOC_ID : docId,
               NEW_STATE :
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
+        onSuccess();
     } catch (e) {
         // TODO - try to open a single student doc
         console.log(e);
@@ -1510,7 +1515,7 @@ function loadStudentDocsFromZip(content, filename, onFailure = function() {}, do
 }
 
 // open zip file full of student assignments for grading
-function studentSubmissionsZip(evt, onFailure = function() {}) {
+function studentSubmissionsZip(evt, onSuccess, onFailure) {
     // reset scroll location from previous view of student docs
     window.location.hash = '';
     var f = evt.target.files[0];
@@ -1519,7 +1524,7 @@ function studentSubmissionsZip(evt, onFailure = function() {}) {
         var r = new FileReader();
         r.onload = function(e) {
             var content = e.target.result;
-            loadStudentDocsFromZip(content, f.name, onFailure);
+            loadStudentDocsFromZip(content, f.name, onSuccess, onFailure);
         }
         r.readAsArrayBuffer(f);
     } else {

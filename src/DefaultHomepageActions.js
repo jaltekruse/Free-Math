@@ -51,6 +51,9 @@ var STUDENT_NAME = 'STUDENT_NAME';
 // needed to update the student grade while saving to classroom
 var STUDENT_SUBMISSION_ID = 'STUDENT_SUBMISSION_ID';
 
+var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
+var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
+
 function checkAllSaved() {
     const appState = getEphemeralState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
@@ -63,8 +66,26 @@ function checkAllSaved() {
 
 function render() {
     window.MathQuill = MathQuill.getInterface(1);
+    const globalState = getCompositeState();
     ReactDOM.render(
-        <FreeMath value={getCompositeState()} />,
+        <div>
+            <FreeMathModal
+                showModal={ typeof globalState[GLOBAL_WAITING_MSG] === 'string'
+                            && globalState[GLOBAL_WAITING_MSG].trim() !== '' }
+                content={(
+                    <div style={{alignItems: "center"}}>
+                        <img style={{
+                            "display": "flex",
+                            "marginLeft":"auto",
+                            "marginRight": "auto"
+                             }}
+                             src="images/Ajax-loader.gif" alt="loading spinner" /><br />
+                        {globalState[GLOBAL_WAITING_MSG]}
+                    </div>)}
+            />
+
+            <FreeMath value={globalState} />
+        </div>,
         document.getElementById('root')
     );
 }
@@ -121,7 +142,7 @@ function startsWith(str, maybePrefix) {
 }
 
 class UserActions extends React.Component {
-    state = { showModal: false,
+    state = {
              showActionsMobile: false,
              teacherRecoveredSorting: "DATE",
              studentRecoveredSorting: "DATE"
@@ -171,8 +192,9 @@ class UserActions extends React.Component {
                     setTimeout(function() {
                         window.downloadFile(driveFileId, true, function(content) {
                             loadStudentDocsFromZip(content, name,
-                                function() {this.closeSpinner();}.bind(this), driveFileId);
-                            this.closeSpinner();
+                                function() {this.closeSpinner();}.bind(this),
+                                function() {this.closeSpinner();}.bind(this),
+                                driveFileId);
                         }.bind(this),
                         function() { this.closeSpinner() }.bind(this) // failure callback
                         );
@@ -210,11 +232,15 @@ class UserActions extends React.Component {
     }
 
     closeSpinner = () => {
-        this.setState({ showModal: false });
+        window.ephemeralStore.dispatch(
+            { type : MODIFY_GLOBAL_WAITING_MSG,
+              GLOBAL_WAITING_MSG: false});
     };
 
     openSpinner = () => {
-        this.setState({ showModal: true });
+        window.ephemeralStore.dispatch(
+            { type : MODIFY_GLOBAL_WAITING_MSG,
+              GLOBAL_WAITING_MSG: 'Opening, analyzing and grouping student work...'});
     };
 
     createAssignment = () => {
@@ -230,7 +256,10 @@ class UserActions extends React.Component {
             window.location.hash = '';
             window.ga('send', 'event', 'Actions', 'open', 'Grade Assignments');
             document.body.scrollTop = document.documentElement.scrollTop = 0;
-            studentSubmissionsZip(evt, function() {this.closeSpinner()}.bind(this));
+            studentSubmissionsZip(evt,
+                function() { this.closeSpinner() }.bind(this),
+                function() { this.closeSpinner() }.bind(this)
+            );
         }.bind(this);
 
         var openDriveAssignments = function(assignment) {
@@ -511,7 +540,8 @@ class UserActions extends React.Component {
 
                 loadStudentDocsFromZip(
                     base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
-                    filename, function() {alert("Loading recovery failed")}, matchingDocId, false);
+                    filename, function() {/* success */}, function() {alert("Loading recovery failed")},
+                    matchingDocId, false);
             }
         };
         var deleteAutoSaveCallback = function(docName) {
@@ -612,7 +642,7 @@ class UserActions extends React.Component {
                             "marginRight": "auto"
                              }}
                              src="images/Ajax-loader.gif" alt="loading spinner" /><br />
-                        Opening, analyzing and grouping student work...
+
                     </div>)}
             />
             <FreeMathModal

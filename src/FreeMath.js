@@ -43,7 +43,6 @@ var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
 var GOOGLE_ASSIGNMENT_LIST = 'GOOGLE_ASSIGNMENT_LIST';
 var GOOGLE_SELECTED_CLASS = 'GOOGLE_SELECTED_CLASS';
 var GOOGLE_SELECTED_ASSIGNMENT = 'GOOGLE_SELECTED_ASSIGNMENT';
-var GOOGLE_COURSEWORK_LIST = 'GOOGLE_COURSEWORK_LIST';
 var GOOGLE_SELECTED_CLASS_NAME = 'GOOGLE_SELECTED_CLASS_NAME';
 var GOOGLE_SELECTED_ASSIGNMENT_NAME = 'GOOGLE_SELECTED_ASSIGNMENT_NAME';
 
@@ -51,6 +50,9 @@ var GOOGLE_ORIGIN_SERVICE = 'GOOGLE_ORIGIN_SERVICE';
 var CLASSROOM = 'CLASSROOM';
 // also can be DRIVE, although this is currently the default behavior
 // if GOOGLE_ID is set and this property isn't
+
+var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
+var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
 
 var MODIFY_PENDING_SAVES = 'MODIFY_PENDING_SAVES';
 var DELTA = 'DELTA';
@@ -583,6 +585,11 @@ function ephemeralStateReducer(state, action) {
             BUTTON_GROUP : 'BASIC',
             PENDING_SAVES : 0
         };
+    } else if (action.type === MODIFY_GLOBAL_WAITING_MSG) {
+        return {
+            ...state,
+            GLOBAL_WAITING_MSG: action[GLOBAL_WAITING_MSG]
+        }
     } else if (action.type === MODIFY_PENDING_SAVES) {
         return {
             ...state,
@@ -628,7 +635,6 @@ function ephemeralStateReducer(state, action) {
                  GOOGLE_ASSIGNMENT_LIST : action[GOOGLE_ASSIGNMENT_LIST],
                  GOOGLE_SELECTED_ASSIGNMENT : action[GOOGLE_SELECTED_ASSIGNMENT],
                  GOOGLE_SELECTED_ASSIGNMENT_NAME : action[GOOGLE_SELECTED_ASSIGNMENT_NAME],
-                 GOOGLE_COURSEWORK_LIST : action[GOOGLE_COURSEWORK_LIST]
         };
         console.log(ret);
         return ret;

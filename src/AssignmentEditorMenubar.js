@@ -34,7 +34,6 @@ var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
 var GOOGLE_SELECTED_CLASS = 'GOOGLE_SELECTED_CLASS';
 var GOOGLE_ASSIGNMENT_LIST = 'GOOGLE_ASSIGNMENT_LIST';
 var GOOGLE_SELECTED_ASSIGNMENT = 'GOOGLE_SELECTED_ASSIGNMENT';
-var GOOGLE_COURSEWORK_LIST = 'GOOGLE_COURSEWORK_LIST';
 var GOOGLE_SELECTED_CLASS_NAME = 'GOOGLE_SELECTED_CLASS_NAME';
 var GOOGLE_SELECTED_ASSIGNMENT_NAME = 'GOOGLE_SELECTED_ASSIGNMENT_NAME';
 
@@ -51,6 +50,12 @@ var DIRTY_WORKING_COPY = 'DIRTY_WORKING_COPY';
 var ERROR_DOC_TOO_BIG = 'ERROR_DOC_TOO_BIG';
 
 var PENDING_SAVES = 'PENDING_SAVES';
+
+var CANNOT_EDIT_SUBMITTED_ERR_MSG = "You cannot edit assignments that are submitted, " +
+                                      "you need to unsbumit over in Google Classroom first.";
+
+var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
+var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
 
 function isProblemNumberMissing(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
@@ -268,6 +273,7 @@ function openAssignment(content, filename, driveFileId = false) {
 
     } catch (e) {
         console.log(e);
+        console.log(filename);
         // this can throw an exception if it is the wrong file type (like a user opened a PDF)
         let newDoc = openAssignmentOld(
             // opening from a local file produces an arraybuffer for legacy plain text docs
@@ -328,6 +334,34 @@ export function readSingleFile(evt, driveFileId = false) {
 }
 
 function submitAssignment(submission, selectedClass, selectedAssignment, googleId) {
+    // TODO - make this access safe, currently only showing ASSIGNMENT types in the list
+    // so only submissions with a property of assignmentSubmission should get to here, but
+    // could be more defensive
+    let attachments = submission.assignmentSubmission.attachments;
+    // TODO - is this a list if nothing is submitted yet?
+    if ( typeof attachments !== 'undefined' &&
+          attachments.length > 0 ) {
+        if (attachments[0].driveFile && googleId === attachments[0].driveFile.id) {
+            alert("This file is already attached to this assignment. From now on you " +
+                  "can just use the \"Save to Drive\" button to save your work");
+            return;
+        }
+        alert("You have already attached a file to this assignment, Free Math " +
+              "assignments should only have a single Free Math file submitted.\n\n" +
+              "You can either open the file you already attched out of Drive " +
+              "using the button on the homepage, or go to Google Classroom to remove " +
+              "the currently attached file to allow saving this file as the new attachment.");
+        return;
+    }
+
+    if (submission.state === "TURNED_IN") {
+        alert(CANNOT_EDIT_SUBMITTED_ERR_MSG);
+        return;
+    }
+
+    window.ephemeralStore.dispatch(
+        { type : MODIFY_GLOBAL_WAITING_MSG,
+          GLOBAL_WAITING_MSG: "Submitting to Google Classroom..."});
     window.modifyGoogeClassroomSubmission(
         selectedClass,
         selectedAssignment,
@@ -337,9 +371,16 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             // clear the class list to stop showing the modal
             window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
                 GOOGLE_CLASS_LIST : undefined});
+
+            window.ephemeralStore.dispatch(
+                { type : MODIFY_GLOBAL_WAITING_MSG,
+                  GLOBAL_WAITING_MSG: false});
             alert('Successfully submitted to classroom.');
         },
         function(errorXhr) {
+            window.ephemeralStore.dispatch(
+                { type : MODIFY_GLOBAL_WAITING_MSG,
+                  GLOBAL_WAITING_MSG: false});
             if (errorXhr.status === 403) {
                 alert('This assignment was not created by your teacher using Free Math, ' +
                       'and google only allows 3rd party apps like Free Math ' +
@@ -439,33 +480,19 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                         // for the final request to save the assignment
                         window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
-                              GOOGLE_CLASS_LIST :
-                                null,
-                              GOOGLE_SELECTED_CLASS :
-                                rootState[GOOGLE_SELECTED_CLASS],
-                              GOOGLE_ASSIGNMENT_LIST :
-                                rootState[GOOGLE_ASSIGNMENT_LIST],
-                              GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
-                              GOOGLE_SELECTED_ASSIGNMENT_NAME: assignment.title,
-                              GOOGLE_COURSEWORK_LIST : response
+                              GOOGLE_CLASS_LIST : undefined
                             });
                         selectSubmissionCallback(submission,
                                         rootState[GOOGLE_SELECTED_CLASS],
                                         assignment.id,
                                         rootState[GOOGLE_ID]);
                     } else {
+                        alert("Multiple submissions detected, this generally means you are an " +
+                              "instructor for this class and cannot submit homework.");
+                        // this closes the modal
                         window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
-                              GOOGLE_CLASS_LIST :
-                                rootState[GOOGLE_CLASS_LIST],
-                              GOOGLE_SELECTED_CLASS :
-                                rootState[GOOGLE_SELECTED_CLASS],
-                              GOOGLE_ASSIGNMENT_LIST :
-                                rootState[GOOGLE_ASSIGNMENT_LIST],
-                              GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
-                              GOOGLE_SELECTED_ASSIGNMENT_NAME: assignment.title,
-                              GOOGLE_COURSEWORK_LIST : response
-                            });
+                              GOOGLE_CLASS_LIST : undefined});
                     }
             });
         }
@@ -499,33 +526,6 @@ class GoogleClassroomSubmissionSelector extends React.Component {
             )
         };
 
-        const courseWorkList = function() {
-            return (
-                <div>
-                    <div>
-                        Pick a submission - {rootState[GOOGLE_SELECTED_ASSIGNMENT_NAME]}</div>
-                        <div style={{overflow:"auto", maxHeight: "90vh", minHeight:"400px", minWidth:"500px"}}>
-                        {rootState[GOOGLE_COURSEWORK_LIST].studentSubmissions
-                            .map(function(submission, index) {
-                                return (
-                                    <span>
-                                    <Button text={submission.creationTime}
-                                        onClick={function() {
-                                            // TODO - auto save doc to drive before doing this
-                                            selectSubmissionCallback(submission,
-                                                            rootState[GOOGLE_SELECTED_CLASS],
-                                                            rootState[GOOGLE_SELECTED_ASSIGNMENT],
-                                                            rootState[GOOGLE_ID]
-                                            );
-                                        }}
-                                    /><br /></span>
-                                );
-                            })
-                        }
-                        </div>
-                </div>
-            );
-        };
         return (
             <FreeMathModal
                 showModal={rootState[GOOGLE_CLASS_LIST]}
@@ -549,9 +549,6 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                         {(rootState[GOOGLE_SELECTED_CLASS] === undefined ||
                             rootState[GOOGLE_SELECTED_ASSIGNMENT] !== undefined)? null :
                             assignmentList()
-                        }
-                        {rootState[GOOGLE_SELECTED_ASSIGNMENT] === undefined ? null :
-                           courseWorkList()
                         }
                     </div>)}
                 />
@@ -590,10 +587,9 @@ class AssignmentEditorMenubar extends React.Component {
                         },
                         function(response) {
                             if (response.status === 403) {
-                                alert("You cannot edit assignments that are submitted, " +
-                                      "you need to unsbumit over in Google Classroom first.");
+                                alert(CANNOT_EDIT_SUBMITTED_ERR_MSG);
                             } else {
-                                alert("Error saving to google Drive");
+                                alert("Error saving to Google Drive");
                             }
                         }
                     );
@@ -613,10 +609,9 @@ class AssignmentEditorMenubar extends React.Component {
                         },
                         function(response) {
                             if (response.status === 403) {
-                                alert("You cannot edit assignments that are submitted, " +
-                                      "you need to unsbumit over in Classroom first.");
+                                alert(CANNOT_EDIT_SUBMITTED_ERR_MSG);
                             } else {
-                                alert("Error saving to google Drive");
+                                alert("Error saving to Google Drive");
                             }
                         }
                     );
@@ -703,7 +698,7 @@ class AssignmentEditorMenubar extends React.Component {
                             onClick={function() {}}
                             content={(
                                     <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Save to&nbsp;</div>
+                                        <div style={{float: "left", paddingTop: "4px"}}>Save to Drive&nbsp;</div>
                                          <img style={{paddingTop: "2px"}}
                                                 src="images/google_drive_small_logo.png"
                                                 alt="google logo" />
