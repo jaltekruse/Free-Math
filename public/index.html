@@ -259,17 +259,13 @@ ga('create', 'UA-70441517-2', 'auto');
         googlePostJson(url, payload, callback, errorCallback);
     }
 
-    function directDownloadFile(fileId, isBinary, callback, errorCallback = function() {}) {
+    function downloadFile(fileId, isBinary, callback, errorCallback) {
         // TODO - test what happens when selecting google docs elements instead of binary files with this change
 
         let url = 'https://www.googleapis.com/drive/v2/files/' + fileId + '?alt=media&source=downloadUrl';
         // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
         let mime = isBinary ? 'text\/plain; charset=x-user-defined' : DEFAULT_MIME;
         googleRequestBinaryResponse(url, 'get', false, mime, callback, errorCallback);
-    }
-
-    function downloadFile(fileId, isBinary, callback, failureCallback) {
-        directDownloadFile(fileId, isBinary, callback, failureCallback)
     }
 
     function downloadFileMetadata(fileId, callback, errorCallback = function() {}) {

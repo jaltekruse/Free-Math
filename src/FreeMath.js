@@ -313,7 +313,7 @@ function saveStudentDocToDriveResolvingConflicts(
         if (fileMeta.lastModifyingUser.isAuthenticatedUser) {
             saveToDrive(docContentCallback());
         } else {
-            window.directDownloadFile(googleId, true,
+            window.downloadFile(googleId, true,
                 function(response) {
                     var conflictingDoc = openAssignment(response, "filename" /* TODO */);
                     // this does deliberately go grab the app state again, it is called
