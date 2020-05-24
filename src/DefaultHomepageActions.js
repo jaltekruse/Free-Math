@@ -656,10 +656,10 @@ const DefaultHomepageActions = createReactClass({
                             Want to talk with the development team about a feature suggestion? <br />
                             Interested in meeting other teachers improving their classrooms with Free Math? <br />
                         <br />
-                        Come to office hours on Google Hangouts, held Monday, Wednesday and Friday at 8:30-9:30am CST <br />
+                        Come to office hours on Google Meet, held Monday, Wednesday and Friday at 8:30-9:30am CST <br />
                         <br />
                         <div className="homepage-center">
-                            <a href="https://hangouts.google.com/call/zI50_reQkvH6k_ruzkOKAEEE">
+                            <a href="https://meet.google.com/hjr-fxfm-erq" target="_blank" rel="noopener noreferrer">
                             <div className="fm-button" style={{...demoButtonStyle, "float" : "left"}}>
                                 <h2 style={{color:"#eeeeee"}}>Join the Conversation!</h2>
                             </div>
