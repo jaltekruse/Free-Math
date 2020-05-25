@@ -386,7 +386,6 @@ function autoSave() {
     var googleId = appState[GOOGLE_ID];
 
     console.log("should this auto-save event be filtered out?");
-    console.log(appState);
 
     window.ephemeralStore.dispatch(
         {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
@@ -405,7 +404,6 @@ let currentAppMode;
 function saveToLocalStorageOrDrive(delayMillis = 15000) {
     var appState = getPersistentState();
 
-    console.log(appState);
     let previousAppMode = currentAppMode;
     currentAppMode = appState[APP_MODE];
 

@@ -501,7 +501,7 @@ class Problem extends React.Component {
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div>
                     <div className="problem-editor-buttons"
-                         style={{float:'left', height: "100%", marginRight:"10px", marginBottom: "20px"}}>
+                         style={{float:'left', marginRight:"10px", marginBottom: "30px"}}>
 
                         {/*   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                                : null
