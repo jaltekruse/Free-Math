@@ -77,7 +77,7 @@ class GradingMenuBar extends React.Component {
         var googleId = this.props.value[GOOGLE_ID];
         var saveState = this.props.value[GOOGLE_DRIVE_STATE];
         if (googleId) {
-            if (saveState === ALL_SAVED) saveStateMsg = "Grades and Feedback saved in Classroom";
+            if (saveState === ALL_SAVED) saveStateMsg = "Saved Grades and Feedback in Classroom";
             else if (saveState === SAVING) saveStateMsg = "Saving in Classroom...";
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
@@ -93,7 +93,8 @@ class GradingMenuBar extends React.Component {
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
 
-                        <span style={{ textOverflow: "ellipsis", overflow: "hidden", maxWidth: "320px",
+                        <span className="save-state-message"
+                               style={{ textOverflow: "ellipsis", overflow: "hidden",
                                        display: "inline-block", whiteSpace: "nowrap",
                                        marginLeft: "15px", marginRight: "15px",
                                        color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "inherit")}}>
@@ -101,7 +102,8 @@ class GradingMenuBar extends React.Component {
                         </span>
                         {googleId
                             ?
-                                <span style={{ textOverflow: "ellipsis", overflow: "hidden", maxWidth: "200px",
+                                <span className="google-assignment-name"
+                                        style={{ textOverflow: "ellipsis", overflow: "hidden",
                                                display: "inline-block", whiteSpace: "nowrap",
                                                marginLeft: "15px", marginRight: "15px"}}
                                           title={this.props.value[ASSIGNMENT_NAME]}>

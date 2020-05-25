@@ -169,7 +169,7 @@ h1 small {
 
 .fm-button-right {
   border: 2px solid transparent;
-  padding: 4px 8px 4px 4px;
+  padding: 5px 8px 7px 4px;
   margin-right: 4px;
   margin-left: 0px;
   background-color: #0d57bf;
@@ -367,6 +367,15 @@ div.problem-container {
         flex-direction: column;
     }
 
+    .save-state-message {
+        line-height:2;
+        max-width: 500px
+    }
+    .google-assignment-name {
+        line-height:2;
+        max-width: 400px
+    }
+
     .fm-button-light,
     .fm-button,
     .fm-button-left,
@@ -407,7 +416,7 @@ div.problem-container {
         border-bottom-left-radius: 30px;
         border-top-left-radius: 0px;
         border-bottom-left-radius: 0px;
-        padding: 8px 16px 8px 8px;
+        padding: 12px 16px 15px 8px;
     }
 
     .extra-long-problem-action-button {
@@ -499,11 +508,11 @@ div.problem-container {
         display: inline-block;
     }
     .menubar-spacer {
-        height: 140px;
+        height: 210px;
         display: block
     }
     .menubar-spacer-small {
-        height: 80px;
+        height: 140px;
         display: block
     }
     div.problem-editor-buttons {
@@ -541,6 +550,12 @@ div.problem-container {
     .freemath-logo {
         font-size: 22px;
         margin: 0;
+    }
+    .save-state-message {
+        max-width: 320px
+    }
+    .google-assignment-name {
+        max-width: 200px
     }
     .homepage-only-on-mobile {
         display:none
