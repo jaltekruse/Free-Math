@@ -320,12 +320,12 @@ ga('create', 'UA-70441517-2', 'auto');
 
     function updateFileWithBinaryContentNoFailureAlert(name, content, googleId,
                                          fileType='application/zip', callback, errorCallback = function(){}) {
-        updateFileWithBinaryContentInternal(false, name, content, googlId, fileType, callback, errorCallback);
+        updateFileWithBinaryContentInternal(false, name, content, googleId, fileType, callback, errorCallback);
     }
 
     function updateFileWithBinaryContent(name, content, googleId,
                                          fileType='application/zip', callback, errorCallback = function(){}) {
-        updateFileWithBinaryContentInternal(true, name, content, googlId, fileType, callback, errorCallback);
+        updateFileWithBinaryContentInternal(true, name, content, googleId, fileType, callback, errorCallback);
     }
 
     function updateFileWithBinaryContentInternal(alertOnFailure, name, content, googleId,
