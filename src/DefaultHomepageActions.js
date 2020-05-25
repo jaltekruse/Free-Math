@@ -645,6 +645,11 @@ class UserActions extends React.Component {
                     window.ephemeralStore.dispatch(
                         { type : SET_GOOGLE_CLASS_LIST,
                           GOOGLE_CLASS_LIST : undefined});
+                    console.log(assignment);
+                    if ( ! assignment.assignment ) {
+                        alert("You do not have permissions to grade this assignment.");
+                        return;
+                    }
                     openDriveAssignments(assignment);
                 }}
                 ref="submissionSelector"/>

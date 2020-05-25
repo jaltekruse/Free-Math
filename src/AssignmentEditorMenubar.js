@@ -602,6 +602,9 @@ class AssignmentEditorMenubar extends React.Component {
                             } else {
                                 alert("Error saving to Google Drive");
                             }
+                            window.ephemeralStore.dispatch(
+                                { type : SET_GOOGLE_DRIVE_STATE,
+                                    GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
                         }
                     );
                 } else {
@@ -624,6 +627,9 @@ class AssignmentEditorMenubar extends React.Component {
                             } else {
                                 alert("Error saving to Google Drive");
                             }
+                            window.ephemeralStore.dispatch(
+                                { type : SET_GOOGLE_DRIVE_STATE,
+                                    GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
                         }
                     );
                 }
