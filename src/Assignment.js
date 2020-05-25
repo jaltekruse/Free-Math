@@ -78,7 +78,7 @@ class Assignment extends React.Component {
             window.ephemeralStore.dispatch({ type : SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probs.length });
         }.bind(this);
         return (
-        <div style={{height: "100%", backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
+        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
             <FreeMathModal
                 showModal={this.state.showModal &&
                             probList[currProblem][SHOW_TUTORIAL]}
