@@ -541,7 +541,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
             <FreeMathModal
                 showModal={rootState[GOOGLE_CLASS_LIST]}
                 content={(
-                    <div style={{"align-items": "center"}}>
+                    <div style={{alignItems: "center"}}>
                         <CloseButton type="submit" text="&#10005;" title="Close"
                                      onClick={
                                         function() {

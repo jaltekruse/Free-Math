@@ -664,7 +664,7 @@ class UserActions extends React.Component {
             <FreeMathModal
                 showModal={this.state['CREATING_GOOGLE_CLASSROOM_ASSINGMENT']}
                 content={(
-                    <div style={{"align-items": "center"}}>
+                    <div style={{alignItems: "center"}}>
                     <CloseButton type="submit" text="&#10005;" title="Close"
                                  onClick={ function() {
                                         // this closes the modal
@@ -1197,7 +1197,7 @@ class DefaultHomepageActions extends React.Component {
                         <div id="mc_embed_signup_scroll">
                         <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
                             <input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea"
-                                   tabIndex="-1" value=""/>
+                                   tabIndex="-1" readOnly={true} value=""/>
                         </div>
 
                         <div style={{overflow: "hidden"}}>
@@ -1248,10 +1248,9 @@ class DefaultHomepageActions extends React.Component {
 
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px"}}>
                     <h2>Office Hours</h2>
-                    <p>
-                            Have questions about how to get started with Free Math? <br />
-                            Want to talk with the development team about a feature suggestion? <br />
-                            Interested in meeting other teachers improving their classrooms with Free Math? <br />
+                        Have questions about how to get started with Free Math? <br />
+                        Want to talk with the development team about a feature suggestion? <br />
+                        Interested in meeting other teachers improving their classrooms with Free Math? <br />
                         <br />
                         Come to office hours on Google Meet, held Monday, Wednesday and Friday at 8:30-9:30am CST <br />
                         <br />
@@ -1262,7 +1261,6 @@ class DefaultHomepageActions extends React.Component {
                             </div>
                             </a>
                         </div>
-                    </p>
                 </div>
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
                     <h2>Spread the Word</h2>
