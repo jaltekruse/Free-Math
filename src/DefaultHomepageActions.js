@@ -762,6 +762,7 @@ class UserActions extends React.Component {
                                 window.store.dispatch({type : "NEW_ASSIGNMENT"});
                             }}
                         /><br />
+                        <br />
                         Open Assignment &nbsp;&nbsp;&nbsp;
                         <br />
                         <HtmlButton
@@ -778,7 +779,7 @@ class UserActions extends React.Component {
                                     </div>
                             )} />
                         <br />
-                        <p>
+                        <br />
                         Open a Free Math file from your device
                         <input type="file" accept="*" id="open-file-input" onChange={
                             function(evt) {
@@ -789,7 +790,8 @@ class UserActions extends React.Component {
                                 document.body.scrollTop = document.documentElement.scrollTop = 0;
                                 readSingleFile(evt);
                         }}/>
-                        </p>
+                        <br />
+                        <br />
                         <small>
                                 Select a Free Math file you previously saved, or one that your teacher
                                 returned to you after grading.
