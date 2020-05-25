@@ -409,7 +409,7 @@ class UserActions extends React.Component {
                                             let state = getPersistentState();
                                             var grades = calculateGrades(state[PROBLEMS]);
                                             console.log('checking for unsubmits');
-                                            window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
+                                            window.listGoogleClassroomSubmissionsNoFailureAlert(assignment.courseId, assignment.id,
                                                 function(resp) {
                                                     // array of obj { fileId: '134', name: 'Bob Doe'}{
                                                     let toRemove = [];

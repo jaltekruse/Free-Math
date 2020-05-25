@@ -228,6 +228,12 @@ ga('create', 'UA-70441517-2', 'auto');
         googleGet(true, url, callback, errorCallback);
     }
 
+    function listGoogleClassroomSubmissionsNoFailureAlert(courseId, courseWorkId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions';
+        googleGet(false, url, callback, errorCallback);
+    }
+
     function listGoogleClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
         let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                     courseWorkId + '/studentSubmissions';
@@ -405,6 +411,7 @@ ga('create', 'UA-70441517-2', 'auto');
                         var resp = JSON.parse(responseXhr.responseText);
                         alert(resp.error.message);
                     } catch(e) {
+                        console.log(e);
                         alert("Failure during request to Google.");
                     }
                 }
@@ -423,6 +430,7 @@ ga('create', 'UA-70441517-2', 'auto');
                         var resp = JSON.parse(responseXhr.responseText);
                         alert(resp.error.message);
                     } catch(e) {
+                        console.log(e);
                         alert("Failure during request to Google.");
                     }
                 }
@@ -462,9 +470,7 @@ ga('create', 'UA-70441517-2', 'auto');
         xhr.onerror = function(xhr) {
           console.log(this);
           console.log(xhr);
-          if (this.status !== 0) {
-            alert("Error when making google request: " + this.status);
-          }
+          console.log("-------------onerror called------------");
           errorCallback(this);
         };
         if (payload) {
