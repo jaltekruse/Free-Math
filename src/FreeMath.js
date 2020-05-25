@@ -544,6 +544,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
         setTimeout(function() {
             currentlyGatheringUpdates = false;
             try {
+                window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: 1});
                 // if the user has changed modes before saving could complete, abort the save, it no longer
                 // can access the app state that we wanted to be saving
                 if (getPersistentState()[APP_MODE] !== currentAppMode) {
@@ -553,7 +554,6 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
                 if (appState[GOOGLE_DRIVE_STATE] !== SAVING) {
                     window.ephemeralStore.dispatch({type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
                 }
-                window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: 1});
                 console.log("incremented pendingSave to ");
                 console.log(getEphemeralState()[PENDING_SAVES]);
                 saveFunc();
