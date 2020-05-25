@@ -659,19 +659,6 @@ class UserActions extends React.Component {
                 }}
                 ref="submissionSelector"/>
             <FreeMathModal
-                showModal={this.state.showModal}
-                content={(
-                    <div style={{alignItems: "center"}}>
-                        <img style={{
-                            "display": "flex",
-                            "marginLeft":"auto",
-                            "marginRight": "auto"
-                             }}
-                             src="images/Ajax-loader.gif" alt="loading spinner" /><br />
-
-                    </div>)}
-            />
-            <FreeMathModal
                 showModal={this.state['CREATING_GOOGLE_CLASSROOM_ASSINGMENT']}
                 content={(
                     <div style={{alignItems: "center"}}>
@@ -1025,33 +1012,6 @@ class DefaultHomepageActions extends React.Component {
                      className="nav">
                     <LogoHomeNav />
                     <div className="navBarElms" style={{marginTop:"4px", float:"right"}}>
-                    {/* Now handled by auth tied directly into the "Open from" buttons, see componentDidMount()
-                    <HtmlButton
-                            className="fm-button-light"
-                            onClick={
-                                function() {window.handleAuthClick() }}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Connect to&nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                                src="images/google_small_logo.png"
-                                                alt="google logo" />
-                                    </div>
-                            )} />
-                    <HtmlButton
-                            className="fm-button-light"
-                            onClick={
-                                function() {window.handleSignoutClick() }}
-                            content={(
-                                    <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Disconnect&nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                            src="images/google_small_logo.png"
-                                            alt="google logo" />
-                                    </div>
-                            )} />
-                    &nbsp;&nbsp;&nbsp;
-                    */}
                     <a href="gettingStarted.html"
                         style={{color:"white", marginRight:"15px"}} >
                         Getting Started
