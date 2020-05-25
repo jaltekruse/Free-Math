@@ -405,40 +405,46 @@ class UserActions extends React.Component {
                                     // check student submissions every 30 seconds, if they have unsubmitted
                                     // remove them from view
                                     const checkForUnsubmits = function() {
-                                        let state = getPersistentState();
-                                        var grades = calculateGrades(state[PROBLEMS]);
-                                        console.log('checking for unsubmits');
-                                        window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
-                                            function(resp) {
-                                                // array of obj { fileId: '134', name: 'Bob Doe'}{
-                                                let toRemove = [];
-                                                resp.studentSubmissions.forEach(function(submission) {
-                                                    let isSubmitted = function(submission) {
-                                                        return ( typeof submission.assignmentSubmission.attachments !== 'undefined'
-                                                                  && submission.state !== 'CREATED'
-                                                                  && submission.state !== 'RECLAIMED_BY_STUDENT');
-                                                    };
-                                                    console.log('check still submitted');
-                                                    console.log(submission.id);
-                                                    console.log(grades);
-                                                    if ( typeof grades['GOOGLE_STUDENT_GRADES'][submission.id] !== 'undefined'
-                                                         && !isSubmitted(submission)) {
-                                                        console.log('removing student from view');
-                                                        toRemove.push({fileId : submission.assignmentSubmission.attachments[0].driveFile.id,
-                                                                       name : students[submission.userId]
-                                                        });
+                                        try {
+                                            let state = getPersistentState();
+                                            var grades = calculateGrades(state[PROBLEMS]);
+                                            console.log('checking for unsubmits');
+                                            window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
+                                                function(resp) {
+                                                    // array of obj { fileId: '134', name: 'Bob Doe'}{
+                                                    let toRemove = [];
+                                                    resp.studentSubmissions.forEach(function(submission) {
+                                                        let isSubmitted = function(submission) {
+                                                            return ( typeof submission.assignmentSubmission.attachments !== 'undefined'
+                                                                      && submission.state !== 'CREATED'
+                                                                      && submission.state !== 'RECLAIMED_BY_STUDENT');
+                                                        };
+                                                        console.log('check still submitted');
+                                                        console.log(submission.id);
+                                                        console.log(grades);
+                                                        if ( typeof grades['GOOGLE_STUDENT_GRADES'][submission.id] !== 'undefined'
+                                                             && !isSubmitted(submission)) {
+                                                            console.log('removing student from view');
+                                                            toRemove.push({fileId : submission.assignmentSubmission.attachments[0].driveFile.id,
+                                                                           name : students[submission.userId]
+                                                            });
+                                                        }
+                                                    });
+                                                    if (toRemove.length > 0) {
+                                                        let allUnsubmittedStudents = toRemove.map(unsubmitted => unsubmitted.name);
+                                                        alert("One or more students unsubmitted, removing them from the grading page to prevent " +
+                                                               "your updates from overwriting their edits:\n\n" + allUnsubmittedStudents.join());
+                                                        let allUnsubmittedFileIds = toRemove.map(unsubmitted => unsubmitted.fileId);
+                                                        removeStudentsFromGradingView(allUnsubmittedFileIds, state);
                                                     }
-                                                });
-                                                if (toRemove.length > 0) {
-                                                    let allUnsubmittedStudents = toRemove.map(unsubmitted => unsubmitted.name);
-                                                    alert("One or more students unsubmitted, removing them from the grading page to prevent " +
-                                                           "your updates from overwriting their edits:\n\n" + allUnsubmittedStudents.join());
-                                                    let allUnsubmittedFileIds = toRemove.map(unsubmitted => unsubmitted.fileId);
-                                                    removeStudentsFromGradingView(allUnsubmittedFileIds, state);
-                                                }
-                                        });
+                                            });
+                                        } catch (e) {
+                                            console.log('Failure while checking for unsubmits');
+                                            console.log(e);
+                                        }
                                     }
-                                    setInterval(checkForUnsubmits, 1000 * 10);
+                                    // Note for handling nav away from grading, this is cleared in LogoNavHome
+                                    window.checkUnsumitsInterval = setInterval(checkForUnsubmits, 1000 * 10);
 
                                     var aggregatedWork = aggregateStudentWork(allStudentWork);
                                     this.closeSpinner();

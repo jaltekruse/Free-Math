@@ -13,6 +13,11 @@ class LogoHomeNav extends React.Component {
                           }
                       }
 
+                      // if currently in a grading session for google classroom, cancel the interval
+                      // action to check for unsubmits
+                      if (window.checkUnsumitsInterval) {
+                          clearInterval(window.checkUnsumitsInterval);
+                      }
                       window.store.dispatch({type : "GO_TO_MODE_CHOOSER"});
 
                       // temporarily disable data loss warning
