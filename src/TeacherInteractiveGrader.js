@@ -1785,11 +1785,11 @@ class TeacherInteractiveGrader extends React.Component {
                 <div className="menubar-spacer"> </div>
                 <FreeMathModal
                     showModal={showTutorial && this.state.showModal}
+                    closeModal={function() {
+                                this.setState({showModal: false});
+                            }.bind(this)}
                     content={(
                         <div width="750px">
-                            <CloseButton onClick={function() {
-                                this.setState({showModal: false});
-                            }.bind(this)} />
                             <iframe title="Free Math Video"
                                 src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
                                 allowFullScreen frameBorder="0"

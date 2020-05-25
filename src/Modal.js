@@ -51,12 +51,13 @@ class FreeMathModal extends React.Component {
           };
         };
         const contentComponent = this.props.content;
+        const closeModal = this.props.closeModal ? this.props.closeModal : function() {};
         return (
             <span>
                 <Modal
                   aria-labelledby='modal-label'
                   show={showModal}
-                  onHide={this.closeModal}
+                  onBackdropClick={closeModal}
                   style={modalStyle}
                   backdropStyle={backdropStyle}
                 >

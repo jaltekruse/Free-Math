@@ -80,13 +80,13 @@ class Assignment extends React.Component {
         return (
         <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
             <FreeMathModal
+                closeModal={function() {
+                            this.setState({ showModal: false});
+                        }.bind(this)}
                 showModal={this.state.showModal &&
                             probList[currProblem][SHOW_TUTORIAL]}
                 content={(
                     <div>
-                        <CloseButton onClick={function() {
-                            this.setState({showModal: false});
-                        }.bind(this)} />
                         <iframe title="Free Math Video"
                             src="https://www.youtube.com/embed/x6EiDUYJx_s"
                             allowFullScreen frameBorder="0"
