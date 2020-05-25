@@ -360,8 +360,10 @@ class UserActions extends React.Component {
                                         return;
                                     } else {
                                         // if no drive file is listed with the submission, or it wasn't selected in the picker
-                                        if (! attachments[0].driveFile && ! selectedDocs[attachments[0].driveFile]) {
-                                            console.log("skipping - no drive file");
+                                        if (! attachments[0].driveFile || ! selectedDocs[attachments[0].driveFile.id]) {
+                                            console.log(attachments);
+                                            console.log(selectedDocs);
+                                            console.log("skipping - no drive file, or not selected in picker");
                                             return;
                                         }
                                         if (attachments.length > 1) {
