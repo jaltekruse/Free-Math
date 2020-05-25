@@ -123,8 +123,20 @@ function singleSolutionReducer(state, action) {
 }
 
 function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
-    return Math.round(
-        ( Number(score) / Number(oldPossiblePoints) )* Number(newPossiblePoints));
+    const isNaN = function(input) {
+        return typeof input === 'number' && input !== input;
+    }
+    if (Number(newPossiblePoints) === 0) {
+        return 0;
+    } else if (isNaN(Number(newPossiblePoints))) {
+        return 0;
+    }
+    const ret = Math.round(
+        ( Number(score) / Number(oldPossiblePoints) ) * Number(newPossiblePoints));
+    if (ret === Infinity) {
+        return Number(newPossiblePoints);
+    }
+    return ret;
 }
 
 
