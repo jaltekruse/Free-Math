@@ -318,17 +318,9 @@ ga('create', 'UA-70441517-2', 'auto');
         googleRequestBinaryResponse(false, url, 'post', payload, 'multipart/mixed', callback, errorCallback);
     }
 
-    function updateFileWithBinaryContentNoFailureAlert(name, content, googleId,
-                                         fileType='application/zip', callback, errorCallback = function(){}) {
-        updateFileWithBinaryContentInternal(false, name, content, googleId, fileType, callback, errorCallback);
-    }
-
+    // yes this is defaulting always to no alert on failure, all of the callers currently do their own
+    // handling, many are checking for 403s to give better error messages
     function updateFileWithBinaryContent(name, content, googleId,
-                                         fileType='application/zip', callback, errorCallback = function(){}) {
-        updateFileWithBinaryContentInternal(true, name, content, googleId, fileType, callback, errorCallback);
-    }
-
-    function updateFileWithBinaryContentInternal(alertOnFailure, name, content, googleId,
                                          fileType='application/zip', callback, errorCallback = function(){}) {
 
         let url = 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart';
@@ -341,7 +333,7 @@ ga('create', 'UA-70441517-2', 'auto');
         var payload = new FormData();
         payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
         payload.append('file', content);
-        googleRequestJsonResponse(alertOnFailure, url, 'put', payload, DEFAULT_MIME, callback, errorCallback);
+        googleRequestJsonResponse(false, url, 'put', payload, DEFAULT_MIME, callback, errorCallback);
     }
 
     function createFileWithBinaryContent(name, content, fileType='application/zip', callback,

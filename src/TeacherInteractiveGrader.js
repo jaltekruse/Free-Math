@@ -651,18 +651,18 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var errorsSaving = 0;
     var unsubmittedStudents = [];
 
-    const saveStudentAssignment = function(filename, onSuccess, onFailure) {
+    const saveStudentAssignment = function(filename, onIndividualFileSuccess, onIndividualFailure) {
 
         let tempSeparatedAssignments = separateIndividualStudentAssignments(
             getPersistentState());
         let doc = tempSeparatedAssignments[filename];
         saveAssignment(doc, function(finalBlob) {
-            window.updateFileWithBinaryContentNoFailureAlert(
+            window.updateFileWithBinaryContent(
                 null,
                 // TODO - filename currently hacky and has googleId in it
                 finalBlob, filename, 'application/zip',
-                onSuccess,
-                onFailure
+                onIndividualFileSuccess,
+                onIndividualFailure
             );
         });
 
