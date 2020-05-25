@@ -448,6 +448,9 @@ class UserActions extends React.Component {
 
                                     var aggregatedWork = aggregateStudentWork(allStudentWork);
                                     this.closeSpinner();
+
+                                    // turn on the gaurd for navigating away
+                                    window.onbeforeunload = checkAllSaved;
                                     window.store.dispatch(
                                         { type : 'SET_ASSIGNMENTS_TO_GRADE',
                                           GOOGLE_ID : 'PLACEHOLDER',
