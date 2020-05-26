@@ -536,9 +536,14 @@ class UserActions extends React.Component {
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             if (appMode === EDIT_ASSIGNMENT) {
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
+                try {
                 recovered = openAssignment(base64ToArrayBuffer(
                     window.localStorage.getItem(autoSaveFullName)),
                     filename);
+                } catch (e) {
+                    alert("Error reading recovery document");
+                    return;
+                }
                 window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
                     ASSIGNMENT_NAME : filename,
                     DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
@@ -561,10 +566,15 @@ class UserActions extends React.Component {
                     }
                 }
 
-                loadStudentDocsFromZip(
-                    base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
-                    filename, function() {/* success */}, function() {alert("Loading recovery failed")},
-                    matchingDocId, false);
+                try {
+                    loadStudentDocsFromZip(
+                        base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
+                        filename, function() {/* success */}, function() {alert("Loading recovery failed")},
+                        matchingDocId, false);
+                } catch (e) {
+                    alert("Error reading recovery document");
+                    return;
+                }
             }
         };
         var deleteAutoSaveCallback = function(docName) {
