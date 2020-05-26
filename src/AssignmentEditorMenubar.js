@@ -96,7 +96,33 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
     return saveAssignment(studentDoc, handleFinalBlobCallback);
 }
 
+// Note this causes issues when saving things with images in them
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
+
+    var allProblems = studentDoc[PROBLEMS];
+    // clear out images before calling JSON.stringify, it creates base64 strings that can cause problems
+    allProblems = allProblems.map(function(problem, probIndex, array) {
+        // make a new object, as this mutates the state, including changing the blob URLs
+        // into filenames that will be in the zip file for images, these changes
+        // should not be made to the in-memory version
+        // BE CAREFUL NOT TO CHANGE THIS, the bug only shows up after a save and then
+        // a further edit of the doc without navigating away
+        problem = { ...problem };
+        // trim the numbers to avoid extra groups while grading
+        problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
+        problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
+            if (step[FORMAT] === IMG) {
+                var newStep = {...step};
+                newStep[CONTENT] = "";
+                return newStep;
+            } else {
+                return step;
+            }
+        });
+        return problem;
+    });
+    studentDoc = { ...studentDoc,
+                   [PROBLEMS]: allProblems};
     var blob =
         new Blob([
             JSON.stringify({
