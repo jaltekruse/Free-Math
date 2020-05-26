@@ -1055,9 +1055,6 @@ class DefaultHomepageActions extends React.Component {
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
-                    Give your students feedback,
-                    <br />
-                    meaningfully and efficiently.
                     <button className="fm-button"
                             style={{...demoButtonStyle, width: "500px", backgroundColor: "#008000"}}
                         onClick={function() {
@@ -1067,6 +1064,9 @@ class DefaultHomepageActions extends React.Component {
                     >
                     <h3 style={{color:"#eeeeee"}}>Now With Direct Google Classroom Integration!</h3>
                     </button>
+                    Give your students feedback,
+                    <br />
+                    meaningfully and efficiently.
                 </h1>
             <div>
             <div className="homepage-center">
@@ -1092,11 +1092,9 @@ class DefaultHomepageActions extends React.Component {
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee"}}>Demo Teacher Grading</h3>
+                <h3 style={{color:"#eeeeee"}}>Teachers Start Here</h3>
             </button>
             </div>
-            {
-            <div className="homepage-only-on-mobile">
                 { ! browserIsIOS ?
                     (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                              onClick={function() {
@@ -1109,14 +1107,7 @@ class DefaultHomepageActions extends React.Component {
                     ) : null
                 }
             </div>
-            }
-            </div>
-            <div className="homepage-only-on-mobile" >
-                {this.state.showActionsMobile ? <UserActions value={this.props.value} /> : null }
-            </div>
-            <div className="homepage-disappear-mobile" >
-                <UserActions value={this.props.value} />
-            </div>
+            {this.state.showActionsMobile ? <UserActions value={this.props.value} /> : null }
             </div>
             <div style={{padding:"0px 0px 0px 0px", width: "100%", "display":"inline-block"}}>
                 <div className="homepage-wrapper">

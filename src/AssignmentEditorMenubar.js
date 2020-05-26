@@ -99,6 +99,7 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
 // Note this causes issues when saving things with images in them
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
 
+    /*
     var allProblems = studentDoc[PROBLEMS];
     // clear out images before calling JSON.stringify, it creates base64 strings that can cause problems
     allProblems = allProblems.map(function(problem, probIndex, array) {
@@ -123,6 +124,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     });
     studentDoc = { ...studentDoc,
                    [PROBLEMS]: allProblems};
+        */
     var blob =
         new Blob([
             JSON.stringify({
