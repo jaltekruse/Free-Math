@@ -99,7 +99,6 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
 // Note this causes issues when saving things with images in them
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
 
-    /*
     var allProblems = studentDoc[PROBLEMS];
     // clear out images before calling JSON.stringify, it creates base64 strings that can cause problems
     allProblems = allProblems.map(function(problem, probIndex, array) {
@@ -124,7 +123,6 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     });
     studentDoc = { ...studentDoc,
                    [PROBLEMS]: allProblems};
-        */
     var blob =
         new Blob([
             JSON.stringify({
@@ -403,7 +401,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             window.ephemeralStore.dispatch(
                 { type : MODIFY_GLOBAL_WAITING_MSG,
                   GLOBAL_WAITING_MSG: false});
-            alert('Successfully submitted to classroom.');
+            alert('Successfully saved to Google Classroom.\n\nRemember to go into Classroom to turn it in if you are done.');
         },
         function(errorXhr) {
             window.ephemeralStore.dispatch(
