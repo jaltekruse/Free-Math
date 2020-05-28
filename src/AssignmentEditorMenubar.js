@@ -97,7 +97,7 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
 }
 
 // Note this causes issues when saving things with images in them
-function saveAssignment(studentDoc, handleFinalBlobCallback) {
+function saveAssignmentOld(studentDoc, handleFinalBlobCallback) {
 
     var allProblems = studentDoc[PROBLEMS];
     // clear out images before calling JSON.stringify, it creates base64 strings that can cause problems
@@ -139,7 +139,7 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     handleFinalBlobCallback(blob);
 }
 
-function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
+function saveAssignment(studentDoc, handleFinalBlobCallback) {
     var allProblems = studentDoc[PROBLEMS];
     var zip = new JSZip();
     var imagesBeingAddedToZip = 0;
