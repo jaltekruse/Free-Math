@@ -81,7 +81,7 @@ h1 small {
 }
 
 .homepage-headline {
-    padding: 70px 2vw 70px 2vw;
+    padding: 100px 2vw 100px 2vw;
     /* this is necesary to prevent the padding from adding to thw width */
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
@@ -582,7 +582,7 @@ div.problem-container {
         float: left;
     }
     .homepage-wrapper {
-        padding: 150px 0px 0px 0px;
+        padding: 200px 0px 0px 0px;
         display: inline-block;
         width: 100%
     }
