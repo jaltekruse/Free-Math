@@ -129,6 +129,12 @@ h1 small {
   color: #212121;
 }
 
+.fm-button-green:hover:enabled
+{
+  cursor: pointer;
+  background-color: #052d66;
+}
+
 .fm-button:hover:enabled
 {
   cursor: pointer;
@@ -144,6 +150,15 @@ h1 small {
   transform: scale(0.99);
 }
 
+.fm-button-green {
+    background-color: #008000
+}
+
+.fm-button-green:hover:enabled
+{
+  cursor: pointer;
+  background-color: #005000
+}
 
 .fm-button-left {
   border: 2px solid transparent;

@@ -1055,18 +1055,18 @@ class DefaultHomepageActions extends React.Component {
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
-                    Give your students feedback,
-                    <br />
-                    meaningfully and efficiently.
-                    <button className="fm-button"
-                            style={{...demoButtonStyle, width: "500px", backgroundColor: "#008000"}}
+                    <button className="fm-button fm-button-green"
+                            style={{...demoButtonStyle, width: "500px"}}
                         onClick={function() {
                             this.setState({SHOW_GOOGLE_VIDEO: true});
                             console.log(this.state);
                         }.bind(this)}
                     >
-                    <h3 style={{color:"#eeeeee"}}>Now With Direct Google Classroom Integration!</h3>
+                    <h3 style={{color:"#eeeeee"}}>Google Classroom Integration Beta - Click for Info</h3>
                     </button>
+                    Give your students feedback,
+                    <br />
+                    meaningfully and efficiently.
                 </h1>
             <div>
             <div className="homepage-center">
