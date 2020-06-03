@@ -96,9 +96,9 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
     return saveAssignment(studentDoc, handleFinalBlobCallback);
 }
 
-// Note this causes issues when saving things with images in them
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
 
+    var containsAnImage = false;
     var allProblems = studentDoc[PROBLEMS];
     // clear out images before calling JSON.stringify, it creates base64 strings that can cause problems
     allProblems = allProblems.map(function(problem, probIndex, array) {
@@ -112,31 +112,34 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
         problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
         problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
             if (step[FORMAT] === IMG) {
-                var newStep = {...step};
-                newStep[CONTENT] = "";
-                return newStep;
-            } else {
-                return step;
+                containsAnImage = true;
             }
+            return step;
         });
         return problem;
     });
+
     studentDoc = { ...studentDoc,
                    [PROBLEMS]: allProblems};
-    var blob =
-        new Blob([
-            JSON.stringify({
-            ...studentDoc,
-            PROBLEMS : removeUndoRedoHistory(
-                        makeBackwardsCompatible(
-                          studentDoc
-                        )
-                    )[PROBLEMS]
-            })],
-        {type: "application/octet-stream"});
-        //{type: "text/plain;charset=utf-8"});
 
-    handleFinalBlobCallback(blob);
+    if (containsAnImage) {
+        saveAssignmentWithImages(studentDoc, handleFinalBlobCallback);
+    } else {
+        var blob =
+            new Blob([
+                JSON.stringify({
+                ...studentDoc,
+                PROBLEMS : removeUndoRedoHistory(
+                            makeBackwardsCompatible(
+                              studentDoc
+                            )
+                        )[PROBLEMS]
+                })],
+            {type: "application/octet-stream"});
+            //{type: "text/plain;charset=utf-8"});
+
+        handleFinalBlobCallback(blob);
+    }
 }
 
 function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
