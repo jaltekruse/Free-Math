@@ -176,7 +176,9 @@ class Assignment extends React.Component {
                            </div>)
                         : null
                 }
-                <Button text="Add Problem" style={{marginRight: "15px", backgroundColor: "#008000"}} onClick={function() {
+                <Button text="Add Problem" className="fm-button-green fm-button"
+                        style={{marginRight: "15px"}}
+                        onClick={function() {
                     addProblem();
                 }}/>
             </div>

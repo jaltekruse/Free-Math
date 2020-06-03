@@ -1027,7 +1027,7 @@ class DefaultHomepageActions extends React.Component {
                 content={(
                     <div>
                         <iframe title="Free Math Video"
-                            src="https://www.youtube.com/embed/RBkJvBLZDm8?ecver=2"
+                            src="https://www.youtube.com/embed/cR9R3tXbiug?ecver=2"
                             allowFullScreen frameBorder="0"
                             className="tutorial-video"
                             ></iframe>

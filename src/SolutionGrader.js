@@ -454,16 +454,14 @@ class SolutionGrader extends React.Component {
                             <Button type="submit" text="Full Points" onClick={this.fullPoints}/>
                             <br />
                     <span style={{marginTop: "15px", marginBottom: "25px"}}>
-                        <Button text="Apply to Ungraded"
+                        <Button text="Apply to Ungraded" className="fm-button-green fm-button"
                                 title={"Apply this score and feedback text to all responses in this " +
                                     "group that don't have a grade yet."}
-                                onClick={this.applyScoreToUngraded}
-                                style={{backgroundColor: "#008000"}}/>
-                        <Button text="Apply to All"
+                                onClick={this.applyScoreToUngraded} />
+                        <Button text="Apply to All" className="fm-button-green fm-button"
                                 title={"Apply this score and feedback text to all responses in this group, " +
                                       "will overwrite already entered values."}
-                                onClick={this.applyScoreToAll}
-                                style={{backgroundColor: "#008000"}}/>
+                                onClick={this.applyScoreToAll} />
                     </span>
                     <br />
                     Feedback&nbsp;
