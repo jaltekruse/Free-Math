@@ -294,7 +294,10 @@ const UserActions = createReactClass({
                                                 var namePart = nameAndDate[1];
                                                 var datePart = nameAndDate[2];
                                                 return (
-                                                        <div style={{marginBottom:"20px"}} key={docName}>
+                                                        <div style={{marginBottom:"20px",
+                                                                     textOverflow:"ellipsis",
+                                                                     overflow: "hidden"}}
+                                                             key={docName}>
                                                         {namePart}
                                                         <br />
                                                         <Button text="Open"
