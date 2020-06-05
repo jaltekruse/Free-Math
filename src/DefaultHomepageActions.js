@@ -54,8 +54,6 @@ var STUDENT_SUBMISSION_ID = 'STUDENT_SUBMISSION_ID';
 var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
 var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
 
-var SHOW_GOOGLE_VIDEO = 'SHOW_GOOGLE_VIDEO';
-
 function checkAllSaved() {
     const appState = getEphemeralState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
@@ -972,7 +970,6 @@ class UserActions extends React.Component {
 
 class DefaultHomepageActions extends React.Component {
     state = {
-        SHOW_GOOGLE_VIDEO: false,
         emailString : ''
     };
 
@@ -1019,20 +1016,6 @@ class DefaultHomepageActions extends React.Component {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div>
-            <FreeMathModal
-                showModal={this.state[SHOW_GOOGLE_VIDEO]}
-                closeModal={function() {
-                            this.setState({ SHOW_GOOGLE_VIDEO : false});
-                        }.bind(this)}
-                content={(
-                    <div>
-                        <iframe title="Free Math Video"
-                            src="https://www.youtube.com/embed/cR9R3tXbiug?ecver=2"
-                            allowFullScreen frameBorder="0"
-                            className="tutorial-video"
-                            ></iframe>
-                    </div>
-            )} />
             <div className="menuBar">
                 <div style={{maxWidth:1024,marginLeft:"auto",
                              marginRight:"auto", padding: "0 10px 0 10px"}}
@@ -1055,19 +1038,24 @@ class DefaultHomepageActions extends React.Component {
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
-                    <button className="fm-button fm-button-green"
-                            style={{...demoButtonStyle, width: "500px"}}
-                        onClick={function() {
-                            this.setState({SHOW_GOOGLE_VIDEO: true});
-                            console.log(this.state);
-                        }.bind(this)}
-                    >
-                    <h3 style={{color:"#eeeeee"}}>Google Classroom Integration Beta - Click for Info</h3>
-                    </button>
-                    Give your students feedback,
-                    <br />
-                    meaningfully and efficiently.
+                    Google Classroom Integration Beta
                 </h1>
+                <div className="homepage-center"
+                     style={{width:"70%", height: "0",
+                             position:"relative", padding:"0px 0px 39.375% 0px"}}>
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/cR9R3tXbiug?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
+                <br />
+                <br />
+                <div className="homepage-center">
+                    <h2><a href="https://www.youtube.com/watch?v=NcsJK771YFg"
+                           target="_blank" rel="noopener noreferrer">
+                            General Free Math Intro Video</a></h2>
+                    <br />
+                    <br />
+                </div>
             <div>
             <div className="homepage-center">
             <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
