@@ -1232,12 +1232,14 @@ class DefaultHomepageActions extends React.Component {
 
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px"}}>
                     <h2>Office Hours</h2>
+                        <p>
                         Have questions about how to get started with Free Math? <br />
                         Want to talk with the development team about a feature suggestion? <br />
                         Interested in meeting other teachers improving their classrooms with Free Math? <br />
                         <br />
                         Come to office hours on Google Meet, held Monday, Wednesday and Friday at 8:30-9:30am CST <br />
                         <br />
+                        </p>
                         <div className="homepage-center">
                             <a href="https://meet.google.com/hjr-fxfm-erq" target="_blank" rel="noopener noreferrer">
                             <div className="fm-button" style={{...demoButtonStyle, "float" : "left"}}>

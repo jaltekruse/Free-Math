@@ -81,7 +81,7 @@ h1 small {
 }
 
 .homepage-headline {
-    padding: 100px 2vw 100px 2vw;
+    padding: 100px 2vw 60px 2vw;
     /* this is necesary to prevent the padding from adding to thw width */
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
