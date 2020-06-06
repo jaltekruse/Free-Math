@@ -307,10 +307,15 @@ class WebcamCapture extends React.Component {
                   <span>
                   <Button text="Take Picture"
                     onClick={function() {
-                      const imageSrc = this.webcamRef.getScreenshot();
-                      handlePicCallback(imageSrc);
-                      this.setState({takingPicture: false});
-                  }.bind(this)} />
+                        const imageSrc = this.webcamRef.getScreenshot();
+                        try {
+                            handlePicCallback(imageSrc);
+                        } catch (e) {
+                            alert('Failed to capture image.');
+                        }
+                        this.setState({takingPicture: false});
+                    }.bind(this)}
+                  />
                   <Button text="Switch Camera"
                     onClick={function() {
                         this.setState({facingMode : this.state.facingMode === 'environment' ? 'user' : 'environment'});
