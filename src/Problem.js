@@ -320,12 +320,16 @@ class WebcamCapture extends React.Component {
                         this.setState({takingPicture : false});
                   }.bind(this)} />&nbsp;
                   <br />
+                  Hold your notebook up to the camera to take a picture of written work.
+                  <br />
+                  You can crop or rotate it afterwards if needed.
+                  <br />
                   <Webcam
                     audio={false}
                     height={"auto"}
                     ref={elem => {this.webcamRef = elem;}}
                     screenshotFormat="image/png"
-                    width={350}
+                    width={700}
                     minScreenshotWidth={800}
                     screenshotQuality={0.99}
                     //forceScreenshotSourceSize={true}
@@ -473,6 +477,11 @@ class ImageStep extends React.Component {
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
+                                <div className="answer-partially-correct">
+                                Image support is still in Beta, files you save with images will not be compatible with
+                                the standard site untill we roll out the feature to everyone. Just make sure anyone who
+                                wants to read or grade this file is using the URL you are currently on to access Free Math.
+                                </div>
                                 <img src={step[CONTENT]} alt="Uploaded student work"
                                      style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
                             </span>
@@ -553,8 +562,8 @@ class Problem extends React.Component {
                         />
                     </div>
                         <div className="equation-list">
-                        Type math here
-                        {/*<ImageUploader problemIndex={problemIndex} value={this.props.value}/>*/}
+                        <span>Type math here&nbsp;</span>
+                        {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
                         <br />
 
                         {steps.map(function(step, stepIndex) {
@@ -590,7 +599,7 @@ class Problem extends React.Component {
                                 <div style={{display:"block"}}>
                             <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
                                 <div className="step-actions">
-                                    {/*<select
+                                    {<select
                                         value={step[FORMAT]}
                                         onChange={function(evt) {
                                             window.store.dispatch({
@@ -604,7 +613,7 @@ class Problem extends React.Component {
                                         <option value="MATH">Math</option>
                                         <option value="TEXT">Text</option>
                                         <option value="IMG">Image</option>
-                                    </select>*/}
+                                    </select>}
                                     <HtmlButton title='Insert step above'
                                         content={(
                                             <img src="images/add_above.png" alt="x"/>
