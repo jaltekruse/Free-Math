@@ -1062,7 +1062,10 @@ class DefaultHomepageActions extends React.Component {
                             console.log(this.state);
                         }.bind(this)}
                     >
-                    <h3 style={{color:"#eeeeee"}}>Google Classroom Integration Beta - Click for Info</h3>
+                        <h3 style={{color:"#eeeeee"}}>
+                            Google Classroom Integration Beta
+                            <br />
+                            Click for Info</h3>
                     </button>
                     Give your students feedback,
                     <br />
