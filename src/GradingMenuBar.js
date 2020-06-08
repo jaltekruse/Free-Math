@@ -79,6 +79,7 @@ class GradingMenuBar extends React.Component {
         if (googleId) {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved Grades and Feedback in Classroom";
             else if (saveState === SAVING) saveStateMsg = "Saving in Classroom...";
+            else if (saveState === ERROR_DOC_TOO_BIG) saveStateMsg = "Error saving to Classroom";
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
@@ -97,7 +98,7 @@ class GradingMenuBar extends React.Component {
                                style={{ textOverflow: "ellipsis", overflow: "hidden",
                                        display: "inline-block", whiteSpace: "nowrap",
                                        marginLeft: "15px", marginRight: "15px",
-                                       color: (saveState === DIRTY_WORKING_COPY ? "#FFAEAE" : "inherit")}}>
+                                       color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")}}>
                             {saveStateMsg}
                         </span>
                         {googleId

@@ -454,13 +454,17 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
             let pendingSaves = getEphemeralState()[PENDING_SAVES];
             console.log('pendingSaves');
             console.log(pendingSaves);
-            if (response.status === 403) {
+            if (response) {
+                if (response.status === 403 && appState[APP_MODE] === EDIT_ASSIGNMENT) {
                 alert("You cannot edit assignments that are submitted, " +
                       "you need to unsbumit over in Google Classroom first.");
-            } else {
-                alert("Error saving to google Drive");
+                } else {
+                    alert("Error saving to google Drive");
+                }
             }
             if (pendingSaves === 0) {
+                window.ephemeralStore.dispatch(
+                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
                 window.ephemeralStore.dispatch(
                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ERROR_DOC_TOO_BIG});
             }
