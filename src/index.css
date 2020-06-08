@@ -338,6 +338,7 @@ div.problem-container {
 
 .equation-list {
     float:left;
+    min-width:50%;
     max-width:77%
 }
 
@@ -371,6 +372,10 @@ div.problem-container {
       font-size: 1.0em;
       margin: 0;
     }
+    .webcam-capture {
+        width:500px;
+    }
+
     .text-step-input {
         width:500px;
     }
@@ -545,6 +550,9 @@ div.problem-container {
         width: 600px;
         height:400px;
         display:block
+    }
+    .webcam-capture {
+        width:700px;
     }
     .mathStepEditor {
         max-width:800px;

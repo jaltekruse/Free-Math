@@ -305,6 +305,27 @@ class WebcamCapture extends React.Component {
               { this.state.takingPicture
                   ?
                   <span>
+                  <br />
+                  <ul>
+                      <li>Hold your notebook up to the camera to take a picture of written work.</li>
+                      <li>You can crop or rotate it afterwards if needed.</li>
+                      <li>We respect your privacy, all interaction with the webcam is completely local to the browser
+                      and never sent to a server.</li>
+                  </ul>
+                  <br />
+                  <Webcam
+                    audio={false}
+                    height={"auto"}
+                    ref={elem => {this.webcamRef = elem;}}
+                    screenshotFormat="image/png"
+                    className="webcam-capture"
+                    minScreenshotWidth={800}
+                    screenshotQuality={0.99}
+                    //forceScreenshotSourceSize={true}
+                    imageSmoothing={true}
+                    videoConstraints={{...videoConstraints, facingMode: this.state.facingMode}}
+                  />
+                  <br />
                   <Button text="Take Picture"
                     onClick={function() {
                         const imageSrc = this.webcamRef.getScreenshot();
@@ -323,24 +344,7 @@ class WebcamCapture extends React.Component {
                   <Button text="Cancel"
                     onClick={function() {
                         this.setState({takingPicture : false});
-                  }.bind(this)} />&nbsp;
-                  <br />
-                  Hold your notebook up to the camera to take a picture of written work.
-                  <br />
-                  You can crop or rotate it afterwards if needed.
-                  <br />
-                  <Webcam
-                    audio={false}
-                    height={"auto"}
-                    ref={elem => {this.webcamRef = elem;}}
-                    screenshotFormat="image/png"
-                    width={700}
-                    minScreenshotWidth={800}
-                    screenshotQuality={0.99}
-                    //forceScreenshotSourceSize={true}
-                    imageSmoothing={true}
-                    videoConstraints={{...videoConstraints, facingMode: this.state.facingMode}}
-                  />
+                  }.bind(this)} />
                   </span>
                   :
                   (<span>
@@ -482,10 +486,10 @@ class ImageStep extends React.Component {
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
-                                <div className="answer-partially-correct">
+                            <div className="answer-partially-correct">
                                 Image support is still in Beta, files you save with images will not be compatible with
-                                the standard site untill we roll out the feature to everyone. Just make sure anyone who
-                                wants to read or grade this file is using the URL you are currently on to access Free Math.
+                                the standard site. Make sure anyone who wants to read or grade this file is using the
+                                this URL <a href="https://freemathapp.org/beta">freemathapp.org/beta</a> to access Free Math.
                                 </div>
                                 <img src={step[CONTENT]} alt="Uploaded student work"
                                      style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
