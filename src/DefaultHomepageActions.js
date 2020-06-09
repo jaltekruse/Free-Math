@@ -477,7 +477,7 @@ const DefaultHomepageActions = createReactClass({
                         <div className="fm-button-green fm-button"
                             style={{...demoButtonStyle, width: "500px"}}>
                             <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
-                                Easy Google Classroom Integration Currently in Beta
+                                Easy Google Classroom Integration is in Beta
                                 <br />
                                 Click Here to Try it Out!
                             </h3>
