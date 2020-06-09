@@ -269,6 +269,10 @@ h1 small {
   font-weight: 600;
 }
 
+.fm-button-green {
+    background-color: #008000
+}
+
 .fm-button:hover
 {
   cursor: pointer;
@@ -284,6 +288,11 @@ h1 small {
   transform: scale(0.99);
 }
 
+.fm-button-green:hover
+{
+  cursor: pointer;
+  background-color: #005000
+}
 
 .fm-button-left {
   border: 2px solid transparent;

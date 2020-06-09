@@ -473,6 +473,16 @@ const DefaultHomepageActions = createReactClass({
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
+                    <a href="BetaGoogleClassroom">
+                        <div className="fm-button-green fm-button"
+                            style={{...demoButtonStyle, width: "500px"}}>
+                            <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
+                                Easy Google Classroom Integration Currently in Beta
+                                <br />
+                                Click Here to Try it Out!
+                            </h3>
+                        </div>
+                    </a>
                     Give your students feedback,
                     <br />
                     meaningfully and efficiently.
@@ -542,7 +552,7 @@ const DefaultHomepageActions = createReactClass({
                     <div className="homepage-right homepage-video homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
-                            <source src="fm_assignment_cropped.mp4" type="video/mp4" />
+                            <source src="fm_assignment_faster_and_cropped.mp4" type="video/mp4" />
                         </video>
                     </div>
                 </div>
