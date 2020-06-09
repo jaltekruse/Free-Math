@@ -1031,6 +1031,12 @@ class DefaultHomepageActions extends React.Component {
                             allowFullScreen frameBorder="0"
                             className="tutorial-video"
                             ></iframe>
+                    <br />
+                        <p>If you are new to the site, you can check out the&nbsp;
+                        <a href="https://www.youtube.com/watch?v=NcsJK771YFg"
+                           target="_blank" rel="noopener noreferrer">
+                            general Free Math intro video</a>
+                        </p>
                     </div>
             )} />
             <div className="menuBar">
@@ -1053,19 +1059,23 @@ class DefaultHomepageActions extends React.Component {
                     </div>
                 </div>
             </div>
-            <div style={wrapperDivStyle}>
+            <div style={{...wrapperDivStyle, paddingTop:"50px"}}>
+                <div className="answer-partially-correct homepage-center" style={{display:"inline-block"}}>
+                    <h3 className="homepage-center">
+                        Google Classroom Integration And Images Beta
+                    </h3>
+                </div>
                 <h1 className="homepage-center homepage-headline">
                     <button className="fm-button fm-button-green"
                             style={{...demoButtonStyle, width: "500px"}}
-                        onClick={function() {
-                            this.setState({SHOW_GOOGLE_VIDEO: true});
-                            console.log(this.state);
-                        }.bind(this)}
+                            onClick={function() {
+                                this.setState({SHOW_GOOGLE_VIDEO: true});
+                                console.log(this.state);
+                            }.bind(this)}
                     >
                         <h3 style={{color:"#eeeeee"}}>
-                            Google Classroom Integration Beta
-                            <br />
-                            Click for Info</h3>
+                            Google Classroom Overview Video
+                        </h3>
                     </button>
                     Give your students feedback,
                     <br />
@@ -1142,6 +1152,11 @@ class DefaultHomepageActions extends React.Component {
                         <h2>Embrace Visual Learning</h2>
                         <p>Students can include images in their solutions.</p>
                         <p>Including quickly snapping a picture of written work with their webcam.</p>
+                        <div className="answer-partially-correct">
+                            Image support is still in beta; files you save with images will not be compatible with
+                            the standard site. Make sure anyone who wants to read or grade files with images is using
+                            this URL <a href="https://freemathapp.org/beta">freemathapp.org/beta</a> to access Free Math.
+                            </div>
                     </div>
                     <div className="homepage-video homepage-left homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">

@@ -487,8 +487,8 @@ class ImageStep extends React.Component {
                                 />
                                 <br />
                             <div className="answer-partially-correct">
-                                Image support is still in Beta, files you save with images will not be compatible with
-                                the standard site. Make sure anyone who wants to read or grade this file is using the
+                                Image support is still in beta; files you save with images will not be compatible with
+                                the standard site. Make sure anyone who wants to read or grade this file is using
                                 this URL <a href="https://freemathapp.org/beta">freemathapp.org/beta</a> to access Free Math.
                                 </div>
                                 <img src={step[CONTENT]} alt="Uploaded student work"
