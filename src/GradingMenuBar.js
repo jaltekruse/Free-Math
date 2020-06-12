@@ -92,7 +92,8 @@ class GradingMenuBar extends React.Component {
             <div className="menuBar">
                 <div className="nav" style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav />
-                    <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                    <div className="navBarElms" style={{float: "right", marginTop: "0px",
+                                                        verticalAlign:"top", lineHeight : 1}}>
 
                         <span className="save-state-message"
                                style={{ textOverflow: "ellipsis", overflow: "hidden",

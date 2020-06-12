@@ -233,6 +233,11 @@ h1 small {
   outline: none;
 }
 
+.navBarElms{
+     margin-top: 4px;
+     padding: 7px 5px 5px 5px;
+}
+
 div.answer-partially-correct {
     padding: 10px;
     border-radius: 2px;
@@ -488,7 +493,6 @@ div.problem-container {
     }
 
     .navBarElms{
-        padding: 7px 5px 5px 5px;
         font-size: 25px
     }
     .freemath-logo {
@@ -566,9 +570,6 @@ div.problem-container {
         margin-top: 5px;
         padding: 10px;
         width: 701px;
-    }
-    .navBarElms{
-        padding: 7px 5px 5px 5px;
     }
     .freemath-logo {
         font-size: 22px;

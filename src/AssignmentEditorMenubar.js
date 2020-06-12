@@ -711,7 +711,8 @@ class AssignmentEditorMenubar extends React.Component {
                 <div style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
                     <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                  <div className="navBarElms" style={{float: "right", verticalAlign:"top", lineHeight : 1}}>
+                  <div className="navBarElms" style={{float: "right",  marginTop: "0px",
+                                                      verticalAlign:"top", lineHeight : 1}}>
                     <span style={{margin : "0px 15px 0px 15px",
                                   color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "white")}}>
                         {saveStateMsg}

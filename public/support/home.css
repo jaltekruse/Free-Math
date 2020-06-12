@@ -98,7 +98,6 @@ h1 small {
 
 @media (max-width: 950px) {
     .navBarElms{
-        padding: 7px 5px 5px 5px;
         font-size: 25px
     }
     .freemath-logo {
@@ -138,9 +137,6 @@ h1 small {
 }
 
 @media (min-width: 951px) {
-    .navBarElms{
-        padding: 7px 5px 5px 5px;
-    }
     .freemath-logo {
         font-size: 22px;
         margin: 0;
@@ -300,7 +296,8 @@ h1 small {
 }
 
 .navBarElms{
-     padding: 2px 5px 5px 5px;
+     margin-top: 4px;
+     padding: 7px 5px 5px 5px;
 }
 
 .menuBar{
