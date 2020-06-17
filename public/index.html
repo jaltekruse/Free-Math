@@ -177,7 +177,7 @@ ga('create', 'UA-70441517-2', 'auto');
         updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
       }, function(error) {
           console.log(error);
-          alert("Error connecting to google.");
+          console.log("Error connecting to google.");
       });
     }
 
