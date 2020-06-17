@@ -1062,7 +1062,7 @@ class DefaultHomepageActions extends React.Component {
             <div style={{...wrapperDivStyle, paddingTop:"50px"}}>
                 <div className="answer-partially-correct homepage-center" style={{display:"inline-block"}}>
                     <h3 className="homepage-center">
-                        Google Classroom Integration Beta
+                        Google Classroom Integration And Images Beta
                     </h3>
                 </div>
                 <h1 className="homepage-center homepage-headline">
@@ -1147,7 +1147,7 @@ class DefaultHomepageActions extends React.Component {
                         </video>
                     </div>
                 </div>
-                {/*<div className="homepage-wrapper">
+                <div className="homepage-wrapper">
                     <div className="homepage-text homepage-right homepage-center-mobile">
                         <h2>Embrace Visual Learning</h2>
                         <p>Students can include images in their solutions.</p>
@@ -1163,15 +1163,15 @@ class DefaultHomepageActions extends React.Component {
                             <track kind="captions" />
                             <source src="fm_webcam_capture_cropped.mp4" type="video/mp4" /></video>
                     </div>
-                </div>*/}
+                </div>
                 <div className="homepage-wrapper">
-                    <div className="homepage-text homepage-right homepage-center-mobile">
+                    <div className="homepage-text homepage-left homepage-center-mobile">
                         <h2>Simultaneously Review All Assignments</h2>
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
                         <p>You can award partial credit and give feedback to students that need help.</p>
                         <p>You don't need to type in an answer key, Free Math just provides an organized view of all student work.</p>
                     </div>
-                    <div className="homepage-left homepage-video homepage-center-mobile">
+                    <div className="homepage-right homepage-video homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>

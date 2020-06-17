@@ -572,7 +572,7 @@ class Problem extends React.Component {
                     </div>
                         <div className="equation-list">
                         <span>Type math here&nbsp;</span>
-                        {/*<ImageUploader problemIndex={problemIndex} value={this.props.value}/>*/}
+                        {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
                         <br />
 
                         {steps.map(function(step, stepIndex) {
@@ -608,7 +608,7 @@ class Problem extends React.Component {
                                 <div style={{display:"block"}}>
                             <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
                                 <div className="step-actions">
-                                    {/*<select
+                                    {<select
                                         value={step[FORMAT]}
                                         onChange={function(evt) {
                                             window.store.dispatch({
@@ -622,7 +622,7 @@ class Problem extends React.Component {
                                         <option value="MATH">Math</option>
                                         <option value="TEXT">Text</option>
                                         <option value="IMG">Image</option>
-                                    </select>*/}
+                                    </select>}
                                     <HtmlButton title='Insert step above'
                                         content={(
                                             <img src="images/add_above.png" alt="x"/>
