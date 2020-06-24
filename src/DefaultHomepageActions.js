@@ -871,7 +871,7 @@ class UserActions extends React.Component {
                     Grade Assignments <br />
                     <HtmlButton
                         className="fm-button"
-                        title="Submit assignment to Google Classroom"
+                        title="Grade a Google Classroom Assignment"
                         onClick={function() {} /* action assigned in didMount to hook into google auth */}
                         ref="gradeClassroomAssignment"
                         content={(
@@ -1060,7 +1060,12 @@ class DefaultHomepageActions extends React.Component {
                 </div>
             </div>
             <div style={{...wrapperDivStyle, paddingTop:"50px"}}>
-                <div className="answer-partially-correct homepage-center" style={{display:"inline-block"}}>
+                <div className="answer-partially-correct homepage-center"
+                     style={{display:"inline-block",
+                             paddingLeft: "0px",
+                             paddingRight: "0px",
+                             borderLeftWidth: "0px",
+                             borderRightWidth: "0px"}}>
                     <h3 className="homepage-center">
                         Google Classroom Integration And Images Beta
                     </h3>
