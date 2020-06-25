@@ -202,7 +202,7 @@ class ImageUploader extends React.Component {
                               var imgFile = base64ToBlob(imageSrc.split(',')[1]);
 
                               Resizer.imageFileResizer(
-                                  imgFile, 800, 800, 'JPEG', 90, 0,
+                                  imgFile, 1200, 1200, 'JPEG', 80, 0,
                                   imgFile => {
                                       addImageToEnd(imgFile);
                                   },
@@ -239,7 +239,6 @@ function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
             alert("The file is not an image - " + (imgFile ? imgFile.type : ''));
             return;
     }
-
     if (imgFile.type.includes("gif")) {
         // disable for now, they take up lots of space and rotate/crop don't work
         alert("Gifs are not supported");
@@ -251,9 +250,13 @@ function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
         }
         addImg(imgFile, stepIndex, problemIndex, steps);
         */
+    } else if (imgFile.size < 512 * 1024) {
+        // if image is under 0.5 MB add it without compressing
+        addImg(imgFile, stepIndex, problemIndex, steps);
+        return;
     } else {
         imgFile = Resizer.imageFileResizer(
-            imgFile, 800, 800, 'JPEG', 90, 0,
+            imgFile, 1200, 1200, 'JPEG', 80, 0,
             imgFile => {
                 addImg(imgFile, stepIndex, problemIndex, steps);
             },
@@ -403,7 +406,7 @@ class ImageStep extends React.Component {
                         alert("Cannot rotate gifs");
                     } else {
                         Resizer.imageFileResizer(
-                            imgFile, 800, 800, 'JPEG', 90, degrees,
+                            imgFile, 1200, 1200, 'JPEG', 80, degrees,
                             imgFile => {
                                 handleImg(imgFile, stepIndex, problemIndex, steps);
                             },
@@ -427,7 +430,7 @@ class ImageStep extends React.Component {
                               // https://stackoverflow.com/questions/24289182/how-to-strip-type-from-javascript-filereader-base64-string
 
                               Resizer.imageFileResizer(
-                                  base64ToBlob(imageSrc.split(',')[1]), 800, 800, 'JPEG', 90, 0,
+                                  base64ToBlob(imageSrc.split(',')[1]), 1200, 1200, 'JPEG', 80, 0,
                                   imgFile => {
                                       handleImg(imgFile,
                                           stepIndex,
