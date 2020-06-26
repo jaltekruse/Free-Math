@@ -155,9 +155,9 @@ class ImageStep extends React.Component {
             <span>
             <Button className="extra-long-problem-action-button fm-button"
                     text={this.state.imageMarkup ?
-                        "Save Feedback" : "Mark Feedback" }
+                        "Save Feedback" : "Mark Image Feedback" }
                     title={this.state.imageMarkup ?
-                        "Save Feedback" : "Mark Feedback" }
+                        "Save Feedback" : "Mark Image Feedback" }
                     onClick={function() {
                         if (this.state.imageMarkup) {
                             // TODO - save modified image
@@ -187,8 +187,8 @@ class ImageStep extends React.Component {
                 :
                     (step[ORIG_STUDENT_STEP] ?
                     <Button className="extra-long-problem-action-button fm-button"
-                        text="Revert Feedback"
-                        title="Revert Feedback"
+                        text="Revert Image Feedback"
+                        title="Revert Image Feedback"
                         onClick={function() {
                             // TODO - save modified image
                             window.store.dispatch({
@@ -205,6 +205,7 @@ class ImageStep extends React.Component {
             }
             <br />
             { this.state.imageMarkup ?
+                <div style={{display:"inline-block"}}>
                 <ImageEditor
                     ref={this.editorRef}
                     includeUI={{
@@ -213,21 +214,22 @@ class ImageStep extends React.Component {
                         name: 'SampleImage'
                       },
                       menu: ['draw', 'shape', 'text'],
-                      initMenu: 'shape',
+                      initMenu: 'draw',
                       uiSize: {
-                        width: '600px',
-                        height: '700px'
+                        width: '700px',
+                        height: '900px'
                       },
                       menuBarPosition: 'top'
                     }}
-                    cssMaxHeight={500}
                     cssMaxWidth={700}
+                    cssMaxHeight={900}
                     selectionStyle={{
                       cornerSize: 20,
                       rotatingPointOffset: 70
                     }}
                     usageStatistics={false}
                   />
+                  </div>
                 :
                 <img src={step[CONTENT]} alt="Uploaded student work"
                      style={{margin : "10px", maxWidth: "98%"}}/>
@@ -247,7 +249,7 @@ class StudentWork extends React.Component {
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
         return (
-            <div style={{float:"left"}} className="equation-list">
+            <div style={{float:"left", minWidth: "400px", maxWidth:"750px"}}>
                 {
                 data[STEPS].map(function(step, stepIndex) {
                     var stepStyle = {};

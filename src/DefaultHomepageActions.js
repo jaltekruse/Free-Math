@@ -979,6 +979,18 @@ class DefaultHomepageActions extends React.Component {
     componentDidMount() {
     }
 
+    closeSpinner = () => {
+        window.ephemeralStore.dispatch(
+            { type : MODIFY_GLOBAL_WAITING_MSG,
+              GLOBAL_WAITING_MSG: false});
+    };
+
+    openSpinner = () => {
+        window.ephemeralStore.dispatch(
+            { type : MODIFY_GLOBAL_WAITING_MSG,
+              GLOBAL_WAITING_MSG: 'Loading demo grading assignments...'});
+    };
+
     render() {
         var halfScreenStyle= {
             width:"44%",
@@ -1015,6 +1027,37 @@ class DefaultHomepageActions extends React.Component {
                     })}
                 </div>
             );
+        };
+
+        const openSpinner = this.openSpinner;
+        const closeSpinner = this.closeSpinner;
+        const loadDemoGrading = function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('get', 'student_submission_demo_with_images.zip');
+            xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+            openSpinner();
+            xhr.onload = function() {
+                if (this.readyState === 4) {
+                    if (this.status == 200) {
+                    try {
+                        console.log(this.response);
+                        loadStudentDocsFromZip(this.response, 'student_submission_demo',
+                            function() {closeSpinner();},
+                            function() {closeSpinner()},
+                            false);
+                     } catch (e) {
+                         console.log(e);
+                         closeSpinner();
+                     }
+                     } else {
+                         closeSpinner();
+                         alert(this.responsetext);
+                     }
+                 } else {
+                     // ignore other events for request still in progress
+                 }
+             };
+             xhr.send();
         };
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
@@ -1104,10 +1147,9 @@ class DefaultHomepageActions extends React.Component {
             </button>
             <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
-                    window.location.hash = '';
-                    document.body.scrollTop = document.documentElement.scrollTop = 0;
                     window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
-                    window.store.dispatch(demoGradingAction);
+                    loadDemoGrading();
+                    //window.store.dispatch(demoGradingAction);
                 }}
             >
                 <h3 style={{color:"#eeeeee"}}>Demo Teacher Grading</h3>

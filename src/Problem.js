@@ -351,6 +351,7 @@ class WebcamCapture extends React.Component {
                   </span>
                   :
                   (<span>
+                    <span>Type math below&nbsp;</span>
                     <Button text="Snap a Picture"
                         onClick={function() {
                             this.setState({takingPicture : true});
@@ -446,7 +447,11 @@ class ImageStep extends React.Component {
                     />
                 :
                     <span>
-
+                        <div className="answer-partially-correct">
+                            Image support is still in beta; files you save with images will not be compatible with
+                            the standard site. Make sure anyone who wants to read or grade this file is using
+                            this URL <a href="https://freemathapp.org/beta">freemathapp.org/beta</a> to access Free Math.
+                        </div>
                         <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
                                 text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
                                 title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
@@ -489,13 +494,15 @@ class ImageStep extends React.Component {
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
-                            <div className="answer-partially-correct">
-                                Image support is still in beta; files you save with images will not be compatible with
-                                the standard site. Make sure anyone who wants to read or grade this file is using
-                                this URL <a href="https://freemathapp.org/beta">freemathapp.org/beta</a> to access Free Math.
-                                </div>
                                 <img src={step[CONTENT]} alt="Uploaded student work"
                                      style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
+                                { step[CONTENT] !== ''
+                                    ?
+                                        <div style={{maxWidth: "95%"}}>
+                                        If your final answer is a number or expression, type it in the final box below.<br />
+                                        Otherwise you can just move to the next problem.
+                                        </div>
+                                    : null }
                             </span>
                         }
                     </span>
@@ -573,8 +580,7 @@ class Problem extends React.Component {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
                     </div>
-                        <div className="equation-list">
-                        <span>Type math here&nbsp;</span>
+                        <div className="equation-list" style={{paddingBottom:"150px"}}>
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
                         <br />
 
@@ -701,13 +707,6 @@ class Problem extends React.Component {
                                               STEP_KEY : stepIndex});
                                     }}/>
                                 </div>
-                                { step[FORMAT] === IMG && step[CONTENT] !== ''
-                                    ?
-                                        <div style={{maxWidth: "95%"}}>
-                                        If your final answer is a number or expression, type it in the final box below.<br />
-                                        Otherwise you can just move to the next problem.
-                                        </div>
-                                    : null }
                                 </div>
                                 <div style={{"clear":"both"}} />
                             </div>
