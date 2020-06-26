@@ -183,7 +183,7 @@ class Assignment extends React.Component {
                     addProblem();
                 }}/>
             </div>
-            {probList[currProblem][SHOW_TUTORIAL] ?
+            {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]) ?
                     (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
                         onClick={function() {
