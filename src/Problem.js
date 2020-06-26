@@ -53,6 +53,7 @@ var STEPS = 'STEPS';
 var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
+var SHOW_IMAGE_TUTORIAL = "SHOW_IMAGE_TUTORIAL";
 
 var FORMAT = "FORMAT";
 var MATH = "MATH";
@@ -188,6 +189,7 @@ class ImageUploader extends React.Component {
         }
 		return (
             <div style={{display:"inline-block"}}>
+                <span>Type math below&nbsp;</span>
                 <WebcamCapture
                        handlePicUploadCallback={function(evt) {
                             addNewImage(evt, steps, lastStepIndex, problemIndex,
@@ -351,7 +353,6 @@ class WebcamCapture extends React.Component {
                   </span>
                   :
                   (<span>
-                    <span>Type math below&nbsp;</span>
                     <Button text="Snap a Picture"
                         onClick={function() {
                             this.setState({takingPicture : true});
@@ -522,6 +523,7 @@ class Problem extends React.Component {
         const probNumber = this.props.value[PROBLEM_NUMBER];
         const problemIndex = this.props.id;
         const showTutorial = this.props.value[SHOW_TUTORIAL];
+        const showImgTutorial = this.props.value[SHOW_IMAGE_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
         const steps = this.props.value[STEPS];
         return (
@@ -593,6 +595,15 @@ class Problem extends React.Component {
                             }
                             return (
                             <div key={step[STEP_ID]} style={{width:"95%"}}>
+                                {showImgTutorial && stepIndex === 0 ?
+                                (<div style={{overflow:"hidden"}}>
+                                    <div className="answer-partially-correct"
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
+                                        <span>Grab your notebook or worksheet. Click the button above that says "Snap a Picture"
+                                              to take a picture of some math work on the sheet of paper using your webcam
+                                              or device camera.</span>
+                                    </div>
+                                </div>) : null}
                                 {showTutorial && stepIndex === 0 ?
                                 (<div style={{overflow:"hidden"}}>
                                     <div className="answer-partially-correct"
@@ -719,8 +730,18 @@ class Problem extends React.Component {
                 (<div>
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
-                    <span>Scroll to the top of the page and add another problem to your document. Copy a problem
-                          out of your assignment on the first line, and solve it as you did above.</span>
+                    <span>Scroll to the top of the page and click on the blue button labelled "Problem Image Demo", to learn about
+                          adding images to your documents.</span>
+                    </div>
+                </div>
+                ) : null}
+            {showImgTutorial ?
+                (<div>
+                    <div className="answer-partially-correct"
+                      style={{display:"inline-block", padding:"5px", margin: "5px"}}>
+                    <span>Scroll to the top of the page and add another problem to your document. Using a combination of images
+                          and typed math, show your work solving each problem in your assignment.
+                    </span>
                     </div>
                 </div>
                 ) : null}
@@ -1062,12 +1083,20 @@ function problemListReducer(probList, action) {
     if (action.type === ADD_DEMO_PROBLEM) {
         if (probList.length === 1 && probList[0][STEPS][0][CONTENT] === "") {
 
-            return [{ PROBLEM_NUMBER : "Demo",
-                 STEPS : [{
+            return [
+                { PROBLEM_NUMBER : "Demo",
+                  STEPS : [{
                      STEP_ID : genID(), CONTENT : "4+2-3\\left(1+2\\right)"}],
-                 UNDO_STACK : [], REDO_STACK : [],
-                 SHOW_TUTORIAL : true
-                 }];
+                  UNDO_STACK : [], REDO_STACK : [],
+                  SHOW_TUTORIAL : true
+                 },
+                 { PROBLEM_NUMBER : "Image Demo",
+                   STEPS : [{
+                     STEP_ID : genID(), CONTENT : ""}],
+                   UNDO_STACK : [], REDO_STACK : [],
+                   SHOW_IMAGE_TUTORIAL : true
+                 },
+            ];
         } else {
             return probList;
         }

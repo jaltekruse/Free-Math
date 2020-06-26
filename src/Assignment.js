@@ -23,6 +23,7 @@ var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
 
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
+var SHOW_IMAGE_TUTORIAL = "SHOW_IMAGE_TUTORIAL";
 
 var SCORE = "SCORE";
 
@@ -190,11 +191,11 @@ class Assignment extends React.Component {
                     }.bind(this)}/>) : null
             }
             </div>
-            {probList[currProblem][SHOW_TUTORIAL] && !browserIsIOS ?
+            {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]) && !browserIsIOS ?
                 (
                     <div className="answer-partially-correct"
                      style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                        <span>Work saves to the Downloads folder on your device.</span>
+                        <span>Work saves to the Downloads folder on your device, or you can save it directly to Google Drive or Google Classroom.</span>
                     </div>) :
                 null
             }
