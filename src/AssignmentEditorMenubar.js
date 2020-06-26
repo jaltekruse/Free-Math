@@ -99,6 +99,7 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
 
     var containsAnImage = false;
+    var imageCount = 0;
     var allProblems = studentDoc[PROBLEMS];
     // clear out images before calling JSON.stringify, it creates base64 strings that can cause problems
     allProblems = allProblems.map(function(problem, probIndex, array) {
@@ -113,11 +114,14 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
         problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
             if (step[FORMAT] === IMG) {
                 containsAnImage = true;
+                imageCount++;
             }
             return step;
         });
         return problem;
     });
+    window.ga('send', 'event', 'Actions', 'save',
+        'Save with images', imageCount);
 
     studentDoc = { ...studentDoc,
                    [PROBLEMS]: allProblems};

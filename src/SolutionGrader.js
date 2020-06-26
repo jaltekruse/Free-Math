@@ -161,6 +161,7 @@ class ImageStep extends React.Component {
                     onClick={function() {
                         if (this.state.imageMarkup) {
                             // TODO - save modified image
+                            window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
                             const editorInstance = this.editorRef.current.getInstance();
                             window.store.dispatch({
                                 type : EDIT_STUDENT_STEP,
