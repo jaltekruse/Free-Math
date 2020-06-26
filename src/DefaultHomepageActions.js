@@ -473,13 +473,13 @@ const DefaultHomepageActions = createReactClass({
             </div>
             <div style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
-                    <a href="BetaGoogleClassroom">
+                    <a href="beta">
                         <div className="fm-button-green fm-button"
                             style={{...demoButtonStyle, width: "500px"}}>
                             <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
-                                Easy Google Classroom Integration is in Beta
+                                Easy Google Classroom Integration And Image Support
                                 <br />
-                                Click Here to Try it Out!
+                                Are Both in Public Beta - Click Here to Try it Out!
                             </h3>
                         </div>
                     </a>
