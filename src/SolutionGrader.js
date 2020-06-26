@@ -217,12 +217,12 @@ class ImageStep extends React.Component {
                       initMenu: 'draw',
                       uiSize: {
                         width: '700px',
-                        height: '900px'
+                        height: '700px'
                       },
                       menuBarPosition: 'top'
                     }}
                     cssMaxWidth={700}
-                    cssMaxHeight={900}
+                    cssMaxHeight={450}
                     selectionStyle={{
                       cornerSize: 20,
                       rotatingPointOffset: 70
