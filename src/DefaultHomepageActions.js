@@ -899,6 +899,8 @@ class UserActions extends React.Component {
                             <br />
                             <input type="file" accept="*" onChange={openAssignments}/>
                         </p>
+                        {/* I don't understand why this needs to be in a small to make it close to the size
+                            of the similar text in the student box...*/}
                         <small>
                             Select a zip file full of student assignments. Zip files are generated
                             when downloading assignment files from your LMS in bulk.
