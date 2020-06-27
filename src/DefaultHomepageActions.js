@@ -804,16 +804,14 @@ class UserActions extends React.Component {
                         }}/>
                         <br />
                         <br />
-                        <small>
                                 Select a Free Math file you previously saved, or one that your teacher
                                 returned to you after grading.
-                        </small>
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
                             (<span><h4>Recovered Assignments &nbsp;
                                 <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
                                 </h4>
-                                Sort by
+                                <p>Sort by
                                 <Button text="Date"
                                         className={(this.state.studentRecoveredSorting === "DATE" ?
                                             "fm-button-selected " : "") +
@@ -830,9 +828,7 @@ class UserActions extends React.Component {
                                             this.setState({studentRecoveredSorting: "NAME"});
                                         }.bind(this)}
                                 />
-                                <br />
-                                <br />
-
+                                </p>
                                     { recoveredStudentDocs.map(function(autoSaveFullName, index) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
                                                 var filenameAndDate = autoSaveFullName.replace("auto save students","")
@@ -916,7 +912,7 @@ class UserActions extends React.Component {
                             (<span><h4>Recovered Grading Sessions &nbsp;
                                 <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
                                 </h4>
-                                Sort by
+                                <p>Sort by
                                 <Button text="Date"
                                         className={(this.state.teacherRecoveredSorting === "DATE" ?
                                             "fm-button-selected " : "") +
@@ -933,8 +929,7 @@ class UserActions extends React.Component {
                                             this.setState({teacherRecoveredSorting: "NAME"});
                                         }.bind(this)}
                                 />
-                                <br />
-                                <br />
+                                </p>
                                     { recoveredTeacherDocs.map(function(autoSaveFullName, index) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
                                                 var filenameAndDate = autoSaveFullName.replace("auto save teachers ","")
@@ -1127,16 +1122,14 @@ class DefaultHomepageActions extends React.Component {
                     </h3>
                 </div>
                 <h1 className="homepage-center homepage-headline">
-                    <button className="fm-button fm-button-green"
+                    <button className="fm-button fm-button-green big-mobile-button"
                             style={{...demoButtonStyle, width: "500px"}}
                             onClick={function() {
                                 this.setState({SHOW_GOOGLE_VIDEO: true});
                                 console.log(this.state);
                             }.bind(this)}
                     >
-                        <h3 style={{color:"#eeeeee"}}>
-                            Google Classroom Overview Video
-                        </h3>
+                        <span>Google Classroom Overview Video</span>
                     </button>
                     Give your students feedback,
                     <br />
@@ -1145,7 +1138,7 @@ class DefaultHomepageActions extends React.Component {
             <div>
             <div className="homepage-center">
             <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+            <button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = checkAllSaved;
@@ -1156,28 +1149,28 @@ class DefaultHomepageActions extends React.Component {
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee"}}>Students Start Here</h3>
+                <span style={{color:"#eeeeee"}}>Students Start Here</span>
             </button>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+            <button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
                     loadDemoGrading();
                     //window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee"}}>Demo Teacher Grading</h3>
+                <span style={{color:"#eeeeee"}}>Demo Teacher Grading</span>
             </button>
             </div>
             {
             <div className="homepage-only-on-mobile">
                 { ! browserIsIOS ?
-                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+                    (<button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
                              onClick={function() {
                                     this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
-                            >   <h3 style={{color:"#eeeeee"}}>
+                            >   <span>
                                     {this.state.showActionsMobile ? "Hide Actions" : "Returning Users"}
-                                </h3>
+                                </span>
                             </button>
                     ) : null
                 }

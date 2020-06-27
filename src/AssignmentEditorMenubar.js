@@ -734,6 +734,9 @@ class AssignmentEditorMenubar extends React.Component {
                                                 ASSIGNMENT_NAME : evt.target.value});
                                       }}
                           />&nbsp;&nbsp;
+                      </div>) : null}
+                      {!browserIsIOS ?
+                      (<div style={{display:"inline-block"}}>
                           <LightButton text="Save" onClick={
                               function() {
                                   var persistentState = getPersistentState();
@@ -741,7 +744,6 @@ class AssignmentEditorMenubar extends React.Component {
                                         saveAs(finalBlob, persistentState[ASSIGNMENT_NAME] + '.math');
                                   });
                               }} /> &nbsp;&nbsp;&nbsp;
-                      </div>) : null}
                         <HtmlButton
                             className="fm-button-light"
                             ref="saveToDrive"
@@ -771,6 +773,7 @@ class AssignmentEditorMenubar extends React.Component {
                                                 height="16px"/>
                                     </div>
                             )} />
+                      </div>) : null}
                     </div>
                 </div>
             </div>

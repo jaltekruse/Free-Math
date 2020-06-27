@@ -115,7 +115,7 @@ class GradingMenuBar extends React.Component {
 
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
-                        (<span>
+                        (<div style={{display:"inline-block"}}>
                             {googleId
                             ?
                                 <span>
@@ -153,14 +153,16 @@ class GradingMenuBar extends React.Component {
                                 />
                                 </span>
                         }
-                        &nbsp;&nbsp;
+                        </div>) : null }
+                        {/* Don't show option to save on iOS*/}
+                        {!browserIsIOS ?
+                        (<div style={{display:"inline-block"}}>
                         <LightButton text="Save to Device" onClick={
                             function() {
                                 window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
                                 saveGradedStudentWork(getPersistentState());
                             }
                         }/>&nbsp;&nbsp;&nbsp;
-                        </span>) : null }
 
                         <LightButton text="Similar Docs" onClick={
                             function() {
@@ -178,6 +180,7 @@ class GradingMenuBar extends React.Component {
                                 window.store.dispatch({type : SET_TO_VIEW_GRADES});
                             }
                         }/>&nbsp;&nbsp;
+                        </div>) : null }
                     </div>
                 </div>
             </div>

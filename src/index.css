@@ -374,9 +374,15 @@ div.problem-container {
 
 @media (max-width: 950px) {
     h3 {
-      font-size: 1.0em;
       margin: 0;
     }
+    .big-mobile-button {
+        font-size: 25px
+    }
+    .navBarElms {
+        font-size:25px
+    }
+
     .webcam-capture {
         width:500px;
     }
@@ -401,69 +407,6 @@ div.problem-container {
         max-width: 400px
     }
 
-    .fm-button-light,
-    .fm-button,
-    .fm-button-left,
-    .fm-button-right,
-    .fm-close-button,
-    p,
-    textarea,
-    input,
-    select,
-    body,
-    div{
-        font-size: 25px;
-    }
-
-    .fm-button-light,
-    .fm-button {
-        border-radius: 30px;
-        padding: 8px 16px;
-    }
-    .html-button img,
-    .fm-close-button img {
-        transform: scale(2.0);
-        padding: 4px 4px 4px 4px;
-    }
-    small {
-        font-size: 20px;
-    }
-
-    .fm-button-left {
-        border-top-left-radius: 30px;
-        border-bottom-left-radius: 30px;
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 0px;
-        padding: 8px 8px 8px 16px;
-    }
-    .fm-button-right {
-        border-top-left-radius: 30px;
-        border-bottom-left-radius: 30px;
-        border-top-left-radius: 0px;
-        border-bottom-left-radius: 0px;
-        padding: 12px 16px 15px 8px;
-    }
-
-    .extra-long-problem-action-button {
-        width: 360px
-    }
-    .long-problem-action-button {
-        width: 250px
-    }
-    .short-problem-action-button {
-        width: 110px
-    }
-    .fm-close-button {
-        height: 40px;
-        width: 40px;
-    }
-    .tex-button {
-        height: 60px;
-        width: 60px;
-    }
-    .wide-tex-button {
-        width:200px
-    }
     .equation-list {
         max-width:95%
     }
@@ -475,7 +418,6 @@ div.problem-container {
     .mathStepEditor {
         max-width:400px
     }
-
     .math-input-buttons {
         background-color: rgba(245, 245, 245, 0.9);
         border-radius: 5px;
@@ -491,22 +433,8 @@ div.problem-container {
       top: -3px;
       z-index: 5;
     }
-
-    .navBarElms{
-        font-size: 25px
-    }
-    .freemath-logo {
-        font-size: 30px
-    }
     .homepage-disappear-mobile {
         display:none
-    }
-    .homepage-headline {
-        font-size: 40px;
-        padding-bottom: 0px;
-    }
-    h2 {
-        font-size: 35px
     }
 
     .homepage-center-mobile {
@@ -519,7 +447,7 @@ div.problem-container {
         margin-left: auto;
         margin-right: auto;
         padding: 0vw 0vw 10vw 0vw;
-        /* this is necesary to prevent the padding from adding to thw width */
+        /* this is necesary to prevent the padding from adding to the width */
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
         box-sizing: border-box;         /* Opera/IE 8+ */
@@ -532,11 +460,11 @@ div.problem-container {
         display: inline-block;
     }
     .menubar-spacer {
-        height: 210px;
+        height: 120px;
         display: block
     }
     .menubar-spacer-small {
-        height: 140px;
+        height: 100px;
         display: block
     }
     div.problem-editor-buttons {
@@ -550,6 +478,9 @@ div.problem-container {
 
 @media (min-width: 951px) {
 
+    .big-mobile-button {
+        font-size: 20px
+    }
     iframe.tutorial-video {
         width: 600px;
         height:400px;
