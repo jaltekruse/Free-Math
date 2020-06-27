@@ -376,6 +376,12 @@ div.problem-container {
     h3 {
       margin: 0;
     }
+
+    .homepage-headline {
+        font-size: 40px;
+        padding-bottom: 0px;
+    }
+
     .big-mobile-button {
         font-size: 25px
     }
