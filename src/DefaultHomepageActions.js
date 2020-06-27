@@ -532,16 +532,27 @@ class UserActions extends React.Component {
                 }
                 return bytes.buffer;
             }
+
             var recovered;
+            const loadLegacyFormat = function() {
+                try {
+                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                    recovered = JSON.parse(window.localStorage.getItem(autoSaveFullName));
+                    window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
+                } catch (e2) {
+                    alert("Error reading recovery document");
+                    return;
+                }
+            }
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             if (appMode === EDIT_ASSIGNMENT) {
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
                 try {
-                recovered = openAssignment(base64ToArrayBuffer(
-                    window.localStorage.getItem(autoSaveFullName)),
-                    filename);
+                    recovered = openAssignment(base64ToArrayBuffer(
+                        window.localStorage.getItem(autoSaveFullName)),
+                        filename);
                 } catch (e) {
-                    alert("Error reading recovery document");
+                    loadLegacyFormat();
                     return;
                 }
                 window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
@@ -569,11 +580,13 @@ class UserActions extends React.Component {
                 try {
                     loadStudentDocsFromZip(
                         base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
-                        filename, function() {/* success */}, function() {alert("Loading recovery failed")},
+                        filename, function() {/* success */}, function() {
+                            // loading failed, try the old format
+                            loadLegacyFormat();
+                        },
                         matchingDocId, false);
                 } catch (e) {
-                    alert("Error reading recovery document");
-                    return;
+                    loadLegacyFormat();
                 }
             }
         };

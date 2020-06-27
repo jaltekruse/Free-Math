@@ -120,13 +120,13 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
         });
         return problem;
     });
-    window.ga('send', 'event', 'Actions', 'save',
-        'Save with images', imageCount);
 
     studentDoc = { ...studentDoc,
                    [PROBLEMS]: allProblems};
 
     if (containsAnImage) {
+        window.ga('send', 'event', 'Actions', 'save',
+            'Save with images', imageCount);
         saveAssignmentWithImages(studentDoc, handleFinalBlobCallback);
     } else {
         var blob =

@@ -518,7 +518,7 @@ div.problem-container {
         flex-direction: column;
         margin-left: auto;
         margin-right: auto;
-        padding: 0vw 2vw 10vw 2vw;
+        padding: 0vw 0vw 10vw 0vw;
         /* this is necesary to prevent the padding from adding to thw width */
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
