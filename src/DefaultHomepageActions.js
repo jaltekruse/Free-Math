@@ -5,7 +5,7 @@ import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import FreeMath from './FreeMath.js';
-import Button from './Button.js';
+import Button, { LightButton }from './Button.js';
 import demoGradingAction from './demoGradingAction.js';
 import createReactClass from 'create-react-class';
 import FreeMathModal from './Modal.js';
@@ -558,12 +558,29 @@ const DefaultHomepageActions = createReactClass({
                 </div>
                 <div className="homepage-wrapper">
                     <div className="homepage-text homepage-right homepage-center-mobile">
+                        <h2>Embrace Visual Learning</h2>
+                        <p>Students can include images in their solutions.</p>
+                        <p>Including quickly snapping a picture of written work with their webcam.</p>
+                        <div className="answer-partially-correct">
+                            Image support is still in beta; files you save with images will not be compatible with
+                            the standard site. Make sure anyone who wants to read or grade files with images is using
+                            this URL <a href="https://freemathapp.org/beta">freemathapp.org/beta</a> to access Free Math.
+                            </div>
+                    </div>
+                    <div className="homepage-video homepage-left homepage-center-mobile">
+                        <video alt="student.webm" autoPlay muted playsInline loop width="100%">
+                            <track kind="captions" />
+                            <source src="fm_webcam_capture_cropped.mp4" type="video/mp4" /></video>
+                    </div>
+                </div>
+                <div className="homepage-wrapper">
+                    <div className="homepage-text homepage-left homepage-center-mobile">
                         <h2>Simultaneously Review All Assignments</h2>
                         <p>Complete solutions are shown, grouped by similar final answer.</p>
                         <p>You can award partial credit and give feedback to students that need help.</p>
                         <p>You don't need to type in an answer key, Free Math just provides an organized view of all student work.</p>
                     </div>
-                    <div className="homepage-video homepage-left homepage-center-mobile">
+                    <div className="homepage-right homepage-video homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
@@ -615,7 +632,7 @@ const DefaultHomepageActions = createReactClass({
                         <div id="mc_embed_signup_scroll">
                         <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
                             <input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea"
-                                   tabIndex="-1" value=""/>
+                                   tabIndex="-1" readOnly={true} value=""/>
                         </div>
 
                         <div style={{overflow: "hidden"}}>
@@ -630,13 +647,15 @@ const DefaultHomepageActions = createReactClass({
                                 </p>
                                 <input type="email" name="EMAIL" className="email" size="25"
                                        id="mce-EMAIL" placeholder="  email address"
-                                       style={{"border": "0px", fontSize: "25px"}}
+                                       style={{"border": "0px", padding: "5px",
+                                               fontSize: "25px"}}
                                        value={this.state.emailString}
                                        onChange={function(evt) {
                                                 this.setState({emailString : evt.target.value});
                                        }.bind(this)}/>
-                                <input style={{margin:"10px", fontSize: "20px", height:"30px"}} type="submit"
-                                       value="Subscribe" name="subscribe" id="mc-embedded-subscribe"
+                                &nbsp;
+                                <LightButton style={{fontSize: "25px", borderRadius: "30px", padding: "8px 16px"}}
+                                       text="Subscribe" id="mc-embedded-subscribe"
                                        className="fm-button-light" onClick={function() {
                                             window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
                                 }} />
@@ -664,13 +683,14 @@ const DefaultHomepageActions = createReactClass({
 
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px"}}>
                     <h2>Office Hours</h2>
-                    <p>
-                            Have questions about how to get started with Free Math? <br />
-                            Want to talk with the development team about a feature suggestion? <br />
-                            Interested in meeting other teachers improving their classrooms with Free Math? <br />
+                        <p>
+                        Have questions about how to get started with Free Math? <br />
+                        Want to talk with the development team about a feature suggestion? <br />
+                        Interested in meeting other teachers improving their classrooms with Free Math? <br />
                         <br />
                         Come to office hours on Google Meet, held Monday, Wednesday and Friday at 8:30-9:30am CST <br />
                         <br />
+                        </p>
                         <div className="homepage-center">
                             <a href="https://meet.google.com/hjr-fxfm-erq" target="_blank" rel="noopener noreferrer">
                             <div className="fm-button" style={{...demoButtonStyle, "float" : "left"}}>
@@ -678,7 +698,6 @@ const DefaultHomepageActions = createReactClass({
                             </div>
                             </a>
                         </div>
-                    </p>
                 </div>
                 <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
                     <h2>Spread the Word</h2>
