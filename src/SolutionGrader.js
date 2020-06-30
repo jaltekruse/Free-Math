@@ -233,7 +233,7 @@ class ImageStep extends React.Component {
                   </div>
                 :
                 <img src={step[CONTENT]} alt="Uploaded student work"
-                     style={{margin : "10px", maxWidth: "98%"}}/>
+                     style={{margin : "10px", maxWidth: "500px"}}/>
             }
             </span>
         )
