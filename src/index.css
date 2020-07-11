@@ -493,11 +493,10 @@ div.problem-container {
         display:block
     }
     .webcam-capture {
-        width:700px;
+        width:450px;
     }
     .mathStepEditor {
-        max-width:800px;
-        min-width:500px
+        max-width:450px
     }
     .math-input-buttons {
         background-color: rgba(245, 245, 245, 0.9);
