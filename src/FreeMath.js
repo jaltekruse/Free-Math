@@ -37,6 +37,8 @@ var NEW_STATE = 'NEW_STATE';
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
+var SET_SHOW_TUTORIAL = 'SET_SHOW_TUTORIAL';
+var SHOW_TUTORIAL = 'SHOW_TUTORIAL'
 
 var SET_GOOGLE_CLASS_LIST = 'SET_GOOGLE_CLASS_LIST';
 var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
@@ -421,6 +423,10 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
         }
 
         var googleId = appState[GOOGLE_ID];
+        if (! googleId) {
+            // save more frequently if it is just going to local storage
+            delayMillis = 2000;
+        }
         // try to bundle together a few updates, wait 2 seconds before calling save. assume
         // some more keystrokes are incomming
         // Note - unlike previously. not setting a SAVING state when this gathering time starts
@@ -663,6 +669,10 @@ function rootReducer(state, action) {
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
+        }
+    } else if (action.type === SET_SHOW_TUTORIAL) {
+        return { ...state,
+                 SHOW_TUTORIAL: true
         }
     } else if (action.type === SET_GOOGLE_ID) {
         return { ...state,

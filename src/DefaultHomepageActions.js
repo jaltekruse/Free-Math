@@ -35,6 +35,8 @@ var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
 var ALL_SAVED = 'ALL_SAVED';
 var SET_GOOGLE_CLASS_LIST = 'SET_GOOGLE_CLASS_LIST';
 
+var SET_SHOW_TUTORIAL = 'SET_SHOW_TUTORIAL';
+
 var APP_MODE = 'APP_MODE';
 var MODE_CHOOSER = 'MODE_CHOOSER';
 
@@ -1053,6 +1055,7 @@ class DefaultHomepageActions extends React.Component {
                             function() {closeSpinner();},
                             function() {closeSpinner()},
                             false);
+                        window.store.dispatch({type: SET_SHOW_TUTORIAL});
                      } catch (e) {
                          console.log(e);
                          closeSpinner();
@@ -1230,7 +1233,8 @@ class DefaultHomepageActions extends React.Component {
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
-                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
+                <div className="homepage-wrapper" style={{marginBottom: "100px"}}>
+                    <div className="homepage-text homepage-center">
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
@@ -1240,6 +1244,7 @@ class DefaultHomepageActions extends React.Component {
                                }}
                          alt="grading_analytics_graph"
                          src="images/teacher_grading_analytics.png"/>
+                    </div>
                 </div>
 
                 <div className="homepage-wrapper" style={{marginBottom: "100px"}}>
@@ -1325,7 +1330,8 @@ class DefaultHomepageActions extends React.Component {
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
 
-                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px"}}>
+                <div className="homepage-wrapper" style={{paddingTop: "100px"}}>
+                    <div className="homepage-text homepage-center">
                     <h2>Office Hours</h2>
                         <p>
                         Have questions about how to get started with Free Math? <br />
@@ -1342,8 +1348,10 @@ class DefaultHomepageActions extends React.Component {
                             </div>
                             </a>
                         </div>
+                    </div>
                 </div>
-                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
+                <div className="homepage-wrapper" style={{paddingTop: "100px", marginBottom: "100px"}}>
+                    <div className="homepage-text homepage-center">
                     <h2>Spread the Word</h2>
                     <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
                     <br />
@@ -1365,6 +1373,7 @@ class DefaultHomepageActions extends React.Component {
                             window.ga('send', 'event', 'Actions', 'share', 'pinterest');
                         }}>
                             <img alt="pinterest" src="images/pinterest.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                    </div>
                     </div>
                 </div>
                 <div style={{alignItems: "center", textAlign: "center"}}>

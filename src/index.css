@@ -464,6 +464,7 @@ div.problem-container {
         text-align: center;
         padding: 70px 0px 0px 0px;
         display: inline-block;
+        margin: 0px 30px 0px 30px
     }
     .menubar-spacer {
         height: 120px;

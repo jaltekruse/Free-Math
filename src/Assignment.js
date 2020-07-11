@@ -85,7 +85,8 @@ class Assignment extends React.Component {
                             this.setState({ showModal: false});
                         }.bind(this)}
                 showModal={this.state.showModal &&
-                            probList[currProblem][SHOW_TUTORIAL]}
+                            ( probList[currProblem][SHOW_TUTORIAL]
+                              || probList[currProblem][SHOW_IMAGE_TUTORIAL] )}
                 content={(
                     <div>
                         <iframe title="Free Math Video"
