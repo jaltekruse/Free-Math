@@ -42,19 +42,14 @@ end of styles copied form perseus
 */
 
 .homepage-center {
-        width: 100%;
-        -webkit-box-align: center;
-        align-items: center;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        margin-left: auto;
-        margin-right: auto;
-        padding: 0vw 2vw 10vw 2vw;
-        /* this is necesary to prevent the padding from adding to the width */
-        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-        box-sizing: border-box;         /* Opera/IE 8+ */
+    width: 100%;
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Hide the confusing "no file chosen" text on chrome*/
@@ -311,7 +306,7 @@ h1 small {
 @media (min-width: 951px) {
 
     .big-mobile-button {
-        font-size: 25px
+        font-size: 20px
     }
     iframe.tutorial-video {
         width: 600px;
