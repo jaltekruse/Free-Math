@@ -429,9 +429,6 @@ const DefaultHomepageActions = createReactClass({
         var wrapperDivStyle = {
             padding:"0px 0px 0px 0px",
             backgroundColor:"#ffffff",
-            marginLeft:"auto",
-            marginRight: "auto",
-            //width:"1024px"
         };
 
         const renderExampleWork = function(problemData) {
@@ -471,16 +468,16 @@ const DefaultHomepageActions = createReactClass({
                     </div>
                 </div>
             </div>
-            <div style={wrapperDivStyle}>
+            <div className="homepage-root" style={wrapperDivStyle}>
                 <h1 className="homepage-center homepage-headline">
                     <a href="beta">
-                        <div className="fm-button-green fm-button"
+                        <div className="fm-button-green fm-button big-mobile-button"
                             style={{...demoButtonStyle, width: "500px"}}>
-                            <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
-                                Easy Google Classroom Integration And Image Support
+                            <span style={{color:"#eeeeee"}}>
+                                Google Classroom And Image Support
                                 <br />
-                                Are Both in Public Beta - Click Here to Try it Out!
-                            </h3>
+                                Both In Beta - Try it Out Now!
+                            </span>
                         </div>
                     </a>
                     Give your students feedback,
@@ -490,7 +487,7 @@ const DefaultHomepageActions = createReactClass({
             <div>
             <div className="homepage-center">
             <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+            <button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     // turn on confirmation dialog upon navigation away
                     window.onbeforeunload = function() {
@@ -503,9 +500,9 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch({type : ADD_DEMO_PROBLEM});
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Students Start Here</h3>
+                  <span style={{color:"#eeeeee"}}>Students Start Here</span>
             </button>
-            <button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+            <button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
                 onClick={function() {
                     window.location.hash = '';
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -513,19 +510,19 @@ const DefaultHomepageActions = createReactClass({
                     window.store.dispatch(demoGradingAction);
                 }}
             >
-                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>Demo Teacher Grading</h3>
+                <span style={{color:"#eeeeee"}}>Demo Teacher Grading</span>
             </button>
             </div>
             {
             <div className="homepage-only-on-mobile">
                 { ! browserIsIOS ?
-                    (<button className="fm-button" style={{...demoButtonStyle, "float" : "left"}}
+                    (<button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
                              onClick={function() {
                                     this.setState({"showActionsMobile": ! this.state.showActionsMobile});
                                 }.bind(this)}
-                            >                                <h3 style={{color:"#eeeeee", fontSize: "1.5em"}}>
+                            >   <span style={{color:"#eeeeee"}}>
                                     {this.state.showActionsMobile ? "Hide Actions" : "Returning Users" }
-                                </h3>
+                                </span>
                             </button>
                     ) : null
                 }
@@ -586,16 +583,18 @@ const DefaultHomepageActions = createReactClass({
                             <source src="free_math_grading.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
-                <div className="homepage-wrapper homepage-center" style={{marginBottom: "100px"}}>
-                    <h2>Analytics Show Where Students Struggled</h2>
-                    <p>Give feedback on the most impactful problems first, <br />
-                        everything else gets completion points.</p>
-                    <br />
-                    <img style={{width:"100%",
-                                 boxShadow: "rgb(176, 177, 178) 0px 10px 50px"
-                               }}
-                         alt="grading_analytics_graph"
-                         src="images/teacher_grading_analytics.png"/>
+                <div className="homepage-wrapper" style={{marginBottom: "100px"}}>
+                    <div className="homepage-text homepage-center">
+                        <h2>Analytics Show Where Students Struggled</h2>
+                        <p>Give feedback on the most impactful problems first, <br />
+                            everything else gets completion points.</p>
+                        <br />
+                        <img style={{width:"100%",
+                                     boxShadow: "rgb(176, 177, 178) 0px 10px 50px"
+                                   }}
+                             alt="grading_analytics_graph"
+                             src="images/teacher_grading_analytics.png"/>
+                    </div>
                 </div>
 
                 <div className="homepage-wrapper" style={{marginBottom: "100px"}}>
@@ -654,7 +653,7 @@ const DefaultHomepageActions = createReactClass({
                                                 this.setState({emailString : evt.target.value});
                                        }.bind(this)}/>
                                 &nbsp;
-                                <LightButton style={{fontSize: "25px", borderRadius: "30px", padding: "8px 16px"}}
+                                <LightButton style={{fontSize: "25px", height: "45px", borderRadius: "30px", padding: "8px 16px"}}
                                        text="Subscribe" id="mc-embedded-subscribe"
                                        className="fm-button-light" onClick={function() {
                                             window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
@@ -681,7 +680,8 @@ const DefaultHomepageActions = createReactClass({
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         style={{width:"100%", height:"100%", position: "absolute", }}></iframe></div>
 
-                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px"}}>
+                <div className="homepage-wrapper" style={{paddingTop: "100px"}}>
+                    <div className="homepage-text homepage-center">
                     <h2>Office Hours</h2>
                         <p>
                         Have questions about how to get started with Free Math? <br />
@@ -698,8 +698,10 @@ const DefaultHomepageActions = createReactClass({
                             </div>
                             </a>
                         </div>
+                    </div>
                 </div>
-                <div className="homepage-wrapper homepage-center" style={{paddingTop: "100px", marginBottom: "100px"}}>
+                <div className="homepage-wrapper" style={{paddingTop: "100px", marginBottom: "100px"}}>
+                    <div className="homepage-text homepage-center">
                     <h2>Spread the Word</h2>
                     <p>Help us bring simple freeform digital math assignments to the world's classrooms.</p>
                     <br />
@@ -721,6 +723,7 @@ const DefaultHomepageActions = createReactClass({
                             window.ga('send', 'event', 'Actions', 'share', 'pinterest');
                         }}>
                             <img alt="pinterest" src="images/pinterest.png" style={{"height": "50px"}}></img></a>&nbsp;&nbsp;
+                    </div>
                     </div>
                 </div>
                 <div style={{alignItems: "center", textAlign: "center"}}>

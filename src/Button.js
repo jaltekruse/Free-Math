@@ -63,6 +63,7 @@ var LightButton = createReactClass({
     render: function() {
         const onClick = this.props.onClick;
         const title = this.props.title;
+        const style =  this.props.style;
         const className = this.props.className ? this.props.className : "fm-button-light";
         return (
             <button
@@ -71,6 +72,7 @@ var LightButton = createReactClass({
                     onClick();
                 }}
                 title={title}
+                style={{...style}}
             >
                 <div style={{display: "inline-block"}}>{this.props.text}</div>
             </button>

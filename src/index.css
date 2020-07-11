@@ -42,14 +42,19 @@ end of styles copied form perseus
 */
 
 .homepage-center {
-    width: 100%;
-    -webkit-box-align: center;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
+        width: 100%;
+        -webkit-box-align: center;
+        align-items: center;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0vw 2vw 10vw 2vw;
+        /* this is necesary to prevent the padding from adding to the width */
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+        box-sizing: border-box;         /* Opera/IE 8+ */
 }
 
 /* Hide the confusing "no file chosen" text on chrome*/
@@ -88,152 +93,6 @@ h1 small {
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
     box-sizing: border-box;         /* Opera/IE 8+ */
-}
-
-@media (max-width: 950px) {
-
-    iframe.tutorial-video {
-        width: 400px;
-        height:300px;
-        display:block
-    }
-    .mathStepEditor {
-        max-width:400px
-    }
-
-    .math-input-buttons {
-        background-color: rgba(245, 245, 245, 0.9);
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        box-sizing: border-box;
-        margin-top: 5px;
-        padding: 10px;
-        width: 401px;
-    }
-
-    .navBarElms{
-        padding: 7px 5px 5px 5px;
-        font-size: 25px
-    }
-    .freemath-logo {
-        font-size: 30px
-    }
-    .homepage-disappear-mobile {
-        display:none
-    }
-    .homepage-headline {
-        font-size: 40px;
-        padding-bottom: 0px;
-    }
-    h2 {
-        font-size: 35px
-    }
-
-    .homepage-center-mobile {
-        width: 100%;
-        -webkit-box-align: center;
-        align-items: center;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        margin-left: auto;
-        margin-right: auto;
-        padding: 0vw 2vw 10vw 2vw;
-        /* this is necesary to prevent the padding from adding to thw width */
-        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-        box-sizing: border-box;         /* Opera/IE 8+ */
-    }
-
-    .homepage-wrapper {
-        align-items: center;
-        text-align: center;
-        padding: 70px 0px 0px 0px;
-        display: inline-block;
-    }
-    .menubar-spacer {
-        height: 60px;
-        display: block
-    }
-    .menubar-spacer-small {
-        height: 30px;
-        display: block
-    }
-    div.problem-editor-buttons {
-        width: 100%;
-    }
-
-    div.homepage-user-actions {
-        align-items: center;
-    }
-}
-
-@media (min-width: 951px) {
-    iframe.tutorial-video {
-        width: 600px;
-        height:400px;
-        display:block
-    }
-    .mathStepEditor {
-        max-width:900px
-    }
-    .math-input-buttons {
-        background-color: rgba(245, 245, 245, 0.9);
-        border-radius: 5px;
-        border: 1px solid #ddd;
-        box-sizing: border-box;
-        margin-top: 5px;
-        padding: 10px;
-        width: 701px;
-    }
-    .navBarElms{
-        padding: 7px 5px 5px 5px;
-    }
-    .freemath-logo {
-        font-size: 22px;
-        margin: 0;
-    }
-    .homepage-only-on-mobile {
-        display:none
-    }
-    .homepage-headline {
-        font-size: 60px;
-    }
-    .homepage-text {
-        display: block;
-        width: 35vw;
-        padding: 8vw 0px 0px 6vw
-    }
-    .homepage-right {
-        float: right;
-        display: block;
-        padding-right:6vw
-    }
-    .homepage-video {
-        width: 47vw;
-        box-shadow: rgb(176, 177, 178) 0px 10px 50px;
-        padding-right:0px
-    }
-    .homepage-left {
-        float: left;
-    }
-    .homepage-wrapper {
-        padding: 200px 0px 0px 0px;
-        display: inline-block;
-        width: 100%
-    }
-    div.problem-editor-buttons {
-        width: 150px;
-    }
-    div.homepage-user-actions {
-        max-width: 900px;
-        -webkit-box-align: center;
-        align-items: center;
-        display: flex;
-        flex-direction: column;
-        margin-left: auto;
-        margin-right: auto
-    }
 }
 
 .fm-button-light {
@@ -367,6 +226,160 @@ h1 small {
   outline: none;
 }
 
+
+@media (max-width: 950px) {
+
+    .big-mobile-button {
+        font-size: 25px
+    }
+
+    iframe.tutorial-video {
+        width: 400px;
+        height:300px;
+        display:block
+    }
+    .mathStepEditor {
+        max-width:400px
+    }
+
+    .math-input-buttons {
+        background-color: rgba(245, 245, 245, 0.9);
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        margin-top: 5px;
+        padding: 10px;
+        width: 401px;
+    }
+
+    .navBarElms{
+        padding: 7px 5px 5px 5px;
+        font-size: 25px
+    }
+    .freemath-logo {
+        font-size: 30px
+    }
+    .homepage-disappear-mobile {
+        display:none
+    }
+    .homepage-headline {
+        font-size: 40px;
+        padding-bottom: 0px;
+    }
+
+    .homepage-center-mobile {
+        width: 100%;
+        -webkit-box-align: center;
+        align-items: center;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 0vw 2vw 10vw 2vw;
+        /* this is necesary to prevent the padding from adding to the width */
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+        box-sizing: border-box;         /* Opera/IE 8+ */
+    }
+
+    .homepage-wrapper {
+        align-items: center;
+        text-align: center;
+        padding: 70px 0px 0px 0px;
+        display: inline-block;
+        margin: 0px 30px 0px 30px
+    }
+
+    .menubar-spacer {
+        height: 60px;
+        display: block
+    }
+    .menubar-spacer-small {
+        height: 30px;
+        display: block
+    }
+    div.problem-editor-buttons {
+        width: 100%;
+    }
+
+    div.homepage-user-actions {
+        align-items: center;
+    }
+}
+
+@media (min-width: 951px) {
+
+    .big-mobile-button {
+        font-size: 25px
+    }
+    iframe.tutorial-video {
+        width: 600px;
+        height:400px;
+        display:block
+    }
+    .mathStepEditor {
+        max-width:900px
+    }
+    .math-input-buttons {
+        background-color: rgba(245, 245, 245, 0.9);
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        box-sizing: border-box;
+        margin-top: 5px;
+        padding: 10px;
+        width: 701px;
+    }
+    .navBarElms{
+        padding: 7px 5px 5px 5px;
+    }
+    .freemath-logo {
+        font-size: 22px;
+        margin: 0;
+    }
+    .homepage-only-on-mobile {
+        display:none
+    }
+    .homepage-headline {
+        font-size: 60px;
+    }
+    .homepage-text {
+        display: block;
+        width: 35vw;
+        padding: 8vw 0px 0px 6vw
+    }
+    .homepage-right {
+        float: right;
+        display: block;
+        padding-right:6vw
+    }
+    .homepage-video {
+        width: 47vw;
+        box-shadow: rgb(176, 177, 178) 0px 10px 50px;
+        padding-right:0px
+    }
+    .homepage-left {
+        float: left;
+    }
+    .homepage-wrapper {
+        padding: 200px 0px 0px 0px;
+        display: inline-block;
+        width: 100%
+    }
+    div.problem-editor-buttons {
+        width: 150px;
+    }
+    div.homepage-user-actions {
+        max-width: 900px;
+        -webkit-box-align: center;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        margin-right: auto
+    }
+}
+
 .menuBar{
     padding: 5px 5px 5px 5px;
     width:100%;
@@ -480,6 +493,7 @@ div.answer-complete {
 }
 
 div.answer-partially-correct {
+    padding: 10px;
     border-radius: 2px;
     border:1px solid #a4a4a4;
     background-color:#FFFDBF;
