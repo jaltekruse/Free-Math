@@ -1234,7 +1234,7 @@ class DefaultHomepageActions extends React.Component {
                     </div>
                 </div>
                 <div className="homepage-wrapper" style={{marginBottom: "100px"}}>
-                    <div className="homepage-text homepage-center">
+                    <div className="homepage-center">
                     <h2>Analytics Show Where Students Struggled</h2>
                     <p>Give feedback on the most impactful problems first, <br />
                         everything else gets completion points.</p>
