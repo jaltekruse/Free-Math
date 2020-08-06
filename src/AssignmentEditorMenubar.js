@@ -101,7 +101,6 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
     var containsAnImage = false;
     var imageCount = 0;
     var allProblems = studentDoc[PROBLEMS];
-    // clear out images before calling JSON.stringify, it creates base64 strings that can cause problems
     allProblems = allProblems.map(function(problem, probIndex, array) {
         // make a new object, as this mutates the state, including changing the blob URLs
         // into filenames that will be in the zip file for images, these changes
@@ -125,8 +124,6 @@ function saveAssignment(studentDoc, handleFinalBlobCallback) {
                    [PROBLEMS]: allProblems};
 
     if (containsAnImage) {
-        window.ga('send', 'event', 'Actions', 'save',
-            'Save with images', imageCount);
         saveAssignmentWithImages(studentDoc, handleFinalBlobCallback);
     } else {
         var blob =
@@ -613,6 +610,23 @@ class AssignmentEditorMenubar extends React.Component {
             // before it is actually saved
             window.ephemeralStore.dispatch(
                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
+
+            var containsAnImage = false;
+            var imageCount = 0;
+            var allProblems = getPersistentState()[PROBLEMS];
+            allProblems = allProblems.forEach(function(problem, probIndex, array) {
+                problem[STEPS].forEach(function(step, stepIndex, steps) {
+                    if (step[FORMAT] === IMG) {
+                        containsAnImage = true;
+                        imageCount++;
+                    }
+                });
+            });
+
+            if (containsAnImage) {
+                window.ga('send', 'event', 'Actions', 'save',
+                    'Save with images', imageCount);
+            }
             saveAssignmentValidatingProblemNumbers(getPersistentState(), function(assignment) {
 
                 var googleId = this.props.value[GOOGLE_ID];
