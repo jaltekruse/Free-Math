@@ -266,7 +266,7 @@ ga('create', 'UA-70441517-2', 'auto');
         // TODO - add due date
         let payload = { title: "[Free Math] " + title, description: description,
                         workType : "ASSIGNMENT", state : "DRAFT", maxPoints: 100,
-                        materials: [ { link: {  "url": "https://freemathapp.org/beta",
+                        materials: [ { link: {  "url": "https://freemathapp.org",
                                        title: "Free Math Homepage" } } ]};
         googlePostJson(true, url, payload, callback, errorCallback);
     }
