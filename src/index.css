@@ -184,7 +184,7 @@ h1 small {
 
 .fm-button-right {
   border: 2px solid transparent;
-  padding: 5px 8px 7px 4px;
+  padding: 4px 8px 4px 4px;
   margin-right: 4px;
   margin-left: 0px;
   background-color: #0d57bf;
@@ -218,7 +218,7 @@ h1 small {
   display: inline-block;
   height: 20px;
   margin: 2px;
-  padding: 8px 6px 16px 6px;
+  padding: 5px 6px 17px 6px;
   background-color: white;
   border: 1px solid #d1d1d1;
   color: #414141;

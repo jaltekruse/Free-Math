@@ -751,7 +751,7 @@ class AssignmentEditorMenubar extends React.Component {
                       </div>) : null}
                       {!browserIsIOS ?
                       (<div style={{display:"inline-block"}}>
-                          <LightButton text="Save" onClick={
+                          <LightButton text="Save to Device" onClick={
                               function() {
                                   var persistentState = getPersistentState();
                                   saveAssignmentValidatingProblemNumbers(persistentState, function(finalBlob) {

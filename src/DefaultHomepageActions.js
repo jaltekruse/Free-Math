@@ -787,8 +787,7 @@ class UserActions extends React.Component {
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "2px"}}>Open from Drive &nbsp;</div>
-                                         <img style={{paddingTop: "2px"}}
-                                            src="images/google_drive_small_logo.png"
+                                         <img src="images/google_drive_small_logo.png"
                                             alt="google logo" />
                                     </div>
                             )} />
