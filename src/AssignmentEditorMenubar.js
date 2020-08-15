@@ -52,7 +52,7 @@ var ERROR_DOC_TOO_BIG = 'ERROR_DOC_TOO_BIG';
 var PENDING_SAVES = 'PENDING_SAVES';
 
 var CANNOT_EDIT_SUBMITTED_ERR_MSG = "You cannot edit assignments that are submitted, " +
-                                      "you need to unsbumit over in Google Classroom first.";
+                                      "you need to unsubmit over in Google Classroom first.";
 
 var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
 var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
@@ -405,7 +405,18 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             window.ephemeralStore.dispatch(
                 { type : MODIFY_GLOBAL_WAITING_MSG,
                   GLOBAL_WAITING_MSG: false});
-            alert('Successfully saved to Google Classroom.\n\nRemember to go into Classroom to turn it in if you are done.');
+            if (window.confirm('Successfully saved to Google Classroom.\n\nAre you done working and would like to turn it in?')) {
+                window.turnInToClassroom(
+                    selectedClass,
+                    selectedAssignment,
+                    submission.id,
+                    function(response) {
+                        alert('Successfully turned in');
+                    },
+                    function(errorXhr) {
+                        alert('Turn in request failed.');
+                    });
+            }
         },
         function(errorXhr) {
             window.ephemeralStore.dispatch(
@@ -469,6 +480,23 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         var rootState = this.props.value;
         var selectSubmissionCallback = this.props.selectSubmissionCallback;
         var selectAssignmentCallback = this.props.selectAssignmentCallback;
+        // this is an optional callback passed in to change the redux state in a way that will
+        // cause the showModal to become false
+        // If this is provided you also want a custom showModal to be passed
+        // NOTE - this is not a callback for reacting to a close event
+        var closeModal = this.props.closeModal ?
+                            this.props.closeModal :
+                            function() {
+                                window.ephemeralStore.dispatch(
+                                    { type : SET_GOOGLE_CLASS_LIST,
+                                      GOOGLE_CLASS_LIST : undefined});
+                            };
+
+        var showModal = this.props.showModal ?
+                            this.props.showModal :
+                            function() {
+                                return rootState[GOOGLE_CLASS_LIST];
+                            };
 
         const courseList = function() {
             return (
@@ -515,14 +543,9 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                     }
                     if (response.studentSubmissions.length === 1) {
                         var submission = response.studentSubmissions[0];
-                        // close the modal by setting null class list, and also set "SELECTED_ASSIGNMENT"
-                        // which is needed for next method call to save the submission
                         // TODO - make suer to show a spinner or somthing while waiting
                         // for the final request to save the assignment
-                        window.ephemeralStore.dispatch(
-                            { type : SET_GOOGLE_CLASS_LIST,
-                              GOOGLE_CLASS_LIST : undefined
-                            });
+                        closeModal();
                         selectSubmissionCallback(submission,
                                         rootState[GOOGLE_SELECTED_CLASS],
                                         assignment.id,
@@ -530,10 +553,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                     } else {
                         alert("Multiple submissions detected, this generally means you are an " +
                               "instructor for this class and cannot submit homework.");
-                        // this closes the modal
-                        window.ephemeralStore.dispatch(
-                            { type : SET_GOOGLE_CLASS_LIST,
-                              GOOGLE_CLASS_LIST : undefined});
+                        closeModal();
                     }
             });
         }
@@ -569,16 +589,13 @@ class GoogleClassroomSubmissionSelector extends React.Component {
 
         return (
             <FreeMathModal
-                showModal={rootState[GOOGLE_CLASS_LIST]}
+                showModal={showModal()}
                 content={(
                     <div style={{alignItems: "center"}}>
                         <CloseButton type="submit" text="&#10005;" title="Close"
                                      onClick={
                                         function() {
-                                            // this closes the modal
-                                            window.ephemeralStore.dispatch(
-                                                { type : SET_GOOGLE_CLASS_LIST,
-                                                  GOOGLE_CLASS_LIST : undefined});
+                                            closeModal();
                                         }
                                      }
                         />

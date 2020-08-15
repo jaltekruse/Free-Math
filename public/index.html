@@ -131,6 +131,7 @@ ga('create', 'UA-70441517-2', 'auto');
     }
 
     var DEFAULT_MIME = 'text\/plain; charset=utf8';
+    var JSON_MIME = 'application/json';
 
     // --- prod ----
     var PROJECT_NUMBER = '412119895810';
@@ -246,6 +247,24 @@ ga('create', 'UA-70441517-2', 'auto');
         googleGet(true, url, callback, errorCallback);
     }
 
+    function turnInToClassroom(courseId, courseWorkId, submissionId,
+                                            callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions/' + submissionId + ':turnIn';
+        // THE PAYLOAD MUST BE EMPTY
+        let payload = false;
+        googleRequestJsonResponse(false, url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    function reclaimFromClassroom(courseId, courseWorkId, submissionId,
+                                            callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions/' + submissionId + ':reclaim';
+        // THE PAYLOAD MUST BE EMPTY
+        let payload = false;
+        googleRequestJsonResponse(false, url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
     // TODO - most of the time users will want to overwrite their previous work, but this currently
     // just adds a new file to their submission each time
     // it would be best to push users towards opening their previous submission, as soon as we know
@@ -315,7 +334,7 @@ ga('create', 'UA-70441517-2', 'auto');
                     [
                         'PATCH https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                                 courseWorkId + '/studentSubmissions/' + submissionId + '?updateMask=draftGrade' + "\n" +
-                        'Content-Type: application/json; charset=UTF-8' + "\n" +
+                        'Content-Type: ' + JSON_MIME + '; charset=UTF-8' + "\n" +
                         'Authorization: Bearer ' + accessToken + "\n\n" +
                         JSON.stringify({draftGrade: grade})
                     ], {type: 'application/http'})
@@ -340,7 +359,7 @@ ga('create', 'UA-70441517-2', 'auto');
             meta.title = name;
         }
         var payload = new FormData();
-        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: JSON_MIME}));
         payload.append('file', content);
         googleRequestJsonResponse(false, url, 'put', payload, DEFAULT_MIME, callback, errorCallback);
     }
@@ -351,7 +370,7 @@ ga('create', 'UA-70441517-2', 'auto');
         // NOTE: in v2 api title is used instead of name
         let meta = {name: name, mimeType: fileType};
         let payload = new FormData();
-        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: 'application/json'}));
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: JSON_MIME}));
         payload.append('file', content);
         googleRequestJsonResponse(true, url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
     }
@@ -360,8 +379,11 @@ ga('create', 'UA-70441517-2', 'auto');
         googleRequestJsonResponse(alertOnFailure, url, 'get', false, DEFAULT_MIME, callback, errorCallback);
     }
 
+    /**
+      * Note: expected a javascript object as payload, this handles stringifying it.
+      */
     function googlePostJson(alertOnFailure, url, payload, callback, errorCallback) {
-        googleRequestJsonResponse(alertOnFailure, url, 'post', JSON.stringify(payload), DEFAULT_MIME, callback, errorCallback);
+        googleRequestJsonResponse(alertOnFailure, url, 'post', JSON.stringify(payload), JSON_MIME, callback, errorCallback);
     }
 
     // callback takes 2 parameters filename and content
