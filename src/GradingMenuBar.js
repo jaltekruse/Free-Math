@@ -99,8 +99,12 @@ class GradingMenuBar extends React.Component {
                                style={{ textOverflow: "ellipsis", overflow: "hidden",
                                        display: "inline-block", whiteSpace: "nowrap",
                                        marginLeft: "15px", marginRight: "15px",
+                                       visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
                                        color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")}}>
-                            {saveStateMsg}
+                            { /* This inline constant is just to take up some space, it is diliberately hidden
+                                 but is a reasonable message to for to users if it was ever accidentally shown */
+                                saveStateMsg === '' ? 'Remember to save often' : saveStateMsg
+                            }
                         </span>
                         {googleId
                             ?
@@ -115,10 +119,10 @@ class GradingMenuBar extends React.Component {
 
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
-                        (<div style={{display:"inline-block"}}>
+                        (<div className="navBarItem" style={{display:"inline-block"}}>
                             {googleId
                             ?
-                                <span>
+                                <div className="navBarItem" style={{display:"inline-block"}}>
                                     <HtmlButton
                                         className="fm-button-light"
                                         title="Save feedback and grades to Google Classroom"
@@ -137,9 +141,9 @@ class GradingMenuBar extends React.Component {
                                                             height="16px"/>
                                                 </div>
                                         )} />&nbsp;&nbsp;&nbsp;
-                                </span>
+                                </div>
                             :
-                                <span>
+                                <div className="navBarItem" style={{display:"inline-block"}}>
                                 Assignment &nbsp;
                                 <input type="text" id="assignment-name-text" size="20"
                                         name="assignment name"
@@ -151,7 +155,7 @@ class GradingMenuBar extends React.Component {
                                                         ASSIGNMENT_NAME : evt.target.value});
                                             }}
                                 />
-                                </span>
+                                </div>
                         }
                         </div>) : null }
                         {/* Don't show option to save on iOS*/}

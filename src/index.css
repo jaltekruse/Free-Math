@@ -388,6 +388,11 @@ div.problem-container {
     .navBarElms {
         font-size:25px
     }
+    /* for display on moblie when items flow to next line, given them
+     * some margin */
+    .navBarItem {
+        margin-top: 5px
+    }
 
     .webcam-capture {
         width:450px;

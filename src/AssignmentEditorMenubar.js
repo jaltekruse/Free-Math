@@ -405,7 +405,8 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             window.ephemeralStore.dispatch(
                 { type : MODIFY_GLOBAL_WAITING_MSG,
                   GLOBAL_WAITING_MSG: false});
-            if (window.confirm('Successfully saved to Google Classroom.\n\nAre you done working and would like to turn it in?')) {
+            if (window.confirm('Assignment successfully saved to Google Classroom.\n\n' +
+                               'Are you done working and would like to turn it in?')) {
                 window.turnInToClassroom(
                     selectedClass,
                     selectedAssignment,
@@ -748,13 +749,17 @@ class AssignmentEditorMenubar extends React.Component {
 
                   <div className="navBarElms" style={{float: "right",  marginTop: "0px",
                                                       verticalAlign:"top", lineHeight : 1}}>
-                    <span style={{margin : "0px 15px 0px 15px",
+                    <span style={{margin : "0px 15px 5px 15px",
+                                  visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
                                   color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "white")}}>
-                        {saveStateMsg}
+                        { /* This inline constant is just to take up some space, it is diliberately hidden
+                             but is a reasonable message to for to users if it was ever accidentally shown */
+                            saveStateMsg === '' ? 'Remember to save often' : saveStateMsg
+                        }
                     </span>
 
                       {!browserIsIOS ?
-                      (<div style={{display:"inline-block"}}>
+                      (<div className="navBarItem" style={{display:"inline-block"}}>
                           Filename &nbsp;&nbsp;
                           <input type="text" id="assignment-name-text" size="20"
                                  name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
@@ -767,7 +772,7 @@ class AssignmentEditorMenubar extends React.Component {
                           />&nbsp;&nbsp;
                       </div>) : null}
                       {!browserIsIOS ?
-                      (<div style={{display:"inline-block"}}>
+                      (<div className="navBarItem" style={{display:"inline-block"}}>
                           <LightButton text="Save to Device" onClick={
                               function() {
                                   var persistentState = getPersistentState();
