@@ -4,7 +4,7 @@ import SolutionClassGrader, { solutionClassReducer } from './SolutionClassGrader
 import Button from './Button.js';
 
 var SOLUTION_CLASS_INDEX = "SOLUTION_CLASS_INDEX";
-
+var SET_POSSIBLE_POINTS_FOR_ALL = "SET_POSSIBLE_POINTS_FOR_ALL";
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
@@ -100,6 +100,19 @@ class ProblemGrader extends React.Component {
                                     window.ga('send', 'event', 'Actions', 'edit', 'Edit possible points');
                                     window.store.dispatch(
                                         { type : SET_PROBLEM_POSSIBLE_POINTS,
+                                          PROBLEM_NUMBER : problemNumber});
+                                }
+                            }.bind(this)
+                        }/>
+
+                    <Button text="Apply to All Problems"
+                           onClick={function() {
+                                if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
+                                    alert("Possible points must be a number");
+                                } else {
+                                    window.ga('send', 'event', 'Actions', 'edit', 'Edit possible points for all');
+                                    window.store.dispatch(
+                                        { type : SET_POSSIBLE_POINTS_FOR_ALL,
                                           PROBLEM_NUMBER : problemNumber});
                                 }
                             }.bind(this)

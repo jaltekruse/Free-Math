@@ -131,8 +131,9 @@ function scaleScore(score, oldPossiblePoints, newPossiblePoints) {
     } else if (isNaN(Number(newPossiblePoints))) {
         return 0;
     }
+    // round to 2 decimal places
     const ret = Math.round(
-        ( Number(score) / Number(oldPossiblePoints) ) * Number(newPossiblePoints));
+        100 * ( Number(score) / Number(oldPossiblePoints) ) * Number(newPossiblePoints)) / 100.0;
     if (ret === Infinity) {
         return Number(newPossiblePoints);
     }

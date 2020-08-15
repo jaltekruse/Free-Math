@@ -22,6 +22,7 @@ var APP_MODE = 'APP_MODE';
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 
 var SET_PROBLEM_POSSIBLE_POINTS = "SET_PROBLEM_POSSIBLE_POINTS";
+var SET_POSSIBLE_POINTS_FOR_ALL = "SET_POSSIBLE_POINTS_FOR_ALL";
 var EDIT_POSSIBLE_POINTS = "EDIT_POSSIBLE_POINTS";
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 // as the points already assigned for all work on a problem need to be scaled
@@ -252,6 +253,27 @@ function gradingReducer(state, action) {
             // hurt anything happening in both cases.
             SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined,
             APP_MODE : GRADE_ASSIGNMENTS,
+        };
+    } else if (action.type === SET_POSSIBLE_POINTS_FOR_ALL) {
+        const allProblems = state[PROBLEMS];
+        const allProblemsRet = cloneDeep(allProblems);
+        const newPossiblePoints = allProblems[action[PROBLEM_NUMBER]][POSSIBLE_POINTS_EDITED];
+        for (const probNumber in allProblems ) {
+            if (allProblems.hasOwnProperty(probNumber)) {
+                    // because of how this is set up, the action below relies of having the
+                    // POSSIBLE_POINTS_EDITED value to be set to scale the point values based
+                    // on the old vs new possible points, so need to run 2 actions
+                allProblemsRet[probNumber] =
+                    problemGraderReducer(allProblems[probNumber],
+                        { type : EDIT_POSSIBLE_POINTS, POSSIBLE_POINTS : newPossiblePoints});
+                allProblemsRet[probNumber] =
+                    problemGraderReducer(allProblemsRet[probNumber],
+                        { ...action, type : SET_PROBLEM_POSSIBLE_POINTS });
+            }
+        }
+        return {
+            ...state,
+            PROBLEMS : allProblemsRet
         };
     } else if (action.type === SET_PROBLEM_POSSIBLE_POINTS ||
            action.type === EDIT_POSSIBLE_POINTS ||
