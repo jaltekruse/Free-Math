@@ -8,7 +8,7 @@ import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
-import { getPersistentState, saveToLocalStorageOrDrive } from './FreeMath.js';
+import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
 import JSZip from 'jszip';
 
 var STEPS = 'STEPS';
@@ -36,6 +36,7 @@ var GOOGLE_ASSIGNMENT_LIST = 'GOOGLE_ASSIGNMENT_LIST';
 var GOOGLE_SELECTED_ASSIGNMENT = 'GOOGLE_SELECTED_ASSIGNMENT';
 var GOOGLE_SELECTED_CLASS_NAME = 'GOOGLE_SELECTED_CLASS_NAME';
 var GOOGLE_SELECTED_ASSIGNMENT_NAME = 'GOOGLE_SELECTED_ASSIGNMENT_NAME';
+var GOOGLE_SUBMISSION_ID = 'GOOGLE_SUBMISSION_ID';
 
 var GOOGLE_ID = 'GOOGLE_ID';
 var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
@@ -409,16 +410,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
                   GLOBAL_WAITING_MSG: false});
             if (window.confirm('Assignment successfully saved to Google Classroom.\n\n' +
                                'Are you done working and would like to turn it in?')) {
-                window.turnInToClassroom(
-                    selectedClass,
-                    selectedAssignment,
-                    submission.id,
-                    function(response) {
-                        alert('Successfully turned in');
-                    },
-                    function(errorXhr) {
-                        alert('Turn in request failed.');
-                    });
+                turnInToClassroomWithSpinner(getEphemeralState());
             }
         },
         function(errorXhr) {
@@ -546,9 +538,20 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                     }
                     if (response.studentSubmissions.length === 1) {
                         var submission = response.studentSubmissions[0];
+
+                        window.ephemeralStore.dispatch(
+                            { type : SET_GOOGLE_CLASS_LIST,
+                              GOOGLE_CLASS_LIST :
+                                rootState[GOOGLE_CLASS_LIST],
+                              GOOGLE_SELECTED_CLASS : rootState[GOOGLE_SELECTED_CLASS],
+                              GOOGLE_SELECTED_CLASS_NAME : rootState[GOOGLE_SELECTED_CLASS_NAME],
+                              GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
+                              GOOGLE_SUBMISSION_ID : submission.id
+                            });
                         // TODO - make suer to show a spinner or somthing while waiting
                         // for the final request to save the assignment
                         closeModal();
+
                         selectSubmissionCallback(submission,
                                         rootState[GOOGLE_SELECTED_CLASS],
                                         assignment.id,
@@ -615,6 +618,28 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                 />
         );
     }
+}
+
+function turnInToClassroomWithSpinner(ephemeralState) {
+    window.ephemeralStore.dispatch(
+        { type : MODIFY_GLOBAL_WAITING_MSG,
+          GLOBAL_WAITING_MSG: "Turning in assignment..."});
+    window.turnInToClassroom(
+        ephemeralState[GOOGLE_SELECTED_CLASS],
+        ephemeralState[GOOGLE_SELECTED_ASSIGNMENT],
+        ephemeralState[GOOGLE_SUBMISSION_ID],
+        function(response) {
+            alert('Successfully turned in.');
+            window.ephemeralStore.dispatch(
+                { type : MODIFY_GLOBAL_WAITING_MSG,
+                  GLOBAL_WAITING_MSG: false});
+        },
+        function(errorXhr) {
+            alert('Turn in request failed.');
+            window.ephemeralStore.dispatch(
+                { type : MODIFY_GLOBAL_WAITING_MSG,
+                  GLOBAL_WAITING_MSG: false});
+        });
 }
 
 class AssignmentEditorMenubar extends React.Component {
@@ -686,7 +711,16 @@ class AssignmentEditorMenubar extends React.Component {
         const submitToClassroomCallback = function() {
             // save the file to Drive first
             saveCallback(function() {
-                this.refs.submissionSelector.listClasses();
+                const ephemeralState = getEphemeralState();
+                if (ephemeralState[GOOGLE_SELECTED_CLASS] &&
+                    ephemeralState[GOOGLE_SELECTED_ASSIGNMENT] &&
+                    ephemeralState[GOOGLE_SUBMISSION_ID]) {
+                        if (window.confirm('Are you done working and would like to turn in the assignment?')) {
+                            turnInToClassroomWithSpinner(ephemeralState);
+                        }
+                } else {
+                    this.refs.submissionSelector.listClasses();
+                }
             }.bind(this));
         }.bind(this);
 
@@ -796,4 +830,4 @@ class AssignmentEditorMenubar extends React.Component {
     }
 }
 
-export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment, GoogleClassroomSubmissionSelector};
+export {AssignmentEditorMenubar as default, removeExtension, saveAssignment, openAssignment, GoogleClassroomSubmissionSelector, CANNOT_EDIT_SUBMITTED_ERR_MSG};

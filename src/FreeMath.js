@@ -3,7 +3,7 @@ import GradingMenuBar, { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
 import { GradesView, SimilarDocChecker } from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
-import { openAssignment } from './AssignmentEditorMenubar.js';
+import { openAssignment, CANNOT_EDIT_SUBMITTED_ERR_MSG} from './AssignmentEditorMenubar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
@@ -47,6 +47,7 @@ var GOOGLE_SELECTED_CLASS = 'GOOGLE_SELECTED_CLASS';
 var GOOGLE_SELECTED_ASSIGNMENT = 'GOOGLE_SELECTED_ASSIGNMENT';
 var GOOGLE_SELECTED_CLASS_NAME = 'GOOGLE_SELECTED_CLASS_NAME';
 var GOOGLE_SELECTED_ASSIGNMENT_NAME = 'GOOGLE_SELECTED_ASSIGNMENT_NAME';
+var GOOGLE_SUBMISSION_ID = 'GOOGLE_SUBMISSION_ID';
 
 var GOOGLE_ORIGIN_SERVICE = 'GOOGLE_ORIGIN_SERVICE';
 var CLASSROOM = 'CLASSROOM';
@@ -458,13 +459,43 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
         }
         const onFailure = function(response) {
             window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: -1});
-            let pendingSaves = getEphemeralState()[PENDING_SAVES];
+            const ephemeralState = getEphemeralState();
+            let pendingSaves = ephemeralState[PENDING_SAVES];
             console.log('pendingSaves');
             console.log(pendingSaves);
             if (response) {
                 if (response.status === 403 && appState[APP_MODE] === EDIT_ASSIGNMENT) {
-                alert("You cannot edit assignments that are submitted, " +
-                      "you need to unsbumit over in Google Classroom first.");
+                    // is there in-memory state left over from a pervious submit/unsubmit
+                    // in this editing session?
+                    if (ephemeralState[GOOGLE_SELECTED_CLASS] &&
+                        ephemeralState[GOOGLE_SELECTED_ASSIGNMENT] &&
+                        ephemeralState[GOOGLE_SUBMISSION_ID]) {
+                        if (window.confirm('Cannot edit because this assignment is currently ' +
+                                            'submited, would you like to unsubmit?')) {
+                            window.ephemeralStore.dispatch(
+                                { type : MODIFY_GLOBAL_WAITING_MSG,
+                                  GLOBAL_WAITING_MSG: "Unsubmitting assignment..."});
+                            window.reclaimFromClassroom(
+                                ephemeralState[GOOGLE_SELECTED_CLASS],
+                                ephemeralState[GOOGLE_SELECTED_ASSIGNMENT],
+                                ephemeralState[GOOGLE_SUBMISSION_ID],
+                                function(response) {
+                                    alert('Successfully unsubmitted.');
+                                    window.ephemeralStore.dispatch(
+                                        { type : MODIFY_GLOBAL_WAITING_MSG,
+                                          GLOBAL_WAITING_MSG: false});
+                                },
+                                function(errorXhr) {
+                                    alert('Unsubmit request failed.');
+                                    window.ephemeralStore.dispatch(
+                                        { type : MODIFY_GLOBAL_WAITING_MSG,
+                                          GLOBAL_WAITING_MSG: false});
+                                });
+                        }
+                    } else {
+                        // otherwise direct the student to Google Classroom to unsubmit and allow editing
+                        alert(CANNOT_EDIT_SUBMITTED_ERR_MSG);
+                    }
                 } else {
                     alert("Error saving to google Drive");
                 }
@@ -648,16 +679,24 @@ function ephemeralStateReducer(state, action) {
                  GOOGLE_DRIVE_STATE: action[GOOGLE_DRIVE_STATE]
         }
     } else if (action.type === SET_GOOGLE_CLASS_LIST) {
-        const ret = { ...state,
+        // when this is undefined/false the modal is being closed
+        // in this case, we want to keep around at least GOOGLE_SELECTED_CLASS,
+        // and GOOGLE_SELECTED_ASSIGNMENT, because they can be used later to allow
+        // a student to unsubmit and keep editing
+        if (! action[GOOGLE_CLASS_LIST]) {
+            return { ...state,
+                 GOOGLE_CLASS_LIST : action[GOOGLE_CLASS_LIST]
+            };
+        }
+        return { ...state,
                  GOOGLE_CLASS_LIST : action[GOOGLE_CLASS_LIST],
                  GOOGLE_SELECTED_CLASS : action[GOOGLE_SELECTED_CLASS],
                  GOOGLE_SELECTED_CLASS_NAME : action[GOOGLE_SELECTED_CLASS_NAME],
                  GOOGLE_ASSIGNMENT_LIST : action[GOOGLE_ASSIGNMENT_LIST],
                  GOOGLE_SELECTED_ASSIGNMENT : action[GOOGLE_SELECTED_ASSIGNMENT],
                  GOOGLE_SELECTED_ASSIGNMENT_NAME : action[GOOGLE_SELECTED_ASSIGNMENT_NAME],
+                 GOOGLE_SUBMISSION_ID : action[GOOGLE_SUBMISSION_ID]
         };
-        console.log(ret);
-        return ret;
     } else {
         return state;
     }
