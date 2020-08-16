@@ -7,7 +7,6 @@ import LogoHomeNav from './LogoHomeNav.js';
 import FreeMath, { getPersistentState, getEphemeralState, getCompositeState, getAutoSaveIndex } from './FreeMath.js';
 import Button from './Button.js';
 import { CloseButton, LightButton, HtmlButton } from './Button.js';
-import demoGradingAction from './demoGradingAction.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
@@ -29,6 +28,7 @@ var CONTENT = "CONTENT";
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 
 var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 // state for google drive auto-save
 // Property name and possible values, also can be DIRTY_WORKING_COPY, SAVING
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
@@ -457,9 +457,12 @@ class UserActions extends React.Component {
 
                                     // turn on the gaurd for navigating away
                                     window.onbeforeunload = checkAllSaved;
+                                    // This might not be needed anymore? This placeholder was added before
+                                    // the google id was moved the ephemeral state
+                                    window.ephemeralStore.dispatch(
+                                        {type : SET_GOOGLE_ID, GOOGLE_ID: 'PLACEHOLDER'});
                                     window.store.dispatch(
                                         { type : 'SET_ASSIGNMENTS_TO_GRADE',
-                                          GOOGLE_ID : 'PLACEHOLDER',
                                           NEW_STATE :
                                             {...aggregatedWork,
                                                 GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',

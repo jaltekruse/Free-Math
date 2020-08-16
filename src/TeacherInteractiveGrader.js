@@ -124,6 +124,7 @@ var ORIG_STUDENT_STEP = 'ORIG_STUDENT_STEP';
 
 var DOC_ID = 'DOC_ID';
 var GOOGLE_ID = 'GOOGLE_ID';
+var SET_GOOGLE_ID = 'SET_GOOGLE_ID';
 
 var SET_GOOGLE_DRIVE_STATE = 'SET_GOOGLE_DRIVE_STATE';
 var GOOGLE_DRIVE_STATE = 'GOOGLE_DRIVE_STATE';
@@ -611,9 +612,15 @@ function removeStudentsFromGradingView(filenamesToRemove, gradedWork) {
     }
 
     var aggregatedWork = aggregateStudentWork(allStudentWork);
+
+    // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
+    // from before this call, but defensively re-setting ti anyway. This was previously set as part
+    // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
+    window.ephemeralStore.dispatch(
+        {type : SET_GOOGLE_ID, GOOGLE_ID: gradedWork[GOOGLE_ID]});
+
     window.store.dispatch(
         { type : SET_ASSIGNMENTS_TO_GRADE,
-          GOOGLE_ID : gradedWork[GOOGLE_ID],
           DOC_ID : gradedWork['DOC_ID'],
           NEW_STATE :
             {...aggregatedWork, GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
@@ -802,10 +809,16 @@ function saveBackToClassroomMerging(gradedWork, onSuccess, onFailure) {
                 }
                 var aggregatedWork = aggregateStudentWork(allStudentWork);
                 console.log("opened docs");
+
                 //console.log(aggregatedWork);
+                // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
+                // from before this call, but defensively re-setting ti anyway. This was previously set as part
+                // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
+                window.ephemeralStore.dispatch(
+                    {type : SET_GOOGLE_ID, GOOGLE_ID: gradedWork[GOOGLE_ID]});
+
                 window.store.dispatch(
                     { type : SET_ASSIGNMENTS_TO_GRADE,
-                      GOOGLE_ID : gradedWork[GOOGLE_ID],
                       DOC_ID : gradedWork[DOC_ID],
                       NEW_STATE :
                         // TODO - fix filename
@@ -1519,9 +1532,15 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
         var aggregatedWork = aggregateStudentWork(allStudentWork);
         console.log("opened docs");
         //console.log(aggregatedWork);
+
+        // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
+        // from before this call, but defensively re-setting ti anyway. This was previously set as part
+        // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
+        window.ephemeralStore.dispatch(
+            {type : SET_GOOGLE_ID, GOOGLE_ID: googleId});
+
         window.store.dispatch(
             { type : SET_ASSIGNMENTS_TO_GRADE,
-              GOOGLE_ID : googleId,
               DOC_ID : docId,
               NEW_STATE :
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
@@ -1529,8 +1548,8 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
     } catch (e) {
         // TODO - try to open a single student doc
         console.log(e);
-        alert("Error opening file, you should be opening a zip file full of Free Math documents.");
         window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
+        alert("Error opening file, you should be opening a zip file full of Free Math documents.");
         onFailure();
         return;
     }

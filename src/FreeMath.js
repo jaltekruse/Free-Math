@@ -384,16 +384,16 @@ function getCompositeState() {
  * to drive or browser local storage
  */
 function autoSave() {
-    var appState = getCompositeState();
-    var googleId = appState[GOOGLE_ID];
+    var appCompState = getCompositeState();
+    var googleId = appCompState[GOOGLE_ID];
 
     console.log("should this auto-save event be filtered out?");
 
     window.ephemeralStore.dispatch(
         {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
-    if (appState[APP_MODE] === GRADE_ASSIGNMENTS
+    if (appCompState[APP_MODE] === GRADE_ASSIGNMENTS
         && googleId
-        && appState[GOOGLE_ORIGIN_SERVICE] === 'CLASSROOM') {
+        && appCompState[GOOGLE_ORIGIN_SERVICE] === 'CLASSROOM') {
         // don't auto-save teacher grading docs from Google Classroom,
         // sending all docs to Google is too slow
         return;
@@ -403,8 +403,9 @@ function autoSave() {
 
 let currentlyGatheringUpdates;
 let currentAppMode;
-function saveToLocalStorageOrDrive(delayMillis = 15000) {
-    var appState = getPersistentState();
+function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = function() {}) {
+    const appState = getPersistentState();
+    const googleId = getEphemeralState()[GOOGLE_ID];
 
     let previousAppMode = currentAppMode;
     currentAppMode = appState[APP_MODE];
@@ -422,7 +423,6 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
             return;
         }
 
-        var googleId = appState[GOOGLE_ID];
         if (! googleId) {
             // save more frequently if it is just going to local storage
             delayMillis = 2000;
@@ -434,7 +434,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
 
         // assume users will type multiple characters rapidly, don't eagerly send a request
         // to google for each update, let them batch up for a bit first
-        if (currentlyGatheringUpdates) {
+        if (currentlyGatheringUpdates && delayMillis > 0) {
             console.log("skipping new auto-save because currently gathering updates");
             return;
         }
@@ -454,6 +454,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
                 window.ephemeralStore.dispatch(
                     {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
             }
+            onSuccessCallback();
         }
         const onFailure = function(response) {
             window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: -1});
@@ -552,6 +553,12 @@ function saveToLocalStorageOrDrive(delayMillis = 15000) {
         }
         let currentAppMode = appState[APP_MODE];
         setTimeout(function() {
+            // when an explicit save happens, it marks this false immediately to stop
+            // any pending auto-saves from edits before the explicit save
+            if (currentlyGatheringUpdates === false) {
+                console.log("explict save issued while this auto-save was queued, skipping");
+                return;
+            }
             currentlyGatheringUpdates = false;
             try {
                 window.ephemeralStore.dispatch({ type: MODIFY_PENDING_SAVES, DELTA: 1});
@@ -593,6 +600,11 @@ function ephemeralStateReducer(state, action) {
             BUTTON_GROUP : 'BASIC',
             PENDING_SAVES : 0
         };
+    } else if (action.type === SET_GOOGLE_ID) {
+        return { ...state,
+                 GOOGLE_ID: action[GOOGLE_ID],
+                 GOOGLE_ORIGIN_SERVICE: action[GOOGLE_ORIGIN_SERVICE] ? action[GOOGLE_ORIGIN_SERVICE] : 'DRIVE' // DRIVE OR CLASSROOM
+        }
     } else if (action.type === MODIFY_GLOBAL_WAITING_MSG) {
         return {
             ...state,
@@ -674,11 +686,6 @@ function rootReducer(state, action) {
         return { ...state,
                  SHOW_TUTORIAL: true
         }
-    } else if (action.type === SET_GOOGLE_ID) {
-        return { ...state,
-                 GOOGLE_ID: action[GOOGLE_ID],
-                 GOOGLE_ORIGIN_SERVICE: action[GOOGLE_ORIGIN_SERVICE] ? action[GOOGLE_ORIGIN_SERVICE] : 'DRIVE' // DRIVE OR CLASSROOM
-        }
     } else if (action.type === SET_ASSIGNMENTS_TO_GRADE) {
         // TODO - consolidate the defaults for filters
         // TODO - get similar assignment list from comparing the assignments
@@ -687,7 +694,6 @@ function rootReducer(state, action) {
         return {
             ...action[NEW_STATE],
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID(),
-            GOOGLE_ID: action[GOOGLE_ID],
             GRADING_OVERVIEW : overview,
             // if already in one of the grading states, leave the mode alone
             // while changing the content, if not in of these states go into the
@@ -702,7 +708,6 @@ function rootReducer(state, action) {
         return {
             APP_MODE : EDIT_ASSIGNMENT,
             PROBLEMS : action.PROBLEMS,
-            GOOGLE_ID: action[GOOGLE_ID],
             ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,

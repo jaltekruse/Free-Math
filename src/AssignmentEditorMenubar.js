@@ -8,7 +8,7 @@ import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
-import { getPersistentState } from './FreeMath.js';
+import { getPersistentState, saveToLocalStorageOrDrive } from './FreeMath.js';
 import JSZip from 'jszip';
 
 var STEPS = 'STEPS';
@@ -342,9 +342,11 @@ export function readSingleFile(evt, driveFileId = false) {
                     var newDoc = openAssignment(contents, f.name, driveFileId);
 
                     window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                        PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
+                        PROBLEMS : newDoc[PROBLEMS],
                         ASSIGNMENT_NAME : removeExtension(f.name)});
 
+                    window.ephemeralStore.dispatch(
+                        {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
                     window.ephemeralStore.dispatch(
                         {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
                 } catch (e) {
@@ -649,41 +651,18 @@ class AssignmentEditorMenubar extends React.Component {
 
                 var googleId = this.props.value[GOOGLE_ID];
                 if (googleId) {
-                    console.log("update in google drive:" + googleId);
-                    window.updateFileWithBinaryContent(
-                        this.props.value[ASSIGNMENT_NAME] + '.math',
-                        assignment,
-                        googleId,
-                        'application/json',
-                        function() {
-                            window.ephemeralStore.dispatch(
-                                { type : SET_GOOGLE_DRIVE_STATE,
-                                    GOOGLE_DRIVE_STATE : ALL_SAVED});
-                            onSuccessCallback();
-                        },
-                        function(response) {
-                            if (response.status === 403) {
-                                alert(CANNOT_EDIT_SUBMITTED_ERR_MSG);
-                            } else {
-                                alert("Error saving to Google Drive");
-                            }
-                            window.ephemeralStore.dispatch(
-                                { type : SET_GOOGLE_DRIVE_STATE,
-                                    GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
-                        }
-                    );
+                    saveToLocalStorageOrDrive(0, onSuccessCallback);
                 } else {
                     window.createFileWithBinaryContent(
                         this.props.value[ASSIGNMENT_NAME] + '.math',
                         assignment,
                         'application/json',
                         function(response) {
-                            window.store.dispatch({type : SET_GOOGLE_ID,
-                                GOOGLE_ID: response.id,
-                            });
                             window.ephemeralStore.dispatch(
                                 { type : SET_GOOGLE_DRIVE_STATE,
                                     GOOGLE_DRIVE_STATE : ALL_SAVED});
+                            window.ephemeralStore.dispatch(
+                                {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
                             onSuccessCallback();
                         },
                         function(response) {
