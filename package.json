@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@toast-ui/react-image-editor": "^1.2.0",
+    "@toast-ui/react-image-editor": "github:jaltekruse/toast-ui.react-image-editor#fix-colors-and-double-click",
     "autoprefixer": "7.1.2",
     "babel-core": "6.25.0",
     "babel-eslint": "7.2.3",
