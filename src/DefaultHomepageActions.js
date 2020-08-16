@@ -59,7 +59,7 @@ var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
 var SHOW_GOOGLE_VIDEO = 'SHOW_GOOGLE_VIDEO';
 
 function checkAllSaved() {
-    const appState = getEphemeralState();
+    const appState = getCompositeState();
     if (appState[APP_MODE] !== MODE_CHOOSER &&
         !(appState[GOOGLE_ID] && appState[GOOGLE_DRIVE_STATE] === ALL_SAVED)) {
         return true;
