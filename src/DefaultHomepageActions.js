@@ -163,8 +163,11 @@ class UserActions extends React.Component {
                         var newDoc = openAssignment(content, name, driveFileId);
 
                         window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                            PROBLEMS : newDoc[PROBLEMS], GOOGLE_ID: driveFileId,
+                            PROBLEMS : newDoc[PROBLEMS],
                             ASSIGNMENT_NAME : removeExtension(name)});
+
+                        window.ephemeralStore.dispatch(
+                            {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
                         // turn on confirmation dialog upon navigation away
                         window.onbeforeunload = checkAllSaved;
                         window.location.hash = '';
