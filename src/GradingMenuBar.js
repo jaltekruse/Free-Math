@@ -28,6 +28,9 @@ var PENDING_SAVES = 'PENDING_SAVES';
 
 class GradingMenuBar extends React.Component {
     componentDidMount() {
+        if (!window.gapi) {
+            return;
+        }
         const saveCallback = function() {
             var persistentState = getPersistentState();
             var zip = saveGradedStudentWorkToBlob(persistentState);

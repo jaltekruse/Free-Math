@@ -644,6 +644,9 @@ function turnInToClassroomWithSpinner(ephemeralState) {
 
 class AssignmentEditorMenubar extends React.Component {
     componentDidMount() {
+        if (!window.gapi) {
+            return;
+        }
         // TODO - problem with onSuccessCallback when canceling and re-opening dialog to submit
         // might have been manifesting a different bug leaving out a callback in functions doing
         // the actual requests to google in index.html

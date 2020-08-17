@@ -154,6 +154,9 @@ class UserActions extends React.Component {
 
     componentDidMount() {
         const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
+        if (!window.gapi) {
+            return;
+        }
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
                 window.openDriveFile(true, false, null, function(docs) {
