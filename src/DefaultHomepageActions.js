@@ -1214,7 +1214,7 @@ class DefaultHomepageActions extends React.Component {
                     <div className="homepage-right homepage-video homepage-center-mobile">
                         <video alt="student.webm" autoPlay muted playsInline loop width="100%">
                             <track kind="captions" />
-                            <source src="free_math_grading.mp4" type="video/mp4" /></video>
+                            <source src="grading_with_images.mp4" type="video/mp4" /></video>
                     </div>
                 </div>
                 <div className="homepage-wrapper" style={{marginBottom: "100px"}}>
