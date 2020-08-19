@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<!--    
+    This file is part of Free Math 
+
+    Free Math is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Free Math is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Free Math.  If not, see <http://www.gnu.org/licenses/>. 
+
+    -->
+<!--
+This project includes code from the Persus project from Khan Academy. These
+portions of the code are licensed under the MIT license.
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Khan Academy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<!--
+This project includes code from the MathQuill project. These
+portions of the code are licensed under the Mozilla Public License, v. 2.0.
+http://mozilla.org/MPL/2.0/
+
+-->
+<html>
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70441517-2');
+</script>
+
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
+
+<meta name="viewport" content="width=624">
+<meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
+<meta property="og:site_name" content="Free Math">
+<title>Free Math - Collect, Organize and Review Digital Math Homework</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+<!--link rel="stylesheet" type="text/css" href="../perseus.css"-->
+<link rel="stylesheet" type="text/css" href="support/home.css">
+
+<link rel="stylesheet" href="katex.min.css">
+</head>
+<body style="margin-top:40px">
+    <div>
+        <div class="menuBar">
+            <div style="max-width:1024px; margin-left:auto; margin-right:auto; padding: 0 10px 0 10px" class="nav">
+                <div style="float:left; line-height: 1">
+                    <a style="text-decoration: none; color: #eee" href="index.html">
+                    <h3 class="freemath-logo" style="display:inline; color: #eee">
+                        <div style="padding: 3px">
+                        <span class="katex"><span class="katex-mathml">
+                                <math><semantics><mrow><mtext>Free&nbsp;Math</mtext></mrow>
+                                <annotation encoding="application/x-tex">\text{Free Math}</annotation>
+                                </semantics></math>
+                                </span><span class="katex-html" aria-hidden="true">
+                                    <!--span class="strut" style="height: 0.69444em;"></span -->
+                                    <span class="strut bottom" style="height: 0.69444em; vertical-align: 0em;">
+                                    </span><span class="base"><span class="mord text">
+                                    <span class="mord">Free&nbsp;Math</span>
+                                    </span></span></span></span>
+                    </div>
+                    </h3>
+                    </a>
+                </div>
+                <div class="navBarElms" style="float:right">
+                    <a href="gettingStarted.html" style="color:white; margin-right:15px" >Getting Started</a>
+                    <a href="contact.html" style="color:white; margin-right: 15px" >Contact</a>
+                    <a href="faq.html" style="color:white">FAQ</a>
+                </div>
+            </div>
+        </div>
+        <div style="margin-left:auto; margin-right: auto; max-width: 850px; padding:30px 3vw 100px 3vw">
+            <h2>Getting Started</h2>
+            <br />
+            <h3>Using the New Google Classroom Integration</h3>
+            <br />
+                <div class="homepage-center"
+                     style="width:10j%; height: 0;
+                             position:relative; padding:0px 0px 56.25% 0px">
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/cR9R3tXbiug?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        gesture="media"
+                        style="width:100%; height: 100%; position: absolute"></iframe></div>
+
+            <br />
+            <br />
+            <h3>General Instructions for Any LMS</h3>
+            <p>Free Math is easy to set up, all you need is a standard LMS that can collect files.</p>
+            <ol>
+                <li>Assign problems to your students.</li>
+                    <ul>
+                        <li>You can simply give them a list of problems from your textbook or a
+                            worksheet. Students can start with a blank Free Math document, copying
+                            down and working through problems just as if they were completing work in
+                            paper notebooks.</li>
+                        <li>
+                            If you are interested in authoring your own assignment, you can optionally
+                            use the student assignment editor to create a list of problems and directions
+                            for your students. From there you can share the file with your students
+                            through your LMS for use as a template for their own assignment files.
+                        </li>
+                    </ul>
+                <li>Students complete digital work, save it as a file and submit it through your LMS.</li>
+                <li>You download the files in bulk from your LMS as a zip file
+                    (<a href="#lmsIntegration">LMS specifc instructions linked below</a>).</li>
+                <li>Load the zip file into Free Math for grading, the app will show you
+                    where students struggled the most.
+                    Anything you don’t have time to grade gets completion points.</li>
+                    <ul>
+                        <li>
+                        There is no need to prepare anything ahead of grading; rather than rely on a
+                        rigid answer key, all of the unique answers provided by students will be shown
+                        in groups which can be graded in bulk. </li>
+                        <li>It is useful to have an answer key that
+                        you can reference while grading, but you do not need to type this into Free Math.
+                        This flexible system accommodates the fact that several of the groups may be
+                        different formats of the correct answer, and others may deserve partial credit.</li>
+                        <li>You simply need to provide a score to each unique final answer and give specific
+                        feedback to students who need it.</li>
+                    </ul>
+                <li>Save the grading feedback, which generates a zip file filled with
+                    individual graded documents for each student.</li>
+                <li>Upload the zip file full of documents into your LMS, it will provide the
+                    individual graded documents to each student.</li>
+                <li>Record the overall grades into your grade book. We are still working on direct integration
+                    with LMS gradebooks, so for now you need to copy the scores over yourself manually while
+                    viewing them in the grading experience.</li>
+            </ol>
+
+            <br />
+            <h3>Teacher Introduction Video</h3>
+            <br />
+                <div class="homepage-center"
+                     style="width:10j%; height: 0;
+                             position:relative; padding:0px 0px 56.25% 0px">
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        gesture="media"
+                        style="width:100%; height: 100%; position: absolute"></iframe></div>
+                <br />
+                <br />
+                <br />
+            <h3>Student Introduction Video</h3>
+            <br />
+                <div class="homepage-center"
+                     style="width:10j%; height: 0;
+                             position:relative; padding:0px 0px 56.25% 0px">
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/x6EiDUYJx_s"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        gesture="media"
+                        style="width:100%; height: 100%; position: absolute"></iframe></div>
+                <h2 id="lmsIntegration">
+                    <br />
+                    Instructions for Specific LMS Tools
+                </h2>
+                <p> LMS products come with features for collecting documents
+                    from students and managing them in bulk. These features
+                    are often used for grading files like papers or presentations.
+                    These types of files must be examined individually for
+                    grading. One great advantage of Free Math is that all
+                    documents are graded together, with optimized actions for
+                    grading similar work.</p>
+                    <p> Here are some links to instructions for managing student files
+                        in specific LMS products. As Free Math natively opens
+                        and saves zip files, you can often avoid steps related
+                        to unzipping downloaded documents and manually creating
+                        a new zip of the graded documents when re-uploading.
+                        Keep this in mind as you follow these instructions.
+                    </p>
+                    Moodle (
+                        <a href="https://www.umass.edu/it/support/moodle/downloadallstudentsubmissionsamoodleassignment"
+                           target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+                        <a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle#Upload%20Multiple%20Feedback%20Files%20Using%20a%20.Zip%20File"
+                           target="_blank" rel="noopener noreferrer">Upload</a>
+                    )
+                    <br />
+                    <a href="googleClassroom.html"
+                       target="_blank" rel="noopener noreferrer">Google Classroom</a>
+                    <br />
+                    Canvas (
+                        <a href="https://community.canvaslms.com/docs/DOC-12813"
+                           target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+                        <a href="https://community.canvaslms.com/docs/DOC-10003-415275096"
+                           target="_blank" rel="noopener noreferrer">Upload</a>
+                    )
+                    <br />
+                    <a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online"
+                       target="_blank" rel="noopener noreferrer">Blackboard</a>
+                    <br />
+                    D2L (
+                    <a href="https://distancelearning.elgin.edu/d2ltutorials/d2l_10_3_faculty_guides/en/downloading-dropbox-folder-submission-files.html"
+                       target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+                        <a href="https://distancelearning.elgin.edu/d2ltutorials/d2l_10_3_faculty_guides/en/uploading-attaching-feedback-from-downloaded-submission-files.html"
+                           target="_blank" rel="noopener noreferrer">Upload</a>
+                    )
+                    <br />
+                    <a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-"
+                       target="_blank" rel="noopener noreferrer">Schoology</a>
+                    <br/>
+                    <br/>
+                    <a href="https://www.wikihow.com/Make-a-Zip-File" target="_blank">
+                        General Information on zip files
+                    </a>
+                    <br/>
+                    <br/>
+            </div>
+            <div style="width: 100%; margin: 100px 0px 0px 0px; padding: 50px 0px 50px 0px;
+                        background-color: rgba(10,0,30,1); color: #eee">
+
+                <div style="padding: 0px 100px 0px 100px">
+                <p>
+                    <a class="lightLink" href="privacyPolicy.html">Privacy Policy</a>
+                </p>
+                <small>
+                    Free Math is free software: you can redistribute it and/or modify
+                    it under the terms of the GNU General Public License as published by
+                    the Free Software Foundation, either version 3 of the License, or
+                    (at your option) any later version.
+
+                    Free Math is distributed in the hope that it will be useful,
+                    but WITHOUT ANY WARRANTY; without even the implied warranty of
+                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                    GNU General Public License for more details.
+
+                    You should have received a copy of the GNU General Public License
+                    along with Free Math.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+                </small>
+                </div>
+                </div>
+        </div>
+    </div>
+</body>
+</html>
