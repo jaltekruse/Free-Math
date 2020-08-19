@@ -206,7 +206,7 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
                     )[PROBLEMS]
             })],
         //{type: "application/octet-stream"});
-        {type: "text/plain;charset=utf-8"});
+        {type: "application/zip"});
 
     var checkImagesLoaded = function() {
         if (imagesBeingAddedToZip === 0) {
