@@ -568,7 +568,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                     let doc = getPersistentState();
                     saveAssignment(doc, function(finalBlob) {
                         window.updateFileWithBinaryContent(
-                            doc[ASSIGNMENT_NAME] + '.zip',
+                            doc[ASSIGNMENT_NAME] + '.math',
                             finalBlob, googleId, 'application/zip',
                             onSuccess,
                             onFailure
