@@ -23,29 +23,29 @@ Copied from persus project
 }
 .tex-button:focus {
   border: 2px solid #1c758a;
-  outline: none;
+outline: none;
 }
 .tex-button-row {
-  margin: 5px 0;
+margin: 5px 0;
 }
 .tex-button-row:first-child {
-  margin-top: 0;
+margin-top: 0;
 }
 .tex-button-row:last-child {
-  margin-bottom: 0;
+margin-bottom: 0;
 }
 /*
 end of styles copied form perseus
 */
 
 .homepage-center {
-    width: 100%;
-    -webkit-box-align: center;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    margin-left: auto;
+width: 100%;
+-webkit-box-align: center;
+align-items: center;
+display: flex;
+flex-direction: column;
+text-align: center;
+margin-left: auto;
     margin-right: auto;
 }
 
@@ -457,7 +457,7 @@ div.problem-container {
         flex-direction: column;
         margin-left: auto;
         margin-right: auto;
-        padding: 0vw 0vw 10vw 0vw;
+        padding: 0vw 2vw 10vw 2vw;
         /* this is necesary to prevent the padding from adding to the width */
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
@@ -471,6 +471,7 @@ div.problem-container {
         display: inline-block;
         margin: 0px 30px 0px 30px
     }
+
     .menubar-spacer {
         height: 120px;
         display: block

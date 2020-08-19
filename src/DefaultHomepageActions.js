@@ -5,8 +5,7 @@ import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
 import FreeMath, { getPersistentState, getEphemeralState, getCompositeState, getAutoSaveIndex } from './FreeMath.js';
-import Button from './Button.js';
-import { CloseButton, LightButton, HtmlButton } from './Button.js';
+import Button, { CloseButton, LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
@@ -847,7 +846,10 @@ class UserActions extends React.Component {
                                                 var filename = nameAndDate[1];
                                                 var datePart = nameAndDate[2];
                                                 return (
-                                                        <div style={{marginBottom:"20px"}} key={autoSaveFullName}>
+                                                        <div style={{marginBottom:"20px",
+                                                                     textOverflow:"ellipsis",
+                                                                     overflow: "hidden"}}
+                                                             key={autoSaveFullName}>
                                                         {filename}
                                                         <br />
                                                         <Button text="Open"
@@ -1027,9 +1029,6 @@ class DefaultHomepageActions extends React.Component {
         var wrapperDivStyle = {
             padding:"0px 0px 0px 0px",
             backgroundColor:"#ffffff",
-            marginLeft:"auto",
-            marginRight: "auto",
-            //width:"1024px"
         };
 
         const renderExampleWork = function(problemData) {
