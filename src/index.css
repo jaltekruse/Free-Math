@@ -495,8 +495,8 @@ div.problem-container {
         font-size: 20px
     }
     iframe.tutorial-video {
-        width: 600px;
-        height:400px;
+        width: 800px;
+        height:600px;
         display:block
     }
     .webcam-capture {

@@ -168,15 +168,10 @@ h1 small {
 }
 
 @media (min-width: 951px) {
-/* <<<<<<< HEAD
-======= */
     iframe.tutorial-video {
         width: 600px;
         height:400px;
         display:block
-    }
-    .mathStepEditor {
-        max-width:900px
     }
     .math-input-buttons {
         background-color: rgba(245, 245, 245, 0.9);

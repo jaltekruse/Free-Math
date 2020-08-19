@@ -1834,7 +1834,8 @@ class TeacherInteractiveGrader extends React.Component {
                             <iframe title="Free Math Video"
                                 src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
                                 allowFullScreen frameBorder="0"
-                                style={{width:"600px", height:"400px", display:"block"}}></iframe>
+                                className="tutorial-video"
+                                ></iframe>
                         </div>
                         )
                     } />
