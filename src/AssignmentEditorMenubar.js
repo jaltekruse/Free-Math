@@ -58,6 +58,8 @@ var CANNOT_EDIT_SUBMITTED_ERR_MSG = "You cannot edit assignments that are submit
 var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
 var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
 
+var INSTRUCTIONS_HIDDEN_IN_ZIP_FILE = "You need to open .math files using freemathapp.org";
+
 function isProblemNumberMissing(allProblems) {
     var atLeastOneProblemNumberNotSet = false;
     allProblems.forEach(function(problem, index, array) {
@@ -213,6 +215,7 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
             fr.addEventListener('load', function () {
                 var data = this.result;
                 zip.file("mainDoc", data);
+                zip.file(INSTRUCTIONS_HIDDEN_IN_ZIP_FILE, "Visit the website freemathapp.org to open this file.");
                 var finalBlob = zip.generate({type: 'blob'});
                 handleFinalBlobCallback(finalBlob);
                 // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
@@ -277,6 +280,8 @@ function openAssignment(content, filename, driveFileId = false) {
                         // compatibility for old files, need to convert the old proerty names as
                         // well as add the LAST_SHOWN_STEP
                         newDoc = convertToCurrentFormat(newDoc);
+                    } else if (file === INSTRUCTIONS_HIDDEN_IN_ZIP_FILE) {
+                        // this is just used to redirect users to the site if they open with a zip viewer
                     } else {
                         // should be an image
                         let fileContents = new_zip.file(file).asArrayBuffer();
@@ -375,8 +380,9 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
     if ( typeof attachments !== 'undefined' &&
           attachments.length > 0 ) {
         if (attachments[0].driveFile && googleId === attachments[0].driveFile.id) {
-            alert("This file is already attached to this assignment. From now on you " +
-                  "can just use the \"Save to Drive\" button to save your work");
+            if (window.confirm('Are you done working and would like to turn in the assignment?')) {
+                turnInToClassroomWithSpinner(getEphemeralState());
+            }
             return;
         }
         alert("You have already attached a file to this assignment, Free Math " +
@@ -635,7 +641,7 @@ function turnInToClassroomWithSpinner(ephemeralState) {
                   GLOBAL_WAITING_MSG: false});
         },
         function(errorXhr) {
-            alert('Turn in request failed.');
+            alert('Turn in request failed, you may need to turn in using Google Classroom itself.');
             window.ephemeralStore.dispatch(
                 { type : MODIFY_GLOBAL_WAITING_MSG,
                   GLOBAL_WAITING_MSG: false});
@@ -684,7 +690,7 @@ class AssignmentEditorMenubar extends React.Component {
                     window.createFileWithBinaryContent(
                         this.props.value[ASSIGNMENT_NAME] + '.math',
                         assignment,
-                        'application/json',
+                        'application/zip',
                         function(response) {
                             window.ephemeralStore.dispatch(
                                 { type : SET_GOOGLE_DRIVE_STATE,

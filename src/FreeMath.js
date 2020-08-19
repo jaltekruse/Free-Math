@@ -486,7 +486,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                                           GLOBAL_WAITING_MSG: false});
                                 },
                                 function(errorXhr) {
-                                    alert('Unsubmit request failed.');
+                                    alert('Unsubmit request failed, you may need to unsubmit using Google Classroom itself.');
                                     window.ephemeralStore.dispatch(
                                         { type : MODIFY_GLOBAL_WAITING_MSG,
                                           GLOBAL_WAITING_MSG: false});
@@ -568,8 +568,8 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                     let doc = getPersistentState();
                     saveAssignment(doc, function(finalBlob) {
                         window.updateFileWithBinaryContent(
-                            doc[ASSIGNMENT_NAME] + '.math',
-                            finalBlob, googleId, 'application/json',
+                            doc[ASSIGNMENT_NAME] + '.zip',
+                            finalBlob, googleId, 'application/zip',
                             onSuccess,
                             onFailure
                         );
