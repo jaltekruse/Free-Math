@@ -101,49 +101,27 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
 
 function saveAssignment(studentDoc, handleFinalBlobCallback) {
 
-    var containsAnImage = false;
-    var imageCount = 0;
     var allProblems = studentDoc[PROBLEMS];
     allProblems = allProblems.map(function(problem, probIndex, array) {
-        // make a new object, as this mutates the state, including changing the blob URLs
-        // into filenames that will be in the zip file for images, these changes
-        // should not be made to the in-memory version
+        // make a new object, as this mutates the state
         // BE CAREFUL NOT TO CHANGE THIS, the bug only shows up after a save and then
         // a further edit of the doc without navigating away
         problem = { ...problem };
         // trim the numbers to avoid extra groups while grading
         problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
-        problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
-            if (step[FORMAT] === IMG) {
-                containsAnImage = true;
-                imageCount++;
-            }
-            return step;
-        });
         return problem;
     });
 
     studentDoc = { ...studentDoc,
                    [PROBLEMS]: allProblems};
 
-    if (containsAnImage) {
-        saveAssignmentWithImages(studentDoc, handleFinalBlobCallback);
-    } else {
-        var blob =
-            new Blob([
-                JSON.stringify({
-                ...studentDoc,
-                PROBLEMS : removeUndoRedoHistory(
-                            makeBackwardsCompatible(
-                              studentDoc
-                            )
-                        )[PROBLEMS]
-                })],
-            {type: "application/octet-stream"});
-            //{type: "text/plain;charset=utf-8"});
-
-        handleFinalBlobCallback(blob);
-    }
+    // old format of saving just JSON is now completely disabled
+    // for a time a doc without any images would be saved in it still
+    // for compatibility between the beta site and production.
+    // the zip format is better because if they open it in google drive
+    // or another zip viewer it has an extra file in it now to direct
+    // them to freemathapp.org to open it
+    saveAssignmentWithImages(studentDoc, handleFinalBlobCallback);
 }
 
 function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
@@ -677,7 +655,7 @@ class AssignmentEditorMenubar extends React.Component {
                 });
             });
 
-            if (containsAnImage) {
+            if (true || containsAnImage) {
                 window.ga('send', 'event', 'Actions', 'save',
                     'Save with images', imageCount);
             }
