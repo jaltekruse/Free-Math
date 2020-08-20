@@ -394,7 +394,8 @@ function autoSave() {
         {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
     if (appCompState[APP_MODE] === GRADE_ASSIGNMENTS
         && googleId
-        && appCompState[GOOGLE_ORIGIN_SERVICE] === 'CLASSROOM') {
+        // TODO - fix ORIGIN_SERVICE setting
+        ) {
         // don't auto-save teacher grading docs from Google Classroom,
         // sending all docs to Google is too slow
         return;
@@ -523,6 +524,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                             window.ephemeralStore.dispatch(
                                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
                         } else  if (pendingSaves === 0) {
+                            alert("Successfully saved grades and feedback.")
                             window.ephemeralStore.dispatch(
                                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
                         }
