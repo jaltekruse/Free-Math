@@ -137,6 +137,8 @@ const CLASSROOM_TOTAL_TO_SAVE = 'CLASSROOM_TOTAL_TO_SAVE';
 const DELTA = 'DELTA';
 const RESET_CLASSROOM_SAVING_COUNT = 'RESET_CLASSROOM_SAVING_COUNT';
 
+var SHOW_GOOGLE_VIDEO = 'SHOW_GOOGLE_VIDEO';
+
 /*
  * Compute a table to show the overall grades for each student
  *
@@ -1738,7 +1740,10 @@ class AllProblemGraders extends React.Component {
 }
 
 class TeacherInteractiveGrader extends React.Component {
-    state = { showModal: true };
+    state = {
+        showModal: true,
+        SHOW_GOOGLE_VIDEO: false
+    };
     constructor(props) {
         super(props);
         this.chartRef = React.createRef();
@@ -1831,11 +1836,37 @@ class TeacherInteractiveGrader extends React.Component {
                             }.bind(this)}
                     content={(
                         <div width="750px">
-                            <iframe title="Free Math Video"
-                                src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
-                                allowFullScreen frameBorder="0"
-                                className="tutorial-video"
-                                ></iframe>
+                            <Button className="extra-long-problem-action-button fm-button"
+                                    style={{fontSize: "25px", borderRadius: "30px", width: "450px", padding: "8px 16px"}}
+                                    text={this.state[SHOW_GOOGLE_VIDEO] ?
+                                        "Show Video for other LMS tools" : "Show Google Classroom Video" }
+                                    text={this.state[SHOW_GOOGLE_VIDEO] ?
+                                        "Show Video for other LMS tools" : "Show Google Classroom Video" }
+                                    onClick={function() {
+                                        this.setState({ SHOW_GOOGLE_VIDEO : ! this.state[SHOW_GOOGLE_VIDEO]});
+                                    }.bind(this)}
+                            />
+                            <br />
+                            <br />
+                            { this.state[SHOW_GOOGLE_VIDEO] ?
+                                <div>
+                                <h3>Google Classroom Instructions</h3>
+                                <iframe title="Google Classroom Instructions Video"
+                                    src="https://www.youtube.com/embed/cR9R3tXbiug?ecver=2"
+                                    allowFullScreen frameBorder="0"
+                                    className="tutorial-video"
+                                    ></iframe>
+                                </div>
+                                :
+                                <div>
+                                <h3>Instructions for Any LMS</h3>
+                                <iframe title="Free Math Video"
+                                    src="https://www.youtube.com/embed/NcsJK771YFg?ecver=2"
+                                    allowFullScreen frameBorder="0"
+                                    className="tutorial-video"
+                                    ></iframe>
+                                </div>
+                            }
                         </div>
                         )
                     } />
