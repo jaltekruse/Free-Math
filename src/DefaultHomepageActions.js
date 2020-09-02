@@ -158,6 +158,7 @@ class UserActions extends React.Component {
         }
         window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
             function() {
+                window.ga('send', 'event', 'Actions', 'edit', 'Open Assignment from Drive.');
                 window.openDriveFile(true, false, null, function(docs) {
                     let name = docs[0].name;
                     let driveFileId = docs[0].id;
@@ -184,9 +185,11 @@ class UserActions extends React.Component {
                     } // failure callback
                     );
                 });
-            }, function(e){
-                //alert("error signing in to google");
-                console.log(e);
+            },
+            function(error){
+                //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                console.log(JSON.stringify(error, undefined, 2));
+                window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
             });
 
         /* Disabled for now, this is confusing to have alongside the Google Classroom support
@@ -224,6 +227,7 @@ class UserActions extends React.Component {
         const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
             function() {
+                window.ga('send', 'event', 'Actions', 'edit', 'Create Classroom Assignment.');
                 window.listGoogleClassroomCourses(function(response) {
                     this.setState({GOOGLE_CLASS_LIST : response});
                     // TODO - make this safe when no classes
@@ -233,8 +237,12 @@ class UserActions extends React.Component {
 
                     this.createAssignment();
                 }.bind(this));
-            }.bind(this)
-        );
+            }.bind(this),
+            function(error){
+                //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                console.log(JSON.stringify(error, undefined, 2));
+                window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+            });
 
         const gradeClassroomAssignmentCallback = function() {
             this.refs.submissionSelector.listClasses();
@@ -242,9 +250,11 @@ class UserActions extends React.Component {
 
         const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
         window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
-            gradeClassroomAssignmentCallback, function(e){
-                //alert("error signing in to google");
-                console.log(e);
+            gradeClassroomAssignmentCallback,
+            function(error){
+                //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                console.log(JSON.stringify(error, undefined, 2));
+                window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
             });
     }
 
@@ -491,7 +501,6 @@ class UserActions extends React.Component {
                                             { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
                                               STUDENT_SUBMISSION_ID: submissionId,
                                               ASSIGNMENT : newDoc[PROBLEMS]});
-                                        // TODO - also do this on error, and report to user
                                         pendingOpens--;
                                         if (downloadQueue.length > 0) {
                                             let next = downloadQueue.pop();

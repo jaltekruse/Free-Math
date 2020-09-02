@@ -66,7 +66,12 @@ class GradingMenuBar extends React.Component {
         }
         const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
         window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
-            saveCallback, function(){/* TODO - on sign in error*/})
+            saveCallback,
+            function(error){
+                console.log(JSON.stringify(error, undefined, 2));
+                //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+            });
     }
 
     render() {

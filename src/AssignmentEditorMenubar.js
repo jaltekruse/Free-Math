@@ -711,8 +711,15 @@ class AssignmentEditorMenubar extends React.Component {
         }.bind(this);
         const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
         window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
-            function(){saveCallback(function(){ alert("Successfully saved to drive.")})},
-            function(){/* TODO - on sign in error*/})
+            function(){
+                window.ga('send', 'event', 'Actions', 'edit', 'Explicit save to drive.');
+                saveCallback(function(){ alert("Successfully saved to drive.")});
+            },
+            function(error){
+                //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                console.log(JSON.stringify(error, undefined, 2));
+                window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+            });
 
         const submitToClassroomCallback = function() {
             // save the file to Drive first
@@ -732,7 +739,12 @@ class AssignmentEditorMenubar extends React.Component {
 
         const submitToClassroom = ReactDOM.findDOMNode(this.refs.submitToClassroom)
         window.gapi.auth2.getAuthInstance().attachClickHandler(submitToClassroom, {},
-            submitToClassroomCallback, function(){/* TODO - on sign in error*/})
+            submitToClassroomCallback,
+            function(error){
+                //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                console.log(JSON.stringify(error, undefined, 2));
+                window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+            });
     }
 
     render() {
@@ -752,6 +764,7 @@ class AssignmentEditorMenubar extends React.Component {
             //saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
         }
         var selectSubmissionCallback = function(submission, selectedClass, selectedAssignment, googleId) {
+            window.ga('send', 'event', 'Actions', 'edit', 'Submit to Google Classroom.');
             submitAssignment(submission,
                             selectedClass,
                             selectedAssignment,
