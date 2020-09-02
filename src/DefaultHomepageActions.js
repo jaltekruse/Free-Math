@@ -716,7 +716,8 @@ class UserActions extends React.Component {
                         (
                             <div>
                             Class &nbsp;&nbsp;
-                            <select onChange={
+                            <select style={{maxWidth: "500px", textOverflow: "ellipsis"}}
+                                onChange={
                                 function(event) {
                                     this.setState({courseId: event.target.value});
                                 }.bind(this)}
@@ -724,8 +725,13 @@ class UserActions extends React.Component {
                                 {this.state['GOOGLE_CLASS_LIST'].courses
                                     .map(function(classInfo, index) {
                                         return (
-                                            <option value={classInfo.id}>{classInfo.name}</option>
-                                        )
+                                            <option value={classInfo.id}>
+                                            {classInfo.name +
+                                             " \u00A0  Section: "
+                                             + (classInfo.section === undefined ? "None" : classInfo.section) +
+                                             " \u00A0 Room: "
+                                             + (classInfo.room === undefined ? "None" : classInfo.room)}
+                                            </option>)
                                     })
                                 }
                             </select>

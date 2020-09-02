@@ -681,10 +681,23 @@ function ephemeralStateReducer(state, action) {
                  GOOGLE_DRIVE_STATE: action[GOOGLE_DRIVE_STATE]
         }
     } else if (action.type === SET_GOOGLE_CLASS_LIST) {
-        // when this is undefined/false the modal is being closed
+        // in error cases, we want to make students re-select class/assignment so that
+        // they aren't immediately prompted to turn in before an association with
+        // the assignment is made, a little hacky, but using explict FALSE instead
+        // of undefined to indicate this
+        if (action[GOOGLE_CLASS_LIST] === false) {
+            return { ...state,
+                 GOOGLE_CLASS_LIST : undefined,
+                 GOOGLE_SELECTED_CLASS : undefined,
+                 GOOGLE_SELECTED_ASSIGNMENT : undefined
+            };
+        }
+        // when this is undefined the modal is being closed after a successful save
         // in this case, we want to keep around at least GOOGLE_SELECTED_CLASS,
         // and GOOGLE_SELECTED_ASSIGNMENT, because they can be used later to allow
-        // a student to unsubmit and keep editing
+        // a student to unsubmit and keep editing, or choose to not submit right away
+        // and the next click of the "submit to classroom" button will prompt them asking
+        // if they want to turn in
         if (! action[GOOGLE_CLASS_LIST]) {
             return { ...state,
                  GOOGLE_CLASS_LIST : action[GOOGLE_CLASS_LIST]

@@ -360,9 +360,23 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
         if (attachments[0].driveFile && googleId === attachments[0].driveFile.id) {
             if (window.confirm('Are you done working and would like to turn in the assignment?')) {
                 turnInToClassroomWithSpinner(getEphemeralState());
+                // clear the class list to stop showing the modal
+                // but don't clear the class/assignments selected from the state
+                // these are used later to allow turning in
+                window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                    GOOGLE_CLASS_LIST : undefined});
+            } else {
+                window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                     GOOGLE_CLASS_LIST : false
+                    });
             }
             return;
         }
+        // in the case of error also close the modal
+        // and make them select a different class/assignment
+        window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
+             GOOGLE_CLASS_LIST : false
+            });
         alert("You have already attached a file to this assignment, Free Math " +
               "assignments should only have a single Free Math file submitted.\n\n" +
               "You can either open the file you already attched out of Drive " +
@@ -385,9 +399,6 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
         submission.id, googleId,
         function(response) {
             console.log(response);
-            // clear the class list to stop showing the modal
-            window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                GOOGLE_CLASS_LIST : undefined});
 
             window.ephemeralStore.dispatch(
                 { type : MODIFY_GLOBAL_WAITING_MSG,
@@ -395,6 +406,11 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             if (window.confirm('Assignment successfully saved to Google Classroom.\n\n' +
                                'Are you done working and would like to turn it in?')) {
                 turnInToClassroomWithSpinner(getEphemeralState());
+                // clear the class list to stop showing the modal
+                // but don't clear the class/assignments selected from the state
+                // these are used later to allow turning in
+                window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
+                    GOOGLE_CLASS_LIST : undefined});
             }
         },
         function(errorXhr) {
@@ -415,7 +431,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
             // in the case of error also close the modal
             // and make them select a different class/assignment
             window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                GOOGLE_CLASS_LIST : undefined});
+                GOOGLE_CLASS_LIST : false});
         }
     );
 }
@@ -430,7 +446,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                 alert("You are not enrolled in any Google Classroom courses.");
                 // close the modal
                 window.ephemeralStore.dispatch({type : SET_GOOGLE_CLASS_LIST,
-                    GOOGLE_CLASS_LIST : undefined});
+                    GOOGLE_CLASS_LIST : false});
                 return;
             }
             if (response.courses.length === 1) {
@@ -468,7 +484,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                             function() {
                                 window.ephemeralStore.dispatch(
                                     { type : SET_GOOGLE_CLASS_LIST,
-                                      GOOGLE_CLASS_LIST : undefined});
+                                      GOOGLE_CLASS_LIST : false});
                             };
 
         var showModal = this.props.showModal ?
@@ -486,7 +502,12 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                     .map(function(classInfo, index) {
                         return (
                             <span>
-                            <Button text={classInfo.name}
+                            <Button text={
+                                    classInfo.name + " \u00A0  Section: "
+                                     + (classInfo.section === undefined ? "None" : classInfo.section) +
+                                     " \u00A0 Room: "
+                                     + (classInfo.room === undefined ? "None" : classInfo.room)
+                                    }
                                 onClick={function() {
                                     window.listGoogleClassroomAssignments(classInfo.id,
                                         function(response) {
@@ -532,9 +553,6 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                               GOOGLE_SELECTED_ASSIGNMENT : assignment.id,
                               GOOGLE_SUBMISSION_ID : submission.id
                             });
-                        // TODO - make suer to show a spinner or somthing while waiting
-                        // for the final request to save the assignment
-                        closeModal();
 
                         selectSubmissionCallback(submission,
                                         rootState[GOOGLE_SELECTED_CLASS],
