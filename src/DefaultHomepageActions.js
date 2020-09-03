@@ -188,6 +188,13 @@ class UserActions extends React.Component {
             },
             function(error){
                 //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                if (error.error && error.error === "popup_closed_by_user") {
+                    alert("It looks like your browser has 3rd party cookies disabled, " +
+                          "you need to enable them to use the google integration.\n\n" +
+                          "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                          "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                          "may need to be disabled.");
+                }
                 console.log(JSON.stringify(error, undefined, 2));
                 window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
             });
@@ -240,6 +247,13 @@ class UserActions extends React.Component {
             }.bind(this),
             function(error){
                 //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                if (error.error && error.error === "popup_closed_by_user") {
+                    alert("It looks like your browser has 3rd party cookies disabled, " +
+                          "you need to enable them to use the google integration.\n\n" +
+                          "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                          "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                          "may need to be disabled.");
+                }
                 console.log(JSON.stringify(error, undefined, 2));
                 window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
             });
@@ -253,6 +267,13 @@ class UserActions extends React.Component {
             gradeClassroomAssignmentCallback,
             function(error){
                 //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                if (error.error && error.error === "popup_closed_by_user") {
+                    alert("It looks like your browser has 3rd party cookies disabled, " +
+                          "you need to enable them to use the google integration.\n\n" +
+                          "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                          "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                          "may need to be disabled.");
+                }
                 console.log(JSON.stringify(error, undefined, 2));
                 window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
             });
