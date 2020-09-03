@@ -718,7 +718,7 @@ class AssignmentEditorMenubar extends React.Component {
             function(error){
                 //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
                 if (error.error && error.error === "popup_closed_by_user") {
-                    alert("It looks like your browser has 3rd party cookies disabled, " +
+                    alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
                           "you need to enable them to use the google integration.\n\n" +
                           "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
                           "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
@@ -750,7 +750,7 @@ class AssignmentEditorMenubar extends React.Component {
             function(error){
                 //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
                 if (error.error && error.error === "popup_closed_by_user") {
-                    alert("It looks like your browser has 3rd party cookies disabled, " +
+                    alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
                           "you need to enable them to use the google integration.\n\n" +
                           "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
                           "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
