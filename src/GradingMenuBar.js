@@ -31,54 +31,62 @@ class GradingMenuBar extends React.Component {
         if (!window.gapi) {
             return;
         }
-        const saveCallback = function() {
-            var persistentState = getPersistentState();
-            var zip = saveGradedStudentWorkToBlob(persistentState);
-            var content = zip.generate({type: "blob"});
-            var googleId = getEphemeralState()[GOOGLE_ID];
-            console.log("update in google drive:" + googleId);
-            if (googleId) {
-                window.updateFileWithBinaryContent (
-                    persistentState[ASSIGNMENT_NAME] + '.zip',
-                    content,
-                    googleId,
-                    'application/zip',
-                    function() {
-                        window.ephemeralStore.dispatch(
-                            { type : SET_GOOGLE_DRIVE_STATE,
-                                GOOGLE_DRIVE_STATE : ALL_SAVED});
-                    }
-                );
-            } else {
-                window.createFileWithBinaryContent (
-                    persistentState[ASSIGNMENT_NAME] + '.zip',
-                    content,
-                    'application/zip',
-                    function(response) {
-                        window.ephemeralStore.dispatch(
-                            {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
-                        window.ephemeralStore.dispatch(
-                            { type : SET_GOOGLE_DRIVE_STATE,
-                                GOOGLE_DRIVE_STATE : ALL_SAVED});
-                    }
-                );
-            }
-        }
-        const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
-        window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
-            saveCallback,
-            function(error){
-                if (error.error && error.error === "popup_closed_by_user") {
-                    alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
-                          "you need to enable them to use the google integration.\n\n" +
-                          "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
-                          "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
-                          "may need to be disabled.");
+        // componentDidMount is called after all the child components have been mounted,
+        // but before any parent components have been mounted.
+        // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
+        // put a small delay to hopefully let the parent mount, also putting a setTimeout at all will free up
+        // the main thread to allow a repaint
+
+        setTimeout(function() {
+            const saveCallback = function() {
+                var persistentState = getPersistentState();
+                var zip = saveGradedStudentWorkToBlob(persistentState);
+                var content = zip.generate({type: "blob"});
+                var googleId = getEphemeralState()[GOOGLE_ID];
+                console.log("update in google drive:" + googleId);
+                if (googleId) {
+                    window.updateFileWithBinaryContent (
+                        persistentState[ASSIGNMENT_NAME] + '.zip',
+                        content,
+                        googleId,
+                        'application/zip',
+                        function() {
+                            window.ephemeralStore.dispatch(
+                                { type : SET_GOOGLE_DRIVE_STATE,
+                                    GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        }
+                    );
+                } else {
+                    window.createFileWithBinaryContent (
+                        persistentState[ASSIGNMENT_NAME] + '.zip',
+                        content,
+                        'application/zip',
+                        function(response) {
+                            window.ephemeralStore.dispatch(
+                                {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
+                            window.ephemeralStore.dispatch(
+                                { type : SET_GOOGLE_DRIVE_STATE,
+                                    GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        }
+                    );
                 }
-                console.log(JSON.stringify(error, undefined, 2));
-                //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
-                window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
-            });
+            }
+            const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
+            window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
+                saveCallback,
+                function(error){
+                    if (error.error && error.error === "popup_closed_by_user") {
+                        alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                              "you need to enable them to use the google integration.\n\n" +
+                              "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                              "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                              "may need to be disabled.");
+                    }
+                    console.log(JSON.stringify(error, undefined, 2));
+                    //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                    window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                });
+        }.bind(this), 250);
     }
 
     render() {
