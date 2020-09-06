@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<!--
+    This file is part of Free Math
+
+    Free Math is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Free Math is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Free Math.  If not, see <http://www.gnu.org/licenses/>.
+
+    -->
+<!--
+This project includes code from the Persus project from Khan Academy. These
+portions of the code are licensed under the MIT license.
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Khan Academy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<!--
+This project includes code from the MathQuill project. These
+portions of the code are licensed under the Mozilla Public License, v. 2.0.
+http://mozilla.org/MPL/2.0/
+
+-->
+<html>
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70441517-2');
+</script>
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-70441517-2', 'auto');
+</script>
+<!-- End Google Analytics -->
+
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF -->
+
+<meta name="viewport" content="width=624, user-scalable=no">
+<meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
+<meta property="og:site_name" content="Free Math">
+<title>Free Math - Collect, Organize and Review Digital Math Homework</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+<!--link rel="stylesheet" type="text/css" href="../perseus.css"-->
+<!-- testing -->
+<script src="expect.min.js"></script>
+<!-- UI react-->
+
+<!-- saving to local disk -->
+<!-- <script type="text/javascript" src="filesaver_js.js"></script> -->
+<!-- reading ZIP files -->
+<!-- <script type="text/javascript" src="jszip.min.js"></script> -->
+
+<!-- Only use this for MathQuill! -->
+<!-- <script src="https://code.jquery.com/jquery-1.7.2.min.js"
+  integrity="sha256-R7aNzoy2gFrVs+pNJ6+SokH04ppcEqJ0yFLkNGoFALQ="
+  crossorigin="anonymous"></script> -->
+
+<script src="lib/jquery.js"></script>
+<!-- <script src="redux.js"></script> -->
+<!-- TODO CLEANUP - this is currently included at the npm level as well to make it available for unit tests -->
+<!-- May cause problems -->
+<script src="lib/underscore.js"></script>
+<script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script>
+<script src="lib/kas.js"></script>
+<script src="lib/i18n.js"></script>
+
+<!-- needed for KAS, as well as general utility functions -->
+<!-- for KAS, investivate impact of lodash vs underscore https://github.com/Khan/KAS/issues/9 -->
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
+
+<!-- <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script> -->
+<script src="lib/mathjax/2.1/MathJax.js" />
+
+<!-- Needed for static math rendering borrowed from Kahn Perseus project -->
+<script type="text/javascript" src="katexA11.js"></script>
+<!-- for comparing expressions KAS (Khan algebra system) -->
+<script type="text/javascript" src="kas.min.js"></script>
+<!-- for diffing JSON structures -->
+<!-- <script type="text/javascript" src="diff.js"></script> -->
+<!-- Katex -->
+<link rel="stylesheet" href="katex.min.css">
+<script src="katex.min.js"></script>
+
+<script type="text/javascript">
+
+    /**
+     *  On load, called to load the auth2 library and API client library.
+     */
+    function handleClientLoad() {
+      gapi.load('client:auth2', initClient);
+      gapi.load('picker');
+      gapi.load('drive');
+    }
+
+    var DEFAULT_MIME = 'text\/plain; charset=utf8';
+    var JSON_MIME = 'application/json';
+
+    // --- prod ----
+    var PROJECT_NUMBER = '412119895810';
+    // Client ID and API key from the Developer Console
+    var CLIENT_ID = '412119895810-tji5c4tj6so2jmde8k3t1l3kaui5g4ca.apps.googleusercontent.com';
+
+    // --- dev ----
+    //var PROJECT_NUMBER = '726134963224';
+    //var CLIENT_ID = '726134963224-rcc5nqsnsvr61cdjrin5tgeloidssfcf.apps.googleusercontent.com';
+
+    // Authorization scopes required by the API; multiple scopes can be
+    // included, separated by spaces.
+    var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
+                   'https://www.googleapis.com/auth/classroom.courses.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.me ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.me.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.students.readonly ' +
+                   'https://www.googleapis.com/auth/classroom.coursework.students ' +
+                   'https://www.googleapis.com/auth/classroom.rosters.readonly';
+
+    var APP_ID = 'quickstart-1561689319732';
+
+    // TODO FIXME HACKS
+    var loadStudentDocsFromZip = function() {}
+
+    /**
+     *  Initializes the API client library and sets up sign-in state
+     *  listeners.
+     */
+    function initClient() {
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+
+      gapi.client.init({
+        clientId: CLIENT_ID,
+        discoveryDocs: DISCOVERY_DOCS,
+        scope: SCOPES
+      }).then(function () {
+        // Listen for sign-in state changes.
+        console.log("stuff");
+        gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+        // Handle the initial sign-in state.
+        updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+      }, function(error) {
+          console.log(error);
+          console.log("Error connecting to google.");
+      });
+    }
+
+    /**
+     *  Called when the signed in status changes, to update the UI
+     *  appropriately. After a sign-in, the API is called.
+     */
+    function updateSigninStatus(isSignedIn) {
+      if (isSignedIn) {
+          console.log("signed in");
+      } else {
+          console.log("not signed in");
+      }
+    }
+
+    /**
+     *  Sign in the user upon button click.
+     */
+    function handleAuthClick(event) {
+      gapi.auth2.getAuthInstance().signIn();
+    }
+
+    /**
+     *  Sign out the user upon button click.
+     */
+    function handleSignoutClick(event) {
+      gapi.auth2.getAuthInstance().signOut();
+    }
+
+    function listGoogleClassroomCourses(callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses';
+        googleGet(true, url, callback, errorCallback);
+    }
+
+    function listGoogleClassroomAssignments(courseId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
+        // filter out list to just type ASSIGNMENT
+        googleGet(true, url, function(response) {
+            console.log(response);
+            response.courseWork = response.courseWork.filter(function(x) { return x.workType === 'ASSIGNMENT'} );
+            console.log(response);
+            callback(response);
+        }, errorCallback);
+    }
+
+    function listClassroomStudents(courseId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/students';
+        googleGet(true, url, callback, errorCallback);
+    }
+
+    function listGoogleClassroomSubmissionsNoFailureAlert(courseId, courseWorkId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions';
+        googleGet(false, url, callback, errorCallback);
+    }
+
+    function listGoogleClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions';
+        googleGet(true, url, callback, errorCallback);
+    }
+
+    function listFilesInFolder(folderId, callback, errorCallback = function(){}) {
+        let url = 'https://www.googleapis.com/drive/v2/files/' + folderId + '/children';
+        googleGet(true, url, callback, errorCallback);
+    }
+
+    function turnInToClassroom(courseId, courseWorkId, submissionId,
+                                            callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions/' + submissionId + ':turnIn';
+        // THE PAYLOAD MUST BE EMPTY
+        let payload = false;
+        googleRequestJsonResponse(false, url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    function reclaimFromClassroom(courseId, courseWorkId, submissionId,
+                                            callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions/' + submissionId + ':reclaim';
+        // THE PAYLOAD MUST BE EMPTY
+        let payload = false;
+        googleRequestJsonResponse(false, url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    // TODO - most of the time users will want to overwrite their previous work, but this currently
+    // just adds a new file to their submission each time
+    // it would be best to push users towards opening their previous submission, as soon as we know
+    // one is associated with their assignment they are trying to work on
+    function modifyGoogeClassroomSubmission(courseId, courseWorkId, submissionId, driveFileId,
+                                            callback, errorCallback = function(){}) {
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                    courseWorkId + '/studentSubmissions/' + submissionId + ':modifyAttachments';
+        let payload = { "addAttachments": [ { "driveFile": { "id" : driveFileId } } ] };
+        // special hanlding for alerts is at callers, can give more specific message about unsubmitting
+        // not just generic permissions message
+        googlePostJson(false, url, payload, callback, errorCallback);
+    }
+
+    function createGoogeClassroomAssignment(courseId, title, description, callback, errorCallback = function(){}) {
+
+        let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork';
+        // TODO - add due date
+        let payload = { title: "[Free Math] " + title, description: description,
+                        workType : "ASSIGNMENT", state : "DRAFT", maxPoints: 100,
+                        materials: [ { link: {  "url": "https://freemathapp.org",
+                                       title: "Free Math Homepage" } } ]};
+        googlePostJson(true, url, payload, callback, errorCallback);
+    }
+
+    function downloadFileNoFailureAlert(fileId, isBinary, callback, errorCallback) {
+        downloadFileInternal(false, fileId, isBinary, callback, errorCallback);
+    }
+
+    function downloadFile(fileId, isBinary, callback, errorCallback) {
+        downloadFileInternal(true, fileId, isBinary, callback, errorCallback);
+    }
+
+    function downloadFileInternal(alertOnFailure, fileId, isBinary, callback, errorCallback) {
+        // TODO - test what happens when selecting google docs elements instead of binary files with this change
+
+        let url = 'https://www.googleapis.com/drive/v2/files/' + fileId + '?alt=media&source=downloadUrl';
+        // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Sending_and_Receiving_Binary_Data
+        let mime = isBinary ? 'text\/plain; charset=x-user-defined' : DEFAULT_MIME;
+        googleRequestBinaryResponse(alertOnFailure, url, 'get', false, mime, callback, errorCallback);
+    }
+
+    function downloadFileMetadata(fileId, callback, errorCallback = function() {}) {
+        let url = 'https://www.googleapis.com/drive/v2/files/' + fileId;
+        googleGet(true, url, callback, errorCallback);
+    }
+
+    function updateGrades(courseId, courseWorkId, grades /* map from submissionId to grade */,
+                          callback, errorCallback = function() {}) {
+
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+        var accessToken = gapi.auth.getToken().access_token;
+        let url = 'https://classroom.googleapis.com/batch';
+
+        var payload = new FormData();
+        var i = 0;
+        grades = grades['GOOGLE_STUDENT_GRADES'];
+        for (var submissionId in grades) {
+            if ( grades.hasOwnProperty(submissionId)) {
+                let innerPayload = new FormData();
+                let grade = Number(grades[submissionId]);
+                console.log(grade);
+                payload.append('grade_' + i, new Blob(
+                    [
+                        'PATCH https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
+                                courseWorkId + '/studentSubmissions/' + submissionId + '?updateMask=draftGrade' + "\n" +
+                        'Content-Type: ' + JSON_MIME + '; charset=UTF-8' + "\n" +
+                        'Authorization: Bearer ' + accessToken + "\n\n" +
+                        JSON.stringify({draftGrade: grade})
+                    ], {type: 'application/http'})
+                );
+                i++;
+            }
+        }
+        console.log(payload);
+        googleRequestBinaryResponse(false, url, 'post', payload, 'multipart/mixed', callback, errorCallback);
+    }
+
+    // yes this is defaulting always to no alert on failure, all of the callers currently do their own
+    // handling, many are checking for 403s to give better error messages
+    function updateFileWithBinaryContent(name, content, googleId,
+                                         fileType='application/zip', callback, errorCallback = function(){}) {
+
+        let url = 'https://www.googleapis.com/upload/drive/v2/files/' + googleId + '?uploadType=multipart';
+        // NOTE: in v2 api title is used instead of name, changed in v3
+        var meta = {mimeType: fileType};
+        // don't update the name if null is passed
+        if (name !== null) {
+            meta.title = name;
+        }
+        var payload = new FormData();
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: JSON_MIME}));
+        payload.append('file', content);
+        googleRequestJsonResponse(false, url, 'put', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    function createFileWithBinaryContent(name, content, fileType='application/zip', callback,
+                                         errorCallback = function(){}) {
+        let url = 'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+        // NOTE: in v2 api title is used instead of name
+        let meta = {name: name, mimeType: fileType};
+        let payload = new FormData();
+        payload.append('metadata', new Blob([JSON.stringify(meta)], {type: JSON_MIME}));
+        payload.append('file', content);
+        googleRequestJsonResponse(true, url, 'post', payload, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    function googleGet(alertOnFailure, url, callback, errorCallback = function(){}) {
+        googleRequestJsonResponse(alertOnFailure, url, 'get', false, DEFAULT_MIME, callback, errorCallback);
+    }
+
+    /**
+      * Note: expected a javascript object as payload, this handles stringifying it.
+      */
+    function googlePostJson(alertOnFailure, url, payload, callback, errorCallback) {
+        googleRequestJsonResponse(alertOnFailure, url, 'post', JSON.stringify(payload), JSON_MIME, callback, errorCallback);
+    }
+
+    // callback takes 2 parameters filename and content
+    function openDriveFile(isBinary, multiSelect, folder, callback){
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+        var accessToken = gapi.auth.getToken().access_token;
+          var docsView = new google.picker.DocsView();
+          if (folder) {
+              docsView.setParent(folder);
+          }
+          var pickerBuilder = new google.picker.PickerBuilder();
+          pickerBuilder
+              // yes despite the different labels this is the right thing to pass here
+              .setAppId(PROJECT_NUMBER)
+              .addView(docsView)
+              .addView(new google.picker.DocsUploadView())
+              .setOAuthToken(accessToken)
+              .setCallback(function(data) {
+                  var url = 'nothing';
+                  if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED) {
+                    var docs = data[google.picker.Response.DOCUMENTS];
+                    console.log(docs);
+                    if (docs.length == 1 && docs[0].type !== "file") {
+                        alert("Cannot open Google Docs, Slides or Sheets, you must select a file created by Free Math");
+                        return;
+                    }
+                    callback(docs);
+                  }
+              });
+
+          if (multiSelect) {
+            pickerBuilder.enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+          }
+
+          var picker = pickerBuilder.build();
+          picker.setVisible(true);
+    }
+
+    function googleRequestBinaryResponse(alertOnFailure, url, verb, payload, mime, callback, errorCallback = function(){}) {
+        googleRequest(url, verb, payload, mime,
+            function(responseXhr) {
+                callback(responseXhr.response);
+            },
+            function(responseXhr) {
+                try {
+                    var resp = JSON.parse(responseXhr.responseText);
+                    window.ga('send', 'exception', { 'exDescription' : resp.error.message } );
+
+                    if (alertOnFailure) alert(resp.error.message);
+                } catch(e) {
+                    console.log(e);
+                    window.ga('send', 'exception', { 'exDescription' : 'google request failure: ' + responseXhr.responseText } );
+
+                    if (alertOnFailure) alert("Failure during request to Google.\n\n" + responseXhr.responseText);
+                }
+                errorCallback(responseXhr);
+            });
+    }
+
+    function googleRequestJsonResponse(alertOnFailure, url, verb, payload, mime, callback, errorCallback = function(){}) {
+        googleRequest(url, verb, payload, mime,
+            function(responseXhr) {
+                callback(JSON.parse(responseXhr.responseText));
+            },
+            function(responseXhr) {
+                try {
+                    var resp = JSON.parse(responseXhr.responseText);
+                    window.ga('send', 'exception', { 'exDescription' : resp.error.message } );
+
+                    if (alertOnFailure) alert(resp.error.message);
+                } catch(e) {
+                    console.log(e);
+                    window.ga('send', 'exception', { 'exDescription' : 'google request failure: ' + responseXhr.responseText } );
+
+                    if (alertOnFailure) alert("Failure during request to Google.\n\n" + responseXhr.responseText);
+                }
+                errorCallback(responseXhr);
+            });
+    }
+
+    function googleRequest(url, verb, payload, mime, callback, errorCallback = function(){}) {
+        if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
+            alert('Need to authorize access to Google Services.');
+            handleAuthClick();
+        }
+
+        var accessToken = gapi.auth.getToken().access_token;
+        var xhr = new XMLHttpRequest();
+        xhr.open(verb, url);
+        xhr.overrideMimeType(mime);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+        xhr.onload = function() {
+            console.log(this);
+            if (this.readyState === 4) {
+                if (this.status == 200) {
+                    try {
+                        callback(this);
+                    } catch (e) {
+                        errorCallback(this);
+                        console.log(e);
+                    }
+                } else {
+                    console.log(this.responseText);
+                    errorCallback(this);
+                }
+            } else {
+                // ignore other events for request still in progress
+            }
+        };
+        xhr.onerror = function(xhr) {
+          console.log(this);
+          console.log(xhr);
+          console.log("-------------onerror called------------");
+          errorCallback(this);
+        };
+        if (payload) {
+            xhr.send(payload);
+        } else {
+            xhr.send();
+        }
+    }
+</script>
+<script async defer src="https://apis.google.com/js/api.js"
+  onload="this.onload=function(){};handleClientLoad();"
+  onreadystatechange="if (this.readyState === 'complete') this.onload()">
+</script>
+<!-- <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>-->
+<link rel="stylesheet" type="text/css" href="build/mathquill_new.css">
+<script type="text/javascript" src="build/mathquill_new.min.js"></script>
+<!-- App state management -->
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script> -->
+
+<link rel="stylesheet" href="lib/cropper.min.css">
+<link rel="stylesheet" href="lib/tui-image-editor.min.css">
+<link rel="stylesheet" href="lib/tui-color-picker.min.css">
+<style>
+/* hack to hide a button I don't want on the toast UI iamge editor */
+.tui-image-editor-controls-buttons {
+    visibility: hidden;
+}
+</style>
+</head>
+<body style="margin-top:40px">
+<div id="root">
+
+</div>
+</body>
+</html>
