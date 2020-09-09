@@ -1165,11 +1165,6 @@ class DefaultHomepageActions extends React.Component {
                 </div>
             </div>
             <div style={{...wrapperDivStyle, paddingTop:"50px"}}>
-                <h1 className="homepage-center homepage-headline">
-                    Give your students feedback,
-                    <br />
-                    meaningfully and efficiently.
-                </h1>
             <div>
             <div className="homepage-center">
             <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>

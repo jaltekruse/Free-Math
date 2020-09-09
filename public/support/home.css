@@ -372,6 +372,16 @@ div.problem-container {
     width:800px;
 }
 
+.big-mobile-button {
+    height:auto;
+    float:left;
+    border-radius:60px;
+    margin:5px 5px 10px 5px;
+    padding:10px;
+    text-align:center
+}
+
+
 @media (max-width: 950px) {
     h3 {
       margin: 0;
@@ -383,7 +393,8 @@ div.problem-container {
     }
 
     .big-mobile-button {
-        font-size: 25px
+        font-size: 25px;
+        width: 320px;
     }
     .navBarElms {
         font-size:25px
@@ -492,7 +503,8 @@ div.problem-container {
 @media (min-width: 951px) {
 
     .big-mobile-button {
-        font-size: 20px
+        font-size: 20px;
+        width: 300px
     }
     iframe.tutorial-video {
         width: 800px;
@@ -602,6 +614,14 @@ body {
   /* background-color: #92d1ff; */
   margin: 0;
   padding: 0;
+  line-height: 1.5
+}
+button {
+  font-family: 'Arial',sans-serif;
+  line-height: 1.5
+}
+a {
+  font-family: 'Arial',sans-serif;
   line-height: 1.5
 }
 #body {
