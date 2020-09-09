@@ -135,6 +135,14 @@ h1 small {
   background-color: #052d66;
 }
 
+
+a.fm-button:hover
+{
+  cursor: pointer;
+  background-color: #052d66;
+  color: #f1f1f1;
+}
+
 .fm-button:hover:enabled
 {
   cursor: pointer;
@@ -504,7 +512,7 @@ div.problem-container {
 
     .big-mobile-button {
         font-size: 20px;
-        width: 300px
+        width: 290px
     }
     iframe.tutorial-video {
         width: 800px;
