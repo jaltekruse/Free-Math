@@ -67,6 +67,47 @@ function checkAllSaved() {
     }
 }
 
+function loadDemoGrading () {
+    const closeSpinner = () => {
+        window.ephemeralStore.dispatch(
+            { type : MODIFY_GLOBAL_WAITING_MSG,
+              GLOBAL_WAITING_MSG: false});
+    };
+
+    const openSpinner = () => {
+        window.ephemeralStore.dispatch(
+            { type : MODIFY_GLOBAL_WAITING_MSG,
+              GLOBAL_WAITING_MSG: 'Loading demo grading assignments...'});
+    };
+    var xhr = new XMLHttpRequest();
+    xhr.open('get', 'student_submission_demo_with_images.zip');
+    xhr.overrideMimeType('text\/plain; charset=x-user-defined');
+    openSpinner();
+    xhr.onload = function() {
+        if (this.readyState === 4) {
+            if (this.status == 200) {
+            try {
+                console.log(this.response);
+                loadStudentDocsFromZip(this.response, 'student_submission_demo',
+                    function() {closeSpinner();},
+                    function() {closeSpinner()},
+                    false);
+                window.store.dispatch({type: SET_SHOW_TUTORIAL});
+             } catch (e) {
+                 console.log(e);
+                 closeSpinner();
+             }
+             } else {
+                 closeSpinner();
+                 alert(this.responsetext);
+             }
+         } else {
+             // ignore other events for request still in progress
+         }
+     };
+     xhr.send();
+};
+
 function render() {
     window.MathQuill = MathQuill.getInterface(1);
     const globalState = getCompositeState();
@@ -1092,35 +1133,6 @@ class DefaultHomepageActions extends React.Component {
 
         const openSpinner = this.openSpinner;
         const closeSpinner = this.closeSpinner;
-        const loadDemoGrading = function() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('get', 'student_submission_demo_with_images.zip');
-            xhr.overrideMimeType('text\/plain; charset=x-user-defined');
-            openSpinner();
-            xhr.onload = function() {
-                if (this.readyState === 4) {
-                    if (this.status == 200) {
-                    try {
-                        console.log(this.response);
-                        loadStudentDocsFromZip(this.response, 'student_submission_demo',
-                            function() {closeSpinner();},
-                            function() {closeSpinner()},
-                            false);
-                        window.store.dispatch({type: SET_SHOW_TUTORIAL});
-                     } catch (e) {
-                         console.log(e);
-                         closeSpinner();
-                     }
-                     } else {
-                         closeSpinner();
-                         alert(this.responsetext);
-                     }
-                 } else {
-                     // ignore other events for request still in progress
-                 }
-             };
-             xhr.send();
-        };
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         return (
             <div>
@@ -1219,7 +1231,7 @@ class DefaultHomepageActions extends React.Component {
                               color: "#eee"
                              }}>
 
-		    <div style={{"padding":"0px 100px 0px 100px"}}>
+            <div style={{"padding":"0px 100px 0px 100px"}}>
                     <p>
                         <a className="lightLink" href="privacyPolicy.html">Privacy Policy</a>
                     </p>
@@ -1247,4 +1259,4 @@ class DefaultHomepageActions extends React.Component {
 }
 
 
-export { DefaultHomepageActions as default, render, checkAllSaved, getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate};
+export { DefaultHomepageActions as default, render, checkAllSaved, getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate, loadDemoGrading };

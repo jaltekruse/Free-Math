@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@toast-ui/react-image-editor": "github:jaltekruse/toast-ui.react-image-editor#fix-colors-and-double-click",
+    "@ungap/url-search-params": "^0.2.2",
     "chart.js": "^2.5.0",
     "create-react-class": "^15.6.3",
     "css-loader": "0.28.4",
