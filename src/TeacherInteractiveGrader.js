@@ -161,10 +161,19 @@ function calculateGrades(allProblems) {
     var overallGrades = {};
     // map from google student work submission IDs to grades, for use in updating google classroom
     var overallGradesForGoogle = {};
+    // to handle rare but possible scenario where two students have the exact same name
+    // zip files will enforce unique filenames, but when grading from google the file IDs will
+    // be different, but the student names could be the same
+    //
+    // this still means the same name will show in the list twice with no indication of which one
+    // is which, but at least having this lookup and still doing the aggregation by file ID the
+    // students won't be merged into a mega-student with their scores combined
+    var googleFileIdsToStudentNames = {};
 
     var handleSingleSolution =
         function(singleSolution, index, arr) {
             var studentAssignmentName = singleSolution[STUDENT_FILE];
+            googleFileIdsToStudentNames[singleSolution[STUDENT_FILE]] = singleSolution[STUDENT_NAME];
             var studentSubmissionId = singleSolution[STUDENT_SUBMISSION_ID];
             var runningScore = overallGrades[studentAssignmentName];
             runningScore = (typeof runningScore !== 'undefined') ? runningScore : 0;
@@ -190,6 +199,14 @@ function calculateGrades(allProblems) {
             totalPossiblePoints += possiblePoints;
             var uniqueAnswers = allProblems[problemNumber][UNIQUE_ANSWERS];
             uniqueAnswers.forEach(handleSingleUnqiueAnswer);
+        }
+    }
+    for (var singleStudent in overallGrades) {
+        if (overallGrades.hasOwnProperty(singleStudent)) {
+            if (googleFileIdsToStudentNames[singleStudent]) {
+                overallGrades[googleFileIdsToStudentNames[singleStudent]] = overallGrades[singleStudent];
+                delete overallGrades[singleStudent];
+            }
         }
     }
     return {
