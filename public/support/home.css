@@ -389,6 +389,17 @@ div.problem-container {
     text-align:center
 }
 
+@media (max-width: 1200px) {
+    .menubar-spacer {
+        height: 60px;
+        display: block
+    }
+    .menubar-spacer-small {
+        height: 60px;
+        display: block
+    }
+}
+
 
 @media (max-width: 950px) {
     h3 {
@@ -429,7 +440,6 @@ div.problem-container {
     }
 
     .save-state-message {
-        line-height:2;
         max-width: 500px
     }
     .google-assignment-name {

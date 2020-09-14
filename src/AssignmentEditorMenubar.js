@@ -779,7 +779,7 @@ class AssignmentEditorMenubar extends React.Component {
             if (saveState === ALL_SAVED) saveStateMsg = "All changes saved in Drive";
             else if (saveState === SAVING) saveStateMsg = "Saving in Drive...";
         } else {
-            if (saveState === ALL_SAVED) saveStateMsg = "All changes saved temporarily in browser";
+            if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
             else if (saveState === ERROR_DOC_TOO_BIG) saveStateMsg = "Too big to save recovery doc in browser";
         }
