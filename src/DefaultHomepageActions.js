@@ -1203,28 +1203,9 @@ class DefaultHomepageActions extends React.Component {
                 <span style={{color:"#eeeeee"}}>Demo Teacher Grading</span>
             </button>
             </div>
-            {
-            <div className="homepage-only-on-mobile">
-                { ! browserIsIOS ?
-                    (<button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
-                             onClick={function() {
-                                    this.setState({"showActionsMobile": ! this.state.showActionsMobile});
-                                }.bind(this)}
-                            >   <span>
-                                    {this.state.showActionsMobile ? "Hide Actions" : "Returning Users"}
-                                </span>
-                            </button>
-                    ) : null
-                }
             </div>
-            }
-            </div>
-            <div className="homepage-only-on-mobile" >
-                {this.state.showActionsMobile ? <UserActions value={this.props.value} /> : null }
-            </div>
-            <div className="homepage-disappear-mobile" >
-                <UserActions value={this.props.value} />
-            </div>
+            <UserActions value={this.props.value} />
+
             <div style={{"width" : "100%", "margin":"100px 0px 0px 0px",
                              "padding":"50px 0px 70px 0px",
                              "backgroundColor": "rgba(10,0,30,1)",
