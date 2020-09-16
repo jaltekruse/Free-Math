@@ -38,8 +38,12 @@ const symbolGroups = {
         {toType:"<", tex:"<"},
         {toType:"<=", tex:"\\le"},
         {toType:"\\approx [Enter]", tex:"\\approx"},
-        {toType:"_ (underscore)", tex:"A_b", description: "subscript"},
-        {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power"},
+        {toType:"_ (underscore)", tex:"A_b", description: "subscript", editorCommands: input => {
+                input.typedText("_");
+        }},
+        {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power", editorCommands: input => {
+                input.typedText("^");
+        }},
         {toType:"\\pm [Enter]", tex:"\\pm"},
         {toType:"(", tex:"(", editorCommands: input => {
             input.typedText("(");
@@ -84,6 +88,27 @@ const symbolGroups = {
         {toType:"\\subseteq [Enter]", tex:"\\subseteq"},
         {toType:"\\superset [Enter]", tex:"\\supset"},
         {toType:"\\superseteq [Enter]", tex:"\\supseteq"},
+        {toType:"\\C [Enter]", tex:"\\mathbb{C}", editorCommands: input => {
+            input.cmd("\\C");
+        }},
+        {toType:"\\H [Enter]", tex:"\\mathbb{H}", editorCommands: input => {
+            input.cmd("\\H");
+        }},
+        {toType:"\\N [Enter]", tex:"\\mathbb{N}", editorCommands: input => {
+            input.cmd("\\N");
+        }},
+        {toType:"\\P [Enter]", tex:"\\mathbb{P}",  editorCommands: input => {
+            input.cmd("\\P");
+        }},
+        {toType:"\\Q [Enter]", tex:"\\mathbb{Q}",  editorCommands: input => {
+            input.cmd("\\Q");
+        }},
+        {toType:"\\R [Enter]", tex:"\\mathbb{R}",  editorCommands: input => {
+            input.cmd("\\R");
+        }},
+        {toType:"\\Z [Enter]", tex:"\\mathbb{Z}",  editorCommands: input => {
+            input.cmd("\\Z");
+        }}
     ],
     GEOMETRY : [
 
