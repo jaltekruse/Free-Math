@@ -1178,32 +1178,6 @@ class DefaultHomepageActions extends React.Component {
             </div>
             <div style={{...wrapperDivStyle, paddingTop:"50px"}}>
             <div>
-            <div className="homepage-center">
-            <div className="homepage-center-mobile" style={{"padding":"0px 0px 30px 0px"}}>
-            <button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
-                onClick={function() {
-                    // turn on confirmation dialog upon navigation away
-                    window.onbeforeunload = checkAllSaved;
-                    window.location.hash = '';
-                    document.body.scrollTop = document.documentElement.scrollTop = 0;
-                    window.ga('send', 'event', 'Demos', 'open', 'Student Demo');
-                    window.store.dispatch({type : "NEW_ASSIGNMENT"});
-                    window.store.dispatch({type : ADD_DEMO_PROBLEM});
-                }}
-            >
-                <span style={{color:"#eeeeee"}}>Students Start Here</span>
-            </button>
-            <button className="fm-button big-mobile-button" style={{...demoButtonStyle, "float" : "left"}}
-                onClick={function() {
-                    window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
-                    loadDemoGrading();
-                    //window.store.dispatch(demoGradingAction);
-                }}
-            >
-                <span style={{color:"#eeeeee"}}>Demo Teacher Grading</span>
-            </button>
-            </div>
-            </div>
             <UserActions value={this.props.value} />
 
             <div style={{"width" : "100%", "margin":"100px 0px 0px 0px",

@@ -5,9 +5,9 @@ import './App.css';
 class LogoHomeNav extends React.Component {
     render() {
           return (
-              <div style={{float:"left", lineHeight : 1}}>
+              <div className="freemath-logo" style={{float:"left", lineHeight : 1}}>
                     <a style={{"text-decoration": "none", "color": "#eee"}} href="index.html">
-                    <h3 className="freemath-logo" style={{display:"inline", color: "#eee"}}>
+                    <h3 className="freemath-logo-text" style={{display:"inline", color: "#eee"}}>
                         <div style={{padding: "3px"}}>
                         <span className="katex"><span className="katex-mathml">
                                 <math><semantics><mrow><mtext>Free&nbsp;Math</mtext></mrow>

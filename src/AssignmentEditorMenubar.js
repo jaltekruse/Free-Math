@@ -781,7 +781,7 @@ class AssignmentEditorMenubar extends React.Component {
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
-            else if (saveState === ERROR_DOC_TOO_BIG) saveStateMsg = "Too big to save recovery doc in browser";
+            else if (saveState === ERROR_DOC_TOO_BIG) saveStateMsg = "Too big to save recovery doc";
         }
         if (this.props.value[PENDING_SAVES]) {
             //saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
@@ -863,7 +863,12 @@ class AssignmentEditorMenubar extends React.Component {
                                                 alt="Google logo"
                                                 height="16px"/>
                                     </div>
-                            )} />
+                            )} />&nbsp;&nbsp;&nbsp;
+                         <a href="launch.html?mode=studentDemo" target="_blank">
+                             <div className="fm-button-light" style={{display: "inline-block", paddingTop: "4px"}}>
+                                Tutorial
+                             </div>
+                         </a>
                       </div>) : null}
                     </div>
                 </div>

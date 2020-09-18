@@ -389,7 +389,7 @@ div.problem-container {
     text-align:center
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1250px) {
     .menubar-spacer {
         height: 60px;
         display: block
@@ -414,6 +414,9 @@ div.problem-container {
     .big-mobile-button {
         font-size: 25px;
         width: 320px;
+    }
+    .freemath-logo{
+        margin-top: 8px
     }
     .navBarElms {
         font-size:25px
@@ -545,7 +548,10 @@ div.problem-container {
         padding: 10px;
         width: 701px;
     }
-    .freemath-logo {
+    .freemath-logo{
+        margin-top: 5px
+    }
+    .freemath-logo-text {
         font-size: 22px;
         margin: 0;
     }
@@ -609,6 +615,7 @@ div.problem-container {
     left:0;
     z-index: 100;
     }
+
 .logo{
     float:left;
 }
