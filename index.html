@@ -59,6 +59,27 @@ http://mozilla.org/MPL/2.0/
   gtag('js', new Date());
 
   gtag('config', 'UA-70441517-2');
+
+  function startsWith(str, maybePrefix) {
+    //https://stackoverflow.com/a/4579228
+    return str.lastIndexOf(maybePrefix, 0) === 0
+  }
+
+  function autoRecoveryDocsPresent() {
+    for (var key in localStorage){
+      if (startsWith(key, "auto save teachers") || startsWith(key,"auto save students")) {
+        return true;
+      }
+    }
+  }
+  function checkForAutoRecovery() {
+      if (autoRecoveryDocsPresent()) {
+        var studentTutorial = document.getElementById('student-tutorial');
+        studentTutorial.className = 'fm-button-grey big-mobile-button';
+        var teacherTutorial = document.getElementById('teacher-tutorial');
+        teacherTutorial.className = 'fm-button-grey big-mobile-button';
+      }
+  }
 </script>
 
 <!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
@@ -73,13 +94,13 @@ http://mozilla.org/MPL/2.0/
 
 <link rel="stylesheet" href="katex.min.css">
 </head>
-<body style="margin-top:40px">
+<body style="margin-top:40px" onload="checkForAutoRecovery()">
     <div>
         <div class="menuBar">
             <div style="max-width:1024px; margin-left:auto; margin-right:auto; padding: 0 10px 0 10px" class="nav">
-                <div style="float:left; line-height: 1">
+                <div class="freemath-logo" style="float:left; line-height: 1">
                     <a style="text-decoration: none; color: #eee" href="index.html">
-                    <h3 class="freemath-logo" style="display:inline; color: #eee">
+                    <h3 class="freemath-logo-text" style="display:inline; color: #eee">
                         <div style="padding: 3px">
                         <span class="katex"><span class="katex-mathml">
                                 <math><semantics><mrow><mtext>Free&nbsp;Math</mtext></mrow>
@@ -109,11 +130,11 @@ http://mozilla.org/MPL/2.0/
         <div>
             <div class="homepage-center">
                 <div class="homepage-center-mobile" style="padding:0px  0px 30px 0px">
-                    <a class="fm-button big-mobile-button" href="launch.html?mode=studentDemo">
+                    <a class="fm-button big-mobile-button" id="student-tutorial" href="launch.html?mode=studentDemo">
                         <span style="color: #eeeeee">
-                            Students Start Here</span>
+                            Student Tutorial</span>
                     </a>
-                    <a class="fm-button big-mobile-button" href="launch.html?mode=teacherDemo">
+                    <a class="fm-button big-mobile-button" id="teacher-tutorial" href="launch.html?mode=teacherDemo">
                         <span style="color:#eeeeee">Demo Teacher Grading</span>
                     </a>
                     <a class="fm-button big-mobile-button" href="launch.html">
