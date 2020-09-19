@@ -113,6 +113,45 @@ h1 small {
   background-color: #eaeaea;
 }
 
+.fm-button-grey {
+  border: 2px solid transparent;
+  padding: 4px 8px;
+  margin: 4px;
+  background-color: gray;
+  color: #f1f1f1;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.fm-button-grey:disabled {
+  background-color: #eaeaea;
+  color: #212121;
+}
+
+a.fm-button-grey:hover
+{
+  cursor: pointer;
+  background-color: #3b3b3b;
+  color: #f1f1f1;
+}
+
+.fm-button-grey:hover:enabled
+{
+  cursor: pointer;
+  background-color: #3b3b3b;
+}
+
+.fm-button-grey:focus {
+  border: 2px solid #ffa535;
+  outline:0;
+}
+
+.fm-button-grey:active {
+  transform: scale(0.99);
+}
+
+
 .fm-button {
   border: 2px solid transparent;
   padding: 4px 8px;

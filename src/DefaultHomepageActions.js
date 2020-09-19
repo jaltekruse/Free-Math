@@ -1179,6 +1179,16 @@ class DefaultHomepageActions extends React.Component {
             <div style={{...wrapperDivStyle, paddingTop:"50px"}}>
             <div>
             <UserActions value={this.props.value} />
+            <br />
+            <div className="homepage-center">
+                <a href="index.html">
+                   <div className="fm-button"
+                        style={{width:"350px", height:"auto", float:"left", borderRadius: "60px",
+                                margin:"5px 5px 10px 5px", padding: "10px", textAlign: "center"}}>
+                      <h2 style={{color: "#eeeeee"}}>Return to Homepage</h2>
+                   </div>
+                </a>
+            </div>
 
             <div style={{"width" : "100%", "margin":"100px 0px 0px 0px",
                              "padding":"50px 0px 70px 0px",
