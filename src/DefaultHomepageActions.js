@@ -1170,6 +1170,52 @@ class DefaultHomepageActions extends React.Component {
             <div style={{...wrapperDivStyle, paddingTop:"50px"}}>
             <div>
             <UserActions value={this.props.value} />
+            <div style={{width : "100%", margin:"50px 0px 20px 0px",
+                         padding:"50px 0px 50px 0px",
+                         }}
+                 className="homepage-center">
+                   <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
+                       <form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&id=ed42803cd3"
+                              method="post" id="mc-embedded-subscribe-form"
+                              name="mc-embedded-subscribe-form" className="validate"
+                              target="_blank" style={{paddingLeft:"0px"}} noValidate>
+                        <div id="mc_embed_signup_scroll">
+                        <div style={{position: "absolute", left: "-5000px"}} aria-hidden="true">
+                            <input type="text" name="b_14d49781dec57b609b6a58f1a_b843990eea"
+                                   tabIndex="-1" readOnly={true} value=""/>
+                        </div>
+
+                        <div style={{overflow: "hidden"}}>
+                            <label htmlFor="mce-EMAIL">
+                                <h2 style={{"display":"inline"}}>
+                                    Subscribe for Updates <br />
+                                </h2>
+                            </label>
+                            <h3>
+                                <p style={{fontSize: "25px"}}>
+                                    Join our e-mail list to find out first about new features and updates to the site.
+                                </p>
+                                <input type="email" name="EMAIL" className="email" size="25"
+                                       id="mce-EMAIL" placeholder="  email address"
+                                       style={{padding: "5px",
+                                               fontSize: "25px"}}
+                                       value={this.state.emailString}
+                                       onChange={function(evt) {
+                                                this.setState({emailString : evt.target.value});
+                                       }.bind(this)}/>
+                                &nbsp;
+                                <Button style={{fontSize: "25px", borderRadius: "30px", padding: "8px 16px"}}
+                                       text="Subscribe" id="mc-embedded-subscribe"
+                                       onClick={function() {
+                                            window.ga('send', 'event', 'Actions', 'signup', 'Mail list');
+                                }} />
+                            </h3>
+                   </div>
+                   </div>
+                   </form>
+                   </div>
+               </div>
+
             <br />
             <div className="homepage-center">
                 <a href="index.html" className="fm-button"
