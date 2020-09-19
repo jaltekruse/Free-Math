@@ -735,7 +735,7 @@ class Problem extends React.Component {
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
                     <span>Scroll to the top of the page and add another problem to your document. Using a combination of images
-                          and typed math, show your work solving each problem in your assignment.
+                          and typed math, show your work solving each problem in your assignment. Delete the demo problems before saving your document.
                     </span>
                     </div>
                 </div>

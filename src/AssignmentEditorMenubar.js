@@ -82,6 +82,15 @@ function checkDuplicateProblemNumbers(allProblems) {
     return foundDuplicate;
 }
 
+function checkForDemoProblems(allProblems) {
+    var atLeastOneDemoProblem = false;
+    allProblems.forEach(function(problem, index, array) {
+        if (problem[PROBLEM_NUMBER].toLowerCase().indexOf("demo") !== -1) {
+            atLeastOneDemoProblem = true;
+        }
+    });
+    return atLeastOneDemoProblem;
+}
 
 function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallback) {
     window.ga('send', 'event', 'Actions', 'edit', 'Save Assignment');
@@ -94,6 +103,12 @@ function saveAssignmentValidatingProblemNumbers(studentDoc, handleFinalBlobCallb
     if (checkDuplicateProblemNumbers(allProblems)) {
         window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with duplicated problem numbers');
         window.alert("Cannot save, two or more problems have the same number.");
+        return;
+    }
+    if (checkForDemoProblems(allProblems)) {
+        window.ga('send', 'event', 'Actions', 'edit', 'Attempted save with demo problems');
+        window.alert("Your document contains problems with the word demo in their name, " +
+                     "you need to rename or remove them before saving.");
         return;
     }
     return saveAssignment(studentDoc, handleFinalBlobCallback);
