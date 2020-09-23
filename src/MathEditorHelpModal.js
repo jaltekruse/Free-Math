@@ -45,6 +45,7 @@ const symbolGroups = {
                 input.typedText("^");
         }},
         {toType:"\\pm [Enter]", tex:"\\pm"},
+        {toType:"\\circ [Enter]", description: "function composition", tex:"\\circ"},
         {toType:"(", tex:"(", editorCommands: input => {
             input.typedText("(");
         }},
