@@ -831,7 +831,7 @@ class AssignmentEditorMenubar extends React.Component {
                       {!browserIsIOS ?
                       (<div className="navBarItem" style={{display:"inline-block"}}>
                           Filename &nbsp;&nbsp;
-                          <input type="text" id="assignment-name-text" size="20"
+                          <input type="text" id="assignment-name-text" size="15"
                                  name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
                                  onChange={
                                       function(evt) {

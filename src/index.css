@@ -544,11 +544,11 @@ div.problem-container {
     }
 
     .menubar-spacer {
-        height: 120px;
+        height: 140px;
         display: block
     }
     .menubar-spacer-small {
-        height: 100px;
+        height: 120px;
         display: block
     }
     div.problem-editor-buttons {
