@@ -482,7 +482,14 @@ div.problem-container {
     }
 
     .save-state-message {
-        max-width: 500px
+        text-overflow: ellipsis;
+        overflow: hidden;
+        display: inline-block;
+        white-space: nowrap;
+        margin-top: 5px;
+        margin-left: 15px;
+        margin-right: 15px;
+        width: 500px
     }
     .google-assignment-name {
         line-height:2;
@@ -595,7 +602,14 @@ div.problem-container {
         margin: 0;
     }
     .save-state-message {
-        max-width: 320px
+        text-overflow: ellipsis;
+        overflow: hidden;
+        display: inline-block;
+        white-space: nowrap;
+        margin-top: 5px;
+        margin-left: 15px;
+        margin-right: 15px;
+        width: 320px
     }
     .google-assignment-name {
         max-width: 200px

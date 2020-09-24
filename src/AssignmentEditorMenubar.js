@@ -819,14 +819,16 @@ class AssignmentEditorMenubar extends React.Component {
 
                   <div className="navBarElms" style={{float: "right",  marginTop: "0px",
                                                       verticalAlign:"top", lineHeight : 1}}>
-                    <span style={{margin : "0px 15px 5px 15px",
-                                  visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
-                                  color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "white")}}>
+                   <div style={{ visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
+                           color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")
+                        }}
+                        className="save-state-message"
+                        title={saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}>
                         { /* This inline constant is just to take up some space, it is diliberately hidden
                              but is a reasonable message to for to users if it was ever accidentally shown */
-                            saveStateMsg === '' ? 'Remember to save often' : saveStateMsg
+                            <span>{saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}</span>
                         }
-                    </span>
+                    </div>
 
                       {!browserIsIOS ?
                       (<div className="navBarItem" style={{display:"inline-block"}}>

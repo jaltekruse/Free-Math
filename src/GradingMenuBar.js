@@ -117,17 +117,16 @@ class GradingMenuBar extends React.Component {
                     <div className="navBarElms" style={{float: "right", marginTop: "0px",
                                                         verticalAlign:"top", lineHeight : 1}}>
 
-                        <span className="save-state-message"
-                               style={{ textOverflow: "ellipsis", overflow: "hidden",
-                                       display: "inline-block", whiteSpace: "nowrap",
-                                       marginLeft: "15px", marginRight: "15px",
-                                       visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
-                                       color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")}}>
+                       <div style={{ visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
+                               color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")
+                            }}
+                            className="save-state-message"
+                            title={saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}>
                             { /* This inline constant is just to take up some space, it is diliberately hidden
                                  but is a reasonable message to for to users if it was ever accidentally shown */
-                                saveStateMsg === '' ? 'Remember to save often' : saveStateMsg
+                                <span>{saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}</span>
                             }
-                        </span>
+                        </div>
                         {googleId
                             ?
                                 <span className="google-assignment-name"
