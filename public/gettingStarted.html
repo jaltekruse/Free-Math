@@ -51,6 +51,17 @@ http://mozilla.org/MPL/2.0/
 -->
 <html>
 <head>
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-70441517-2', 'auto');
+</script>
+<!-- End Google Analytics -->
+
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script>
 <script>
@@ -60,8 +71,6 @@ http://mozilla.org/MPL/2.0/
 
   gtag('config', 'UA-70441517-2');
 </script>
-
-<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
 
 <meta name="viewport" content="width=624">
 <meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
@@ -217,36 +226,47 @@ http://mozilla.org/MPL/2.0/
                     </p>
                     Moodle (
                         <a href="https://www.umass.edu/it/support/moodle/downloadallstudentsubmissionsamoodleassignment"
+                           onclick="(function(){ga('send', 'event', 'Tutorial', 'moodle', 'moodle download');})();"
                            target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
                         <a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle#Upload%20Multiple%20Feedback%20Files%20Using%20a%20.Zip%20File"
+                           onclick="(function(){ga('send', 'event', 'Tutorial', 'moodle', 'moodle upload');})();"
                            target="_blank" rel="noopener noreferrer">Upload</a>
                     )
                     <br />
                     <a href="googleClassroom.html"
+                       onclick="(function(){ga('send', 'event', 'Tutorial', 'google classroom', 'google classroom');})();"
                        target="_blank" rel="noopener noreferrer">Google Classroom</a>
                     <br />
                     Canvas (
                         <a href="https://community.canvaslms.com/docs/DOC-12813"
+                           onclick="(function(){ga('send', 'event', 'Tutorial', 'canvas', 'canvas download');})();"
                            target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
                         <a href="https://community.canvaslms.com/docs/DOC-10003-415275096"
+                           onclick="(function(){ga('send', 'event', 'Tutorial', 'canvas', 'canvas upload');})();"
                            target="_blank" rel="noopener noreferrer">Upload</a>
                     )
                     <br />
                     <a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online"
+                       onclick="(function(){ga('send', 'event', 'Tutorial', 'blackboard', 'blackboard');})();"
                        target="_blank" rel="noopener noreferrer">Blackboard</a>
                     <br />
                     D2L (
-                    <a href="https://distancelearning.elgin.edu/d2ltutorials/d2l_10_3_faculty_guides/en/downloading-dropbox-folder-submission-files.html"
-                       target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
+                       <a href="https://distancelearning.elgin.edu/d2ltutorials/d2l_10_3_faculty_guides/en/downloading-dropbox-folder-submission-files.html"
+                            onclick="(function(){ga('send', 'event', 'Tutorial', 'd2l', 'd2l download');})();"
+                            target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
                         <a href="https://distancelearning.elgin.edu/d2ltutorials/d2l_10_3_faculty_guides/en/uploading-attaching-feedback-from-downloaded-submission-files.html"
-                           target="_blank" rel="noopener noreferrer">Upload</a>
+                            onclick="(function(){ga('send', 'event', 'Tutorial', 'd2l', 'd2l upload');})();"
+                            target="_blank" rel="noopener noreferrer">Upload</a>
                     )
                     <br />
                     <a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-"
+                       onclick="(function(){ga('send', 'event', 'Tutorial', 'schoology', 'schoology');})();"
                        target="_blank" rel="noopener noreferrer">Schoology</a>
                     <br/>
                     <br/>
-                    <a href="https://www.wikihow.com/Make-a-Zip-File" target="_blank">
+                    <a href="https://www.wikihow.com/Make-a-Zip-File"
+                       onclick="(function(){ga('send', 'event', 'Tutorial', 'zip files', 'zip files');})();"
+                       target="_blank">
                         General Information on zip files
                     </a>
                     <br/>
