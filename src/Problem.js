@@ -168,25 +168,6 @@ class ImageUploader extends React.Component {
         const steps = this.props.value[STEPS];
         const lastStep = steps[steps.length - 1];
         const lastStepIndex = steps.length - 1;
-        const addImageToEnd = function(imgFile) {
-            var objUrl = window.URL.createObjectURL(imgFile);
-            if (( typeof lastStep[FORMAT] === 'undefined'
-                  || lastStep[FORMAT] === "MATH"
-                )
-                && lastStep[CONTENT] === '') {
-                window.store.dispatch(
-                    { type : "INSERT_STEP_ABOVE",
-                      "PROBLEM_INDEX" : problemIndex,
-                      STEP_KEY: lastStepIndex,
-                      FORMAT: "IMG", CONTENT: objUrl} );
-            } else {
-                window.store.dispatch(
-                    { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
-                      STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
-                window.store.dispatch(
-                    { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
-            }
-        }
 		return (
             <div style={{display:"inline-block"}}>
                 <span>Type math below&nbsp;</span>
@@ -194,7 +175,7 @@ class ImageUploader extends React.Component {
                        handlePicUploadCallback={function(evt) {
                             addNewImage(evt, steps, lastStepIndex, problemIndex,
                                 function(imgFile, stepIndex, problemIndex, steps) {
-                                    addImageToEnd(imgFile);
+                                    addImageToEnd(imgFile, problemIndex, steps);
                                 }
                             );
                        }}
@@ -206,7 +187,7 @@ class ImageUploader extends React.Component {
                               Resizer.imageFileResizer(
                                   imgFile, 1200, 1200, 'JPEG', 80, 0,
                                   imgFile => {
-                                      addImageToEnd(imgFile);
+                                    addImageToEnd(imgFile, problemIndex, steps);
                                   },
                                   'blob'
                               );
@@ -264,6 +245,28 @@ function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
             },
             'blob'
         );
+    }
+}
+
+function addImageToEnd(imgFile, problemIndex, steps) {
+    const lastStep = steps[steps.length - 1];
+    const lastStepIndex = steps.length - 1;
+    var objUrl = window.URL.createObjectURL(imgFile);
+    if (( typeof lastStep[FORMAT] === 'undefined'
+          || lastStep[FORMAT] === "MATH"
+        )
+        && lastStep[CONTENT] === '') {
+        window.store.dispatch(
+            { type : "INSERT_STEP_ABOVE",
+              "PROBLEM_INDEX" : problemIndex,
+              STEP_KEY: lastStepIndex,
+              FORMAT: "IMG", CONTENT: objUrl} );
+    } else {
+        window.store.dispatch(
+            { type : "NEW_STEP", "PROBLEM_INDEX" : problemIndex,
+              STEP_DATA : {FORMAT: "IMG", CONTENT : objUrl} });
+        window.store.dispatch(
+            { type : "NEW_BLANK_STEP", "PROBLEM_INDEX" : problemIndex });
     }
 }
 
@@ -357,6 +360,7 @@ class WebcamCapture extends React.Component {
                         onClick={function() {
                             this.setState({takingPicture : true});
                       }.bind(this)} />&nbsp;
+                    Paste an image from the clipboard with ctrl+v,&nbsp;
                     <div style={{display: 'inline-block'}}>
                         or upload one&nbsp;
                         <input type="file" accept="*" onChange={
@@ -1134,4 +1138,4 @@ function problemListReducer(probList, action) {
     }
 }
 
-export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage };
+export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage, addImageToEnd };

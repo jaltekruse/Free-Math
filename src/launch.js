@@ -1,12 +1,19 @@
 import { createStore } from 'redux';
 import './index.css';
-import { rootReducer, ephemeralStateReducer } from './FreeMath';
+import { getCompositeState, rootReducer, ephemeralStateReducer } from './FreeMath';
 import { render, loadDemoGrading, checkAllSaved } from './DefaultHomepageActions';
 import { autoSave } from './FreeMath.js';
+import { addImageToEnd} from './Problem.js';
 import { unregister } from './registerServiceWorker';
 import URLSearchParams from '@ungap/url-search-params'
 
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
+var APP_MODE = 'APP_MODE';
+var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+
+var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
+var STEPS = 'STEPS';
+var PROBLEMS = 'PROBLEMS';
 
 window.onload = function() {
     /* No longer necessary, figured out how to set up server level https
@@ -39,6 +46,24 @@ window.onload = function() {
         window.ga('send', 'event', 'Demos', 'open', 'Teacher Demo');
         loadDemoGrading();
     }
+    document.onpaste = function(event){
+      var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+      console.log(JSON.stringify(items)); // will give you the mime types
+      for (var index in items) {
+        var item = items[index];
+        if (item.kind === 'file') {
+            var blob = item.getAsFile();
+            console.log(event.target.result);
+            const rootState = getCompositeState();
+            if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
+                addImageToEnd(blob,
+                              rootState[CURRENT_PROBLEM],
+                              rootState[PROBLEMS][rootState[CURRENT_PROBLEM]][STEPS]);
+            }
+        }
+      }
+    }
+
     render();
 };
 unregister();
