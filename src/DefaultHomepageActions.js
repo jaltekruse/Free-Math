@@ -526,7 +526,7 @@ class UserActions extends React.Component {
                                         }
                                     }
                                     // Note for handling nav away from grading, this is cleared in LogoNavHome
-                                    window.checkUnsumitsInterval = setInterval(checkForUnsubmits, 1000 * 10);
+                                    window.checkUnsumitsInterval = setInterval(checkForUnsubmits, 1000 * 120);
 
                                     var aggregatedWork = aggregateStudentWork(allStudentWork);
                                     this.closeSpinner();
