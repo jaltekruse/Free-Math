@@ -757,7 +757,7 @@ class UserActions extends React.Component {
                           GOOGLE_CLASS_LIST : undefined});
                     console.log(assignment);
                     if ( ! assignment.assignment ) {
-                        alert("You do not have permissions to grade this assignment.");
+                        alert("There are no student submissions yet, or you do not have permissions to grade this assignment.");
                         return;
                     }
                     openDriveAssignments(assignment);
