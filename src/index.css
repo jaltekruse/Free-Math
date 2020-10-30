@@ -5,7 +5,7 @@ Copied from persus project
   left: -2px;
   position: absolute;
   top: -3px;
-  z-index: 5;
+  z-index: 101;
 }
 .tex-button {
   display: block;
@@ -520,7 +520,7 @@ div.problem-container {
       right: -200px;
       position: absolute;
       top: -3px;
-      z-index: 5;
+      z-index: 101;
     }
     .homepage-disappear-mobile {
         display:none

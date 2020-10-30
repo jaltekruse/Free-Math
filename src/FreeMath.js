@@ -812,6 +812,14 @@ class FreeMath extends React.Component {
               <div>
                   <AssignmentEditorMenubar value={this.props.value}/>
                   <Assignment value={this.props.value}/>
+                  <a href="launch.html?mode=studentDemo" target="_blank"
+                          className="fm-button"
+                          style={{display:"block", position:"fixed", bottom:"0",
+                                  right:"0", zIndex: "100",
+                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
+                                  margin: "0 30px 30px 0", width: "85px"}}>
+                        Site Feedback
+                    </a>
               </div>
           );
       } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
