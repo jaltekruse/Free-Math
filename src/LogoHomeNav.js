@@ -10,7 +10,8 @@ class LogoHomeNav extends React.Component {
                     <h3 className="freemath-logo-text" style={{display:"inline", color: "#eee"}}>
                         <div style={{padding: "3px"}}>
                         <span className="katex">
-                            <span className="mord">Free&nbsp;Math</span>
+                            <span className="mord homepage-disappear-mobile">Free&nbsp;Math</span>
+                            <span className="mord homepage-only-on-mobile">FM</span>
                         </span>
                         </div>
                     </h3>

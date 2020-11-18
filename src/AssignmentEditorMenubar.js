@@ -815,14 +815,14 @@ class AssignmentEditorMenubar extends React.Component {
                     selectSubmissionCallback={selectSubmissionCallback}
                     ref="submissionSelector"/>
                 <div style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
-                    <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <LogoHomeNav /> &nbsp;&nbsp;
 
-                  <div className="navBarElms" style={{float: "right",  marginTop: "0px",
+                  <div className="navBarElms" style={{display: "inline-block", float: "right",  marginTop: "0px",
                                                       verticalAlign:"top", lineHeight : 1}}>
                    <div style={{ visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
                            color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")
                         }}
-                        className="save-state-message"
+                        className="save-state-message homepage-disappear-mobile"
                         title={saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}>
                         { /* This inline constant is just to take up some space, it is diliberately hidden
                              but is a reasonable message to for to users if it was ever accidentally shown */

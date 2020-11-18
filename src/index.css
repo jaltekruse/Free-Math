@@ -463,7 +463,8 @@ div.problem-container {
     /* for display on moblie when items flow to next line, given them
      * some margin */
     .navBarItem {
-        margin-top: 5px
+        margin-top: 5px;
+        display: inline-block
     }
 
     .webcam-capture {
