@@ -85,41 +85,46 @@ it('test demo creation, undo/redo bug', () => {
 
     const expected = {
         "APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-        "GOOGLE_DRIVE_STATE": "ALL_SAVED",
         "PROBLEMS": [
             {"PROBLEM_NUMBER": "", "REDO_STACK": [], "STEPS": [{"CONTENT": "", FORMAT: "MATH"}], "UNDO_STACK": []}
         ],
-        "BUTTON_GROUP": "BASIC",
         "CURRENT_PROBLEM": 0
     };
 
     compareOverallEditorState(
+        newAssignment,
         expected,
-        newAssignment
     );
 
     const withDemoProb = rootReducer(newAssignment, {type : ADD_DEMO_PROBLEM});
 
     const expectedDemo = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                          "BUTTON_GROUP": "BASIC",
                           "CURRENT_PROBLEM": 0,
-                          "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                           "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
                           "SHOW_TUTORIAL": true, "STEPS": [
                               {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111}
-                          ], "UNDO_STACK": []}]};
+                          ], "UNDO_STACK": []}, {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                },]};
 
     compareOverallEditorState(
+        withDemoProb,
         expectedDemo,
-        withDemoProb
     );
 
     const afterNextStep = rootReducer(expectedDemo, {type : NEW_STEP, PROBLEM_INDEX : 0});
 
     const expectedState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                          "BUTTON_GROUP": "BASIC",
                           "CURRENT_PROBLEM": 0,
-                          "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                           "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
                           "SHOW_TUTORIAL": true,
                           "STEPS": [
@@ -128,18 +133,30 @@ it('test demo creation, undo/redo bug', () => {
                           ],
                           "UNDO_STACK": [
                               { "INVERSE_ACTION": {"PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"},
-                                "STEP_KEY": 1, "type": "DELETE_STEP"}]}]};
+                                "STEP_KEY": 1, "type": "DELETE_STEP"}]},
+                          {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }
+                          ]};
 
     compareOverallEditorState(
+        afterNextStep,
         expectedState,
-        afterNextStep
     );
 
     const afterFirstUndo = rootReducer(afterNextStep, {type : "UNDO", PROBLEM_INDEX : 0});
 
     const expectedUndoState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
-                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
+                               "DOC_ID": 105916232, "CURRENT_PROBLEM": 0,
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
@@ -152,18 +169,29 @@ it('test demo creation, undo/redo bug', () => {
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
                                         {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
-                                     ], "UNDO_STACK": []}]};
+                                     ], "UNDO_STACK": []},
+                                {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }]};
 
     compareOverallEditorState(
+        afterFirstUndo,
         expectedUndoState,
-        afterFirstUndo
     );
 
     const afterSecondUndo = rootReducer(afterFirstUndo, {type : "UNDO", PROBLEM_INDEX : 0});
 
     const expectedUndoState2 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
-                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
+                               "DOC_ID": 105916232, "CURRENT_PROBLEM": 0,
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
@@ -176,19 +204,30 @@ it('test demo creation, undo/redo bug', () => {
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
                                         {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
-                                     ], "UNDO_STACK": []}]};
+                                     ], "UNDO_STACK": []},
+                                {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }]};
 
     compareOverallEditorState(
+        afterSecondUndo,
         expectedUndoState2,
-        afterSecondUndo
     );
 
     const afterThirdUndo = rootReducer(afterSecondUndo, {type : "UNDO", PROBLEM_INDEX : 0});
 
     const expectedUndoState3 =
         {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
-                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
+                               "DOC_ID": 105916232, "CURRENT_PROBLEM": 0,
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
@@ -199,11 +238,23 @@ it('test demo creation, undo/redo bug', () => {
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
                                         {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
-                                     ], "UNDO_STACK": []}]};
+                                     ], "UNDO_STACK": []},
+                                {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }]};
 
     compareOverallEditorState(
+        afterThirdUndo,
         expectedUndoState3,
-        afterThirdUndo
     );
 });
 
