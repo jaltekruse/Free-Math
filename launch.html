@@ -310,12 +310,12 @@
             function(responseXhr) {
                 try {
                     var resp = JSON.parse(responseXhr.responseText);
-                    window.ga('send', 'exception', { 'exDescription' : resp.error.message } );
+                    window.ga('send', 'exception', { 'exDescription' : url + ' ' + resp.error.message } );
 
                     if (alertOnFailure) alert(resp.error.message);
                 } catch(e) {
                     console.log(e);
-                    window.ga('send', 'exception', { 'exDescription' : 'google request failure: ' + responseXhr.responseText } );
+                    window.ga('send', 'exception', { 'exDescription' : url + ' ' + 'google request failure: ' + responseXhr.responseText } );
 
                     if (alertOnFailure) alert("Failure during request to Google.\n\n" + responseXhr.responseText);
                 }
@@ -331,12 +331,12 @@
             function(responseXhr) {
                 try {
                     var resp = JSON.parse(responseXhr.responseText);
-                    window.ga('send', 'exception', { 'exDescription' : resp.error.message } );
+                    window.ga('send', 'exception', { 'exDescription' : url + ' ' + resp.error.message } );
 
                     if (alertOnFailure) alert(resp.error.message);
                 } catch(e) {
                     console.log(e);
-                    window.ga('send', 'exception', { 'exDescription' : 'google request failure: ' + responseXhr.responseText } );
+                    window.ga('send', 'exception', { 'exDescription' : url + ' ' + 'google request failure: ' + responseXhr.responseText } );
 
                     if (alertOnFailure) alert("Failure during request to Google.\n\n" + responseXhr.responseText);
                 }
