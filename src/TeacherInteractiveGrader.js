@@ -755,7 +755,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         }
     }
 
-    let CONCURRENT_REQUESTS = 15;
+    let CONCURRENT_REQUESTS = 5;
     let i;
     for (i = 0; i < CONCURRENT_REQUESTS && uploadQueue.length > 0; i++) {
         let filename = uploadQueue.pop();

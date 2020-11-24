@@ -587,7 +587,7 @@ class UserActions extends React.Component {
                                 this.closeSpinner();
                                 return;
                             }
-                            let CONCURRENT_REQUESTS = 15;
+                            let CONCURRENT_REQUESTS = 5;
                             let i;
                             for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
                                 let next = downloadQueue.pop();
