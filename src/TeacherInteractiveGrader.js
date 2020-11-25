@@ -695,8 +695,16 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             // so it isn't siplayed to users, it can still block completion, but I think
             // users would be comfused if the count didn't match the number of students
             // and I don't think it makes sense to add text to explain it
-            let allLoaded = checkFilesLoaded();
-    });
+            checkFilesLoaded();
+        },
+        function() {
+            console.log("failed saving one student doc");
+            errorsSaving++;
+            // TODO - limit number of retries?
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+            checkFilesLoaded();
+        }
+    );
 
     let currentAppMode = gradedWork[APP_MODE];
     var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
