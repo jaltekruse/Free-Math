@@ -524,13 +524,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                             window.ephemeralStore.dispatch(
                                 {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
                         } else  if (pendingSaves === 0) {
-                            // force a repaint so that the popup doesn't show (n-1) successful saves
-                            // while waiting for the user to clear the alert
-                            window.setTimeout(function() {
-                                alert("Successfully saved grades and feedback.")
-                                window.ephemeralStore.dispatch(
-                                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
-                            }, 10);
+                            // moved this code to TeacherInteractiveGrader.saveBackToClassroom()
                         }
                     }, onFailure);
                 // TODO - tie into network requests below "saveBackToClassroom"

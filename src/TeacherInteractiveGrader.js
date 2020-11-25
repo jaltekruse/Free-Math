@@ -665,12 +665,21 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             }
             */
             if (errorsSaving) {
-                alert("One or more student docs failed to save, please try again");
+                alert("One or more student docs failed to save, please try again after a few minutes.");
+                onFailure();
+            } else {
+                onSuccess();
+                // force a repaint so that the popup doesn't show (n-1) successful saves
+                // while waiting for the user to clear the alert
+                window.setTimeout(function() {
+                    alert("Successfully saved grades and feedback.")
+                    window.ephemeralStore.dispatch(
+                        {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
+                }, 10);
             }
             window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
                 CLASSROOM_TOTAL_TO_SAVE: 0
             });
-            onSuccess();
         }
     }
 
@@ -767,150 +776,16 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     });
 }
 
-// TODO - not currently used, there are some issues with the merging
-function saveBackToClassroomMerging(gradedWork, onSuccess, onFailure) {
-    let currentAppMode = gradedWork[APP_MODE];
-    var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
-
-    // clear previous value, although this is supposed to be zero before this is called
-    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
-        CLASSROOM_TOTAL_TO_SAVE: 0
-    });
-    window.ephemeralStore.dispatch({ type: RESET_CLASSROOM_SAVING_COUNT });
-
-    var totalToSave = 0;
-    var errorsSaving = 0;
-    var unsubmittedStudents = [];
-    const saveStudentAssignment = function(filename, onSuccess, onFailure) {
-        console.log("saveStudentDocToDriveResolvingConflicts");
-        saveStudentDocToDriveResolvingConflicts(
-            false,
-            filename,
-            function() {
-                let tempSeparatedAssignments = separateIndividualStudentAssignments(
-                    getPersistentState());
-                return tempSeparatedAssignments[filename];
-            },
-            function() { return filename },
-            onSuccess, onFailure,
-            // TODO - I took this concept out trying to fix a bug with dissapearing edits
-            // between when the merge happened and the save wa successful
-            // - this caused other problems so just totally disabling merging for both uers
-            //   for now
-            function(mergedDoc) {
-                console.log("------------=============----------------");
-                console.log("should be merged");
-                console.log(separatedAssignments);
-                let tempRootState = getPersistentState();
-
-                // might not be in the right app state by the time the save request finishes
-                // if so, abort the action to set the app state to the newly saved merged doc
-                // most likely this is a navigation back to home
-                // TODO ... but it might be opening the view grades or similar doc view
-                // this would be simplified if I just didn't let people close the saving overlay which
-                // prevents other actions while save is still in progress...
-                if (tempRootState[APP_MODE] !== currentAppMode) {
-                    console.log("app mode changed aborting save");
-                    onFailure();
-                    return;
-                }
-
-                let tempSeparatedAssignments = separateIndividualStudentAssignments(
-                    tempRootState);
-                tempSeparatedAssignments[filename] = mergedDoc;
-                var allStudentWork = [];
-                for (let filename in tempSeparatedAssignments) {
-                    if (tempSeparatedAssignments.hasOwnProperty(filename)) {
-                        allStudentWork.push(
-                            {STUDENT_FILE : filename,
-                                ASSIGNMENT : tempSeparatedAssignments[filename][PROBLEMS]});
-                    }
-                }
-                var aggregatedWork = aggregateStudentWork(allStudentWork);
-                console.log("opened docs");
-
-                //console.log(aggregatedWork);
-                // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
-                // from before this call, but defensively re-setting ti anyway. This was previously set as part
-                // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
-                window.ephemeralStore.dispatch(
-                    {type : SET_GOOGLE_ID, GOOGLE_ID: gradedWork[GOOGLE_ID]});
-
-                window.store.dispatch(
-                    { type : SET_ASSIGNMENTS_TO_GRADE,
-                      DOC_ID : gradedWork[DOC_ID],
-                      NEW_STATE :
-                        // TODO - fix filename
-                        {...aggregatedWork, GOOGLE_ORIGIN_SERVICE : 'CLASSROOM',
-                            // ALL_SAVED here is a bit hacky, there might still be pending
-                            // saves of the other student docs, the status will switch back
-                            // to SAVING based on the onSuccess method back in FreeMath.autoSave
-                            // conditioned on there being more pendingSaves
-                            // setting ALL_SAVED here prevents autoSave from generating another event
-                            // to save in response to this action
-                            //GOOGLE_DRIVE_STATE : ALL_SAVED,
-                            ASSIGNMENT_NAME: 'merged student work'}});
-            }
-        );
-    }
-    const onIndividualFileSuccess = function() {
-        console.log("successful save");
-        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
-    }
-    const onIndividualFailure = function(filename) {
-        console.log("failed saving one student doc");
-        errorsSaving++;
-        // TODO - limit number of retries?
-        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
-    }
-    const onFailureWrapped = function(filename) {
-        return function() {
-            return onIndividualFailure(filename);
-        }
-    };
-    for (let filename in separatedAssignments) {
-        if (separatedAssignments.hasOwnProperty(filename)) {
-            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
-            totalToSave++;
-            console.log("queued save");
-            saveStudentAssignment(filename, onIndividualFileSuccess, onFailureWrapped(filename));
-        }
-    }
-    window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
-        CLASSROOM_TOTAL_TO_SAVE: totalToSave
-    });
-    var checkFilesLoaded = function() {
-        console.log("check all saved");
-        var filesBeingSaved = getEphemeralState()[CLASSROOM_SAVING_COUNT];
-        if (filesBeingSaved === 0) {
-            /* TODO - likely delete, teachers don't lose access on unsubmit
-            if (unsubmittedStudents.length > 0) {
-                alert('Could not save some feedback some students, they may have unsumitted, removing them from the page. \n'
-                      + JSON.stringify(unsubmittedStudents));
-            }
-            */
-            if (errorsSaving) {
-                alert("One or more student docs failed to save, please try again");
-            }
-            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,
-                CLASSROOM_TOTAL_TO_SAVE: 0
-            });
-            onSuccess();
-            return;
-        } else {
-            // if not all of the images are loaded, check again in 50 milliseconds
-            setTimeout(checkFilesLoaded, 50);
-        }
-    }
-    checkFilesLoaded();
-}
-
 function saveGradedStudentWork(gradedWork) {
     saveGradedStudentWorkToBlob(gradedWork, function(finalBlob) {
         saveAs(finalBlob, getPersistentState()[ASSIGNMENT_NAME] + '.zip');
     });
 }
 
+// NOTE - currently unused, thought saving to drive would be confusing while the classroom features
+// existed
+// Could consider re-enabling now that the grading experience is stateful and knows when it is
+// working with classroom, so could allow this for non-classroom grading sessions
 function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = function() {}) {
     if (gradedWork === undefined) {
         console.log("no graded assignments to save");
@@ -940,6 +815,7 @@ function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = funct
         }
     }
 
+    // TODO - this pattern doesn't work as intended
     var checkFilesLoaded = function() {
         if (filesBeingAddedToZip === 0) {
             var finalBlob = zip.generate({type: 'blob'});

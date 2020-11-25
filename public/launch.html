@@ -319,7 +319,7 @@ ga('create', 'UA-70441517-2', 'auto');
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
-        var accessToken = gapi.auth.getToken().access_token;
+        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
         let url = 'https://classroom.googleapis.com/batch';
 
         var payload = new FormData();
@@ -392,7 +392,7 @@ ga('create', 'UA-70441517-2', 'auto');
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
-        var accessToken = gapi.auth.getToken().access_token;
+        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
           var docsView = new google.picker.DocsView();
           if (folder) {
               docsView.setParent(folder);
@@ -473,7 +473,7 @@ ga('create', 'UA-70441517-2', 'auto');
             handleAuthClick();
         }
 
-        var accessToken = gapi.auth.getToken().access_token;
+        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
         var xhr = new XMLHttpRequest();
         xhr.open(verb, url);
         xhr.overrideMimeType(mime);
@@ -488,6 +488,11 @@ ga('create', 'UA-70441517-2', 'auto');
                         errorCallback(this);
                         console.log(e);
                     }
+                } else if (this.status == 401 && this.responseText.includes('Request had invalid authentication credentials')){
+                    var authPromise = gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse();
+                    authPromise.then(function(AuthResponse) {
+                        googleRequest(url, verb, payload, mime, callback, errorCallback);
+                    });
                 } else {
                     console.log(this.responseText);
                     errorCallback(this);
