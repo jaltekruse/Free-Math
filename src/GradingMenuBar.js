@@ -71,6 +71,12 @@ class GradingMenuBar extends React.Component {
                     );
                 }
             }
+            // TODO - old code, may bring back, this was for allong saving a graded zip to drive,
+            // I thought it would be confusing to have this along with the classroom features.
+            // Could consider re-enabling now that the grading experience is stateful and knows when it is
+            // working with classroom, so could allow this for non-classroom grading sessions as lots
+            // of people have personal google accounts and would be useful for users of other LMSes
+            /*
             const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
             window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
                 saveCallback,
@@ -86,6 +92,7 @@ class GradingMenuBar extends React.Component {
                     //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
                     window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
                 });
+            */
         }.bind(this), 250);
     }
 
