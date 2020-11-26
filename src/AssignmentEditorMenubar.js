@@ -512,7 +512,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
             return (
                 <div>
                 <div>Pick a class</div>
-                <div style={{overflow:"auto", maxHeight: "90vh", minHeight:"400px", minWidth:"500px"}}>
+                <div style={{overflow:"auto", maxHeight: "80vh", minHeight:"400px", minWidth:"500px"}}>
                 {rootState[GOOGLE_CLASS_LIST].courses
                     .map(function(classInfo, index) {
                         return (
@@ -587,7 +587,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                     <div>
                         Pick an assignment - {rootState[GOOGLE_SELECTED_CLASS_NAME]}
                     </div>
-                    <div style={{overflow:"auto", maxHeight: "90vh", minHeight:"400px", minWidth:"500px"}}>
+                    <div style={{overflow:"auto", maxHeight: "80vh", minHeight:"400px", minWidth:"500px"}}>
                         {rootState[GOOGLE_ASSIGNMENT_LIST].courseWork
                             .map(function(assignment, index) {
                                 return (

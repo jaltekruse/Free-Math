@@ -63,6 +63,8 @@ var REDO_STACK = 'REDO_STACK';
 var STEP_ID = 'STEP_ID';
 
 var GRADING_OVERVIEW = 'GRADING_OVERVIEW';
+var ALL_PROBLEMS = 'ALL_PROBLEMS';
+var PROBLEM_SCORES_GRID = 'PROBLEM_SCORES_GRID';
 
 var VIEW_GRADES = 'VIEW_GRADES';
 var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
@@ -149,8 +151,11 @@ var SHOW_GOOGLE_VIDEO = 'SHOW_GOOGLE_VIDEO';
  *    {
  *       STUDENT_GRADES : { "student_name_from_filename" : 6, "other_student_name" : 8 },
  *       GOOGLE_STUDENT_GRADES : { "student_submission_id" : 6, "student_submission_id" : 8 },
+ *       ALL_PROBLEMS : [ { PROBLEM_NUMBER : "1", POSSIBLE_POINTS : "4"}, ...]
+ *       PROBLEM_SCORES_GRID : { "student_name" : { "1": "4", "3": "2" }  }
  *       POSSIBLE_POINTS : 10,
  *    }
+ *    TODO - sort the problem numbers when they aren't simple numbers
  */
 // PROBLEMS : { "1.a" : {
 //      "POSSIBLE_POINTS : 3,
@@ -169,6 +174,8 @@ function calculateGrades(allProblems) {
     // is which, but at least having this lookup and still doing the aggregation by file ID the
     // students won't be merged into a mega-student with their scores combined
     var googleFileIdsToStudentNames = {};
+    var problemScoresGrid = {}
+    var allProblemsSummary = []
 
     var handleSingleSolution =
         function(singleSolution, index, arr) {
@@ -177,12 +184,20 @@ function calculateGrades(allProblems) {
             var studentSubmissionId = singleSolution[STUDENT_SUBMISSION_ID];
             var runningScore = overallGrades[studentAssignmentName];
             runningScore = (typeof runningScore !== 'undefined') ? runningScore : 0;
+            var score;
             // empty string is considered ungraded, which defaults to "complete" and full credit
             if (singleSolution[SCORE] === "") {
-                runningScore += possiblePoints;
+                score = possiblePoints;
             } else {
-                runningScore += Number(singleSolution[SCORE]);
+                score = Number(singleSolution[SCORE]);
             }
+            runningScore += score;
+
+            var studentScores = problemScoresGrid[studentAssignmentName];
+            var studentScores = (typeof studentScores !== 'undefined') ? studentScores : {};
+            studentScores[singleSolution[PROBLEM_NUMBER]] = score;
+            problemScoresGrid[studentAssignmentName] = studentScores;
+
             overallGrades[studentAssignmentName] = runningScore;
             overallGradesForGoogle[studentSubmissionId] = runningScore;
         };
@@ -195,6 +210,8 @@ function calculateGrades(allProblems) {
 
     for (var problemNumber in allProblems) {
         if (allProblems.hasOwnProperty(problemNumber)) {
+            allProblemsSummary.push( { PROBLEM_NUMBER : problemNumber,
+                                       POSSIBLE_POINTS : allProblems[problemNumber][POSSIBLE_POINTS] });
             var possiblePoints = Number(allProblems[problemNumber][POSSIBLE_POINTS]);
             totalPossiblePoints += possiblePoints;
             var uniqueAnswers = allProblems[problemNumber][UNIQUE_ANSWERS];
@@ -205,14 +222,18 @@ function calculateGrades(allProblems) {
         if (overallGrades.hasOwnProperty(singleStudent)) {
             if (googleFileIdsToStudentNames[singleStudent]) {
                 overallGrades[googleFileIdsToStudentNames[singleStudent]] = overallGrades[singleStudent];
+                problemScoresGrid[googleFileIdsToStudentNames[singleStudent]] = problemScoresGrid[singleStudent];
                 delete overallGrades[singleStudent];
             }
         }
     }
+    // TODO - sort problems by number
     return {
         STUDENT_GRADES : overallGrades,
         GOOGLE_STUDENT_GRADES : overallGradesForGoogle,
-        POSSIBLE_POINTS : totalPossiblePoints
+        POSSIBLE_POINTS : totalPossiblePoints,
+        PROBLEM_SCORES_GRID : problemScoresGrid,
+        ALL_PROBLEMS : allProblemsSummary
     };
 }
 
@@ -255,6 +276,7 @@ function gradingReducer(state, action) {
         // also disable or hide the button when student is working on an assignment
         var grades = calculateGrades(state[PROBLEMS]);
         // leave existing entries in the state, so users can navigate back to grading
+        console.log(grades);
         return {
             ...state,
             GRADE_INFO : grades,
@@ -1556,6 +1578,15 @@ class SimilarGroupSelector extends React.Component {
     }
 }
 
+/*
+ *    {
+ *       STUDENT_GRADES : { "student_name_from_filename" : 6, "other_student_name" : 8 },
+ *       GOOGLE_STUDENT_GRADES : { "student_submission_id" : 6, "student_submission_id" : 8 },
+ *       ALL_PROBLEMS : [ { PROBLEM_NUMBER : "1", POSSIBLE_POINTS : "4"}, ...]
+ *       PROBLEM_SCORES_GRID : { "student_name" : { "1": "4", "3": "2" }  }
+ *       POSSIBLE_POINTS : 10,
+ *    }
+ */
 class GradesView extends React.Component {
     render() {
         var props = this.props;
@@ -1563,7 +1594,17 @@ class GradesView extends React.Component {
             <div style={{margin:"60px 30px 30px 30px"}}>
                 <table>
                     <thead>
-                    <tr><th>Student File</th><th>Score</th></tr>
+                    <tr><th style={{padding: "10px"}}>Student File</th><th style={{padding: "10px"}}>Overall Score</th>
+                        {
+                            props.value[GRADE_INFO][ALL_PROBLEMS].map(function(problem, index, array) {
+                                return (
+                                    <th style={{padding: "10px"}}>
+                                        <b>{problem[PROBLEM_NUMBER]}</b>
+                                        <br /><small>Pts. ({problem[POSSIBLE_POINTS]})</small></th>
+                                )
+                            })
+                        }
+                    </tr>
                     </thead>
                     <tbody>
                     {
@@ -1574,8 +1615,16 @@ class GradesView extends React.Component {
                                 if (grades.hasOwnProperty(studentFileName)) {
                                     tableRows.push(
                                     (<tr key={studentFileName}>
-                                        <td>{studentFileName}</td>
-                                        <td>{grades[studentFileName]}</td>
+                                        <td style={{padding: "10px"}}>{studentFileName}</td>
+                                        <td style={{padding: "10px"}}>{grades[studentFileName]}</td>
+                                        {
+                                            props.value[GRADE_INFO][ALL_PROBLEMS].map(function(problem, index, array) {
+                                                var studentScores = props.value[GRADE_INFO][PROBLEM_SCORES_GRID][studentFileName];
+                                                return (
+                                                    <td style={{padding: "10px"}}>{studentScores[problem[PROBLEM_NUMBER]]}</td>
+                                                )
+                                            })
+                                        }
                                     </tr> ));
                                 }
                             }
