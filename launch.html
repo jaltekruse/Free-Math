@@ -196,7 +196,7 @@
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
-        var accessToken = gapi.auth.getToken().access_token;
+        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
         let url = 'https://classroom.googleapis.com/batch';
 
         var payload = new FormData();
@@ -269,7 +269,7 @@
             alert('Need to authorize access to Google Services.');
             handleAuthClick();
         }
-        var accessToken = gapi.auth.getToken().access_token;
+        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
           var docsView = new google.picker.DocsView();
           if (folder) {
               docsView.setParent(folder);
@@ -350,7 +350,7 @@
             handleAuthClick();
         }
 
-        var accessToken = gapi.auth.getToken().access_token;
+        var accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
         var xhr = new XMLHttpRequest();
         xhr.open(verb, url);
         xhr.overrideMimeType(mime);
@@ -365,6 +365,11 @@
                         errorCallback(this);
                         console.log(e);
                     }
+                } else if (this.status == 401 && this.responseText.includes('Request had invalid authentication credentials')){
+                    var authPromise = gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse();
+                    authPromise.then(function(AuthResponse) {
+                        googleRequest(url, verb, payload, mime, callback, errorCallback);
+                    });
                 } else {
                     console.log(this.responseText);
                     errorCallback(this);
@@ -384,4 +389,4 @@
         } else {
             xhr.send();
         }
-    }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><link rel="stylesheet" href="build/mathquill_ead472c.css"><script type="text/javascript" src="build/mathquill_ead472c.min.js"></script><link rel="stylesheet" href="lib/cropper.min.css"><link rel="stylesheet" href="lib/tui-image-editor.min.css"><link rel="stylesheet" href="lib/tui-color-picker.min.css"><style>.tui-image-editor-controls-buttons{visibility:hidden}</style><link href="/static/css/main.0ad28c8a.css" rel="stylesheet"></head><body style="margin-top:40px;background-color:#f9f9f9"><div id="root"></div><script type="text/javascript" src="/static/js/main.1b542e4e.js"></script></body></html>
+    }</script><script async defer="defer" src="https://apis.google.com/js/api.js" onload="this.onload=function(){},handleClientLoad()" onreadystatechange='"complete"===this.readyState&&this.onload()'></script><link rel="stylesheet" href="build/mathquill_ead472c.css"><script type="text/javascript" src="build/mathquill_ead472c.min.js"></script><link rel="stylesheet" href="lib/cropper.min.css"><link rel="stylesheet" href="lib/tui-image-editor.min.css"><link rel="stylesheet" href="lib/tui-color-picker.min.css"><style>.tui-image-editor-controls-buttons{visibility:hidden}</style><link href="/static/css/main.0ad28c8a.css" rel="stylesheet"></head><body style="margin-top:40px;background-color:#f9f9f9"><div id="root"></div><script type="text/javascript" src="/static/js/main.1a4167c4.js"></script></body></html>
