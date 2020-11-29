@@ -1,14 +1,14 @@
 import React from 'react';
 import GradingMenuBar, { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
-import { GradesView, SimilarDocChecker } from './TeacherInteractiveGrader.js';
 import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
 import { openAssignment, CANNOT_EDIT_SUBMITTED_ERR_MSG} from './AssignmentEditorMenubar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
 import { assignmentReducer } from './Assignment.js';
-import { gradingReducer } from './TeacherInteractiveGrader.js';
 import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGradingOverview,
-                                   saveBackToClassroom } from './TeacherInteractiveGrader.js';
+                                   saveBackToClassroom, gradingReducer,
+                                   GradesView, SimilarDocChecker
+                                 } from './TeacherInteractiveGrader.js';
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
 // Application modes
