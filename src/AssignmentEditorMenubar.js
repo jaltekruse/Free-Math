@@ -516,7 +516,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                 {rootState[GOOGLE_CLASS_LIST].courses
                     .map(function(classInfo, index) {
                         return (
-                            <span>
+                            <span key={classInfo.id}>
                             <Button text={
                                     classInfo.name + " \u00A0  Section: "
                                      + (classInfo.section === undefined ? "None" : classInfo.section) +
