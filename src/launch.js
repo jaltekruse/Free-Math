@@ -33,6 +33,8 @@ var resourceKeys = 'resourceKeys';
 
 // keys from google file details response
 var title = 'title';
+var capabilities = 'capabilities';
+var canEdit = 'canEdit';
 
 window.onload = function() {
     /* No longer necessary, figured out how to set up server level https
@@ -87,10 +89,20 @@ window.onload = function() {
             setTimeout(function() {
                 window.downloadFileNoFailureAlert(driveFileId, true,
                     function(content) {
+                        // temp doc name is overwritten below after getting file metadata from drive
+                        var newDoc = openAssignment(content, "temp doc name", driveFileId);
                         window.downloadFileMetadata(driveFileId,
                             function(response) {
-                                var newDoc = openAssignment(content, response[title], driveFileId);
-
+                                if (!response[capabilities][canEdit]) {
+                                    // TODO - search assignments to find which one is associated with the file
+                                    // to allow making the request for user to unsubmit right here, instead of
+                                    // sending them back to the classroom interface
+                                    //
+                                    // Unfortunately this will require repeated network requests so for now I
+                                    // will skip it
+                                    alert('Cannot edit, you may need to unsubmit over in google ' +
+                                          'classroom or ask for edit permissions.');
+                                }
                                 window.ephemeralStore.dispatch(
                                     { type : MODIFY_GLOBAL_WAITING_MSG,
                                       GLOBAL_WAITING_MSG: false});
