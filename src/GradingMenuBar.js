@@ -5,6 +5,7 @@ import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork, saveGradedStudentWorkToBlob} from './TeacherInteractiveGrader.js';
 import { LightButton, HtmlButton } from './Button.js';
 import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
+import { updateFileWithBinaryContent, createFileWithBinaryContent } from './GoogleApi.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
@@ -45,7 +46,7 @@ class GradingMenuBar extends React.Component {
                 var googleId = getEphemeralState()[GOOGLE_ID];
                 console.log("update in google drive:" + googleId);
                 if (googleId) {
-                    window.updateFileWithBinaryContent (
+                    updateFileWithBinaryContent (
                         persistentState[ASSIGNMENT_NAME] + '.zip',
                         content,
                         googleId,
@@ -57,7 +58,7 @@ class GradingMenuBar extends React.Component {
                         }
                     );
                 } else {
-                    window.createFileWithBinaryContent (
+                    createFileWithBinaryContent (
                         persistentState[ASSIGNMENT_NAME] + '.zip',
                         content,
                         'application/zip',

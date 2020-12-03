@@ -9,6 +9,7 @@ import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGrading
                                    saveBackToClassroom, gradingReducer,
                                    GradesView, SimilarDocChecker
                                  } from './TeacherInteractiveGrader.js';
+import { updateFileWithBinaryContent, reclaimFromClassroom, downloadFile, downloadFileMetadata } from './GoogleApi.js';
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
 // Application modes
@@ -284,7 +285,7 @@ function saveStudentDocToDriveResolvingConflicts(
         currentlyStudent, googleId, docContentCallback, filenameCallback,
         onSuccess, onFailure, handleMergedDoc) {
     let currentAppMode = getPersistentState()[APP_MODE];
-    window.downloadFileMetadata(googleId, function(fileMeta) {
+    downloadFileMetadata(googleId, function(fileMeta) {
         console.log(fileMeta);
 
         const saveToDrive = function(doc) {
@@ -292,7 +293,7 @@ function saveStudentDocToDriveResolvingConflicts(
             console.log(googleId);
             console.log(filenameCallback());
             saveAssignment(doc, function(finalBlob) {
-                window.updateFileWithBinaryContent(
+                updateFileWithBinaryContent(
                     filenameCallback(),
                     finalBlob, googleId, 'application/zip',
                     function() {
@@ -316,7 +317,7 @@ function saveStudentDocToDriveResolvingConflicts(
         if (fileMeta.lastModifyingUser.isAuthenticatedUser) {
             saveToDrive(docContentCallback());
         } else {
-            window.downloadFile(googleId, true,
+            downloadFile(googleId, true,
                 function(response) {
                     var conflictingDoc = openAssignment(response, "filename" /* TODO */);
                     // this does deliberately go grab the app state again, it is called
@@ -476,7 +477,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                             window.ephemeralStore.dispatch(
                                 { type : MODIFY_GLOBAL_WAITING_MSG,
                                   GLOBAL_WAITING_MSG: "Unsubmitting assignment..."});
-                            window.reclaimFromClassroom(
+                            reclaimFromClassroom(
                                 ephemeralState[GOOGLE_SELECTED_CLASS],
                                 ephemeralState[GOOGLE_SELECTED_ASSIGNMENT],
                                 ephemeralState[GOOGLE_SUBMISSION_ID],
@@ -534,7 +535,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                 // after a 2 second timeout below, want to let edit build up for 2 seconds
                 // and then at the end of that we want to auto-save whatever is the current state
                 saveGradedStudentWorkToBlob(getPersistentState(), function(finalBlob) {
-                    window.updateFileWithBinaryContent (
+                    updateFileWithBinaryContent (
                         getPersistentState()[ASSIGNMENT_NAME] + '.zip',
                         finalBlob, googleId, 'application/zip',
                         onSuccess,
@@ -567,7 +568,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
                 saveFunc = function() {
                     let doc = getPersistentState();
                     saveAssignment(doc, function(finalBlob) {
-                        window.updateFileWithBinaryContent(
+                        updateFileWithBinaryContent(
                             doc[ASSIGNMENT_NAME] + '.math',
                             finalBlob, googleId, 'application/zip',
                             onSuccess,

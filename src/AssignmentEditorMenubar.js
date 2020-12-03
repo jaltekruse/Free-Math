@@ -9,6 +9,12 @@ import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
 import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
+import { listGoogleClassroomAssignments,
+         listGoogleClassroomSubmissions,
+         listGoogleClassroomCourses,
+         createFileWithBinaryContent,
+         modifyGoogeClassroomSubmission,
+         turnInToClassroom } from './GoogleApi.js';
 import JSZip from 'jszip';
 
 var STEPS = 'STEPS';
@@ -408,7 +414,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
     window.ephemeralStore.dispatch(
         { type : MODIFY_GLOBAL_WAITING_MSG,
           GLOBAL_WAITING_MSG: "Submitting to Google Classroom..."});
-    window.modifyGoogeClassroomSubmission(
+    modifyGoogeClassroomSubmission(
         selectedClass,
         selectedAssignment,
         submission.id, googleId,
@@ -456,7 +462,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
     }
 
     listClasses = () => {
-        window.listGoogleClassroomCourses(function(response) {
+        listGoogleClassroomCourses(function(response) {
             if ( ! response.courses || response.courses.length === 0) {
                 alert("You are not enrolled in any Google Classroom courses.");
                 // close the modal
@@ -467,7 +473,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
             if (response.courses.length === 1) {
                 var classList = response;
                 var classInfo = response.courses[0];
-                window.listGoogleClassroomAssignments(classInfo.id,
+                listGoogleClassroomAssignments(classInfo.id,
                     function(response) {
                         window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
@@ -524,7 +530,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                      + (classInfo.room === undefined ? "None" : classInfo.room)
                                     }
                                 onClick={function() {
-                                    window.listGoogleClassroomAssignments(classInfo.id,
+                                    listGoogleClassroomAssignments(classInfo.id,
                                         function(response) {
 
                                         window.ephemeralStore.dispatch(
@@ -547,7 +553,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         };
 
         const listSubmissionsSubmitIfOnlyOne = function(assignment) {
-            window.listGoogleClassroomSubmissions(
+            listGoogleClassroomSubmissions(
                 rootState[GOOGLE_SELECTED_CLASS],
                 assignment.id,
                 function(response) {
@@ -641,7 +647,7 @@ function turnInToClassroomWithSpinner(ephemeralState) {
     window.ephemeralStore.dispatch(
         { type : MODIFY_GLOBAL_WAITING_MSG,
           GLOBAL_WAITING_MSG: "Turning in assignment..."});
-    window.turnInToClassroom(
+    turnInToClassroom(
         ephemeralState[GOOGLE_SELECTED_CLASS],
         ephemeralState[GOOGLE_SELECTED_ASSIGNMENT],
         ephemeralState[GOOGLE_SUBMISSION_ID],
@@ -661,6 +667,7 @@ function turnInToClassroomWithSpinner(ephemeralState) {
 
 class AssignmentEditorMenubar extends React.Component {
     componentDidMount() {
+        // TODO - FIXME issue #148 on github
         if (!window.gapi) {
             return;
         }
@@ -706,7 +713,7 @@ class AssignmentEditorMenubar extends React.Component {
                     if (googleId) {
                         saveToLocalStorageOrDrive(0, onSuccessCallback);
                     } else {
-                        window.createFileWithBinaryContent(
+                        createFileWithBinaryContent(
                             this.props.value[ASSIGNMENT_NAME] + '.math',
                             assignment,
                             'application/zip',

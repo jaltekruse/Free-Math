@@ -7,6 +7,7 @@ import { autoSave } from './FreeMath.js';
 import { addImageToEnd} from './Problem.js';
 import { unregister } from './registerServiceWorker';
 import URLSearchParams from '@ungap/url-search-params'
+import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAlert } from './GoogleApi.js';
 
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var APP_MODE = 'APP_MODE';
@@ -46,6 +47,9 @@ window.onload = function() {
     }
     */
     // TODO - remove use of window global var
+    window.handleGoogleClientLoad = handleGoogleClientLoad;
+    window.handleClientLoad();
+
     window.store = createStore(rootReducer);
     window.ephemeralStore = createStore(ephemeralStateReducer);
     window.ephemeralStore.subscribe(render);
@@ -87,11 +91,11 @@ window.onload = function() {
                 }
             };
             setTimeout(function() {
-                window.downloadFileNoFailureAlert(driveFileId, true,
+                downloadFileNoFailureAlert(driveFileId, true,
                     function(content) {
                         // temp doc name is overwritten below after getting file metadata from drive
                         var newDoc = openAssignment(content, "temp doc name", driveFileId);
-                        window.downloadFileMetadata(driveFileId,
+                        downloadFileMetadata(driveFileId,
                             function(response) {
                                 if (!response[capabilities][canEdit]) {
                                     // TODO - search assignments to find which one is associated with the file

@@ -10,6 +10,9 @@ import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
          calculateGrades, removeStudentsFromGradingView } from './TeacherInteractiveGrader.js';
+import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
+         listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
+         listGoogleClassroomSubmissionsNoFailureAlert } from './GoogleApi.js';
 
 var MathQuill = window.MathQuill;
 
@@ -198,10 +201,10 @@ class UserActions extends React.Component {
             window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
                 function() {
                     window.ga('send', 'event', 'Actions', 'edit', 'Open Assignment from Drive.');
-                    window.openDriveFile(true, false, null, function(docs) {
+                    openDriveFile(true, false, null, function(docs) {
                         let name = docs[0].name;
                         let driveFileId = docs[0].id;
-                        window.downloadFileNoFailureAlert(driveFileId, true, function(content) {
+                        downloadFileNoFailureAlert(driveFileId, true, function(content) {
                             var newDoc = openAssignment(content, name, driveFileId);
 
                             window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
@@ -244,7 +247,7 @@ class UserActions extends React.Component {
             const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
             window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
                 function() {
-                    window.openDriveFile(true, false, null, function(docs) {
+                    openDriveFile(true, false, null, function(docs) {
                         console.log(docs);
                         let name = docs[0].name;
                         let driveFileId = docs[0].id;
@@ -254,7 +257,7 @@ class UserActions extends React.Component {
                         // TODO - also show this while downloading file
                         this.openSpinner();
                         setTimeout(function() {
-                            window.downloadFile(driveFileId, true, function(content) {
+                            downloadFile(driveFileId, true, function(content) {
                                 loadStudentDocsFromZip(content, name,
                                     function() {this.closeSpinner();}.bind(this),
                                     function() {this.closeSpinner();}.bind(this),
@@ -274,7 +277,7 @@ class UserActions extends React.Component {
             window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
                 function() {
                     window.ga('send', 'event', 'Actions', 'edit', 'Create Classroom Assignment.');
-                    window.listGoogleClassroomCourses(function(response) {
+                    listGoogleClassroomCourses(function(response) {
                         this.setState({GOOGLE_CLASS_LIST : response});
                         // TODO - make this safe when no classes
                         if (response && response.courses && response.courses.length > 0) {
@@ -298,7 +301,7 @@ class UserActions extends React.Component {
                 });
 
             const gradeClassroomAssignmentCallback = function() {
-                this.refs.submissionSelector.listClasses();
+                this.refs.submissionSelectorTeacher.listClasses();
             }.bind(this);
 
             const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
@@ -351,11 +354,9 @@ class UserActions extends React.Component {
         }.bind(this);
 
         var openDriveAssignments = function(assignment) {
-            // hack to make this method accessible to index.html
-            window.loadStudentDocsFromZip = loadStudentDocsFromZip;
             console.log(assignment);
 
-            window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
+            listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
                 function(resp) {
 
                     let isSubmitted = function(submission) {
@@ -391,7 +392,7 @@ class UserActions extends React.Component {
                            "you will only be able to grade submitted files.\n\n" +
                            "To quickly highlight all of the files, the keyboard shortcut Ctrl-A " +
                            "(Windows and Chrombooks) or Command-A (Mac) can be used.");
-                    window.openDriveFile(true, true, assignment.assignment.studentWorkFolder.id, function(docs) {
+                    openDriveFile(true, true, assignment.assignment.studentWorkFolder.id, function(docs) {
                         // TODO - message to users if they didn't select all necessary files
                         let selectedDocs = {};
                         docs.forEach(function(doc) {
@@ -399,7 +400,7 @@ class UserActions extends React.Component {
                         });
 
                         this.openSpinner();
-                        window.listClassroomStudents(assignment.courseId, function(studentList) {
+                        listClassroomStudents(assignment.courseId, function(studentList) {
                             let students = {};
                             studentList.students.forEach(function(student) {
                                 console.log(student);
@@ -491,7 +492,7 @@ class UserActions extends React.Component {
                                             let state = getPersistentState();
                                             var grades = calculateGrades(state[PROBLEMS]);
                                             console.log('checking for unsubmits');
-                                            window.listGoogleClassroomSubmissionsNoFailureAlert(assignment.courseId, assignment.id,
+                                            listGoogleClassroomSubmissionsNoFailureAlert(assignment.courseId, assignment.id,
                                                 function(resp) {
                                                     // array of obj { fileId: '134', name: 'Bob Doe'}{
                                                     let toRemove = [];
@@ -555,7 +556,7 @@ class UserActions extends React.Component {
                             }.bind(this);
 
                             const downloadFile = function(fileId, studentName, submissionId) {
-                                window.downloadFileNoFailureAlert(fileId, true,
+                                downloadFileNoFailureAlert(fileId, true,
                                     function(response) {
                                         var newDoc = openAssignment(response, "filename" /* TODO */);
                                         allStudentWork.push(
@@ -762,7 +763,7 @@ class UserActions extends React.Component {
                     }
                     openDriveAssignments(assignment);
                 }}
-                ref="submissionSelector"/>
+                ref="submissionSelectorTeacher"/>
             <FreeMathModal
                 showModal={this.state['CREATING_GOOGLE_CLASSROOM_ASSINGMENT']}
                 content={(
@@ -828,7 +829,7 @@ class UserActions extends React.Component {
                         disabled={this.state['GOOGLE_CLASS_LIST'] === undefined
                                     || this.state['GOOGLE_CLASS_LIST'].courses === undefined}
                         onClick={ function() {
-                            window.createGoogeClassroomAssignment(
+                            createGoogeClassroomAssignment(
                                 this.state.courseId, this.state.assignmentName,
                                 this.state.assignmentDescription,
                                 function(response) {
