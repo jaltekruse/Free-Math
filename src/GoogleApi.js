@@ -13,7 +13,7 @@ function initGoogleForPicker() {
   google = window.google;
 }
 
-var google = window.gapi;
+var google = window.google;
 var gapi = window.gapi;
 
 var DEFAULT_MIME = 'text\/plain; charset=utf8';
@@ -93,10 +93,17 @@ function handleSignoutClick(event) {
   gapi.auth2.getAuthInstance().signOut();
 }
 
-function checkLogin() {
+export function checkSignedIn() {
+    if (!gapi || !gapi.auth2) return false;
+    return gapi.auth2.getAuthInstance().isSignedIn.get();
+}
+
+function checkLogin(callback) {
     if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
         alert('Need to authorize access to Google Services.');
-        handleAuthClick();
+        handleAuthClick(callback);
+    } else {
+        callback();
     }
 }
 

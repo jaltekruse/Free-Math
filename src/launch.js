@@ -7,7 +7,8 @@ import { autoSave } from './FreeMath.js';
 import { addImageToEnd} from './Problem.js';
 import { unregister } from './registerServiceWorker';
 import URLSearchParams from '@ungap/url-search-params'
-import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAlert } from './GoogleApi.js';
+import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAlert,
+         checkSignedIn } from './GoogleApi.js';
 
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var APP_MODE = 'APP_MODE';
@@ -90,7 +91,7 @@ window.onload = function() {
                     alert("Error downloading file from Google Drive.");
                 }
             };
-            setTimeout(function() {
+            const downloadDriveFile = function() {
                 downloadFileNoFailureAlert(driveFileId, true,
                     function(content) {
                         // temp doc name is overwritten below after getting file metadata from drive
@@ -125,19 +126,38 @@ window.onload = function() {
                     },
                     errorCallback
                 );
-            }, 500);
+            }
+
+
+            const downloadIfLoggedIn = function(retries) {
+                if (checkSignedIn()) downloadDriveFile()
+                else if (retries > 0) {
+                    setTimeout(function() {
+                        downloadIfLoggedIn(--retries);
+                    }, 100);
+                } else {
+                    alert("Error connecting to Google");
+                    window.ephemeralStore.dispatch(
+                        { type : MODIFY_GLOBAL_WAITING_MSG,
+                          GLOBAL_WAITING_MSG: false});
+                }
+            }
+
+            // wait up to 10 seconds for google auth library to load
+            setTimeout(downloadIfLoggedIn(100), 100);
         } catch(e) {
+            console.log(e);
             alert("error loading file from drive");
         }
     }
     document.onpaste = function(event){
       var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-      console.log(JSON.stringify(items)); // will give you the mime types
+      //console.log(JSON.stringify(items)); // will give you the mime types
       for (var index in items) {
         var item = items[index];
         if (item.kind === 'file') {
             var blob = item.getAsFile();
-            console.log(event.target.result);
+            //console.log(event.target.result);
             const rootState = getCompositeState();
             if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
                 addImageToEnd(blob,
@@ -147,7 +167,6 @@ window.onload = function() {
         }
       }
     }
-
     render();
 };
 unregister();
