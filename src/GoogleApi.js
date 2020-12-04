@@ -82,8 +82,8 @@ function updateSigninStatus(isSignedIn) {
 /**
  *  Sign in the user upon button click.
  */
-function handleAuthClick(event) {
-  gapi.auth2.getAuthInstance().signIn();
+export function handleAuthClick(callback) {
+  gapi.auth2.getAuthInstance().signIn().then(callback);
 }
 
 /**
@@ -93,7 +93,7 @@ function handleSignoutClick(event) {
   gapi.auth2.getAuthInstance().signOut();
 }
 
-export function checkSignedIn() {
+export function checkLoginNoPopup() {
     if (!gapi || !gapi.auth2) return false;
     return gapi.auth2.getAuthInstance().isSignedIn.get();
 }
@@ -102,8 +102,6 @@ function checkLogin(callback) {
     if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
         alert('Need to authorize access to Google Services.');
         handleAuthClick(callback);
-    } else {
-        callback();
     }
 }
 

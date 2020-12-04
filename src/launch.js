@@ -8,7 +8,7 @@ import { addImageToEnd} from './Problem.js';
 import { unregister } from './registerServiceWorker';
 import URLSearchParams from '@ungap/url-search-params'
 import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAlert,
-         checkSignedIn } from './GoogleApi.js';
+         checkLoginNoPopup } from './GoogleApi.js';
 
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var APP_MODE = 'APP_MODE';
@@ -130,7 +130,7 @@ window.onload = function() {
 
 
             const downloadIfLoggedIn = function(retries) {
-                if (checkSignedIn()) downloadDriveFile()
+                if (checkLoginNoPopup()) downloadDriveFile()
                 else if (retries > 0) {
                     setTimeout(function() {
                         downloadIfLoggedIn(--retries);

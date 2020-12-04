@@ -12,7 +12,8 @@ import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
          calculateGrades, removeStudentsFromGradingView } from './TeacherInteractiveGrader.js';
 import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
-         listGoogleClassroomSubmissionsNoFailureAlert } from './GoogleApi.js';
+         listGoogleClassroomSubmissionsNoFailureAlert, handleAuthClick,
+         checkLoginNoPopup } from './GoogleApi.js';
 
 var MathQuill = window.MathQuill;
 
@@ -179,6 +180,37 @@ function startsWith(str, maybePrefix) {
     return str.lastIndexOf(maybePrefix, 0) === 0
 }
 
+
+const studentDriveOpen = function() {
+    window.ga('send', 'event', 'Actions', 'edit', 'Open Assignment from Drive.');
+    openDriveFile(true, false, null, function(docs) {
+        let name = docs[0].name;
+        let driveFileId = docs[0].id;
+        downloadFileNoFailureAlert(driveFileId, true, function(content) {
+            var newDoc = openAssignment(content, name, driveFileId);
+
+            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                PROBLEMS : newDoc[PROBLEMS],
+                ASSIGNMENT_NAME : removeExtension(name)});
+
+            window.ephemeralStore.dispatch(
+                {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
+            // turn on confirmation dialog upon navigation away
+            window.onbeforeunload = checkAllSaved;
+            window.location.hash = '';
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
+        },
+        function(xhr) {
+            if (xhr.status === 200) {
+                alert("Error reading file, make sure you are selecting a file created using Free Math");
+            } else {
+                alert("Error downloading file from Google Drive.");
+            }
+        } // failure callback
+        );
+    });
+}
+
 class UserActions extends React.Component {
     state = {
              showActionsMobile: false,
@@ -198,36 +230,8 @@ class UserActions extends React.Component {
         // the main thread to allow a repaint
 
         setTimeout(function() {
-            window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
-                function() {
-                    window.ga('send', 'event', 'Actions', 'edit', 'Open Assignment from Drive.');
-                    openDriveFile(true, false, null, function(docs) {
-                        let name = docs[0].name;
-                        let driveFileId = docs[0].id;
-                        downloadFileNoFailureAlert(driveFileId, true, function(content) {
-                            var newDoc = openAssignment(content, name, driveFileId);
-
-                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                PROBLEMS : newDoc[PROBLEMS],
-                                ASSIGNMENT_NAME : removeExtension(name)});
-
-                            window.ephemeralStore.dispatch(
-                                {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
-                            // turn on confirmation dialog upon navigation away
-                            window.onbeforeunload = checkAllSaved;
-                            window.location.hash = '';
-                            document.body.scrollTop = document.documentElement.scrollTop = 0;
-                        },
-                        function(xhr) {
-                            if (xhr.status === 200) {
-                                alert("Error reading file, make sure you are selecting a file created using Free Math");
-                            } else {
-                                alert("Error downloading file from Google Drive.");
-                            }
-                        } // failure callback
-                        );
-                    });
-                },
+            /*
+            window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {}, studentDriveOpen,
                 function(error){
                     //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
                     if (error.error && error.error === "popup_closed_by_user") {
@@ -240,6 +244,7 @@ class UserActions extends React.Component {
                     console.log(JSON.stringify(error, undefined, 2));
                     window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
                 });
+                */
 
             /* Disabled for now, this is confusing to have alongside the Google Classroom support
              * might be useful in the future to give people with other LMSes, but also a google
@@ -868,7 +873,10 @@ class UserActions extends React.Component {
                             className="fm-button"
                             ref="studentDriveOpen"
                             title="Open assignment from Google Drive"
-                            onClick={/* contrlled by google auth in componentDidMount*/function(){}}
+                            onClick={/* contrlled by google auth in componentDidMount*/function(){
+                                if (!checkLoginNoPopup) handleAuthClick(studentDriveOpen);
+                                else studentDriveOpen();
+                            }}
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "2px"}}>Open from Drive &nbsp;</div>
