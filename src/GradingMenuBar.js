@@ -5,7 +5,8 @@ import LogoHomeNav from './LogoHomeNav.js';
 import { saveGradedStudentWork, saveGradedStudentWorkToBlob} from './TeacherInteractiveGrader.js';
 import { LightButton, HtmlButton } from './Button.js';
 import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
-import { updateFileWithBinaryContent, createFileWithBinaryContent } from './GoogleApi.js';
+import { updateFileWithBinaryContent, createFileWithBinaryContent,
+         doOnceGoogleAuthLoads } from './GoogleApi.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
@@ -29,72 +30,73 @@ var PENDING_SAVES = 'PENDING_SAVES';
 
 class GradingMenuBar extends React.Component {
     componentDidMount() {
-        if (!window.gapi) {
-            return;
-        }
-        // componentDidMount is called after all the child components have been mounted,
-        // but before any parent components have been mounted.
-        // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
-        // put a small delay to hopefully let the parent mount, also putting a setTimeout at all will free up
-        // the main thread to allow a repaint
+        const attachClickHandlers = function() {
+            // componentDidMount is called after all the child components have been mounted,
+            // but before any parent components have been mounted.
+            // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
+            // put a small delay to hopefully let the parent mount, also putting a setTimeout at all will free up
+            // the main thread to allow a repaint
 
-        setTimeout(function() {
-            const saveCallback = function() {
-                var persistentState = getPersistentState();
-                var zip = saveGradedStudentWorkToBlob(persistentState);
-                var content = zip.generate({type: "blob"});
-                var googleId = getEphemeralState()[GOOGLE_ID];
-                console.log("update in google drive:" + googleId);
-                if (googleId) {
-                    updateFileWithBinaryContent (
-                        persistentState[ASSIGNMENT_NAME] + '.zip',
-                        content,
-                        googleId,
-                        'application/zip',
-                        function() {
-                            window.ephemeralStore.dispatch(
-                                { type : SET_GOOGLE_DRIVE_STATE,
-                                    GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        }
-                    );
-                } else {
-                    createFileWithBinaryContent (
-                        persistentState[ASSIGNMENT_NAME] + '.zip',
-                        content,
-                        'application/zip',
-                        function(response) {
-                            window.ephemeralStore.dispatch(
-                                {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
-                            window.ephemeralStore.dispatch(
-                                { type : SET_GOOGLE_DRIVE_STATE,
-                                    GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        }
-                    );
-                }
-            }
-            // TODO - old code, may bring back, this was for allong saving a graded zip to drive,
-            // I thought it would be confusing to have this along with the classroom features.
-            // Could consider re-enabling now that the grading experience is stateful and knows when it is
-            // working with classroom, so could allow this for non-classroom grading sessions as lots
-            // of people have personal google accounts and would be useful for users of other LMSes
-            /*
-            const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
-            window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
-                saveCallback,
-                function(error){
-                    if (error.error && error.error === "popup_closed_by_user") {
-                        alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
-                              "you need to enable them to use the google integration.\n\n" +
-                              "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
-                              "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
-                              "may need to be disabled.");
+            setTimeout(function() {
+                const saveCallback = function() {
+                    var persistentState = getPersistentState();
+                    var zip = saveGradedStudentWorkToBlob(persistentState);
+                    var content = zip.generate({type: "blob"});
+                    var googleId = getEphemeralState()[GOOGLE_ID];
+                    console.log("update in google drive:" + googleId);
+                    if (googleId) {
+                        updateFileWithBinaryContent (
+                            persistentState[ASSIGNMENT_NAME] + '.zip',
+                            content,
+                            googleId,
+                            'application/zip',
+                            function() {
+                                window.ephemeralStore.dispatch(
+                                    { type : SET_GOOGLE_DRIVE_STATE,
+                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
+                            }
+                        );
+                    } else {
+                        createFileWithBinaryContent (
+                            persistentState[ASSIGNMENT_NAME] + '.zip',
+                            content,
+                            'application/zip',
+                            function(response) {
+                                window.ephemeralStore.dispatch(
+                                    {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
+                                window.ephemeralStore.dispatch(
+                                    { type : SET_GOOGLE_DRIVE_STATE,
+                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
+                            }
+                        );
                     }
-                    console.log(JSON.stringify(error, undefined, 2));
-                    //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
-                    window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
-                });
-            */
-        }.bind(this), 250);
+                }
+                // TODO - old code, may bring back, this was for allong saving a graded zip to drive,
+                // I thought it would be confusing to have this along with the classroom features.
+                // Could consider re-enabling now that the grading experience is stateful and knows when it is
+                // working with classroom, so could allow this for non-classroom grading sessions as lots
+                // of people have personal google accounts and would be useful for users of other LMSes
+                /*
+                const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
+                    saveCallback,
+                    function(error){
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
+                        }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
+                */
+            }.bind(this), 250);
+        }.bind(this);
+
+        doOnceGoogleAuthLoads(100, attachClickHandlers);
     }
 
     render() {
