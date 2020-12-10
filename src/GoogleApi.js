@@ -95,7 +95,7 @@ function handleSignoutClick(event) {
   gapi.auth2.getAuthInstance().signOut();
 }
 
-export function waitForConditionThenDo(retries, conditionCallback, actionCallback, failureCallback) {
+export function waitForConditionThenDo(seconds, conditionCallback, actionCallback, failureCallback) {
     const millisBetweenChecks = 100;
     const doActionIfCondtion = function(retries) {
         if (conditionCallback()) actionCallback()
@@ -109,13 +109,13 @@ export function waitForConditionThenDo(retries, conditionCallback, actionCallbac
     }
 
     // wait up to retires/10 seconds for the condition to become true
-    setTimeout(doActionIfCondtion(retries), millisBetweenChecks);
+    setTimeout(doActionIfCondtion((seconds * 1000) / millisBetweenChecks), millisBetweenChecks);
 }
 
 
-export function doOnceGoogleAuthLoads(retries, actionCallback) {
+export function doOnceGoogleAuthLoads(seconds, actionCallback) {
     // wait up to 10 seconds for google auth library to load
-    waitForConditionThenDo(100,
+    waitForConditionThenDo(seconds,
         function() { return gapi && gapi.auth2;},
         actionCallback,
         function() {
@@ -124,9 +124,9 @@ export function doOnceGoogleAuthLoads(retries, actionCallback) {
     });
 }
 
-export function doOnceGoogleUserLoggedIn(retries, actionCallback) {
+export function doOnceGoogleUserLoggedIn(seconds, actionCallback) {
     // wait up to 10 seconds for google auth library to load
-    waitForConditionThenDo(100, checkLoginNoPopup, actionCallback, function() {
+    waitForConditionThenDo(seconds, checkLoginNoPopup, actionCallback, function() {
         alert("Error connecting to Google");
         window.ephemeralStore.dispatch(
             { type : MODIFY_GLOBAL_WAITING_MSG,
@@ -403,6 +403,10 @@ function googleRequestJsonResponse(alertOnFailure, url, verb, payload, mime, cal
 }
 
 function googleRequest(url, verb, payload, mime, callback, errorCallback = function(){}) {
+    googleRequestRetryOnceOn401(true, url, verb, payload, mime, callback, errorCallback);
+}
+
+function googleRequestRetryOnceOn401(firstAttempt, url, verb, payload, mime, callback, errorCallback = function(){}) {
     checkLogin();
 
     var accessToken = getToken();
@@ -420,12 +424,13 @@ function googleRequest(url, verb, payload, mime, callback, errorCallback = funct
                     errorCallback(this);
                     console.log(e);
                 }
-            } else if (this.status == 401 && this.responseText.includes('Request had invalid authentication credentials')){
+            } else if (this.status == 401 && firstAttempt){
                 var authPromise = gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse();
                 authPromise.then(function(AuthResponse) {
-                    googleRequest(url, verb, payload, mime, callback, errorCallback);
+                    googleRequestRetryOnceOn401(false, url, verb, payload, mime, callback, errorCallback);
                 });
             } else {
+                console.log(this);
                 console.log(this.responseText);
                 errorCallback(this);
             }

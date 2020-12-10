@@ -8,7 +8,7 @@ import { addImageToEnd} from './Problem.js';
 import { unregister } from './registerServiceWorker';
 import URLSearchParams from '@ungap/url-search-params'
 import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAlert,
-         doOnceGoogleAuthLoads } from './GoogleApi.js';
+         doOnceGoogleUserLoggedIn } from './GoogleApi.js';
 
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var APP_MODE = 'APP_MODE';
@@ -126,7 +126,7 @@ window.onload = function() {
             window.ephemeralStore.dispatch(
                 { type : MODIFY_GLOBAL_WAITING_MSG,
                   GLOBAL_WAITING_MSG: 'Downloading from drive...'});
-            doOnceGoogleAuthLoads(100, downloadDriveFile);
+            doOnceGoogleUserLoggedIn(10, downloadDriveFile);
 
         } catch(e) {
             console.log(e);

@@ -96,7 +96,7 @@ class GradingMenuBar extends React.Component {
             }.bind(this), 250);
         }.bind(this);
 
-        doOnceGoogleAuthLoads(100, attachClickHandlers);
+        doOnceGoogleAuthLoads(10, attachClickHandlers);
     }
 
     render() {
