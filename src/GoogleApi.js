@@ -64,6 +64,13 @@ function initClient() {
     // Handle the initial sign-in state.
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
   }, function(error) {
+      if (error.details.includes("Cookies are not enabled in current environment")) {
+          alert("Your browser may has 3rd party cookies disabled, " +
+                  "you need to enable them to use the google integration.\n\n" +
+                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                  "may need to be disabled.");
+      }
       console.log(error);
       console.log("Error connecting to google.");
   });
@@ -406,6 +413,8 @@ function googleRequest(url, verb, payload, mime, callback, errorCallback = funct
     googleRequestRetryOnceOn401(true, url, verb, payload, mime, callback, errorCallback);
 }
 
+// firstAttempt is a boolean, on initial call it is true, if retrying after a 401 this is used recursively but then false
+// is passed to prevent a retry look
 function googleRequestRetryOnceOn401(firstAttempt, url, verb, payload, mime, callback, errorCallback = function(){}) {
     checkLogin();
 
