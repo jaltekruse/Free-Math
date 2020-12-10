@@ -854,6 +854,13 @@ class UserActions extends React.Component {
                 )}
             />
             <div style={{display:"inline-block", width:"100%"}}>
+            <div className="homepage-center">
+                <div className="answer-partially-correct" style={{display:"inline-block", marginBottom: "15px"}}>
+                    <b>The Google Drive and Classroom integration has been updated!</b> <br />
+                    Free Math files can now be directly opened from Drive and Classroom using the "open with..." menu.<br />
+                    Click on the button below "Open from Drive" to add this new integration into your google account.
+                </div>
+            </div>
             <div className="homepage-center-mobile">
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
