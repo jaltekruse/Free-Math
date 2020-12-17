@@ -128,6 +128,7 @@ export function doOnceGoogleAuthLoads(seconds, actionCallback) {
         function() {
             // TODO - add visual indicator in UI if auth library fails to load
             console.log("Error loading google auth library");
+            window.ga('send', 'exception', { 'exDescription' : 'timed out after ' + seconds + ' seconds timeout waiting for google auth'} );
     });
 }
 
