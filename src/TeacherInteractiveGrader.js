@@ -14,6 +14,7 @@ import { saveAssignment, removeExtension, openAssignment } from './AssignmentEdi
 import { saveAs } from 'file-saver';
 import { Chart, Bar } from 'react-chartjs-2';
 import { defaults } from 'react-chartjs-2';
+import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
 
 var KAS = window.KAS;
 
@@ -709,7 +710,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     // save grades to google classroom
     var grades = calculateGrades(gradedWork[PROBLEMS]);
     window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
-    window.updateGrades(gradedWork[COURSE_ID], gradedWork[COURSEWORK_ID], grades /* map from submissionId to grade */,
+    updateGrades(gradedWork[COURSE_ID], gradedWork[COURSEWORK_ID], grades /* map from submissionId to grade */,
         function() {
             window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
             // TODO - decrement count here
@@ -744,7 +745,7 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
             getPersistentState());
         let doc = tempSeparatedAssignments[filename];
         saveAssignment(doc, function(finalBlob) {
-            window.updateFileWithBinaryContent(
+            updateFileWithBinaryContent(
                 null,
                 // TODO - filename currently hacky and has googleId in it
                 finalBlob, filename, 'application/zip',

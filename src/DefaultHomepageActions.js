@@ -10,6 +10,9 @@ import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
 import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
          calculateGrades, removeStudentsFromGradingView } from './TeacherInteractiveGrader.js';
+import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
+         listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
+         listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads } from './GoogleApi.js';
 
 var MathQuill = window.MathQuill;
 
@@ -184,139 +187,164 @@ class UserActions extends React.Component {
          };
 
     componentDidMount() {
-        const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
-        if (!window.gapi) {
-            return;
-        }
-        // componentDidMount is called after all the child components have been mounted,
-        // but before any parent components have been mounted.
-        // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
-        // put a small delay to hopefully let the parent mount, also putting a setTimeout at all will free up
-        // the main thread to allow a repaint
 
-        setTimeout(function() {
-            window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
-                function() {
-                    window.ga('send', 'event', 'Actions', 'edit', 'Open Assignment from Drive.');
-                    window.openDriveFile(true, false, null, function(docs) {
-                        let name = docs[0].name;
-                        let driveFileId = docs[0].id;
-                        window.downloadFileNoFailureAlert(driveFileId, true, function(content) {
-                            var newDoc = openAssignment(content, name, driveFileId);
+        const attachClickHandlers = function() {
+            // componentDidMount is called after all the child components have been mounted,
+            // but before any parent components have been mounted.
+            // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
+            // put a small delay to hopefully let the parent mount, also putting a setTimeout at all will free up
+            // the main thread to allow a repaint
 
-                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                PROBLEMS : newDoc[PROBLEMS],
-                                ASSIGNMENT_NAME : removeExtension(name)});
+            setTimeout(function() {
 
-                            window.ephemeralStore.dispatch(
-                                {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
-                            // turn on confirmation dialog upon navigation away
+                // this view also shows while the demo teacher assignments are downloading, and those can finish downloading before
+                // this event fires
+                if (getCompositeState()[APP_MODE] !== MODE_CHOOSER) return;
+
+                const justAskForScopesButton = ReactDOM.findDOMNode(this.refs.justAskForScopes)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(justAskForScopesButton, {},
+                    function() {
+                        alert('Successfully added the new Drive integration');
+                    },
+                    function(error){
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
+                        }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
+
+                const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
+                    function() {
+                        window.ga('send', 'event', 'Actions', 'edit', 'Open Assignment from Drive.');
+                        openDriveFile(true, false, null, function(docs) {
+                            let name = docs[0].name;
+                            let driveFileId = docs[0].id;
+                            downloadFileNoFailureAlert(driveFileId, true, function(content) {
+                                var newDoc = openAssignment(content, name, driveFileId);
+
+                                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                    PROBLEMS : newDoc[PROBLEMS],
+                                    ASSIGNMENT_NAME : removeExtension(name)});
+
+                                window.ephemeralStore.dispatch(
+                                    {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
+                                // turn on confirmation dialog upon navigation away
+                                window.onbeforeunload = checkAllSaved;
+                                window.location.hash = '';
+                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                            },
+                            function(xhr) {
+                                if (xhr.status === 200) {
+                                    alert("Error reading file, make sure you are selecting a file created using Free Math");
+                                } else {
+                                    alert("Error downloading file from Google Drive.");
+                                }
+                            } // failure callback
+                            );
+                        });
+                    },
+                    function(error){
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
+                        }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
+
+                /* Disabled for now, this is confusing to have alongside the Google Classroom support
+                 * might be useful in the future to give people with other LMSes, but also a google
+                 * account a way to more easily back up grading sessions in the cloud
+                const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
+                    function() {
+                        openDriveFile(true, false, null, function(docs) {
+                            console.log(docs);
+                            let name = docs[0].name;
+                            let driveFileId = docs[0].id;
                             window.onbeforeunload = checkAllSaved;
                             window.location.hash = '';
                             document.body.scrollTop = document.documentElement.scrollTop = 0;
-                        },
-                        function(xhr) {
-                            if (xhr.status === 200) {
-                                alert("Error reading file, make sure you are selecting a file created using Free Math");
-                            } else {
-                                alert("Error downloading file from Google Drive.");
-                            }
-                        } // failure callback
-                        );
+                            // TODO - also show this while downloading file
+                            this.openSpinner();
+                            setTimeout(function() {
+                                downloadFile(driveFileId, true, function(content) {
+                                    loadStudentDocsFromZip(content, name,
+                                        function() {this.closeSpinner();}.bind(this),
+                                        function() {this.closeSpinner();}.bind(this),
+                                        driveFileId);
+                                }.bind(this),
+                                function() { this.closeSpinner() }.bind(this) // failure callback
+                                );
+                            }.bind(this), 50);
+                        }.bind(this));
+                    }.bind(this), function(e){
+                        alert("error signing in to google");
+                        console.log(e);
                     });
-                },
-                function(error){
-                    //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
-                    if (error.error && error.error === "popup_closed_by_user") {
-                        alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
-                              "you need to enable them to use the google integration.\n\n" +
-                              "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
-                              "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
-                              "may need to be disabled.");
-                    }
-                    console.log(JSON.stringify(error, undefined, 2));
-                    window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
-                });
+                    */
 
-            /* Disabled for now, this is confusing to have alongside the Google Classroom support
-             * might be useful in the future to give people with other LMSes, but also a google
-             * account a way to more easily back up grading sessions in the cloud
-            const teacherOpenButton = ReactDOM.findDOMNode(this.refs.teacherDriveOpen)
-            window.gapi.auth2.getAuthInstance().attachClickHandler(teacherOpenButton, {},
-                function() {
-                    window.openDriveFile(true, false, null, function(docs) {
-                        console.log(docs);
-                        let name = docs[0].name;
-                        let driveFileId = docs[0].id;
-                        window.onbeforeunload = checkAllSaved;
-                        window.location.hash = '';
-                        document.body.scrollTop = document.documentElement.scrollTop = 0;
-                        // TODO - also show this while downloading file
-                        this.openSpinner();
-                        setTimeout(function() {
-                            window.downloadFile(driveFileId, true, function(content) {
-                                loadStudentDocsFromZip(content, name,
-                                    function() {this.closeSpinner();}.bind(this),
-                                    function() {this.closeSpinner();}.bind(this),
-                                    driveFileId);
-                            }.bind(this),
-                            function() { this.closeSpinner() }.bind(this) // failure callback
-                            );
-                        }.bind(this), 50);
-                    }.bind(this));
-                }.bind(this), function(e){
-                    alert("error signing in to google");
-                    console.log(e);
-                });
-                */
+                const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
+                    function() {
+                        window.ga('send', 'event', 'Actions', 'edit', 'Create Classroom Assignment.');
+                        listGoogleClassroomCourses(function(response) {
+                            this.setState({GOOGLE_CLASS_LIST : response});
+                            // TODO - make this safe when no classes
+                            if (response && response.courses && response.courses.length > 0) {
+                                this.setState({courseId: response.courses[0].id});
+                            }
 
-            const createClassroomAssignment = ReactDOM.findDOMNode(this.refs.createClassroomAssignment)
-            window.gapi.auth2.getAuthInstance().attachClickHandler(createClassroomAssignment, {},
-                function() {
-                    window.ga('send', 'event', 'Actions', 'edit', 'Create Classroom Assignment.');
-                    window.listGoogleClassroomCourses(function(response) {
-                        this.setState({GOOGLE_CLASS_LIST : response});
-                        // TODO - make this safe when no classes
-                        if (response && response.courses && response.courses.length > 0) {
-                            this.setState({courseId: response.courses[0].id});
+                            this.createAssignment();
+                        }.bind(this));
+                    }.bind(this),
+                    function(error){
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
                         }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
 
-                        this.createAssignment();
-                    }.bind(this));
-                }.bind(this),
-                function(error){
-                    //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
-                    if (error.error && error.error === "popup_closed_by_user") {
-                        alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
-                              "you need to enable them to use the google integration.\n\n" +
-                              "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
-                              "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
-                              "may need to be disabled.");
-                    }
-                    console.log(JSON.stringify(error, undefined, 2));
-                    window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
-                });
+                const gradeClassroomAssignmentCallback = function() {
+                    this.refs.submissionSelectorTeacher.listClasses();
+                }.bind(this);
 
-            const gradeClassroomAssignmentCallback = function() {
-                this.refs.submissionSelector.listClasses();
-            }.bind(this);
+                const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
+                    gradeClassroomAssignmentCallback,
+                    function(error){
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
+                        }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
+            }.bind(this), 250);
+        }.bind(this);
 
-            const gradeClassroomAssignment = ReactDOM.findDOMNode(this.refs.gradeClassroomAssignment)
-            window.gapi.auth2.getAuthInstance().attachClickHandler(gradeClassroomAssignment, {},
-                gradeClassroomAssignmentCallback,
-                function(error){
-                    //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
-                    if (error.error && error.error === "popup_closed_by_user") {
-                        alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
-                              "you need to enable them to use the google integration.\n\n" +
-                              "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
-                              "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
-                              "may need to be disabled.");
-                    }
-                    console.log(JSON.stringify(error, undefined, 2));
-                    window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
-                });
-        }.bind(this), 250);
+        doOnceGoogleAuthLoads(10, attachClickHandlers);
     }
 
     closeSpinner = () => {
@@ -351,11 +379,9 @@ class UserActions extends React.Component {
         }.bind(this);
 
         var openDriveAssignments = function(assignment) {
-            // hack to make this method accessible to index.html
-            window.loadStudentDocsFromZip = loadStudentDocsFromZip;
             console.log(assignment);
 
-            window.listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
+            listGoogleClassroomSubmissions(assignment.courseId, assignment.id,
                 function(resp) {
 
                     let isSubmitted = function(submission) {
@@ -391,7 +417,7 @@ class UserActions extends React.Component {
                            "you will only be able to grade submitted files.\n\n" +
                            "To quickly highlight all of the files, the keyboard shortcut Ctrl-A " +
                            "(Windows and Chrombooks) or Command-A (Mac) can be used.");
-                    window.openDriveFile(true, true, assignment.assignment.studentWorkFolder.id, function(docs) {
+                    openDriveFile(true, true, assignment.assignment.studentWorkFolder.id, function(docs) {
                         // TODO - message to users if they didn't select all necessary files
                         let selectedDocs = {};
                         docs.forEach(function(doc) {
@@ -399,7 +425,7 @@ class UserActions extends React.Component {
                         });
 
                         this.openSpinner();
-                        window.listClassroomStudents(assignment.courseId, function(studentList) {
+                        listClassroomStudents(assignment.courseId, function(studentList) {
                             let students = {};
                             studentList.students.forEach(function(student) {
                                 console.log(student);
@@ -491,7 +517,7 @@ class UserActions extends React.Component {
                                             let state = getPersistentState();
                                             var grades = calculateGrades(state[PROBLEMS]);
                                             console.log('checking for unsubmits');
-                                            window.listGoogleClassroomSubmissionsNoFailureAlert(assignment.courseId, assignment.id,
+                                            listGoogleClassroomSubmissionsNoFailureAlert(assignment.courseId, assignment.id,
                                                 function(resp) {
                                                     // array of obj { fileId: '134', name: 'Bob Doe'}{
                                                     let toRemove = [];
@@ -555,7 +581,7 @@ class UserActions extends React.Component {
                             }.bind(this);
 
                             const downloadFile = function(fileId, studentName, submissionId) {
-                                window.downloadFileNoFailureAlert(fileId, true,
+                                downloadFileNoFailureAlert(fileId, true,
                                     function(response) {
                                         var newDoc = openAssignment(response, "filename" /* TODO */);
                                         allStudentWork.push(
@@ -762,7 +788,7 @@ class UserActions extends React.Component {
                     }
                     openDriveAssignments(assignment);
                 }}
-                ref="submissionSelector"/>
+                ref="submissionSelectorTeacher"/>
             <FreeMathModal
                 showModal={this.state['CREATING_GOOGLE_CLASSROOM_ASSINGMENT']}
                 content={(
@@ -828,7 +854,7 @@ class UserActions extends React.Component {
                         disabled={this.state['GOOGLE_CLASS_LIST'] === undefined
                                     || this.state['GOOGLE_CLASS_LIST'].courses === undefined}
                         onClick={ function() {
-                            window.createGoogeClassroomAssignment(
+                            createGoogeClassroomAssignment(
                                 this.state.courseId, this.state.assignmentName,
                                 this.state.assignmentDescription,
                                 function(response) {
@@ -846,6 +872,20 @@ class UserActions extends React.Component {
                 )}
             />
             <div style={{display:"inline-block", width:"100%"}}>
+            <div className="homepage-center">
+                <div className="answer-partially-correct" style={{display:"inline-block", marginBottom: "15px"}}>
+                    <b>The Google Drive and Classroom integration has been updated! -&nbsp;
+                        <a href="https://www.youtube.com/watch?v=o-OaMb1Cy34"target="_blank" rel="noopener noreferrer">
+                            See it in Action
+                        </a></b>
+                    <br />
+                    Free Math files can now be directly opened from Drive and Classroom using the "Open with..." menu.<br />
+                    <Button ref="justAskForScopes"
+                        onClick={function() {}/* contrlled by google auth in componentDidMount*/}
+                        text="Click here"
+                        /> to add this new integration into your Google account.
+                </div>
+            </div>
             <div className="homepage-center-mobile">
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>

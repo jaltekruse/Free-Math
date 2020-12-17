@@ -9,6 +9,13 @@ import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
 import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
+import { listGoogleClassroomAssignments,
+         listGoogleClassroomSubmissions,
+         listGoogleClassroomCourses,
+         createFileWithBinaryContent,
+         modifyGoogeClassroomSubmission,
+         turnInToClassroom,
+         doOnceGoogleAuthLoads } from './GoogleApi.js';
 import JSZip from 'jszip';
 
 var STEPS = 'STEPS';
@@ -408,7 +415,7 @@ function submitAssignment(submission, selectedClass, selectedAssignment, googleI
     window.ephemeralStore.dispatch(
         { type : MODIFY_GLOBAL_WAITING_MSG,
           GLOBAL_WAITING_MSG: "Submitting to Google Classroom..."});
-    window.modifyGoogeClassroomSubmission(
+    modifyGoogeClassroomSubmission(
         selectedClass,
         selectedAssignment,
         submission.id, googleId,
@@ -456,7 +463,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
     }
 
     listClasses = () => {
-        window.listGoogleClassroomCourses(function(response) {
+        listGoogleClassroomCourses(function(response) {
             if ( ! response.courses || response.courses.length === 0) {
                 alert("You are not enrolled in any Google Classroom courses.");
                 // close the modal
@@ -467,7 +474,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
             if (response.courses.length === 1) {
                 var classList = response;
                 var classInfo = response.courses[0];
-                window.listGoogleClassroomAssignments(classInfo.id,
+                listGoogleClassroomAssignments(classInfo.id,
                     function(response) {
                         window.ephemeralStore.dispatch(
                             { type : SET_GOOGLE_CLASS_LIST,
@@ -516,7 +523,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                 {rootState[GOOGLE_CLASS_LIST].courses
                     .map(function(classInfo, index) {
                         return (
-                            <span>
+                            <span key={classInfo.id}>
                             <Button text={
                                     classInfo.name + " \u00A0  Section: "
                                      + (classInfo.section === undefined ? "None" : classInfo.section) +
@@ -524,7 +531,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                                      + (classInfo.room === undefined ? "None" : classInfo.room)
                                     }
                                 onClick={function() {
-                                    window.listGoogleClassroomAssignments(classInfo.id,
+                                    listGoogleClassroomAssignments(classInfo.id,
                                         function(response) {
 
                                         window.ephemeralStore.dispatch(
@@ -547,7 +554,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         };
 
         const listSubmissionsSubmitIfOnlyOne = function(assignment) {
-            window.listGoogleClassroomSubmissions(
+            listGoogleClassroomSubmissions(
                 rootState[GOOGLE_SELECTED_CLASS],
                 assignment.id,
                 function(response) {
@@ -641,7 +648,7 @@ function turnInToClassroomWithSpinner(ephemeralState) {
     window.ephemeralStore.dispatch(
         { type : MODIFY_GLOBAL_WAITING_MSG,
           GLOBAL_WAITING_MSG: "Turning in assignment..."});
-    window.turnInToClassroom(
+    turnInToClassroom(
         ephemeralState[GOOGLE_SELECTED_CLASS],
         ephemeralState[GOOGLE_SELECTED_ASSIGNMENT],
         ephemeralState[GOOGLE_SUBMISSION_ID],
@@ -661,128 +668,128 @@ function turnInToClassroomWithSpinner(ephemeralState) {
 
 class AssignmentEditorMenubar extends React.Component {
     componentDidMount() {
-        if (!window.gapi) {
-            return;
-        }
+        const attachClickHandlers = function() {
+            // componentDidMount is called after all the child components have been mounted,
+            // but before any parent components have been mounted.
+            // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
+            // put a small delay to hopefully let the parent mount, also putting a setTimeout at all will free up
+            // the main thread to allow a repaint
 
-        // componentDidMount is called after all the child components have been mounted,
-        // but before any parent components have been mounted.
-        // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
-        // put a small delay to hopefully let the parent mount, also putting a setTimeout at all will free up
-        // the main thread to allow a repaint
+            setTimeout(function() {
+                // TODO - problem with onSuccessCallback when canceling and re-opening dialog to submit
+                // might have been manifesting a different bug leaving out a callback in functions doing
+                // the actual requests to google in index.html
+                const saveCallback = function(onSuccessCallback = function() {}) {
+                    // because the same property is used for drive save state, or localStorage save state,
+                    // this doc is currently marked "ALL_SAVED", but reports to user as all saved to browser
+                    // because there is no GOOGLE_ID
+                    // without this code, as soon as we get a google ID it would report as all saved to Drive
+                    // before it is actually saved
+                    window.ephemeralStore.dispatch(
+                        {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
 
-        setTimeout(function() {
-            // TODO - problem with onSuccessCallback when canceling and re-opening dialog to submit
-            // might have been manifesting a different bug leaving out a callback in functions doing
-            // the actual requests to google in index.html
-            const saveCallback = function(onSuccessCallback = function() {}) {
-                // because the same property is used for drive save state, or localStorage save state,
-                // this doc is currently marked "ALL_SAVED", but reports to user as all saved to browser
-                // because there is no GOOGLE_ID
-                // without this code, as soon as we get a google ID it would report as all saved to Drive
-                // before it is actually saved
-                window.ephemeralStore.dispatch(
-                    {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : SAVING});
-
-                var containsAnImage = false;
-                var imageCount = 0;
-                var allProblems = getPersistentState()[PROBLEMS];
-                allProblems = allProblems.forEach(function(problem, probIndex, array) {
-                    problem[STEPS].forEach(function(step, stepIndex, steps) {
-                        if (step[FORMAT] === IMG) {
-                            containsAnImage = true;
-                            imageCount++;
-                        }
+                    var containsAnImage = false;
+                    var imageCount = 0;
+                    var allProblems = getPersistentState()[PROBLEMS];
+                    allProblems = allProblems.forEach(function(problem, probIndex, array) {
+                        problem[STEPS].forEach(function(step, stepIndex, steps) {
+                            if (step[FORMAT] === IMG) {
+                                containsAnImage = true;
+                                imageCount++;
+                            }
+                        });
                     });
-                });
 
-                if (true || containsAnImage) {
-                    window.ga('send', 'event', 'Actions', 'save',
-                        'Save with images', imageCount);
-                }
-                saveAssignmentValidatingProblemNumbers(getPersistentState(), function(assignment) {
+                    if (true || containsAnImage) {
+                        window.ga('send', 'event', 'Actions', 'save',
+                            'Save with images', imageCount);
+                    }
+                    saveAssignmentValidatingProblemNumbers(getPersistentState(), function(assignment) {
 
-                    var googleId = this.props.value[GOOGLE_ID];
-                    if (googleId) {
-                        saveToLocalStorageOrDrive(0, onSuccessCallback);
-                    } else {
-                        window.createFileWithBinaryContent(
-                            this.props.value[ASSIGNMENT_NAME] + '.math',
-                            assignment,
-                            'application/zip',
-                            function(response) {
-                                window.ephemeralStore.dispatch(
-                                    { type : SET_GOOGLE_DRIVE_STATE,
-                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
-                                window.ephemeralStore.dispatch(
-                                    {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
-                                onSuccessCallback();
-                            },
-                            function(response) {
-                                if (response.status === 403) {
-                                    alert(CANNOT_EDIT_SUBMITTED_ERR_MSG);
-                                } else {
-                                    alert("Error saving to Google Drive");
+                        var googleId = this.props.value[GOOGLE_ID];
+                        if (googleId) {
+                            saveToLocalStorageOrDrive(0, onSuccessCallback);
+                        } else {
+                            createFileWithBinaryContent(
+                                this.props.value[ASSIGNMENT_NAME] + '.math',
+                                assignment,
+                                'application/zip',
+                                function(response) {
+                                    window.ephemeralStore.dispatch(
+                                        { type : SET_GOOGLE_DRIVE_STATE,
+                                            GOOGLE_DRIVE_STATE : ALL_SAVED});
+                                    window.ephemeralStore.dispatch(
+                                        {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
+                                    onSuccessCallback();
+                                },
+                                function(response) {
+                                    if (response.status === 403) {
+                                        alert(CANNOT_EDIT_SUBMITTED_ERR_MSG);
+                                    } else {
+                                        alert("Error saving to Google Drive");
+                                    }
+                                    window.ephemeralStore.dispatch(
+                                        { type : SET_GOOGLE_DRIVE_STATE,
+                                            GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
                                 }
-                                window.ephemeralStore.dispatch(
-                                    { type : SET_GOOGLE_DRIVE_STATE,
-                                        GOOGLE_DRIVE_STATE : DIRTY_WORKING_COPY});
-                            }
-                        );
-                    }
-                }.bind(this));
-            }.bind(this);
-            const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
-            window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
-                function(){
-                    window.ga('send', 'event', 'Actions', 'edit', 'Explicit save to drive.');
-                    saveCallback(function(){ alert("Successfully saved to drive.")});
-                },
-                function(error){
-                    //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
-                    if (error.error && error.error === "popup_closed_by_user") {
-                        alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
-                              "you need to enable them to use the google integration.\n\n" +
-                              "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
-                              "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
-                              "may need to be disabled.");
-                    }
-                    console.log(JSON.stringify(error, undefined, 2));
-                    window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
-                });
+                            );
+                        }
+                    }.bind(this));
+                }.bind(this);
+                const saveToDrive = ReactDOM.findDOMNode(this.refs.saveToDrive)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(saveToDrive, {},
+                    function(){
+                        window.ga('send', 'event', 'Actions', 'edit', 'Explicit save to drive.');
+                        saveCallback(function(){ alert("Successfully saved to drive.")});
+                    },
+                    function(error){
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
+                        }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
 
-            const submitToClassroomCallback = function() {
-                // save the file to Drive first
-                saveCallback(function() {
-                    const ephemeralState = getEphemeralState();
-                    if (ephemeralState[GOOGLE_SELECTED_CLASS] &&
-                        ephemeralState[GOOGLE_SELECTED_ASSIGNMENT] &&
-                        ephemeralState[GOOGLE_SUBMISSION_ID]) {
-                            if (window.confirm('Are you done working and would like to turn in the assignment?')) {
-                                turnInToClassroomWithSpinner(ephemeralState);
-                            }
-                    } else {
-                        this.refs.submissionSelector.listClasses();
-                    }
-                }.bind(this));
-            }.bind(this);
+                const submitToClassroomCallback = function() {
+                    // save the file to Drive first
+                    saveCallback(function() {
+                        const ephemeralState = getEphemeralState();
+                        if (ephemeralState[GOOGLE_SELECTED_CLASS] &&
+                            ephemeralState[GOOGLE_SELECTED_ASSIGNMENT] &&
+                            ephemeralState[GOOGLE_SUBMISSION_ID]) {
+                                if (window.confirm('Are you done working and would like to turn in the assignment?')) {
+                                    turnInToClassroomWithSpinner(ephemeralState);
+                                }
+                        } else {
+                            this.refs.submissionSelector.listClasses();
+                        }
+                    }.bind(this));
+                }.bind(this);
 
-            const submitToClassroom = ReactDOM.findDOMNode(this.refs.submitToClassroom)
-            window.gapi.auth2.getAuthInstance().attachClickHandler(submitToClassroom, {},
-                submitToClassroomCallback,
-                function(error){
-                    //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
-                    if (error.error && error.error === "popup_closed_by_user") {
-                        alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
-                              "you need to enable them to use the google integration.\n\n" +
-                              "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
-                              "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
-                              "may need to be disabled.");
-                    }
-                    console.log(JSON.stringify(error, undefined, 2));
-                    window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
-                });
-        }.bind(this), 250);
+                const submitToClassroom = ReactDOM.findDOMNode(this.refs.submitToClassroom)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(submitToClassroom, {},
+                    submitToClassroomCallback,
+                    function(error){
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
+                        }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
+            }.bind(this), 250);
+        }.bind(this);
+
+        doOnceGoogleAuthLoads(10, attachClickHandlers);
     }
 
     render() {
