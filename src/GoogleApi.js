@@ -64,13 +64,16 @@ function initClient() {
     // Handle the initial sign-in state.
     updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
   }, function(error) {
+      /* TODO FIX - don't want this to come up until a user clicks on a drive button,
+       * but this runs when the page loads
       if (error.details.includes("Cookies are not enabled in current environment")) {
-          alert("Your browser may has 3rd party cookies disabled, " +
+          alert("Your browser may have 3rd party cookies disabled, " +
                   "you need to enable them to use the google integration.\n\n" +
                   "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
                   "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
                   "may need to be disabled.");
       }
+      */
       console.log(error);
       console.log("Error connecting to google.");
   });
