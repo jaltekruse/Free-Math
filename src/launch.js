@@ -108,8 +108,7 @@ window.onload = function() {
                                     // Unfortunately this will require repeated network requests so for now I
                                     // will skip it
                                     alert('Cannot edit, you may need to unsubmit over in google ' +
-                                          'classroom or ask for edit permissions.');
-                                    return;
+                                          'classroom or ask for edit permissions from the owner.');
                                 }
                                 window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
                                     PROBLEMS : newDoc[PROBLEMS],

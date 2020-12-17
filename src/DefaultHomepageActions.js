@@ -201,6 +201,24 @@ class UserActions extends React.Component {
                 // this event fires
                 if (getCompositeState()[APP_MODE] !== MODE_CHOOSER) return;
 
+                const justAskForScopesButton = ReactDOM.findDOMNode(this.refs.justAskForScopes)
+                window.gapi.auth2.getAuthInstance().attachClickHandler(justAskForScopesButton, {},
+                    function() {
+                        alert('Successfully added the new Drive integration');
+                    },
+                    function(error){
+                        //alert("Error contacting google services\n\n" + JSON.stringify(error, undefined, 2));
+                        if (error.error && error.error === "popup_closed_by_user") {
+                            alert("If the sign-in popup window just closed itself quickly your browser may have 3rd party cookies disabled, " +
+                                  "you need to enable them to use the google integration.\n\n" +
+                                  "On Chrome, look for an eye with a line through it in the address bar.\n\n" +
+                                  "While Free Math doesn't have ads, some ad blockers also have this behavior and " +
+                                  "may need to be disabled.");
+                        }
+                        console.log(JSON.stringify(error, undefined, 2));
+                        window.ga('send', 'exception', { 'exDescription' : 'google login failure: ' + JSON.stringify(error, undefined, 2)} );
+                    });
+
                 const studentOpenButton = ReactDOM.findDOMNode(this.refs.studentDriveOpen)
                 window.gapi.auth2.getAuthInstance().attachClickHandler(studentOpenButton, {},
                     function() {
@@ -856,9 +874,16 @@ class UserActions extends React.Component {
             <div style={{display:"inline-block", width:"100%"}}>
             <div className="homepage-center">
                 <div className="answer-partially-correct" style={{display:"inline-block", marginBottom: "15px"}}>
-                    <b>The Google Drive and Classroom integration has been updated!</b> <br />
-                    Free Math files can now be directly opened from Drive and Classroom using the "open with..." menu.<br />
-                    Click on the button below "Open from Drive" to add this new integration into your google account.
+                    <b>The Google Drive and Classroom integration has been updated! -&nbsp;
+                        <a href="https://www.youtube.com/watch?v=o-OaMb1Cy34"target="_blank" rel="noopener noreferrer">
+                            See it in Action
+                        </a></b>
+                    <br />
+                    Free Math files can now be directly opened from Drive and Classroom using the "Open with..." menu.<br />
+                    <Button ref="justAskForScopes"
+                        onClick={function() {}/* contrlled by google auth in componentDidMount*/}
+                        text="Click here"
+                        /> to add this new integration into your Google account.
                 </div>
             </div>
             <div className="homepage-center-mobile">
