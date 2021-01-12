@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import { cloneDeep, merge } from './FreeMath.js';
-import { deepFreeze, compareOverallEditorState } from './utils.js';
+import { deepFreeze, compareOverallEditorState } from './testUtils.js';
 import { assignmentReducer } from './Assignment.js';
 import { convertToCurrentFormat, aggregateStudentWork,
          separateIndividualStudentAssignments, gradeSingleProblem,

@@ -19,7 +19,6 @@ import { calculateGradingOverview } from './TeacherInteractiveGrader.js';
 import { problemReducer } from './Problem.js';
 import { assignmentReducer } from './Assignment.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
-import { deepFreeze } from './utils.js';
 
 var MathQuill = window.MathQuill;
 var Khan = window.Khan;

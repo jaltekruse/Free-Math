@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { deepFreeze, compareOverallEditorState } from './utils.js';
+import { deepFreeze, compareOverallEditorState } from './testUtils.js';
 import { assignmentReducer } from './Assignment.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { problemReducer } from './Problem.js';

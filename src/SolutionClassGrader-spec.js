@@ -1,4 +1,4 @@
-import { deepFreeze } from './utils.js';
+import { deepFreeze } from './testUtils.js';
 import TeacherInteractiveGrader from './TeacherInteractiveGrader.js';
 import { gradingReducer } from './TeacherInteractiveGrader.js';
 
