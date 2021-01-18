@@ -6,6 +6,8 @@ import { HtmlButton, CloseButton } from './Button.js';
 import { genID, base64ToBlob } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
 import Webcam from "react-webcam";
+import ImageEditor from '@toast-ui/react-image-editor'
+import { waitForConditionThenDo } from './Util.js';
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -92,6 +94,7 @@ var EDIT_STEP = 'EDIT_STEP';
 var NEW_STEP_CONTENT = 'NEW_STEP_CONTENT';
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
+var FABRIC_SRC = 'FABRIC_SRC';
 
 // CSS constants
 var SOFT_RED = '#FFDEDE';
@@ -201,10 +204,11 @@ function handleImg(imgFile, stepIndex, problemIndex, steps) {
     handleImgUrl(window.URL.createObjectURL(imgFile), stepIndex, problemIndex, steps);
 }
 
-function handleImgUrl(objUrl, stepIndex, problemIndex, steps) {
+// fabricSrc is the Json serialization of the edited image to allow further moving places objecsts/drawings
+function handleImgUrl(objUrl, stepIndex, problemIndex, steps, fabricSrc = undefined) {
     window.store.dispatch(
         { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-          FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+            FORMAT: IMG, NEW_STEP_CONTENT: objUrl, FABRIC_SRC : fabricSrc } );
     addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
 }
 
@@ -374,8 +378,10 @@ class WebcamCapture extends React.Component {
 };
 
 class ImageStep extends React.Component {
+    editorRef = React.createRef();
     state = {
-        cropping : false
+        cropping : false,
+        imageMarkup : false
     };
 
     render() {
@@ -452,18 +458,66 @@ class ImageStep extends React.Component {
                     />
                 :
                     <span>
-                        <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
-                                text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
-                                title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                        <Button className="extra-long-problem-action-button fm-button"
+                                text={this.state.imageMarkup ?
+                                    "Make Editable" : "FIXME" }
+                                title={this.state.imageMarkup ?
+                                    "Make Editable" : "FIXME" }
                                 onClick={function() {
-                                    if (this.state.cropping) {
-                                        handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
-                                        this.setState({cropping : false});
-                                    } else {
-                                        this.setState({cropping : true});
+                                    if (this.state.imageMarkup) {
+                                        window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
+                                        const editorInstance = this.editorRef.current.getInstance();
+                                        const canvas = editorInstance._graphics._canvas;
+                                        canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
                                     }
                                 }.bind(this)}
                         />
+                        <Button className="extra-long-problem-action-button fm-button"
+                                text={this.state.imageMarkup ?
+                                    "Save Drawing" : "Draw on Image" }
+                                title={this.state.imageMarkup ?
+                                    "Save Drawing" : "Draw on Image" }
+                                onClick={function() {
+                                    if (this.state.imageMarkup) {
+                                        window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
+                                        const editorInstance = this.editorRef.current.getInstance();
+                                        const fabricSrc = editorInstance._graphics._canvas.toJSON();
+                                        console.log(fabricSrc);
+                                        console.log(editorInstance);
+                                        handleImgUrl(editorInstance.toDataURL(), stepIndex, problemIndex, steps,
+                                                     fabricSrc);
+                                    } else {
+                                        this.setState({imageMarkup: true});
+                                        //waitForConditionThenDo()
+                                    }
+                                }.bind(this)}
+                        />
+
+                        {this.state.imageMarkup
+                            ?
+                                <Button className="extra-long-problem-action-button fm-button"
+                                    text="Cancel"
+                                    onClick={function() {
+                                        const editorInstance = this.editorRef.current.getInstance();
+                                        console.log(editorInstance);
+                                        this.setState({imageMarkup: false});
+                                    }.bind(this)} />
+
+                            :
+
+                                <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
+                                        text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                        title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                        onClick={function() {
+                                            if (this.state.cropping) {
+                                                handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
+                                                this.setState({cropping : false});
+                                            } else {
+                                                this.setState({cropping : true});
+                                            }
+                                        }.bind(this)}
+                                />
+                        }
                         { this.state.cropping
                             ?
                             <span>
@@ -481,6 +535,33 @@ class ImageStep extends React.Component {
                                     guides={true}
                                     crop={function(){}} />
                             </span>
+                           :
+                           this.state.imageMarkup ?
+                            <div style={{display:"inline-block"}}>
+                            <ImageEditor
+                                ref={this.editorRef}
+                                includeUI={{
+                                  loadImage: {
+                                    path: step[CONTENT],
+                                    name: 'SampleImage'
+                                  },
+                                  menu: ['draw', 'shape', 'text'],
+                                  initMenu: 'draw',
+                                  uiSize: {
+                                    width: '1200px',
+                                    height: '800px'
+                                  },
+                                  menuBarPosition: 'top'
+                                }}
+                                cssMaxWidth={1200}
+                                cssMaxHeight={600}
+                                selectionStyle={{
+                                  cornerSize: 20,
+                                  rotatingPointOffset: 70
+                                }}
+                                usageStatistics={false}
+                              />
+                              </div>
                             :
                             <span>
                                 <Button className="long-problem-action-button fm-button"
@@ -505,6 +586,7 @@ class ImageStep extends React.Component {
                                     : null }
                             </span>
                         }
+                        <br />
                     </span>
                 }
             </div>
@@ -934,6 +1016,7 @@ function problemReducer(problem, action) {
                 // copy properties of the old step, to get the STEP_ID, then override the content
                 { ...problem[STEPS][action[STEP_KEY]],
                      CONTENT : newContent,
+                     FABRIC_SRC : action[FABRIC_SRC],
                      FORMAT : action[FORMAT],
                 },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)

@@ -1,3 +1,4 @@
+import { waitForConditionThenDo } from './Util.js';
 
 var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
 
@@ -104,24 +105,6 @@ function handleAuthClick(event) {
 function handleSignoutClick(event) {
   gapi.auth2.getAuthInstance().signOut();
 }
-
-export function waitForConditionThenDo(seconds, conditionCallback, actionCallback, failureCallback) {
-    const millisBetweenChecks = 100;
-    const doActionIfCondtion = function(retries) {
-        if (conditionCallback()) actionCallback()
-        else if (retries > 0) {
-            setTimeout(function() {
-                doActionIfCondtion(--retries);
-            }, millisBetweenChecks);
-        } else {
-            failureCallback();
-        }
-    }
-
-    // wait up to retires/10 seconds for the condition to become true
-    setTimeout(doActionIfCondtion((seconds * 1000) / millisBetweenChecks), millisBetweenChecks);
-}
-
 
 export function doOnceGoogleAuthLoads(seconds, actionCallback) {
     // wait up to 10 seconds for google auth library to load

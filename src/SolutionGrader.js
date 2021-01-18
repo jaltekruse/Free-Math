@@ -161,9 +161,9 @@ class ImageStep extends React.Component {
                         "Save Feedback" : "Mark Image Feedback" }
                     onClick={function() {
                         if (this.state.imageMarkup) {
-                            // TODO - save modified image
                             window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
                             const editorInstance = this.editorRef.current.getInstance();
+                            console.log(editorInstance);
                             window.store.dispatch({
                                 type : EDIT_STUDENT_STEP,
                                 PROBLEM_NUMBER : problemNumber,
@@ -184,7 +184,9 @@ class ImageStep extends React.Component {
                     <Button className="extra-long-problem-action-button fm-button"
                         text="Cancel"
                         onClick={function() {
-                            this.setState({imageMarkup: false});
+                            const editorInstance = this.editorRef.current.getInstance();
+                            console.log(editorInstance);
+                            //this.setState({imageMarkup: false});
                         }.bind(this)} />
                 :
                     (step[ORIG_STUDENT_STEP] ?
