@@ -312,6 +312,7 @@ function gradingReducer(state, action) {
             // This action is also used to move away from grading, but this won't
             // hurt anything happening in both cases.
             SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined,
+            CUSTOM_GROUP : undefined,
             APP_MODE : GRADE_ASSIGNMENTS,
         };
     } else if (action.type === SET_POSSIBLE_POINTS_FOR_ALL) {
