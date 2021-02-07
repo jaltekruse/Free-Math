@@ -85,38 +85,45 @@ class ProblemGrader extends React.Component {
             <div className="problem-summary-container" style={{float:"none",overflow:"hidden"}}>
                 <h3>Problem {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
-                Possible points &nbsp;
-                    <input type="text" size="4" value={possiblePoints}
-                           onChange={function(evt) {
-                               window.store.dispatch(
-                                   { type : EDIT_POSSIBLE_POINTS, PROBLEM_NUMBER : problemNumber,
-                                      POSSIBLE_POINTS : evt.target.value})
-                           }}/>
-                    <Button text="Apply"
-                           onClick={function() {
-                                if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
-                                    alert("Possible points must be a number");
-                                } else {
-                                    window.ga('send', 'event', 'Actions', 'edit', 'Edit possible points');
-                                    window.store.dispatch(
-                                        { type : SET_PROBLEM_POSSIBLE_POINTS,
-                                          PROBLEM_NUMBER : problemNumber});
-                                }
-                            }.bind(this)
-                        }/>
+                {/* studentsToView is set when a list of similar assignments is being viewed.
+                    In this case disable the score editing and grading interface to declutter the view
+                */}
+                {studentsToView ? null :
+                    <div>
+                        Possible points &nbsp;
+                            <input type="text" size="4" value={possiblePoints}
+                                   onChange={function(evt) {
+                                       window.store.dispatch(
+                                           { type : EDIT_POSSIBLE_POINTS, PROBLEM_NUMBER : problemNumber,
+                                              POSSIBLE_POINTS : evt.target.value})
+                                   }}/>
+                            <Button text="Apply"
+                                   onClick={function() {
+                                        if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
+                                            alert("Possible points must be a number");
+                                        } else {
+                                            window.ga('send', 'event', 'Actions', 'edit', 'Edit possible points');
+                                            window.store.dispatch(
+                                                { type : SET_PROBLEM_POSSIBLE_POINTS,
+                                                  PROBLEM_NUMBER : problemNumber});
+                                        }
+                                    }.bind(this)
+                                }/>
 
-                    <Button text="Apply to All Problems"
-                           onClick={function() {
-                                if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
-                                    alert("Possible points must be a number");
-                                } else {
-                                    window.ga('send', 'event', 'Actions', 'edit', 'Edit possible points for all');
-                                    window.store.dispatch(
-                                        { type : SET_POSSIBLE_POINTS_FOR_ALL,
-                                          PROBLEM_NUMBER : problemNumber});
-                                }
-                            }.bind(this)
-                        }/>
+                            <Button text="Apply to All Problems"
+                                   onClick={function() {
+                                        if (Number(this.props[POSSIBLE_POINTS_EDITED]) < 0) {
+                                            alert("Possible points must be a number");
+                                        } else {
+                                            window.ga('send', 'event', 'Actions', 'edit', 'Edit possible points for all');
+                                            window.store.dispatch(
+                                                { type : SET_POSSIBLE_POINTS_FOR_ALL,
+                                                  PROBLEM_NUMBER : problemNumber});
+                                        }
+                                    }.bind(this)
+                                }/>
+                    </div>
+                }
                 <br/>
                 { problemInfo[UNIQUE_ANSWERS].map(
                     function(solutionClassInfo, solutionClassIndex) {

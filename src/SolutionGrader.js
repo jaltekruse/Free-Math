@@ -152,33 +152,38 @@ class ImageStep extends React.Component {
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.studentSolutionIndex ;
         var stepIndex = this.props.stepIndex;
+        var viewingSimilarGroup = this.props.viewingSimilarGroup;
         return (
             <span>
-            <Button className="extra-long-problem-action-button fm-button"
-                    text={this.state.imageMarkup ?
-                        "Save Feedback" : "Mark Image Feedback" }
-                    title={this.state.imageMarkup ?
-                        "Save Feedback" : "Mark Image Feedback" }
-                    onClick={function() {
-                        if (this.state.imageMarkup) {
-                            // TODO - save modified image
-                            window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
-                            const editorInstance = this.editorRef.current.getInstance();
-                            window.store.dispatch({
-                                type : EDIT_STUDENT_STEP,
-                                PROBLEM_NUMBER : problemNumber,
-                                SOLUTION_CLASS_INDEX : solutionClassIndex,
-                                SOLUTION_INDEX : studentSolutionIndex,
-                                STEP_KEY : stepIndex,
-                                STEP_DATA :
-                                    {...step,
-                                     CONTENT: editorInstance.toDataURL()}});
-                            this.setState({imageMarkup: false});
-                        } else {
-                            this.setState({imageMarkup: true});
-                        }
-                    }.bind(this)}
-            />
+            { viewingSimilarGroup ? null :
+                <span>
+                    <Button className="extra-long-problem-action-button fm-button"
+                            text={this.state.imageMarkup ?
+                                "Save Feedback" : "Mark Image Feedback" }
+                            title={this.state.imageMarkup ?
+                                "Save Feedback" : "Mark Image Feedback" }
+                            onClick={function() {
+                                if (this.state.imageMarkup) {
+                                    // TODO - save modified image
+                                    window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
+                                    const editorInstance = this.editorRef.current.getInstance();
+                                    window.store.dispatch({
+                                        type : EDIT_STUDENT_STEP,
+                                        PROBLEM_NUMBER : problemNumber,
+                                        SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                        SOLUTION_INDEX : studentSolutionIndex,
+                                        STEP_KEY : stepIndex,
+                                        STEP_DATA :
+                                            {...step,
+                                             CONTENT: editorInstance.toDataURL()}});
+                                    this.setState({imageMarkup: false});
+                                } else {
+                                    this.setState({imageMarkup: true});
+                                }
+                            }.bind(this)}
+                    />
+                </span>
+            }
             {this.state.imageMarkup
                 ?
                     <Button className="extra-long-problem-action-button fm-button"
@@ -250,6 +255,7 @@ class StudentWork extends React.Component {
         var problemNumber = this.props.problemNumber
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
+        var viewingSimilarGroup = this.props.viewingSimilarGroup;
         return (
             <div style={{float:"left", minWidth: "400px", maxWidth:"750px"}}>
                 {
@@ -269,6 +275,7 @@ class StudentWork extends React.Component {
                                            solutionClassIndex={solutionClassIndex}
                                            studentSolutionIndex={studentSolutionIndex}
                                            stepIndex={stepIndex}
+                                           viewingSimilarGroup={viewingSimilarGroup}
                                 />
                                 :
                                 step[FORMAT] === TEXT
@@ -384,6 +391,8 @@ class SolutionGrader extends React.Component {
         var possiblePoints = this.props.possiblePoints;
         var solutionClassIndex = this.props.solutionClassIndex;
         var studentSolutionIndex = this.props.id;
+        // when viewing a group of similar documents grading actions are disabled
+        // to declutter the view and focus on showing as much work on the screen at a time
         var viewingSimilarGroup = this.props.viewingSimilarGroup;
         //var showStudentName = this.props.showStudentName;
         var showStudentName = true;
@@ -489,6 +498,7 @@ class SolutionGrader extends React.Component {
                     key={studentSolutionIndex}
                     id={studentSolutionIndex}
                     solutionClassIndex={solutionClassIndex}
+                    viewingSimilarGroup={viewingSimilarGroup}
                 />
             </div>
         );
