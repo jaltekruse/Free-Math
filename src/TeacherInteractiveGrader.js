@@ -397,7 +397,7 @@ function findSimilarStudentAssignments(allStudentWork) {
             "will take a long time. We have already finished grouping similar work on each individual " +
             "problem, which we can do much faster. Would you like to wait for the cheating " +
             "prevention check to finish?\n\n" +
-            "Select cancel to skip it an just open the grading page.")) {
+            "Select cancel to skip it and just open the grading page.")) {
             return [];
         }
     }
@@ -410,16 +410,19 @@ function findSimilarStudentAssignments(allStudentWork) {
     allStudentWork = cloneDeep(allStudentWork);
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            problem[FEEDBACK] = "";
-            problem[SCORE] = "";
-            problem[POSSIBLE_POINTS] = "";
-            problem["LAST_SHOWN_STEP"] = "";
-            problem[UNDO_STACK] = [];
-            problem[REDO_STACK] = [];
+            if (problem[FEEDBACK]) delete problem[FEEDBACK];
+            if (problem[SCORE]) delete problem[SCORE];
+            if (problem[POSSIBLE_POINTS]) delete problem[POSSIBLE_POINTS];
+            if (problem[LAST_SHOWN_STEP]) delete problem[LAST_SHOWN_STEP];
+            if (problem[UNDO_STACK]) delete problem[UNDO_STACK];
+            if (problem[REDO_STACK]) delete problem[REDO_STACK];
+            if (problem[STUDENT_NAME]) delete problem[STUDENT_NAME];
+            if (problem[STUDENT_SUBMISSION_ID]) delete problem[STUDENT_SUBMISSION_ID];
             problem[STEPS].forEach(function(step, index, array) {
-                if (step[HIGHLIGHT])
-                    delete step[HIGHLIGHT];
-                step[STEP_ID] = "";
+                if (step[HIGHLIGHT]) delete step[HIGHLIGHT];
+                if (step[FORMAT]) delete step[FORMAT];
+                if (step[STEP_ID]) delete step[STEP_ID];
+                step[CONTENT] = step[CONTENT].replaceAll("\\ ", "");
             });
         });
     });
@@ -435,6 +438,8 @@ function findSimilarStudentAssignments(allStudentWork) {
     var totalProblemsCompleted = 0;
     var totalProblemsAttempted = 0;
     var maxProblemsAttempted = 0;
+    // TODO - calculate total number of steps for each student doc
+    // use that the calculate size of diff, instead of average doc size
     allStudentWork.forEach(function(assignment, index, array) {
         if (assignment[ASSIGNMENT].length > maxProblemsAttempted) {
             maxProblemsAttempted = assignment[ASSIGNMENT].length;
@@ -455,12 +460,12 @@ function findSimilarStudentAssignments(allStudentWork) {
         allStudentWork.forEach(function(assignment2, index, array) {
             if (assignment1[STUDENT_FILE] === assignment2[STUDENT_FILE]) return;
             var result = diffJson(assignment1, assignment2);
-            // currently a rough threshold of 30% unique work, will improve later
+            // currently a rough threshold of 60% unique work, will improve later
             // the -2 is to adjust for the filename difference in the structures
             let similarity = ((result.length - 2) / 2.0)
                 / ( averageNumberOfQuestions * averageAnswerLength);
 
-            if (similarity < 0.3) {
+            if (similarity < 0.6) {
                 let key = buildKey(assignment1[STUDENT_FILE], assignment2[STUDENT_FILE]);
                 similarityScores[key] = similarity;
                 // create list if one not already existing at this key
