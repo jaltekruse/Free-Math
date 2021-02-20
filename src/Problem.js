@@ -593,7 +593,7 @@ class ImageStep extends React.Component {
                                                     path: step[CONTENT],
                                                     name: 'SampleImage'
                                                   },
-                                                  menu: ['draw', 'shape', 'text'],
+                                                  menu: ['select', 'draw', 'shape', 'text'],
                                                   initMenu: 'draw',
                                                   uiSize: {
                                                     width: (windowWidth - 200) + 'px',
