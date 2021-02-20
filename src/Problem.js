@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
+import FreeMathModal from './Modal.js';
 import { HtmlButton, CloseButton } from './Button.js';
 import { genID, base64ToBlob } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
@@ -433,6 +434,52 @@ class ImageStep extends React.Component {
             xhr.send();
         };
 
+        const saveDrawing = function() {
+            window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
+            const editorInstance = this.editorRef.current.getInstance();
+            const fabricSrc = editorInstance._graphics._canvas.toJSON();
+            console.log(fabricSrc);
+            console.log(editorInstance);
+            handleImgUrl(editorInstance.toDataURL(), stepIndex, problemIndex, steps,
+                         fabricSrc);
+            this.setState({imageMarkup: false});
+        }.bind(this);
+
+        const openDrawing = function() {
+            this.setState({imageMarkup: true});
+            waitForConditionThenDo(5,
+                function() {
+                    try {
+                        const editorInstance = this.editorRef.current.getInstance();
+                        const canvas = editorInstance._graphics._canvas;
+                        return canvas;
+                    } catch (e) {
+                        console.log(e);
+                        return false;
+                    }
+                }.bind(this),
+                function() {
+                    const editorInstance = this.editorRef.current.getInstance();
+                    const canvas = editorInstance._graphics._canvas;
+                    console.log(canvas);
+                    window.fabric.Object.prototype.cornerColor = 'green';
+                    window.fabric.Object.prototype.cornerSize = 15;
+                    window.fabric.Object.prototype.borderColor = 'red';
+                    window.fabric.Object.prototype.transparentCorners = false;
+
+                    editorInstance._graphics.setSelectionStyle({
+                      cornerSize: 10,
+                      cornerColor: 'green',
+                    });
+                    canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
+                }.bind(this),
+                function() {
+                    alert("Failed to load image editor");
+                    this.setState({imageMarkup: false});
+                }.bind(this)
+            );
+        }.bind(this);
+
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
 
@@ -471,76 +518,25 @@ class ImageStep extends React.Component {
                                     "Save Drawing" : "Draw on Image" }
                                 onClick={function() {
                                     if (this.state.imageMarkup) {
-                                        window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
-                                        const editorInstance = this.editorRef.current.getInstance();
-                                        const fabricSrc = editorInstance._graphics._canvas.toJSON();
-                                        console.log(fabricSrc);
-                                        console.log(editorInstance);
-                                        handleImgUrl(editorInstance.toDataURL(), stepIndex, problemIndex, steps,
-                                                     fabricSrc);
-                                        this.setState({imageMarkup: false});
+                                        saveDrawing();
                                     } else {
-                                        this.setState({imageMarkup: true});
-                                        waitForConditionThenDo(5,
-                                            function() {
-                                                try {
-                                                    const editorInstance = this.editorRef.current.getInstance();
-                                                    const canvas = editorInstance._graphics._canvas;
-                                                    return canvas;
-                                                } catch (e) {
-                                                    console.log(e);
-                                                    return false;
-                                                }
-                                            }.bind(this),
-                                            function() {
-                                                const editorInstance = this.editorRef.current.getInstance();
-                                                const canvas = editorInstance._graphics._canvas;
-                                                console.log(canvas);
-                                                window.fabric.Object.prototype.cornerColor = 'green';
-                                                window.fabric.Object.prototype.cornerSize = 15;
-                                                window.fabric.Object.prototype.borderColor = 'red';
-                                                window.fabric.Object.prototype.transparentCorners = false;
-
-                                                editorInstance._graphics.setSelectionStyle({
-                                                  cornerSize: 10,
-                                                  cornerColor: 'green',
-                                                });
-                                                canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
-                                            }.bind(this),
-                                            function() {
-                                                alert("Failed to load image editor");
-                                                this.setState({imageMarkup: false});
-                                            }.bind(this)
-                                        );
+                                        openDrawing();
                                     }
                                 }.bind(this)}
                         />
 
-                        {this.state.imageMarkup
-                            ?
-                                <Button className="extra-long-problem-action-button fm-button"
-                                    text="Cancel"
-                                    onClick={function() {
-                                        const editorInstance = this.editorRef.current.getInstance();
-                                        console.log(editorInstance);
-                                        this.setState({imageMarkup: false});
-                                    }.bind(this)} />
-
-                            :
-
-                                <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
-                                        text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
-                                        title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
-                                        onClick={function() {
-                                            if (this.state.cropping) {
-                                                handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
-                                                this.setState({cropping : false});
-                                            } else {
-                                                this.setState({cropping : true});
-                                            }
-                                        }.bind(this)}
-                                />
-                        }
+                        <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
+                                text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                onClick={function() {
+                                    if (this.state.cropping) {
+                                        handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
+                                        this.setState({cropping : false});
+                                    } else {
+                                        this.setState({cropping : true});
+                                    }
+                                }.bind(this)}
+                        />
                         { this.state.cropping
                             ?
                             <span>
@@ -560,34 +556,60 @@ class ImageStep extends React.Component {
                             </span>
                            :
                            this.state.imageMarkup ?
-                            <div style={{display:"inline-block"}}>
-                            <ImageEditor
-                                ref={this.editorRef}
-                                includeUI={{
-                                  loadImage: {
-                                    path: step[CONTENT],
-                                    name: 'SampleImage'
-                                  },
-                                  menu: ['draw', 'shape', 'text'],
-                                  initMenu: 'draw',
-                                  uiSize: {
-                                    width: (windowWidth - 600) + 'px',
-                                    height: (windowHeight - 150) + 'px'
-                                  },
-                                  menuBarPosition: 'top',
-                                  theme:whiteTheme
-                                }}
-                                cssMaxWidth={(windowWidth - 650)}
-                                cssMaxHeight={(windowHeight - 350)}
-                                selectionStyle={{
-                                  cornerSize: 15,
-                                  cornerColor: 'green',
-                                  rotatingPointOffset: 70
-                                }}
-                                usageStatistics={false}
-                                defaultColor={'#000000'}
-                              />
-                              </div>
+                            <FreeMathModal
+                                closeModal={function() {
+                                            this.setState({imageMarkup: false});
+                                        }.bind(this)}
+                                showModal={this.state.imageMarkup}
+                                content={(
+                                        <div style={{display:"inline-block"}}>
+                                            <Button className="extra-long-problem-action-button fm-button"
+                                                    text={this.state.imageMarkup ?
+                                                        "Save Drawing" : "Draw on Image" }
+                                                    title={this.state.imageMarkup ?
+                                                        "Save Drawing" : "Draw on Image" }
+                                                    onClick={function() {
+                                                        if (this.state.imageMarkup) {
+                                                            saveDrawing();
+                                                        } else {
+                                                            openDrawing();
+                                                        }
+                                                    }.bind(this)}
+                                            />
+                                            <Button className="extra-long-problem-action-button fm-button"
+                                                text="Cancel"
+                                                onClick={function() {
+                                                    this.setState({imageMarkup: false});
+                                                }.bind(this)} />
+                                            <ImageEditor
+                                                ref={this.editorRef}
+                                                includeUI={{
+                                                  loadImage: {
+                                                    path: step[CONTENT],
+                                                    name: 'SampleImage'
+                                                  },
+                                                  menu: ['draw', 'shape', 'text'],
+                                                  initMenu: 'draw',
+                                                  uiSize: {
+                                                    width: (windowWidth - 200) + 'px',
+                                                    height: (windowHeight - 150) + 'px'
+                                                  },
+                                                  menuBarPosition: 'top',
+                                                  theme:whiteTheme
+                                                }}
+                                                cssMaxWidth={(windowWidth - 250)}
+                                                cssMaxHeight={(windowHeight - 350)}
+                                                selectionStyle={{
+                                                  cornerSize: 15,
+                                                  cornerColor: 'green',
+                                                  rotatingPointOffset: 70
+                                                }}
+                                                usageStatistics={false}
+                                                defaultColor={'#000000'}
+                                              />
+                                            </div>
+                                    )
+                                } />
                             :
                             <span>
                                 <Button className="long-problem-action-button fm-button"
