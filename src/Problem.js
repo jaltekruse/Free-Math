@@ -511,23 +511,28 @@ class ImageStep extends React.Component {
                     />
                 :
                     <span>
-                        <Button className="extra-long-problem-action-button fm-button"
-                                text={this.state.imageMarkup ?
-                                    "Save Drawing" : "Draw on Image" }
-                                title={this.state.imageMarkup ?
-                                    "Save Drawing" : "Draw on Image" }
-                                onClick={function() {
-                                    if (this.state.imageMarkup) {
-                                        saveDrawing();
-                                    } else {
-                                        openDrawing();
-                                    }
-                                }.bind(this)}
-                        />
+                        { !this.state.cropping ?
+                            <Button className="extra-long-problem-action-button fm-button"
+                                    text={this.state.imageMarkup ?
+                                        "Save Drawing" : "Draw on Image" }
+                                    title={this.state.imageMarkup ?
+                                        "Save Drawing" : "Draw on Image" }
+                                    onClick={function() {
+                                        if (this.state.imageMarkup) {
+                                            saveDrawing();
+                                        } else {
+                                            openDrawing();
+                                        }
+                                    }.bind(this)}
+                            />
+                            : null
+                        }
 
                         <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
                                 text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
-                                title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                title={step[FABRIC_SRC] ? "Cannot crop after drawing on an image" :
+                                    (this.state.cropping ? "Finished Cropping" : "Crop Image")}
+                                disabled={step[FABRIC_SRC]}
                                 onClick={function() {
                                     if (this.state.cropping) {
                                         handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
@@ -614,12 +619,14 @@ class ImageStep extends React.Component {
                             <span>
                                 <Button className="long-problem-action-button fm-button"
                                         text="Rotate Left"
-                                        title="Rotate image left"
+                                        title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
+                                        disabled={step[FABRIC_SRC]}
                                         onClick={function() { rotate(270);}}
                                 />
                                 <Button className="long-problem-action-button fm-button"
                                         text="Rotate Right"
-                                        title="Rotate image right"
+                                        title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
+                                        disabled={step[FABRIC_SRC]}
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
