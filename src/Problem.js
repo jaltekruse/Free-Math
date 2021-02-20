@@ -495,6 +495,16 @@ class ImageStep extends React.Component {
                                             function() {
                                                 const editorInstance = this.editorRef.current.getInstance();
                                                 const canvas = editorInstance._graphics._canvas;
+                                                console.log(canvas);
+                                                window.fabric.Object.prototype.cornerColor = 'green';
+                                                window.fabric.Object.prototype.cornerSize = 15;
+                                                window.fabric.Object.prototype.borderColor = 'red';
+                                                window.fabric.Object.prototype.transparentCorners = false;
+
+                                                editorInstance._graphics.setSelectionStyle({
+                                                  cornerSize: 10,
+                                                  cornerColor: 'green',
+                                                });
                                                 canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
                                             }.bind(this),
                                             function() {
@@ -570,7 +580,8 @@ class ImageStep extends React.Component {
                                 cssMaxWidth={(windowWidth - 650)}
                                 cssMaxHeight={(windowHeight - 350)}
                                 selectionStyle={{
-                                  cornerSize: 20,
+                                  cornerSize: 15,
+                                  cornerColor: 'green',
                                   rotatingPointOffset: 70
                                 }}
                                 usageStatistics={false}
