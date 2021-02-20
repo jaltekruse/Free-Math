@@ -440,7 +440,7 @@ class ImageStep extends React.Component {
             const fabricSrc = editorInstance._graphics._canvas.toJSON();
             console.log(fabricSrc);
             console.log(editorInstance);
-            handleImgUrl(editorInstance.toDataURL(), stepIndex, problemIndex, steps,
+            handleImgUrl(editorInstance.toDataURL({format: 'jpeg'}), stepIndex, problemIndex, steps,
                          fabricSrc);
             this.setState({imageMarkup: false});
         }.bind(this);
