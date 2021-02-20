@@ -10,6 +10,8 @@ import Webcam from "react-webcam";
 import ImageEditor from '@toast-ui/react-image-editor'
 import { whiteTheme } from './white-theme.js';
 import { waitForConditionThenDo } from './Util.js';
+import { gridImage } from './gridBase64.js';
+import { blankImgBase64 } from './blankImgBase64.js';
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -567,7 +569,7 @@ class ImageStep extends React.Component {
                                         }.bind(this)}
                                 showModal={this.state.imageMarkup}
                                 content={(
-                                        <div style={{display:"inline-block"}}>
+                                        <div>
                                             <Button className="extra-long-problem-action-button fm-button"
                                                     text={this.state.imageMarkup ?
                                                         "Save Drawing" : "Draw on Image" }
@@ -699,6 +701,14 @@ class Problem extends React.Component {
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
+                            }}/>
+                        <Button text="New Drawing" className="long-problem-action-button fm-button" onClick={
+                            function() {
+                                addImageToEnd(base64ToBlob(blankImgBase64), problemIndex, steps);
+                            }}/>
+                        <Button text="New Grid Drawing" className="long-problem-action-button fm-button" onClick={
+                            function() {
+                                addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
                             }}/>
                         <div style={{display:'inline-block'}}>
                         <Button text="Undo" className="short-problem-action-button fm-button" onClick={

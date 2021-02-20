@@ -8,7 +8,7 @@ import Button from './Button.js';
 import { LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { CloseButton } from './Button.js';
-import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
+import { cloneDeep, getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
 import { listGoogleClassroomAssignments,
          listGoogleClassroomSubmissions,
          listGoogleClassroomCourses,
@@ -22,6 +22,9 @@ var STEPS = 'STEPS';
 var CONTENT = "CONTENT";
 var IMG = "IMG";
 var FORMAT = "FORMAT";
+var FABRIC_SRC = 'FABRIC_SRC';
+var backgroundImage = 'backgroundImage';
+var src = 'src';
 
 // Assignment properties
 var ASSIGNMENT_NAME = 'ASSIGNMENT_NAME';
@@ -150,6 +153,31 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
     var allProblems = studentDoc[PROBLEMS];
     var zip = new JSZip();
     var imagesBeingAddedToZip = 0;
+
+    const saveImageIntoZip = function(img, filename) {
+        // change image to refer to filename that will be generated, will be converted by to objectURL
+        // when being read back in
+        // simpler solution available in ES5
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', img, true);
+        xhr.responseType = 'blob';
+        imagesBeingAddedToZip++;
+        xhr.onload = function(e) {
+          if (this.status === 200) {
+            var imgBlob = this.response;
+            // imgBlob is now the blob that the object URL pointed to.
+            var fr = new FileReader();
+            fr.addEventListener('load', function() {
+                var data = this.result;
+                zip.file(filename, data);
+                imagesBeingAddedToZip--;
+            });
+            return fr.readAsArrayBuffer(imgBlob);
+          }
+        };
+        xhr.send();
+    }
+    console.log(allProblems);
     allProblems = allProblems.map(function(problem, probIndex, array) {
         // make a new object, as this mutates the state, including changing the blob URLs
         // into filenames that will be in the zip file for images, these changes
@@ -161,30 +189,18 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
         problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
         problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
             if (step[FORMAT] === IMG) {
-                // change image to refer to filename that will be generated, will be converted by to objectURL
-                // when being read back in
-                // simpler solution available in ES5
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', step[CONTENT], true);
                 var filename = probIndex + "_" + stepIndex + "_img"
                 var newStep = {...step};
                 newStep[CONTENT] = filename;
-                xhr.responseType = 'blob';
-                imagesBeingAddedToZip++;
-                xhr.onload = function(e) {
-                  if (this.status === 200) {
-                    var imgBlob = this.response;
-                    // imgBlob is now the blob that the object URL pointed to.
-                    var fr = new FileReader();
-                    fr.addEventListener('load', function() {
-                        var data = this.result;
-                        zip.file(filename, data);
-                        imagesBeingAddedToZip--;
-                    });
-                    return fr.readAsArrayBuffer(imgBlob);
-                  }
-                };
-                xhr.send();
+                saveImageIntoZip(step[CONTENT], filename);
+                var fabricSrc = newStep[FABRIC_SRC];
+                if (fabricSrc && fabricSrc[backgroundImage][src]) {
+                    var dataUrl = fabricSrc[backgroundImage][src];
+                    var filename = probIndex + "_" + stepIndex + "_background_img";
+                    saveImageIntoZip(dataUrl, filename);
+                    newStep[FABRIC_SRC] = cloneDeep(fabricSrc);
+                    newStep[FABRIC_SRC][backgroundImage][src] = filename;
+                }
                 return newStep;
             } else {
                 return step;
@@ -294,10 +310,17 @@ function openAssignment(content, filename, driveFileId = false) {
             }
         }
 
+        console.log(images);
         newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, probIndex, array) {
             problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
                 if (step[FORMAT] === IMG) {
                     step[CONTENT] = images[probIndex + "_" + stepIndex + "_img"];
+                    var fabricSrc = step[FABRIC_SRC];
+                    if (fabricSrc && fabricSrc[backgroundImage][src]) {
+                        var filename = probIndex + "_" + stepIndex + "_background_img";
+                        console.log(filename);
+                        step[FABRIC_SRC][backgroundImage][src] = images[filename];
+                    }
                 }
                 return step;
             });
