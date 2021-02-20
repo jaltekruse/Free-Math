@@ -7,6 +7,7 @@ import { genID, base64ToBlob } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
 import Webcam from "react-webcam";
 import ImageEditor from '@toast-ui/react-image-editor'
+import { whiteTheme } from './white-theme.js';
 import { waitForConditionThenDo } from './Util.js';
 
 import Cropper from 'react-cropper';
@@ -432,6 +433,8 @@ class ImageStep extends React.Component {
             xhr.send();
         };
 
+        console.log(whiteTheme);
+
         return (
             <div className="mathStepEditor">
                 {step[CONTENT] === ''
@@ -460,20 +463,6 @@ class ImageStep extends React.Component {
                     <span>
                         <Button className="extra-long-problem-action-button fm-button"
                                 text={this.state.imageMarkup ?
-                                    "Make Editable" : "FIXME" }
-                                title={this.state.imageMarkup ?
-                                    "Make Editable" : "FIXME" }
-                                onClick={function() {
-                                    if (this.state.imageMarkup) {
-                                        window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
-                                        const editorInstance = this.editorRef.current.getInstance();
-                                        const canvas = editorInstance._graphics._canvas;
-                                        canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
-                                    }
-                                }.bind(this)}
-                        />
-                        <Button className="extra-long-problem-action-button fm-button"
-                                text={this.state.imageMarkup ?
                                     "Save Drawing" : "Draw on Image" }
                                 title={this.state.imageMarkup ?
                                     "Save Drawing" : "Draw on Image" }
@@ -486,9 +475,30 @@ class ImageStep extends React.Component {
                                         console.log(editorInstance);
                                         handleImgUrl(editorInstance.toDataURL(), stepIndex, problemIndex, steps,
                                                      fabricSrc);
+                                        this.setState({imageMarkup: false});
                                     } else {
                                         this.setState({imageMarkup: true});
-                                        //waitForConditionThenDo()
+                                        waitForConditionThenDo(5,
+                                            function() {
+                                                try {
+                                                    const editorInstance = this.editorRef.current.getInstance();
+                                                    const canvas = editorInstance._graphics._canvas;
+                                                    return canvas;
+                                                } catch (e) {
+                                                    console.log(e);
+                                                    return false;
+                                                }
+                                            }.bind(this),
+                                            function() {
+                                                const editorInstance = this.editorRef.current.getInstance();
+                                                const canvas = editorInstance._graphics._canvas;
+                                                canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
+                                            }.bind(this),
+                                            function() {
+                                                alert("Failed to load image editor");
+                                                this.setState({imageMarkup: false});
+                                            }.bind(this)
+                                        );
                                     }
                                 }.bind(this)}
                         />
@@ -549,9 +559,10 @@ class ImageStep extends React.Component {
                                   initMenu: 'draw',
                                   uiSize: {
                                     width: '1200px',
-                                    height: '800px'
+                                    height: '850px'
                                   },
-                                  menuBarPosition: 'top'
+                                  menuBarPosition: 'top',
+                                  theme:whiteTheme
                                 }}
                                 cssMaxWidth={1200}
                                 cssMaxHeight={600}
@@ -560,6 +571,7 @@ class ImageStep extends React.Component {
                                   rotatingPointOffset: 70
                                 }}
                                 usageStatistics={false}
+                                defaultColor={'#000000'}
                               />
                               </div>
                             :

@@ -232,6 +232,7 @@ class ImageStep extends React.Component {
                       rotatingPointOffset: 70
                     }}
                     usageStatistics={false}
+                    defaultColor={'#ff4040'}
                   />
                   </div>
                 :
