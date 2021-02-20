@@ -433,6 +433,9 @@ class ImageStep extends React.Component {
             xhr.send();
         };
 
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
         console.log(whiteTheme);
 
         return (
@@ -558,14 +561,14 @@ class ImageStep extends React.Component {
                                   menu: ['draw', 'shape', 'text'],
                                   initMenu: 'draw',
                                   uiSize: {
-                                    width: '1200px',
-                                    height: '850px'
+                                    width: (windowWidth - 600) + 'px',
+                                    height: (windowHeight - 150) + 'px'
                                   },
                                   menuBarPosition: 'top',
                                   theme:whiteTheme
                                 }}
-                                cssMaxWidth={1200}
-                                cssMaxHeight={600}
+                                cssMaxWidth={(windowWidth - 650)}
+                                cssMaxHeight={(windowHeight - 350)}
                                 selectionStyle={{
                                   cornerSize: 20,
                                   rotatingPointOffset: 70
