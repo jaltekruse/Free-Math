@@ -3,6 +3,7 @@ import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
 import FreeMathModal from './Modal.js';
+import BigModal from 'react-modal';
 import { HtmlButton, CloseButton } from './Button.js';
 import { genID, base64ToBlob } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
@@ -563,12 +564,20 @@ class ImageStep extends React.Component {
                             </span>
                            :
                            this.state.imageMarkup ?
-                            <FreeMathModal
-                                closeModal={function() {
+                            <BigModal
+                                onRequestClose={function() {
                                             this.setState({imageMarkup: false});
                                         }.bind(this)}
-                                showModal={this.state.imageMarkup}
-                                content={(
+                                isOpen={this.state.imageMarkup}
+                                shouldCloseOnOverlayClick={true}
+                                style={{
+                                    overlay: {
+                                        position: 'fixed', top: 0, left: 0,right: 0, bottom: 0,
+                                        backgroundColor: 'rgba(100, 100, 100, 0.6)'
+
+                                    }
+                                }}
+                            >
                                         <div>
                                             <Button className="extra-long-problem-action-button fm-button"
                                                     text={this.state.imageMarkup ?
@@ -615,8 +624,8 @@ class ImageStep extends React.Component {
                                                 defaultColor={'#000000'}
                                               />
                                             </div>
-                                    )
-                                } />
+
+                                </BigModal>
                             :
                             <span>
                                 <Button className="long-problem-action-button fm-button"
