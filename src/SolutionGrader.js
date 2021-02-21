@@ -3,6 +3,7 @@ import './App.css';
 import TeX from './TeX.js';
 import Button from './Button.js';
 import { getPersistentState } from './FreeMath.js';
+import { whiteTheme } from './white-theme.js';
 import ImageEditor from '@toast-ui/react-image-editor'
 
 // when grading google classroom docs, show student name instead of filename
@@ -164,7 +165,6 @@ class ImageStep extends React.Component {
                                 "Save Feedback" : "Mark Image Feedback" }
                             onClick={function() {
                                 if (this.state.imageMarkup) {
-                                    // TODO - save modified image
                                     window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
                                     const editorInstance = this.editorRef.current.getInstance();
                                     window.store.dispatch({
@@ -220,13 +220,14 @@ class ImageStep extends React.Component {
                         path: step[CONTENT],
                         name: 'SampleImage'
                       },
-                      menu: ['draw', 'shape', 'text'],
+                      menu: ['select', 'draw', 'shape', 'text'],
                       initMenu: 'draw',
                       uiSize: {
                         width: '500px',
                         height: '700px'
                       },
-                      menuBarPosition: 'top'
+                      menuBarPosition: 'top',
+                      theme:whiteTheme
                     }}
                     cssMaxWidth={500}
                     cssMaxHeight={450}
@@ -235,6 +236,7 @@ class ImageStep extends React.Component {
                       rotatingPointOffset: 70
                     }}
                     usageStatistics={false}
+                    defaultColor={'#ff4040'}
                   />
                   </div>
                 :

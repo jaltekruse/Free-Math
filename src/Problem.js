@@ -2,10 +2,17 @@ import React from 'react';
 import './App.css';
 import MathInput from './MathInput.js';
 import Button from './Button.js';
+import FreeMathModal from './Modal.js';
+import BigModal from 'react-modal';
 import { HtmlButton, CloseButton } from './Button.js';
 import { genID, base64ToBlob } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
 import Webcam from "react-webcam";
+import ImageEditor from '@toast-ui/react-image-editor'
+import { whiteTheme } from './white-theme.js';
+import { waitForConditionThenDo } from './Util.js';
+import { gridImage } from './gridBase64.js';
+import { blankImgBase64 } from './blankImgBase64.js';
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -92,6 +99,8 @@ var EDIT_STEP = 'EDIT_STEP';
 var NEW_STEP_CONTENT = 'NEW_STEP_CONTENT';
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
+var FABRIC_SRC = 'FABRIC_SRC';
+var NEW_FABRIC_SRC = 'NEW_FABRIC_SRC';
 
 // CSS constants
 var SOFT_RED = '#FFDEDE';
@@ -201,10 +210,11 @@ function handleImg(imgFile, stepIndex, problemIndex, steps) {
     handleImgUrl(window.URL.createObjectURL(imgFile), stepIndex, problemIndex, steps);
 }
 
-function handleImgUrl(objUrl, stepIndex, problemIndex, steps) {
+// fabricSrc is the Json serialization of the edited image to allow further moving places objecsts/drawings
+function handleImgUrl(objUrl, stepIndex, problemIndex, steps, fabricSrc = undefined) {
     window.store.dispatch(
         { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-          FORMAT: IMG, NEW_STEP_CONTENT: objUrl} );
+            FORMAT: IMG, NEW_STEP_CONTENT: objUrl, NEW_FABRIC_SRC : fabricSrc } );
     addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
 }
 
@@ -374,8 +384,10 @@ class WebcamCapture extends React.Component {
 };
 
 class ImageStep extends React.Component {
+    editorRef = React.createRef();
     state = {
-        cropping : false
+        cropping : false,
+        imageMarkup : false
     };
 
     render() {
@@ -426,6 +438,57 @@ class ImageStep extends React.Component {
             xhr.send();
         };
 
+        const saveDrawing = function() {
+            window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
+            const editorInstance = this.editorRef.current.getInstance();
+            const fabricSrc = editorInstance._graphics._canvas.toJSON();
+            console.log(fabricSrc);
+            console.log(editorInstance);
+            handleImgUrl(editorInstance.toDataURL({format: 'jpeg'}), stepIndex, problemIndex, steps,
+                         fabricSrc);
+            this.setState({imageMarkup: false});
+        }.bind(this);
+
+        const openDrawing = function() {
+            this.setState({imageMarkup: true});
+            waitForConditionThenDo(5,
+                function() {
+                    try {
+                        const editorInstance = this.editorRef.current.getInstance();
+                        const canvas = editorInstance._graphics._canvas;
+                        return canvas;
+                    } catch (e) {
+                        console.log(e);
+                        return false;
+                    }
+                }.bind(this),
+                function() {
+                    const editorInstance = this.editorRef.current.getInstance();
+                    const canvas = editorInstance._graphics._canvas;
+                    console.log(canvas);
+                    window.fabric.Object.prototype.cornerColor = 'green';
+                    window.fabric.Object.prototype.cornerSize = 15;
+                    window.fabric.Object.prototype.borderColor = 'red';
+                    window.fabric.Object.prototype.transparentCorners = false;
+
+                    editorInstance._graphics.setSelectionStyle({
+                      cornerSize: 10,
+                      cornerColor: 'green',
+                    });
+                    canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
+                }.bind(this),
+                function() {
+                    alert("Failed to load image editor");
+                    this.setState({imageMarkup: false});
+                }.bind(this)
+            );
+        }.bind(this);
+
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+
+        console.log(whiteTheme);
+
         return (
             <div className="mathStepEditor">
                 {step[CONTENT] === ''
@@ -452,9 +515,28 @@ class ImageStep extends React.Component {
                     />
                 :
                     <span>
+                        { !this.state.cropping ?
+                            <Button className="extra-long-problem-action-button fm-button"
+                                    text={this.state.imageMarkup ?
+                                        "Save Drawing" : "Draw on Image" }
+                                    title={this.state.imageMarkup ?
+                                        "Save Drawing" : "Draw on Image" }
+                                    onClick={function() {
+                                        if (this.state.imageMarkup) {
+                                            saveDrawing();
+                                        } else {
+                                            openDrawing();
+                                        }
+                                    }.bind(this)}
+                            />
+                            : null
+                        }
+
                         <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
                                 text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
-                                title={this.state.cropping ? "Finished Cropping" : "Crop Image" }
+                                title={step[FABRIC_SRC] ? "Cannot crop after drawing on an image" :
+                                    (this.state.cropping ? "Finished Cropping" : "Crop Image")}
+                                disabled={step[FABRIC_SRC]}
                                 onClick={function() {
                                     if (this.state.cropping) {
                                         handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
@@ -481,16 +563,85 @@ class ImageStep extends React.Component {
                                     guides={true}
                                     crop={function(){}} />
                             </span>
+                           :
+                           this.state.imageMarkup ?
+                            <BigModal
+                                onRequestClose={function() {
+                                            this.setState({imageMarkup: false});
+                                        }.bind(this)}
+                                isOpen={this.state.imageMarkup}
+                                shouldCloseOnOverlayClick={true}
+                                style={{
+                                    overlay: {
+                                        position: 'fixed', top: 0, left: 0,right: 0, bottom: 0,
+                                        backgroundColor: 'rgba(100, 100, 100, 0.6)',
+                                        zIndex: 1040,
+                                    },
+                                    content: {
+                                        padding: '10px'
+                                    }
+                                }}
+                            >
+                                        <div>
+                                            <Button className="extra-long-problem-action-button fm-button"
+                                                    text={this.state.imageMarkup ?
+                                                        "Save Drawing" : "Draw on Image" }
+                                                    title={this.state.imageMarkup ?
+                                                        "Save Drawing" : "Draw on Image" }
+                                                    onClick={function() {
+                                                        if (this.state.imageMarkup) {
+                                                            saveDrawing();
+                                                        } else {
+                                                            openDrawing();
+                                                        }
+                                                    }.bind(this)}
+                                            />
+                                            <Button className="extra-long-problem-action-button fm-button"
+                                                text="Cancel"
+                                                onClick={function() {
+                                                    this.setState({imageMarkup: false});
+                                                }.bind(this)} />
+                                            <ImageEditor
+                                                ref={this.editorRef}
+                                                includeUI={{
+                                                  loadImage: {
+                                                    path: step[CONTENT],
+                                                    name: 'SampleImage'
+                                                  },
+                                                  menu: ['select', 'draw', 'shape', 'text'],
+                                                  initMenu: 'draw',
+                                                  uiSize: {
+                                                    width: (windowWidth - 200) + 'px',
+                                                    height: (windowHeight - 150) + 'px'
+                                                  },
+                                                  menuBarPosition: 'left',
+                                                  theme: whiteTheme
+                                                }}
+                                                cssMaxWidth={(windowWidth - 250)}
+                                                cssMaxHeight={(windowHeight - 225)}
+                                                selectionStyle={{
+                                                  cornerSize: 15,
+                                                  cornerColor: 'green',
+                                                  rotatingPointOffset: 70
+                                                }}
+                                                usageStatistics={false}
+                                                defaultColor={'#000000'}
+                                              />
+                                            </div>
+
+                                </BigModal>
                             :
                             <span>
                                 <Button className="long-problem-action-button fm-button"
                                         text="Rotate Left"
-                                        title="Rotate image left"
+                                        title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
+                                        disabled={step[FABRIC_SRC]}
                                         onClick={function() { rotate(270);}}
                                 />
                                 <Button className="long-problem-action-button fm-button"
                                         text="Rotate Right"
-                                        title="Rotate image right"
+                                        title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
+                                        disabled={step[FABRIC_SRC]}
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
@@ -505,6 +656,7 @@ class ImageStep extends React.Component {
                                     : null }
                             </span>
                         }
+                        <br />
                     </span>
                 }
             </div>
@@ -562,6 +714,14 @@ class Problem extends React.Component {
                             function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
+                            }}/>
+                        <Button text="New Drawing" className="long-problem-action-button fm-button" onClick={
+                            function() {
+                                addImageToEnd(base64ToBlob(blankImgBase64), problemIndex, steps);
+                            }}/>
+                        <Button text="New Grid Drawing" className="long-problem-action-button fm-button" onClick={
+                            function() {
+                                addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
                             }}/>
                         <div style={{display:'inline-block'}}>
                         <Button text="Undo" className="short-problem-action-button fm-button" onClick={
@@ -831,6 +991,7 @@ function problemReducer(problem, action) {
         const currStep = problem[STEPS][action[STEP_KEY]];
         const currContent = currStep[CONTENT];
         let newContent = action[NEW_STEP_CONTENT];
+        let newFabficSrc = action[NEW_FABRIC_SRC];
         const currFormat = currStep[FORMAT];
         const newFormat = action[FORMAT];
 
@@ -900,7 +1061,8 @@ function problemReducer(problem, action) {
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
+                type : EDIT_STEP,
+                STEP_KEY: action[STEP_KEY],
                 FORMAT: currFormat,
                 INVERSE_ACTION : {
                     ...action,
@@ -919,6 +1081,7 @@ function problemReducer(problem, action) {
             ];
         } else {
             inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = problem[STEPS][action[STEP_KEY]][CONTENT];
+            inverseAction[INVERSE_ACTION][NEW_FABRIC_SRC] = problem[STEPS][action[STEP_KEY]][FABRIC_SRC];
             let undoAction = {...inverseAction[INVERSE_ACTION]};
             newUndoStack = [
                 undoAction,
@@ -934,6 +1097,7 @@ function problemReducer(problem, action) {
                 // copy properties of the old step, to get the STEP_ID, then override the content
                 { ...problem[STEPS][action[STEP_KEY]],
                      CONTENT : newContent,
+                     FABRIC_SRC : newFabficSrc,
                      FORMAT : action[FORMAT],
                 },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
@@ -946,8 +1110,10 @@ function problemReducer(problem, action) {
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : INSERT_STEP_ABOVE, STEP_KEY: action[STEP_KEY],
+                type : INSERT_STEP_ABOVE,
+                STEP_KEY: action[STEP_KEY],
                 CONTENT : problem[STEPS][action[STEP_KEY]][CONTENT],
+                FABRIC_SRC : problem[STEPS][action[STEP_KEY]][FABRIC_SRC],
                 FORMAT : problem[STEPS][action[STEP_KEY]][FORMAT],
                 INVERSE_ACTION : {...action}
             }
@@ -967,10 +1133,12 @@ function problemReducer(problem, action) {
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
         let newContent;
+        let newFabricSrc = undefined;
         var newFormat = undefined;
         // non-blank inserations in the middle of work currently only used for undo/redo
         if (CONTENT in action) {
             newContent = action[CONTENT]
+            newFabricSrc = action[FABRIC_SRC]
             if (FORMAT in action) {
                 newFormat = action[FORMAT]
             } else {
@@ -992,7 +1160,9 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : newContent, FORMAT: newFormat, STEP_ID : genID()},
+                { CONTENT : newContent,
+                  FABRIC_SRC: newFabricSrc,
+                  FORMAT: newFormat, STEP_ID : genID()},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
             UNDO_STACK : [
@@ -1076,6 +1246,8 @@ function problemReducer(problem, action) {
 
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
+    console.log(action);
+    console.log(probList);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }

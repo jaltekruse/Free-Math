@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import { deepFreeze, compareOverallEditorState } from './utils.js';
+import { deepFreeze, compareOverallEditorState } from './testUtils.js';
 import { assignmentReducer } from './Assignment.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { problemReducer } from './Problem.js';
-import { rootReducer} from './FreeMath.js';
+import { cloneDeep, rootReducer} from './FreeMath.js';
 
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
@@ -51,9 +51,12 @@ var FEEDBACK = "FEEDBACK";
 var NEW_STEP = 'NEW_STEP';
 var NEW_BLANK_STEP = 'NEW_BLANK_STEP';
 // this action expects an index for which problem to change
-var UNDO_= 'UNDO';
+var UNDO = 'UNDO';
 // this action expects an index for which problem to change
 var REDO = 'REDO';
+var UNDO_STACK = 'UNDO_STACK';
+var REDO_STACK = 'REDO_STACK';
+var INVERSE_ACTION = 'INVERSE_ACTION';
 
 // this action expects:
 // PROBLEM_INDEX - for which problem to change
@@ -82,41 +85,46 @@ it('test demo creation, undo/redo bug', () => {
 
     const expected = {
         "APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-        "GOOGLE_DRIVE_STATE": "ALL_SAVED",
         "PROBLEMS": [
             {"PROBLEM_NUMBER": "", "REDO_STACK": [], "STEPS": [{"CONTENT": "", FORMAT: "MATH"}], "UNDO_STACK": []}
         ],
-        "BUTTON_GROUP": "BASIC",
         "CURRENT_PROBLEM": 0
     };
 
     compareOverallEditorState(
+        newAssignment,
         expected,
-        newAssignment
     );
 
     const withDemoProb = rootReducer(newAssignment, {type : ADD_DEMO_PROBLEM});
 
     const expectedDemo = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                          "BUTTON_GROUP": "BASIC",
                           "CURRENT_PROBLEM": 0,
-                          "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                           "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
                           "SHOW_TUTORIAL": true, "STEPS": [
                               {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111}
-                          ], "UNDO_STACK": []}]};
+                          ], "UNDO_STACK": []}, {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                },]};
 
     compareOverallEditorState(
+        withDemoProb,
         expectedDemo,
-        withDemoProb
     );
 
     const afterNextStep = rootReducer(expectedDemo, {type : NEW_STEP, PROBLEM_INDEX : 0});
 
     const expectedState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                          "BUTTON_GROUP": "BASIC",
                           "CURRENT_PROBLEM": 0,
-                          "GOOGLE_DRIVE_STATE": "ALL_SAVED",
                           "DOC_ID": 105916232, "PROBLEMS": [{"PROBLEM_NUMBER": "Demo", "REDO_STACK": [],
                           "SHOW_TUTORIAL": true,
                           "STEPS": [
@@ -125,18 +133,30 @@ it('test demo creation, undo/redo bug', () => {
                           ],
                           "UNDO_STACK": [
                               { "INVERSE_ACTION": {"PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "NEW_STEP"},
-                                "STEP_KEY": 1, "type": "DELETE_STEP"}]}]};
+                                "STEP_KEY": 1, "type": "DELETE_STEP"}]},
+                          {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }
+                          ]};
 
     compareOverallEditorState(
+        afterNextStep,
         expectedState,
-        afterNextStep
     );
 
     const afterFirstUndo = rootReducer(afterNextStep, {type : "UNDO", PROBLEM_INDEX : 0});
 
     const expectedUndoState = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
-                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
+                               "DOC_ID": 105916232, "CURRENT_PROBLEM": 0,
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
@@ -149,18 +169,29 @@ it('test demo creation, undo/redo bug', () => {
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
                                         {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
-                                     ], "UNDO_STACK": []}]};
+                                     ], "UNDO_STACK": []},
+                                {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }]};
 
     compareOverallEditorState(
+        afterFirstUndo,
         expectedUndoState,
-        afterFirstUndo
     );
 
     const afterSecondUndo = rootReducer(afterFirstUndo, {type : "UNDO", PROBLEM_INDEX : 0});
 
     const expectedUndoState2 = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
-                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
+                               "DOC_ID": 105916232, "CURRENT_PROBLEM": 0,
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
@@ -173,19 +204,30 @@ it('test demo creation, undo/redo bug', () => {
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
                                         {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
-                                     ], "UNDO_STACK": []}]};
+                                     ], "UNDO_STACK": []},
+                                {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }]};
 
     compareOverallEditorState(
+        afterSecondUndo,
         expectedUndoState2,
-        afterSecondUndo
     );
 
     const afterThirdUndo = rootReducer(afterSecondUndo, {type : "UNDO", PROBLEM_INDEX : 0});
 
     const expectedUndoState3 =
         {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
-                               "DOC_ID": 105916232, "BUTTON_GROUP": "BASIC", "CURRENT_PROBLEM": 0,
-                                "GOOGLE_DRIVE_STATE": "ALL_SAVED",
+                               "DOC_ID": 105916232, "CURRENT_PROBLEM": 0,
                                "PROBLEMS": [
                                    { "PROBLEM_NUMBER": "Demo",
                                      "REDO_STACK": [
@@ -196,11 +238,23 @@ it('test demo creation, undo/redo bug', () => {
                                      "SHOW_TUTORIAL": true,
                                      "STEPS": [
                                         {"CONTENT": "4+2-3\\left(1+2\\right)", "STEP_ID": 111111},
-                                     ], "UNDO_STACK": []}]};
+                                     ], "UNDO_STACK": []},
+                                {
+                                  "PROBLEM_NUMBER": "Image Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }]};
 
     compareOverallEditorState(
+        afterThirdUndo,
         expectedUndoState3,
-        afterThirdUndo
     );
 });
 
@@ -217,7 +271,7 @@ it('test adding a problem', () => {
     var expectedAssignment = {
         "APP_MODE": "EDIT_ASSIGNMENT",
         "ASSIGNMENT_NAME": "Untitled Assignment",
-        "CURRENT_PROBLEM": 2,
+        "CURRENT_PROBLEM": 0,
         "PROBLEMS": [
             {"PROBLEM_NUMBER": "1", "REDO_STACK": [], "UNDO_STACK": [],
                 "STEPS": [{"CONTENT": "1+2"}, {"CONTENT": "3"}]},
@@ -313,6 +367,102 @@ it('test renaming a problem', () => {
 		{ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : 1, NEW_PROBLEM_NUMBER : "1.a"}),
         expectedAssignment
     );
+});
+
+it('test editing an image step, then undo', () => {
+    var initialAssignment = {
+        APP_MODE : EDIT_ASSIGNMENT,
+        ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       STEPS : [{CONTENT : "1+2"}], LAST_SHOWN_STEP : 0 },
+        ]
+    }
+    var expectedAssignment = {
+        APP_MODE : EDIT_ASSIGNMENT,
+        ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        CURRENT_PROBLEM: 0,
+        PROBLEMS: [
+            { "PROBLEM_NUMBER": "1",
+              "REDO_STACK": [], "STEPS": [
+                  {"CONTENT": "1+2"},
+                  {"CONTENT": "image_content_stand_in", "FORMAT": "IMG"}],
+              "UNDO_STACK": [{"INVERSE_ACTION": {
+                "PROBLEM_INDEX": 0, "STEP_DATA": {"CONTENT": "image_content_stand_in", "FORMAT": "IMG"},
+                "STEP_KEY": 0, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"}]
+            }
+        ]
+    };
+
+    var addImgAction = {
+        type : "NEW_STEP", "PROBLEM_INDEX" : 0,
+        STEP_DATA : {FORMAT: "IMG", CONTENT : "image_content_stand_in"}
+    };
+    deepFreeze(initialAssignment);
+    compareOverallEditorState(
+        expectedAssignment,
+        assignmentReducer(convertToCurrentFormat(initialAssignment), addImgAction)
+    );
+
+
+    deepFreeze(expectedAssignment);
+    var editImgAction = {
+        type : "EDIT_STEP", "PROBLEM_INDEX" : 0, STEP_KEY: 1,
+        NEW_STEP_CONTENT: "image_edited", NEW_FABRIC_SRC: "fabric_src_for_drawings",
+        STEP_DATA : {FORMAT: "IMG", CONTENT : "image_content_stand_in"}
+    };
+
+    var expectedAfterEdit = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "CURRENT_PROBLEM": 0, "PROBLEMS": [{"PROBLEM_NUMBER": "1", "REDO_STACK": [], "STEPS": [{"CONTENT": "1+2"}, {"CONTENT": "image_edited", "FABRIC_SRC": "fabric_src_for_drawings", "FORMAT": undefined}], "UNDO_STACK": [{"FORMAT": "IMG", "INVERSE_ACTION": {"EDIT_TYPE": undefined, "NEW_FABRIC_SRC": "fabric_src_for_drawings", "NEW_STEP_CONTENT": "image_edited", "POS": undefined, "PROBLEM_INDEX": 0, "STEP_DATA": {"CONTENT": "image_content_stand_in", "FORMAT": "IMG"}, "STEP_KEY": 1, "type": "EDIT_STEP"}, "NEW_STEP_CONTENT": "image_content_stand_in", "STEP_KEY": 1, "type": "EDIT_STEP"}, {"INVERSE_ACTION": {"PROBLEM_INDEX": 0, "STEP_DATA": {"CONTENT": "image_content_stand_in", "FORMAT": "IMG"}, "STEP_KEY": 0, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"}]}]};
+
+
+    compareOverallEditorState(
+        expectedAfterEdit,
+        assignmentReducer(convertToCurrentFormat(expectedAssignment), editImgAction)
+    );
+
+    deepFreeze(expectedAfterEdit);
+
+    const expectedAfterUndo = {"APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment", "CURRENT_PROBLEM": 0, "PROBLEMS": [{"PROBLEM_NUMBER": "1", "REDO_STACK": [{"EDIT_TYPE": undefined, "INVERSE_ACTION": {"FORMAT": "IMG", "INVERSE_ACTION": undefined, "NEW_STEP_CONTENT": "image_content_stand_in", "STEP_KEY": 1, "type": "EDIT_STEP"}, NEW_FABRIC_SRC: "fabric_src_for_drawings", "NEW_STEP_CONTENT": "image_edited", "POS": undefined, "PROBLEM_INDEX": 0, "STEP_DATA": {"CONTENT": "image_content_stand_in", "FORMAT": "IMG"}, "STEP_KEY": 1, "type": "EDIT_STEP"}], "STEPS": [{"CONTENT": "1+2"}, {"CONTENT": "image_content_stand_in", "FABRIC_SRC": undefined, "FORMAT": "IMG"}], "UNDO_STACK": [{"INVERSE_ACTION": {"PROBLEM_INDEX": 0, "STEP_DATA": {"CONTENT": "image_content_stand_in", "FORMAT": "IMG"}, "STEP_KEY": 0, "type": "NEW_STEP"}, "STEP_KEY": 1, "type": "DELETE_STEP"}]}]};
+
+    const afterUndo = rootReducer(expectedAfterEdit, {type : "UNDO", PROBLEM_INDEX : 0});
+    compareOverallEditorState(
+        expectedAfterUndo,
+        afterUndo
+    );
+
+    deepFreeze(expectedAfterUndo);
+    const afterRedo = rootReducer(expectedAfterUndo, {type : "REDO", PROBLEM_INDEX : 0});
+
+    const expectedAfterRedo = cloneDeep(expectedAfterEdit);
+    expectedAfterRedo[PROBLEMS][0][UNDO_STACK][0][INVERSE_ACTION][INVERSE_ACTION] =
+                {
+                  "FORMAT": "IMG",
+                  "INVERSE_ACTION": undefined,
+                  "NEW_STEP_CONTENT": "image_content_stand_in",
+                  "STEP_KEY": 1,
+                  "type": "EDIT_STEP",
+                };
+
+    compareOverallEditorState(
+        expectedAfterRedo,
+        afterRedo
+    );
+
+    /*
+
+            handleImgUrl(editorInstance.toDataURL({format: 'jpeg'}), stepIndex, problemIndex, steps,
+                         fabricSrc);
+function handleImg(imgFile, stepIndex, problemIndex, steps) {
+    handleImgUrl(window.URL.createObjectURL(imgFile), stepIndex, problemIndex, steps);
+}
+
+// fabricSrc is the Json serialization of the edited image to allow further moving places objecsts/drawings
+function handleImgUrl(objUrl, stepIndex, problemIndex, steps, fabricSrc = undefined) {
+    window.store.dispatch(
+        { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
+            FORMAT: IMG, NEW_STEP_CONTENT: objUrl, FABRIC_SRC : fabricSrc } );
+    addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
+}
+     */
 });
 
 it('test editing a step', () => {

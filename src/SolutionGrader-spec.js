@@ -1,6 +1,6 @@
 import JSZip from 'jszip';
 import _ from 'underscore';
-import { deepFreeze } from './utils.js';
+import { deepFreeze } from './testUtils.js';
 import { convertToCurrentFormat } from './TeacherInteractiveGrader.js';
 import { aggregateStudentWork } from './TeacherInteractiveGrader.js';
 import { separateIndividualStudentAssignments } from './TeacherInteractiveGrader.js';
