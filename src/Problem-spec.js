@@ -80,7 +80,6 @@ it('test problem format conversion', () => {
     }
 })
 
-/*
 it('test demo creation, undo/redo bug', () => {
     const newAssignment = rootReducer({}, { type : "NEW_ASSIGNMENT" });
 
@@ -207,7 +206,6 @@ it('test demo creation, undo/redo bug', () => {
         afterThirdUndo
     );
 });
-*/
 
 it('test adding a problem', () => {
     var initialAssignment = {
