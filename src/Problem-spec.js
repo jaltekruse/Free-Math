@@ -209,7 +209,6 @@ it('test demo creation, undo/redo bug', () => {
 });
 */
 
-/*
 it('test adding a problem', () => {
     var initialAssignment = {
         APP_MODE : EDIT_ASSIGNMENT,
@@ -223,7 +222,7 @@ it('test adding a problem', () => {
     var expectedAssignment = {
         "APP_MODE": "EDIT_ASSIGNMENT",
         "ASSIGNMENT_NAME": "Untitled Assignment",
-        "CURRENT_PROBLEM": 2,
+        "CURRENT_PROBLEM": 0,
         "PROBLEMS": [
             {"PROBLEM_NUMBER": "1", "REDO_STACK": [], "UNDO_STACK": [],
                 "STEPS": [{"CONTENT": "1+2"}, {"CONTENT": "3"}]},
@@ -239,7 +238,6 @@ it('test adding a problem', () => {
         assignmentReducer(convertToCurrentFormat(initialAssignment), { type : ADD_PROBLEM })
     );
 });
-*/
 
 it('test removing a problem', () => {
     var initialAssignment = {
