@@ -15,6 +15,7 @@ import { saveAs } from 'file-saver';
 import { Chart, Bar } from 'react-chartjs-2';
 import { defaults } from 'react-chartjs-2';
 import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
+import Select from "react-select";
 
 var KAS = window.KAS;
 
@@ -56,6 +57,13 @@ var SIMILAR_ASSIGNMENT_GROUP_INDEX = "SIMILAR_ASSIGNMENT_GROUP_INDEX";
 var SIMILAR_ASSIGNMENT_SETS = "SIMILAR_ASSIGNMENT_SETS";
 // teacher grading actions
 var VIEW_SIMILAR_ASSIGNMENTS = "VIEW_SIMILAR_ASSIGNMENTS";
+
+// related to creating a custom group of assignments to see side-by-side
+// mostly for doing a manual similarity check if the automated one fails
+// to notice irregularities
+const ALL_STUDENTS = 'ALL_STUDENTS';
+const CUSTOM_GROUP = 'CUSTOM_GROUP';
+
 // Problem properties
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var STEPS = 'STEPS';
@@ -268,9 +276,18 @@ function gradingReducer(state, action) {
             } }
         };
     } else if (action.type === VIEW_SIMILAR_ASSIGNMENTS) {
-        return {
-            ...state,
-            SIMILAR_ASSIGNMENT_GROUP_INDEX : action[SIMILAR_ASSIGNMENT_GROUP_INDEX]
+        if (typeof action[CUSTOM_GROUP] !== 'undefined') {
+            return {
+                ...state,
+                SIMILAR_ASSIGNMENT_GROUP_INDEX: null,
+                CUSTOM_GROUP : action[CUSTOM_GROUP]
+            };
+        } else {
+            return {
+                ...state,
+                CUSTOM_GROUP : null,
+                SIMILAR_ASSIGNMENT_GROUP_INDEX : action[SIMILAR_ASSIGNMENT_GROUP_INDEX]
+            };
         }
     } else if (action.type === SET_TO_VIEW_GRADES) {
         // TODO - only allow this to be transitioned to from grading mode
@@ -295,6 +312,7 @@ function gradingReducer(state, action) {
             // This action is also used to move away from grading, but this won't
             // hurt anything happening in both cases.
             SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined,
+            CUSTOM_GROUP : undefined,
             APP_MODE : GRADE_ASSIGNMENTS,
         };
     } else if (action.type === SET_POSSIBLE_POINTS_FOR_ALL) {
@@ -373,10 +391,15 @@ function splitKey(compositeKey) {
 //
 function findSimilarStudentAssignments(allStudentWork) {
 
-    if (allStudentWork.length > 40) {
-        alert("Too many assignments to perform overall document similarity check.\n" +
-            "To use this feature you can open up documents in groups of 40 students or less at a time.");
-        return [];
+    if (allStudentWork.length > 50) {
+        if (!window.confirm("You are opening a group of " + allStudentWork.length + " assignments. " +
+            "With a class this large the check for overall simular documents for cheating prevention " +
+            "will take a long time. We have already finished grouping similar work on each individual " +
+            "problem, which we can do much faster. Would you like to wait for the cheating " +
+            "prevention check to finish?\n\n" +
+            "Select cancel to skip it and just open the grading page.")) {
+            return [];
+        }
     }
     // Similarity check does a generic diff on JSON docs, for re-opened docs this
     // will include data intermixed for the grading marks.
@@ -387,16 +410,19 @@ function findSimilarStudentAssignments(allStudentWork) {
     allStudentWork = cloneDeep(allStudentWork);
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            problem[FEEDBACK] = "";
-            problem[SCORE] = "";
-            problem[POSSIBLE_POINTS] = "";
-            problem["LAST_SHOWN_STEP"] = "";
-            problem[UNDO_STACK] = [];
-            problem[REDO_STACK] = [];
+            if (problem[FEEDBACK]) delete problem[FEEDBACK];
+            if (problem[SCORE]) delete problem[SCORE];
+            if (problem[POSSIBLE_POINTS]) delete problem[POSSIBLE_POINTS];
+            if (problem[LAST_SHOWN_STEP]) delete problem[LAST_SHOWN_STEP];
+            if (problem[UNDO_STACK]) delete problem[UNDO_STACK];
+            if (problem[REDO_STACK]) delete problem[REDO_STACK];
+            if (problem[STUDENT_NAME]) delete problem[STUDENT_NAME];
+            if (problem[STUDENT_SUBMISSION_ID]) delete problem[STUDENT_SUBMISSION_ID];
             problem[STEPS].forEach(function(step, index, array) {
-                if (step[HIGHLIGHT])
-                    delete step[HIGHLIGHT];
-                step[STEP_ID] = "";
+                if (step[HIGHLIGHT]) delete step[HIGHLIGHT];
+                if (step[FORMAT]) delete step[FORMAT];
+                if (step[STEP_ID]) delete step[STEP_ID];
+                step[CONTENT] = step[CONTENT].replaceAll("\\ ", "");
             });
         });
     });
@@ -412,6 +438,8 @@ function findSimilarStudentAssignments(allStudentWork) {
     var totalProblemsCompleted = 0;
     var totalProblemsAttempted = 0;
     var maxProblemsAttempted = 0;
+    // TODO - calculate total number of steps for each student doc
+    // use that the calculate size of diff, instead of average doc size
     allStudentWork.forEach(function(assignment, index, array) {
         if (assignment[ASSIGNMENT].length > maxProblemsAttempted) {
             maxProblemsAttempted = assignment[ASSIGNMENT].length;
@@ -432,12 +460,12 @@ function findSimilarStudentAssignments(allStudentWork) {
         allStudentWork.forEach(function(assignment2, index, array) {
             if (assignment1[STUDENT_FILE] === assignment2[STUDENT_FILE]) return;
             var result = diffJson(assignment1, assignment2);
-            // currently a rough threshold of 30% unique work, will improve later
+            // currently a rough threshold of 60% unique work, will improve later
             // the -2 is to adjust for the filename difference in the structures
             let similarity = ((result.length - 2) / 2.0)
                 / ( averageNumberOfQuestions * averageAnswerLength);
 
-            if (similarity < 0.3) {
+            if (similarity < 0.6) {
                 let key = buildKey(assignment1[STUDENT_FILE], assignment2[STUDENT_FILE]);
                 similarityScores[key] = similarity;
                 // create list if one not already existing at this key
@@ -1153,9 +1181,13 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     });
     */
 
+    const allStudents = allStudentWork.map(function(assignInfo, index, array) {
+        return { STUDENT_FILE: assignInfo[STUDENT_FILE], STUDENT_NAME: assignInfo[STUDENT_NAME]};
+    });
+
     var similarAssignments = findSimilarStudentAssignments(allStudentWork);
     return { CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
-    SIMILAR_ASSIGNMENT_SETS : similarAssignments, PROBLEMS : aggregatedWork }
+    SIMILAR_ASSIGNMENT_SETS : similarAssignments, ALL_STUDENTS: allStudents, CUSTOM_GROUP : null, PROBLEMS : aggregatedWork }
 }
 
 // TODO - delete this, highlights now shown in student experience for viewing
@@ -1503,10 +1535,15 @@ function studentSubmissionsZip(evt, onSuccess, onFailure) {
 
 class SimilarDocChecker extends React.Component {
     render() {
+        var state = this.props.value;
+        var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
+        var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
+        const studentsToView =
+            state[CUSTOM_GROUP] ? state[CUSTOM_GROUP] : similarAssignments[currentSimilarityGroupIndex];
         return (
             <div>
                 <SimilarGroupSelector value={this.props.value} />
-                { (this.props.value[SIMILAR_ASSIGNMENT_GROUP_INDEX] !== undefined)
+                { (studentsToView)
                     ? <AllProblemGraders value={this.props.value}/>
                     : null }
             </div>
@@ -1518,11 +1555,13 @@ class SimilarGroupSelector extends React.Component {
     render() {
         var state = this.props.value;
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
+        var allStudents = state[ALL_STUDENTS];
+        console.log(allStudents);
         var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
         return(
-            <div>
+            <div className="similar-assignment-filters">
             { (similarAssignments && similarAssignments.length > 0) ? (
-                <div className="similar-assignment-filters">
+                <div>
                   <h3>Some students may have copied each others work</h3>
                 {/* Not really needed anymore now that similar doc check is on separate page
                     TODO - remove this completely, including actions
@@ -1574,8 +1613,49 @@ class SimilarGroupSelector extends React.Component {
                 )
                : <h3>No students submitted documents sharing a significant amount work.</h3>
             }
+            <br /><br />
+            <h3>Custom Group</h3>
+
+
+            <p>See one or more students' full assignments side by side.</p>
+            <CustomGroupMaker students={allStudents}/>
             </div>
         );
+    }
+}
+
+class CustomGroupMaker extends React.Component {
+    state = {
+        selected: null,
+    };
+    handleChange = selected => {
+        console.log(selected);
+        const selectedStudents =
+            !selected ? null : selected.map(function(selection) {
+                return selection['value'];
+        });
+        window.store.dispatch(
+            { type : VIEW_SIMILAR_ASSIGNMENTS,
+                CUSTOM_GROUP : selectedStudents
+        });
+    };
+
+    render() {
+        var students = this.props.students;
+        // todo - pull out common prefix if present
+        //      - like when opening a zip file with a directory
+        students = students.map(function(student, index, array) {
+            return { value: student[STUDENT_FILE], label: (student[STUDENT_NAME] ? student[STUDENT_NAME] : student[STUDENT_FILE])};
+        });
+        return (
+            <div className="App">
+                <Select
+                    isMulti={true}
+                    onChange={this.handleChange}
+                    options={students}
+                />
+            </div>
+      );
     }
 }
 
@@ -1645,6 +1725,16 @@ class AllProblemGraders extends React.Component {
         var problems = state[PROBLEMS];
         var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
         var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
+        // either set to a list fo students to filter to, or if undefined/false show all
+        // can be set by an index into the automatically identified similarity groups
+        // or a custom group created by a teacher
+        console.log("custom group render");
+        console.log(state[CUSTOM_GROUP]);
+        const studentsToView =
+            state[CUSTOM_GROUP] ? state[CUSTOM_GROUP] : similarAssignments[currentSimilarityGroupIndex];
+
+        console.log("students to view");
+        console.log(studentsToView);
         var currentProblem = state["CURRENT_PROBLEM"];
         // clean up defensively, this same property is used for the teacher view or student view
         // but here it represents a string typed as a problem number, but for students it is an
@@ -1664,8 +1754,7 @@ class AllProblemGraders extends React.Component {
                             // when viewing similar assignments show all problems, otherwise only show
                             // one problem at a time
                             if (property === currentProblem
-                                    || (typeof(currentSimilarityGroupIndex) !== "undefined"
-                                    && currentSimilarityGroupIndex !== null)) {
+                                    || studentsToView) {
                                 // problem number is stored as keys in the map, add to each object
                                 // so the list can be sorted by problem number
                                 problems[property][PROBLEM_NUMBER] = property;
@@ -1680,7 +1769,7 @@ class AllProblemGraders extends React.Component {
                             (<ProblemGrader problemInfo={problem}
                                             key={problem[PROBLEM_NUMBER]}
                                             problemNumber={problem[PROBLEM_NUMBER]}
-                                studentsToView={similarAssignments[currentSimilarityGroupIndex]}/> ));
+                                studentsToView={studentsToView}/> ));
                     });
                     return problemGraders;
                 }()
