@@ -990,6 +990,7 @@ function problemReducer(problem, action) {
         const currStep = problem[STEPS][action[STEP_KEY]];
         const currContent = currStep[CONTENT];
         let newContent = action[NEW_STEP_CONTENT];
+        let newFabficSrc = action[FABRIC_SRC];
         const currFormat = currStep[FORMAT];
         const newFormat = action[FORMAT];
 
@@ -1059,7 +1060,8 @@ function problemReducer(problem, action) {
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : EDIT_STEP, STEP_KEY: action[STEP_KEY],
+                type : EDIT_STEP,
+                STEP_KEY: action[STEP_KEY],
                 FORMAT: currFormat,
                 INVERSE_ACTION : {
                     ...action,
@@ -1078,6 +1080,7 @@ function problemReducer(problem, action) {
             ];
         } else {
             inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = problem[STEPS][action[STEP_KEY]][CONTENT];
+            inverseAction[INVERSE_ACTION][FABRIC_SRC] = problem[STEPS][action[STEP_KEY]][FABRIC_SRC];
             let undoAction = {...inverseAction[INVERSE_ACTION]};
             newUndoStack = [
                 undoAction,
@@ -1093,7 +1096,7 @@ function problemReducer(problem, action) {
                 // copy properties of the old step, to get the STEP_ID, then override the content
                 { ...problem[STEPS][action[STEP_KEY]],
                      CONTENT : newContent,
-                     FABRIC_SRC : action[FABRIC_SRC],
+                     FABRIC_SRC : newFabficSrc,
                      FORMAT : action[FORMAT],
                 },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
@@ -1236,6 +1239,8 @@ function problemReducer(problem, action) {
 
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
+    console.log(action);
+    console.log(probList);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }
