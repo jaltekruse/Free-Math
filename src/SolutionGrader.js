@@ -189,9 +189,7 @@ class ImageStep extends React.Component {
                     <Button className="extra-long-problem-action-button fm-button"
                         text="Cancel"
                         onClick={function() {
-                            const editorInstance = this.editorRef.current.getInstance();
-                            console.log(editorInstance);
-                            //this.setState({imageMarkup: false});
+                            this.setState({imageMarkup: false});
                         }.bind(this)} />
                 :
                     (step[ORIG_STUDENT_STEP] ?
