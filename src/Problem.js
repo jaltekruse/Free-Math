@@ -331,38 +331,44 @@ class WebcamCapture extends React.Component {
                       and never sent to a server.</li>
                   </ul>
                   <br />
-                  <Webcam
-                    audio={false}
-                    height={"auto"}
-                    ref={elem => {this.webcamRef = elem;}}
-                    screenshotFormat="image/png"
-                    className="webcam-capture"
-                    minScreenshotWidth={800}
-                    screenshotQuality={0.99}
-                    //forceScreenshotSourceSize={true}
-                    imageSmoothing={true}
-                    videoConstraints={{...videoConstraints, facingMode: this.state.facingMode}}
-                  />
+                  <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
+                      <div style={{float: "left"}}>
+                          <Button text="Take Picture" className="fm-button-green fm-button"
+                            onClick={function() {
+                                const imageSrc = this.webcamRef.getScreenshot();
+                                try {
+                                    handlePicCallback(imageSrc);
+                                } catch (e) {
+                                    alert('Failed to capture image.');
+                                }
+                                this.setState({takingPicture: false});
+                            }.bind(this)}
+                          />
+                          <br />
+                          <Button text="Switch Camera"
+                            onClick={function() {
+                                this.setState({facingMode : this.state.facingMode === 'environment' ? 'user' : 'environment'});
+                          }.bind(this)} />
+                          <br />
+                          <Button text="Cancel"
+                            onClick={function() {
+                                this.setState({takingPicture : false});
+                          }.bind(this)} />
+                      </div>
+                      <Webcam
+                        audio={false}
+                        height={"auto"}
+                        ref={elem => {this.webcamRef = elem;}}
+                        screenshotFormat="image/png"
+                        className="webcam-capture"
+                        minScreenshotWidth={800}
+                        screenshotQuality={0.99}
+                        //forceScreenshotSourceSize={true}
+                        imageSmoothing={true}
+                        videoConstraints={{...videoConstraints, facingMode: this.state.facingMode}}
+                      />
+                  </div>
                   <br />
-                  <Button text="Take Picture"
-                    onClick={function() {
-                        const imageSrc = this.webcamRef.getScreenshot();
-                        try {
-                            handlePicCallback(imageSrc);
-                        } catch (e) {
-                            alert('Failed to capture image.');
-                        }
-                        this.setState({takingPicture: false});
-                    }.bind(this)}
-                  />
-                  <Button text="Switch Camera"
-                    onClick={function() {
-                        this.setState({facingMode : this.state.facingMode === 'environment' ? 'user' : 'environment'});
-                  }.bind(this)} />
-                  <Button text="Cancel"
-                    onClick={function() {
-                        this.setState({takingPicture : false});
-                  }.bind(this)} />
                   </span>
                   :
                   (<span>
@@ -490,7 +496,7 @@ class ImageStep extends React.Component {
         console.log(whiteTheme);
 
         return (
-            <div className="mathStepEditor">
+            <div className="mathStepEditor" style={{marginTop: "20px"}}>
                 {step[CONTENT] === ''
                 ?
                     <WebcamCapture
@@ -516,7 +522,7 @@ class ImageStep extends React.Component {
                 :
                     <span>
                         { !this.state.cropping ?
-                            <Button className="extra-long-problem-action-button fm-button"
+                            <Button className="extra-long-problem-action-button fm-button-green fm-button"
                                     text={this.state.imageMarkup ?
                                         "Save Drawing" : "Draw on Image" }
                                     title={this.state.imageMarkup ?
@@ -646,7 +652,7 @@ class ImageStep extends React.Component {
                                 />
                                 <br />
                                 <img src={step[CONTENT]} alt="Uploaded student work"
-                                     style={{margin : "10px", minWidth: "380px", maxWidth:"98%"}}/>
+                                     style={{margin : "10px", minWidth: "380px", maxWidth:"98%", border: "solid"}}/>
                                 { step[CONTENT] !== ''
                                     ?
                                         <div style={{maxWidth: "95%"}}>
@@ -715,13 +721,21 @@ class Problem extends React.Component {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
                             }}/>
-                        <Button text="New Drawing" className="long-problem-action-button fm-button" onClick={
-                            function() {
-                                addImageToEnd(base64ToBlob(blankImgBase64), problemIndex, steps);
+                        <HtmlButton title='New Drawing'
+                            content={(
+                                <img src="images/small_draw_icon_filled.png" style={{marginTop:"3px"}} alt="new drawing"/>
+                            )}
+                            onClick={
+                                function() {
+                                    addImageToEnd(base64ToBlob(blankImgBase64), problemIndex, steps);
                             }}/>
-                        <Button text="New Grid Drawing" className="long-problem-action-button fm-button" onClick={
-                            function() {
-                                addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
+                        <HtmlButton title='New Grid Drawing'
+                            content={(
+                                <img src="images/small_grid_icon_filled.png" style={{marginTop:"3px"}} alt="new grid drawing"/>
+                            )}
+                            onClick={
+                                function() {
+                                    addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
                             }}/>
                         <div style={{display:'inline-block'}}>
                         <Button text="Undo" className="short-problem-action-button fm-button" onClick={
@@ -743,6 +757,7 @@ class Problem extends React.Component {
                     </div>
                         <div className="equation-list" style={{paddingBottom:"150px"}}>
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
+                        <br />
                         <br />
 
                         {steps.map(function(step, stepIndex) {
@@ -871,6 +886,7 @@ class Problem extends React.Component {
                                     />
                                 }
                                 <CloseButton text="&#10005;" title='Delete step'
+                                    style={{marginLeft: "10px"}}
                                     onClick={function(value) {
                                         window.store.dispatch(
                                             { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
