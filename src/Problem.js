@@ -100,6 +100,7 @@ var NEW_STEP_CONTENT = 'NEW_STEP_CONTENT';
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var FABRIC_SRC = 'FABRIC_SRC';
+var NEW_FABRIC_SRC = 'NEW_FABRIC_SRC';
 
 // CSS constants
 var SOFT_RED = '#FFDEDE';
@@ -213,7 +214,7 @@ function handleImg(imgFile, stepIndex, problemIndex, steps) {
 function handleImgUrl(objUrl, stepIndex, problemIndex, steps, fabricSrc = undefined) {
     window.store.dispatch(
         { type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY: stepIndex,
-            FORMAT: IMG, NEW_STEP_CONTENT: objUrl, FABRIC_SRC : fabricSrc } );
+            FORMAT: IMG, NEW_STEP_CONTENT: objUrl, NEW_FABRIC_SRC : fabricSrc } );
     addNewLastStepIfNeeded(steps, stepIndex, problemIndex);
 }
 
@@ -990,7 +991,7 @@ function problemReducer(problem, action) {
         const currStep = problem[STEPS][action[STEP_KEY]];
         const currContent = currStep[CONTENT];
         let newContent = action[NEW_STEP_CONTENT];
-        let newFabficSrc = action[FABRIC_SRC];
+        let newFabficSrc = action[NEW_FABRIC_SRC];
         const currFormat = currStep[FORMAT];
         const newFormat = action[FORMAT];
 
@@ -1080,7 +1081,7 @@ function problemReducer(problem, action) {
             ];
         } else {
             inverseAction[INVERSE_ACTION][NEW_STEP_CONTENT] = problem[STEPS][action[STEP_KEY]][CONTENT];
-            inverseAction[INVERSE_ACTION][FABRIC_SRC] = problem[STEPS][action[STEP_KEY]][FABRIC_SRC];
+            inverseAction[INVERSE_ACTION][NEW_FABRIC_SRC] = problem[STEPS][action[STEP_KEY]][FABRIC_SRC];
             let undoAction = {...inverseAction[INVERSE_ACTION]};
             newUndoStack = [
                 undoAction,
@@ -1109,8 +1110,10 @@ function problemReducer(problem, action) {
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
-                type : INSERT_STEP_ABOVE, STEP_KEY: action[STEP_KEY],
+                type : INSERT_STEP_ABOVE,
+                STEP_KEY: action[STEP_KEY],
                 CONTENT : problem[STEPS][action[STEP_KEY]][CONTENT],
+                FABRIC_SRC : problem[STEPS][action[STEP_KEY]][FABRIC_SRC],
                 FORMAT : problem[STEPS][action[STEP_KEY]][FORMAT],
                 INVERSE_ACTION : {...action}
             }
@@ -1130,10 +1133,12 @@ function problemReducer(problem, action) {
         }
     } else if (action.type === INSERT_STEP_ABOVE) {
         let newContent;
+        let newFabricSrc = undefined;
         var newFormat = undefined;
         // non-blank inserations in the middle of work currently only used for undo/redo
         if (CONTENT in action) {
             newContent = action[CONTENT]
+            newFabricSrc = action[FABRIC_SRC]
             if (FORMAT in action) {
                 newFormat = action[FORMAT]
             } else {
@@ -1155,7 +1160,9 @@ function problemReducer(problem, action) {
             ...problem,
             STEPS : [
                 ...problem[STEPS].slice(0, action[STEP_KEY]),
-                { CONTENT : newContent, FORMAT: newFormat, STEP_ID : genID()},
+                { CONTENT : newContent,
+                  FABRIC_SRC: newFabricSrc,
+                  FORMAT: newFormat, STEP_ID : genID()},
                 ...problem[STEPS].slice(action[STEP_KEY])
             ],
             UNDO_STACK : [

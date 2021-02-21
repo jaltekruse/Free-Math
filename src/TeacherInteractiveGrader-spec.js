@@ -44,20 +44,21 @@ var PROBLEMS = 'PROBLEMS';
 var UNIQUE_ANSWERS = 'UNIQUE_ANSWERS';
 var STUDENT_WORK = 'STUDENT_WORK';
 
+/*
+ - start with a student doc
+ - make teacher model out of it (aggerateStudentWork)
+     - perform teacher action
+     - extract back out individual student doc
+ - with copy of same starting student doc, call student modification action
+ - then take the two docs and pass into new merge function
+     - doesn't need to be general purpose merge of arbitrary edits, just one teacher and one student editor
+     - does the person who will view the result of the merge impact the result?
+         - probably shouldn't as this is intended to support concurrent updates
+         - so teacher loses, which should only happen when student deletes stuff
+         - don't bring back student problems/steps just because there was a taecher comment on them
+ */
+/*
 it('test merging student and teacher edits', () => {
-    /*
-     - start with a student doc
-     - make teacher model out of it (aggerateStudentWork)
-         - perform teacher action
-         - extract back out individual student doc
-     - with copy of same starting student doc, call student modification action
-     - then take the two docs and pass into new merge function
-         - doesn't need to be general purpose merge of arbitrary edits, just one teacher and one student editor
-         - does the person who will view the result of the merge impact the result?
-             - probably shouldn't as this is intended to support concurrent updates
-             - so teacher loses, which should only happen when student deletes stuff
-             - don't bring back student problems/steps just because there was a taecher comment on them
-     */
 
     // copied from test add blank step in Problem-spec
     var initialAssignment = {
@@ -124,6 +125,7 @@ it('test merging student and teacher edits', () => {
     var observedMergedState = merge(expectedAssignment, convertedBackToStudentModel);
     expect(observedMergedState).toEqual(expectedMergedState);
 });
+*/
 
 //      [ { "PROBLEM_NUMBER" : "1", POSSIBLE_POINTS : 3, "ANSWER_CLASSES" : [ { SCORE : 1, ANSWERS : ["x=5", "5=x"]}, { "SCORE" : 0.5, ANSWERS : ["x=-5","-5=x"] ],
 //          "GRADE_STRATEGY" : "ALL_ANSWERS_REQUIRED" | "ONE_ANSWER_REQUIRED" | "SUBSET_OF_ANSWERS_REQUIRED", "NUMBER_OF_MATCHING_ANSWERS_REQUIRED" : 2 } ]
