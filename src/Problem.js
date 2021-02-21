@@ -575,6 +575,9 @@ class ImageStep extends React.Component {
                                         position: 'fixed', top: 0, left: 0,right: 0, bottom: 0,
                                         backgroundColor: 'rgba(100, 100, 100, 0.6)',
                                         zIndex: 1040,
+                                    },
+                                    content: {
+                                        padding: '10px'
                                     }
                                 }}
                             >
@@ -608,13 +611,13 @@ class ImageStep extends React.Component {
                                                   initMenu: 'draw',
                                                   uiSize: {
                                                     width: (windowWidth - 200) + 'px',
-                                                    height: (windowHeight - 200) + 'px'
+                                                    height: (windowHeight - 150) + 'px'
                                                   },
                                                   menuBarPosition: 'left',
                                                   theme: whiteTheme
                                                 }}
                                                 cssMaxWidth={(windowWidth - 250)}
-                                                cssMaxHeight={(windowHeight - 300)}
+                                                cssMaxHeight={(windowHeight - 225)}
                                                 selectionStyle={{
                                                   cornerSize: 15,
                                                   cornerColor: 'green',
