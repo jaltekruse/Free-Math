@@ -3,6 +3,7 @@ import './App.css';
 import TeX from './TeX.js';
 import Button from './Button.js';
 import { getPersistentState } from './FreeMath.js';
+import { openDrawing } from './Problem.js';
 import { whiteTheme } from './white-theme.js';
 import ImageEditor from '@toast-ui/react-image-editor'
 
@@ -19,6 +20,7 @@ var FORMAT = "FORMAT";
 var IMG = "IMG";
 // var MATH = "MATH";
 var TEXT = "TEXT";
+var FABRIC_SRC = 'FABRIC_SRC';
 
 // action properties
 // PROBLEM_NUMBER, SOLUTION_CLASS_INDEX, SCORE, SOLUTION_INDEX
@@ -167,6 +169,7 @@ class ImageStep extends React.Component {
                                 if (this.state.imageMarkup) {
                                     window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
                                     const editorInstance = this.editorRef.current.getInstance();
+                                    const fabricSrc = editorInstance._graphics._canvas.toJSON();
                                     window.store.dispatch({
                                         type : EDIT_STUDENT_STEP,
                                         PROBLEM_NUMBER : problemNumber,
@@ -175,10 +178,25 @@ class ImageStep extends React.Component {
                                         STEP_KEY : stepIndex,
                                         STEP_DATA :
                                             {...step,
-                                             CONTENT: editorInstance.toDataURL()}});
+                                             CONTENT: editorInstance.toDataURL(),
+                                             FABRIC_SRC: fabricSrc
+                                            }});
                                     this.setState({imageMarkup: false});
                                 } else {
                                     this.setState({imageMarkup: true});
+                                    const openDrawingTeacher = function() {
+                                        openDrawing(
+                                            step[FABRIC_SRC],
+                                            function() {
+                                                return this.editorRef.current.getInstance();
+                                            }.bind(this),
+                                            function() {
+                                                alert("Failed to load image editor");
+                                                this.setState({imageMarkup: false});
+                                            }.bind(this),
+                                        );
+                                    }.bind(this);
+                                    openDrawingTeacher();
                                 }
                             }.bind(this)}
                     />

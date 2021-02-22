@@ -400,6 +400,38 @@ class WebcamCapture extends React.Component {
     }
 };
 
+function openDrawing(fabricSrc, getEditorInstanceCallback, onFailure) {
+    waitForConditionThenDo(5,
+        function() {
+            try {
+                const editorInstance = getEditorInstanceCallback();
+                const canvas = editorInstance._graphics._canvas;
+                return canvas.backgroundImage;
+            } catch (e) {
+                console.log(e);
+                return false;
+            }
+        },
+        function() {
+            const editorInstance = getEditorInstanceCallback();
+            const canvas = editorInstance._graphics._canvas;
+            window.fabric.Object.prototype.cornerColor = 'green';
+            window.fabric.Object.prototype.cornerSize = 15;
+            window.fabric.Object.prototype.borderColor = 'red';
+            window.fabric.Object.prototype.transparentCorners = false;
+
+            editorInstance._graphics.setSelectionStyle({
+              cornerSize: 10,
+              cornerColor: 'green',
+            });
+            canvas.loadFromJSON(fabricSrc, function() {});
+        },
+        function() {
+            onFailure();
+        }
+    );
+};
+
 class ImageStep extends React.Component {
     editorRef = React.createRef();
     state = {
@@ -455,6 +487,19 @@ class ImageStep extends React.Component {
             xhr.send();
         };
 
+        const openDrawingStudent = function() {
+            openDrawing(
+                step[FABRIC_SRC],
+                function() {
+                    return this.editorRef.current.getInstance();
+                }.bind(this),
+                function() {
+                    alert("Failed to load image editor");
+                    this.setState({imageMarkup: false});
+                }.bind(this),
+            );
+        }.bind(this);
+
         const saveDrawing = function() {
             window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
             const editorInstance = this.editorRef.current.getInstance();
@@ -466,40 +511,6 @@ class ImageStep extends React.Component {
             this.setState({imageMarkup: false});
         }.bind(this);
 
-        const openDrawing = function() {
-            this.setState({imageMarkup: true});
-            waitForConditionThenDo(5,
-                function() {
-                    try {
-                        const editorInstance = this.editorRef.current.getInstance();
-                        const canvas = editorInstance._graphics._canvas;
-                        return canvas;
-                    } catch (e) {
-                        console.log(e);
-                        return false;
-                    }
-                }.bind(this),
-                function() {
-                    const editorInstance = this.editorRef.current.getInstance();
-                    const canvas = editorInstance._graphics._canvas;
-                    console.log(canvas);
-                    window.fabric.Object.prototype.cornerColor = 'green';
-                    window.fabric.Object.prototype.cornerSize = 15;
-                    window.fabric.Object.prototype.borderColor = 'red';
-                    window.fabric.Object.prototype.transparentCorners = false;
-
-                    editorInstance._graphics.setSelectionStyle({
-                      cornerSize: 10,
-                      cornerColor: 'green',
-                    });
-                    canvas.loadFromJSON(step[FABRIC_SRC], function() {}.bind(this));
-                }.bind(this),
-                function() {
-                    alert("Failed to load image editor");
-                    this.setState({imageMarkup: false});
-                }.bind(this)
-            );
-        }.bind(this);
 
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
@@ -565,7 +576,8 @@ class ImageStep extends React.Component {
                                         if (this.state.imageMarkup) {
                                             saveDrawing();
                                         } else {
-                                            openDrawing();
+                                            this.setState({imageMarkup: true});
+                                            openDrawingStudent();
                                         }
                                     }.bind(this)}
                             />
@@ -632,7 +644,7 @@ class ImageStep extends React.Component {
                                                         if (this.state.imageMarkup) {
                                                             saveDrawing();
                                                         } else {
-                                                            openDrawing();
+                                                            openDrawingStudent();
                                                         }
                                                     }.bind(this)}
                                             />
@@ -1366,4 +1378,4 @@ function problemListReducer(probList, action) {
     }
 }
 
-export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage, addImageToEnd, handleImg};
+export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage, addImageToEnd, handleImg, openDrawing};
