@@ -61,6 +61,7 @@ var SCORE = "SCORE";
 var FEEDBACK = "FEEDBACK";
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 var SHOW_IMAGE_TUTORIAL = "SHOW_IMAGE_TUTORIAL";
+var SHOW_DRAWING_TUTORIAL = 'SHOW_DRAWING_TUTORIAL';
 
 var FORMAT = "FORMAT";
 var MATH = "MATH";
@@ -733,6 +734,7 @@ class Problem extends React.Component {
         const problemIndex = this.props.id;
         const showTutorial = this.props.value[SHOW_TUTORIAL];
         const showImgTutorial = this.props.value[SHOW_IMAGE_TUTORIAL];
+        const showDrawingTutorial= this.props.value[SHOW_DRAWING_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
         const steps = this.props.value[STEPS];
         return (
@@ -828,6 +830,16 @@ class Problem extends React.Component {
                                         <span>Grab your notebook or worksheet. Click the button above that says "Snap a Picture"
                                               to take a picture of some math work on the sheet of paper using your webcam
                                               or device camera.</span>
+                                    </div>
+                                </div>) : null}
+                                {showDrawingTutorial && stepIndex === 0 ?
+                                (<div style={{overflow:"hidden"}}>
+                                    <div className="answer-partially-correct"
+                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
+                                        <span>Click on one of the buttons with a pencil on it to add a
+                                              drawing canvas. Then click on the "Draw on Image" button to open the
+                                              drawing widget.
+                                        </span>
                                     </div>
                                 </div>) : null}
                                 {showTutorial && stepIndex === 0 ?
@@ -957,12 +969,21 @@ class Problem extends React.Component {
                 (<div>
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
-                    <span>Scroll to the top of the page and click on the blue button labelled "Problem Image Demo", to learn about
+                    <span>Scroll to the top of the page and click on the blue button labeled "Problem Image Demo", to learn about
                           adding images to your documents.</span>
                     </div>
                 </div>
                 ) : null}
             {showImgTutorial ?
+                (<div>
+                    <div className="answer-partially-correct"
+                      style={{display:"inline-block", padding:"5px", margin: "5px"}}>
+                    <span>Scroll to the top of the page and click on the blue button labeled "Problem Drawing Demo", to learn about
+                          adding digital drawings and graphs to your documents.</span>
+                    </div>
+                </div>
+                ) : null}
+            {showDrawingTutorial ?
                 (<div>
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
@@ -1335,6 +1356,12 @@ function problemListReducer(probList, action) {
                    UNDO_STACK : [], REDO_STACK : [],
                    SHOW_IMAGE_TUTORIAL : true
                  },
+                 { PROBLEM_NUMBER : "Drawing Demo",
+                   STEPS : [{
+                     STEP_ID : genID(), CONTENT : ""}],
+                   UNDO_STACK : [], REDO_STACK : [],
+                   SHOW_DRAWING_TUTORIAL : true
+                 }
             ];
         } else {
             return probList;

@@ -874,16 +874,13 @@ class UserActions extends React.Component {
             <div style={{display:"inline-block", width:"100%"}}>
             <div className="homepage-center">
                 <div className="answer-partially-correct" style={{display:"inline-block", marginBottom: "15px"}}>
-                    <b>The Google Drive and Classroom integration has been updated! -&nbsp;
-                        <a href="https://www.youtube.com/watch?v=o-OaMb1Cy34"target="_blank" rel="noopener noreferrer">
-                            See it in Action
-                        </a></b>
-                    <br />
-                    Free Math files can now be directly opened from Drive and Classroom using the "Open with..." menu.<br />
-                    <Button ref="justAskForScopes"
-                        onClick={function() {}/* contrlled by google auth in componentDidMount*/}
-                        text="Click here"
-                        /> to add this new integration into your Google account.
+                    <b>What's New</b>
+                        <br />
+                        <img src="images/small_grid_icon_filled.png" style={{marginTop:"3px"}} alt="new grid drawing"/>
+                        &nbsp; &nbsp;
+                        <img src="images/small_draw_icon_filled.png" style={{marginTop:"3px"}} alt="new drawing"/>
+                        <br />
+                        Students can now add digital drawings to their documents!
                 </div>
             </div>
             <div className="homepage-center-mobile">
