@@ -671,6 +671,10 @@ class ImageStep extends React.Component {
 }
 
 class Problem extends React.Component {
+    state = {
+        editorButtonsStickied: false
+    };
+    // TODO - review, I think I can delete this
     handleStepChange = (event) => {
       this.setState({value: event.target.value});
     };
@@ -683,11 +687,26 @@ class Problem extends React.Component {
         const showImgTutorial = this.props.value[SHOW_IMAGE_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
         const steps = this.props.value[STEPS];
+
+        // TODO - need to disable this entirely on mobile
+
+        window.addEventListener('scroll', function(){
+            try {
+                const stickyEl = document.querySelector(".problem-editor-buttons");
+                console.log(stickyEl);
+                const elTop = stickyEl.offsetTop;
+                console.log("scroll", window.scrollY > elTop);
+                this.setState({editorButtonsStickied: window.scrollY > elTop});
+            } catch(e) {
+                console.log(e); // ignore, if this doesn't work it's not like the whole app is busted
+            }
+        }.bind(this), true);
+
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div>
-                    <div className="problem-editor-buttons"
+                    <div className={ (this.state.editorButtonsStickied ? "sticky " : "") + "problem-editor-buttons"}
                          style={{float:'left', marginRight:"10px", marginBottom: "30px"}}>
 
                         {/*   score !== undefined ? (<ScoreBox value={this.props.value} />)

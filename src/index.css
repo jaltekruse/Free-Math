@@ -38,6 +38,11 @@ margin-bottom: 0;
 end of styles copied form perseus
 */
 
+.sticky {
+    position: fixed;
+    top: 300;
+}
+
 .homepage-center {
 width: 100%;
 -webkit-box-align: center;
