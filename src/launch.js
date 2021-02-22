@@ -4,7 +4,7 @@ import { getCompositeState, rootReducer, ephemeralStateReducer } from './FreeMat
 import { render, loadDemoGrading, checkAllSaved } from './DefaultHomepageActions';
 import { removeExtension, openAssignment} from './AssignmentEditorMenubar.js';
 import { autoSave } from './FreeMath.js';
-import { addImageToEnd} from './Problem.js';
+import { addImageToEnd, handleImg } from './Problem.js';
 import { unregister } from './registerServiceWorker';
 import URLSearchParams from '@ungap/url-search-params'
 import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAlert,
@@ -17,6 +17,9 @@ var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 var STEPS = 'STEPS';
 var PROBLEMS = 'PROBLEMS';
+var FORMAT = 'FORMAT';
+var IMG = 'IMG';
+var CONTENT = 'CONTENT';
 
 // used to swap out the entire content of the document, for opening
 // a document from a file
@@ -147,9 +150,18 @@ window.onload = function() {
             //console.log(event.target.result);
             const rootState = getCompositeState();
             if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
-                addImageToEnd(blob,
-                              rootState[CURRENT_PROBLEM],
-                              rootState[PROBLEMS][rootState[CURRENT_PROBLEM]][STEPS]);
+                // see if there is a step of type image with empty contents
+                // if so paste it there
+                const currProbSteps = rootState[PROBLEMS][rootState[CURRENT_PROBLEM]][STEPS];
+                const blankImageStep = currProbSteps.find(step => step[FORMAT] === IMG && !step[CONTENT]);
+                if (blankImageStep) {
+                    const stepIndex = currProbSteps.findIndex(step => step[FORMAT] === IMG && !step[CONTENT]);
+                    handleImg(blob, stepIndex, rootState[CURRENT_PROBLEM], currProbSteps);
+                } else {
+                    addImageToEnd(blob,
+                                  rootState[CURRENT_PROBLEM],
+                                  rootState[PROBLEMS][rootState[CURRENT_PROBLEM]][STEPS]);
+                }
             }
         }
       }

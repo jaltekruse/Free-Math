@@ -179,7 +179,11 @@ class ImageUploader extends React.Component {
         const lastStepIndex = steps.length - 1;
 		return (
             <div style={{display:"inline-block"}}>
-                <span>Type math below&nbsp;</span>
+                <span>Type math below</span>
+                <span className="homepage-only-on-mobile">
+                    &nbsp;or
+                </span>
+                &nbsp;
                 <WebcamCapture
                        handlePicUploadCallback={function(evt) {
                             addNewImage(evt, steps, lastStepIndex, problemIndex,
@@ -372,13 +376,20 @@ class WebcamCapture extends React.Component {
                   </span>
                   :
                   (<span>
-                    <Button text="Snap a Picture"
-                        onClick={function() {
-                            this.setState({takingPicture : true});
-                      }.bind(this)} />&nbsp;
-                    Paste an image from the clipboard with ctrl+v,&nbsp;
+                    <span className="homepage-disappear-mobile">
+                        <Button text="Snap a Picture"
+                            onClick={function() {
+                                this.setState({takingPicture : true});
+                          }.bind(this)} />&nbsp;
+                        Paste an image from the clipboard with ctrl+v,&nbsp;
+                    </span>
                     <div style={{display: 'inline-block'}}>
-                        or upload one&nbsp;
+                        <span className="homepage-disappear-mobile">
+                            or upload one&nbsp;
+                        </span>
+                        <span className="homepage-only-on-mobile">
+                            upload an image&nbsp;
+                        </span>
                         <input type="file" accept="*" onChange={
                             function(evt) {handlePicUploadCallback(evt)}}/>
                       </div>
@@ -674,6 +685,12 @@ class ImageStep extends React.Component {
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
+                                {step[FABRIC_SRC] ?
+                                    <span className="homepage-only-on-mobile">
+                                        <small>Cannot rotate or crop after drawing on an image</small>
+                                    </span>
+                                    : null
+                                }
                                 <img src={step[CONTENT]} alt="Uploaded student work"
                                      style={{margin : "10px", minWidth: "380px", maxWidth:"98%", border: "solid"}}/>
                                 { step[CONTENT] !== ''
@@ -1349,4 +1366,4 @@ function problemListReducer(probList, action) {
     }
 }
 
-export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage, addImageToEnd };
+export { Problem as default, ScoreBox, problemReducer, problemListReducer, addNewImage, addImageToEnd, handleImg};
