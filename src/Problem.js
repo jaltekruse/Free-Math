@@ -493,6 +493,27 @@ class ImageStep extends React.Component {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
 
+        const onVerticalScreen = windowHeight > windowWidth;
+        var imageEditorWidth, imageEditorHeight;
+        var canvasWidth, canvasHeight;
+        var imageEditorMenuPos;
+        if (onVerticalScreen) {
+            console.log("phone or tablet");
+            imageEditorWidth = windowWidth - 100;
+            imageEditorHeight = windowHeight - 150;
+            canvasWidth = windowWidth - 125;
+            canvasHeight = windowHeight - 350;
+            console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
+            imageEditorMenuPos = 'top';
+        } else {
+            console.log("desktop");
+            imageEditorWidth = windowWidth - 150;
+            imageEditorHeight = windowHeight - 150;
+            canvasWidth = windowWidth - 250;
+            canvasHeight = windowHeight - 225;
+            console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
+            imageEditorMenuPos = 'left';
+        }
         console.log(whiteTheme);
 
         return (
@@ -617,14 +638,14 @@ class ImageStep extends React.Component {
                                                   menu: ['select', 'draw', 'shape', 'text'],
                                                   initMenu: 'draw',
                                                   uiSize: {
-                                                    width: (windowWidth - 200) + 'px',
-                                                    height: (windowHeight - 150) + 'px'
+                                                    width: imageEditorWidth + 'px',
+                                                    height: imageEditorHeight + 'px'
                                                   },
-                                                  menuBarPosition: 'left',
+                                                  menuBarPosition: imageEditorMenuPos,
                                                   theme: whiteTheme
                                                 }}
-                                                cssMaxWidth={(windowWidth - 250)}
-                                                cssMaxHeight={(windowHeight - 225)}
+                                                cssMaxWidth={canvasWidth}
+                                                cssMaxHeight={canvasHeight}
                                                 selectionStyle={{
                                                   cornerSize: 15,
                                                   cornerColor: 'green',
