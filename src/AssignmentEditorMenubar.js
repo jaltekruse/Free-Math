@@ -818,6 +818,7 @@ class AssignmentEditorMenubar extends React.Component {
     render() {
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         var saveStateMsg = '';
+        var saveStateTitle = undefined;
         var googleId = this.props.value[GOOGLE_ID];
         var saveState = this.props.value[GOOGLE_DRIVE_STATE];
         if (googleId) {
@@ -826,7 +827,12 @@ class AssignmentEditorMenubar extends React.Component {
         } else {
             if (saveState === ALL_SAVED) saveStateMsg = "Saved recovery doc in browser";
             else if (saveState === SAVING) saveStateMsg = "Saving recovery doc in browser...";
-            else if (saveState === ERROR_DOC_TOO_BIG) saveStateMsg = "Too big to save recovery doc";
+            else if (saveState === ERROR_DOC_TOO_BIG) {
+                saveStateMsg = "Too big to save recovery doc";
+                saveStateTitle = "Your document is too big to store inside of temporary browser storage, so be sure to click 'Save' or 'Save to Google Drive' soon."
+            }
+
+            if (!saveStateTitle) saveStateTitle = saveStateMsg;
         }
         if (this.props.value[PENDING_SAVES]) {
             //saveStateMsg += " (" + this.props.value[PENDING_SAVES] + ")";
@@ -853,7 +859,7 @@ class AssignmentEditorMenubar extends React.Component {
                            color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")
                         }}
                         className="save-state-message"
-                        title={saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}>
+                        title={saveStateTitle === '' ? 'Remember to save often' : saveStateTitle}>
                         { /* This inline constant is just to take up some space, it is diliberately hidden
                              but is a reasonable message to for to users if it was ever accidentally shown */
                             <span>{saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}</span>
