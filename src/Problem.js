@@ -493,24 +493,26 @@ class ImageStep extends React.Component {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
 
-        const onVerticalScreen = windowHeight > windowWidth;
+        console.log(windowWidth, windowHeight);
+        console.log(windowWidth, windowHeight * 1.2);
+        const onVerticalScreen = windowHeight > windowWidth * .75;
         var imageEditorWidth, imageEditorHeight;
         var canvasWidth, canvasHeight;
         var imageEditorMenuPos;
         if (onVerticalScreen) {
             console.log("phone or tablet");
-            imageEditorWidth = windowWidth - 100;
+            imageEditorWidth = windowWidth - 150;
             imageEditorHeight = windowHeight - 150;
-            canvasWidth = windowWidth - 125;
-            canvasHeight = windowHeight - 350;
+            canvasWidth = windowWidth - 175;
+            canvasHeight = windowHeight - 375;
             console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'top';
         } else {
             console.log("desktop");
             imageEditorWidth = windowWidth - 150;
             imageEditorHeight = windowHeight - 150;
-            canvasWidth = windowWidth - 250;
-            canvasHeight = windowHeight - 225;
+            canvasWidth = windowWidth - 475;
+            canvasHeight = windowHeight - 250;
             console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'left';
         }

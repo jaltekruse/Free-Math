@@ -439,8 +439,21 @@ div.problem-container {
     }
 }
 
+/* This happens earlier than the phone transition for ipads */
+@media (max-width: 940px) {
+     div.problem-editor-buttons {
+         width: 100%;
+     }
+}
 
-@media (max-width: 950px) {
+@media (min-width: 941px) {
+    div.problem-editor-buttons {
+        width: 180px;
+     }
+}
+
+
+@media (max-width: 640px) {
     h3 {
       margin: 0;
     }
@@ -558,16 +571,13 @@ div.problem-container {
         height: 120px;
         display: block
     }
-    div.problem-editor-buttons {
-        width: 100%;
-    }
 
     div.homepage-user-actions {
         align-items: center;
     }
 }
 
-@media (min-width: 951px) {
+@media (min-width: 641px) {
 
     .big-mobile-button {
         font-size: 20px;
@@ -642,9 +652,6 @@ div.problem-container {
         padding: 150px 0px 0px 0px;
         display: inline-block;
         width: 100%
-    }
-    div.problem-editor-buttons {
-        width: 180px;
     }
     div.homepage-user-actions {
         max-width: 900px;
