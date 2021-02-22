@@ -82,6 +82,9 @@ function singleSolutionReducer(state, action) {
         if (typeof origStudentStep === 'undefined') {
             origStudentStep = state[STEPS][action[STEP_KEY]];
         }
+        if (!origStudentStep[FABRIC_SRC]) {
+            origStudentStep = { ...origStudentStep, FABRIC_SRC: undefined };
+        }
         return { ...state,
             STEPS : [
                 ...state[STEPS].slice(0, action[STEP_KEY]),
