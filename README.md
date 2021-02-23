@@ -1,9 +1,33 @@
-# [FreeMath](http://freemathapp.org)
+# [Free Math](http://freemathapp.org)
  
 Free Math is an open source offline React web application for managing digital math homework.
+
+[freemathapp.org](http://freemathapp.org)
+
+Join our revolution, Free Math has already been used by tens of thousands of students and teachers
+to improve communication and feedback in their math classes.
+
+# Building
+
+Install dependencies and start the development server:
+```sh
+$ npm install
+$ npm start
+```
+
+Run the unit tests:
+```sh
+$ npm install
+$ npm run tests
+```
+
+Build a minified production version:
+```sh
+$ npm install
+$ npm run build 
+```
  
-# Contact the Developer
- I am currently looking for classes to pilot the software, if you would like to   discuss how you could use Free Math in your classroom send me a message at this address.
+# Contact the Maintainers
 developers@freemathapp.org
 
 Follow the project <a href="https://www.facebook.com/freemathapp">facebook</a> <a href="https://twitter.com/freemathapp">twitter</a>
