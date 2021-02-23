@@ -422,7 +422,7 @@ function findSimilarStudentAssignments(allStudentWork) {
                 if (step[HIGHLIGHT]) delete step[HIGHLIGHT];
                 if (step[FORMAT]) delete step[FORMAT];
                 if (step[STEP_ID]) delete step[STEP_ID];
-                step[CONTENT] = step[CONTENT].replaceAll("\\ ", "");
+                step[CONTENT] = step[CONTENT].replace(/\\\s/g, "");
             });
         });
     });
@@ -434,7 +434,7 @@ function findSimilarStudentAssignments(allStudentWork) {
     var allSimilarityGroups = [];
 
     // calculate average length of answer accross all docs
-    var totalWork = 0
+    var totalWork = 0;
     var totalProblemsCompleted = 0;
     var totalProblemsAttempted = 0;
     var maxProblemsAttempted = 0;

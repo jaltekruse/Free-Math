@@ -114,6 +114,17 @@ it('test demo creation, undo/redo bug', () => {
                                     },
                                   ],
                                   "UNDO_STACK": [],
+                                },{
+                                  "PROBLEM_NUMBER": "Drawing Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_DRAWING_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
                                 },]};
 
     compareOverallEditorState(
@@ -138,6 +149,19 @@ it('test demo creation, undo/redo bug', () => {
                                   "PROBLEM_NUMBER": "Image Demo",
                                   "REDO_STACK": [],
                                   "SHOW_IMAGE_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                },
+
+                          {
+                                  "PROBLEM_NUMBER": "Drawing Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_DRAWING_TUTORIAL": true,
                                   "STEPS": [
                                     {
                                       "CONTENT": "",
@@ -181,7 +205,20 @@ it('test demo creation, undo/redo bug', () => {
                                     },
                                   ],
                                   "UNDO_STACK": [],
-                                }]};
+                                },
+                                {
+                                  "PROBLEM_NUMBER": "Drawing Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_DRAWING_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }
+                               ]};
 
     compareOverallEditorState(
         afterFirstUndo,
@@ -216,7 +253,20 @@ it('test demo creation, undo/redo bug', () => {
                                     },
                                   ],
                                   "UNDO_STACK": [],
-                                }]};
+                                },
+                                {
+                                  "PROBLEM_NUMBER": "Drawing Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_DRAWING_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }
+                               ]};
 
     compareOverallEditorState(
         afterSecondUndo,
@@ -250,7 +300,20 @@ it('test demo creation, undo/redo bug', () => {
                                     },
                                   ],
                                   "UNDO_STACK": [],
-                                }]};
+                                },
+                                {
+                                  "PROBLEM_NUMBER": "Drawing Demo",
+                                  "REDO_STACK": [],
+                                  "SHOW_DRAWING_TUTORIAL": true,
+                                  "STEPS": [
+                                    {
+                                      "CONTENT": "",
+                                      "STEP_ID": 190393296,
+                                    },
+                                  ],
+                                  "UNDO_STACK": [],
+                                }
+                               ]};
 
     compareOverallEditorState(
         afterThirdUndo,

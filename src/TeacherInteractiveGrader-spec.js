@@ -175,46 +175,7 @@ it('test aggregate student work', () => {
                 { SCORE : 0.5, ANSWERS : ["x=-2","-2=x"], GRADE_STRATEGY : ONE_ANSWER_REQUIRED } ],
             } };
     deepFreeze(answerKey);
-    var expectedOutput = {
-        CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
-        SIMILAR_ASSIGNMENT_SETS : [ ],
-        PROBLEMS : {
-            "1" : {
-                POSSIBLE_POINTS : 6,
-                POSSIBLE_POINTS_EDITED : 6,
-                UNIQUE_ANSWERS : [
-                    { ANSWER : "x=2", FILTER : SHOW_ALL,
-                      STUDENT_WORK : [
-                        { STUDENT_FILE : "jake r.", AUTOMATICALLY_ASSIGNED_SCORE : 3,
-                          SCORE : NaN, FEEDBACK : "",
-                          POSSIBLE_POINTS : 6,
-                          LAST_SHOWN_STEP : 1,
-                          PROBLEM_NUMBER : 1,
-                          STEPS : [
-                            { CONTENT : "5x=10"},
-                            { CONTENT : "x=2"}
-                          ]
-                        }
-                      ]
-                    },
-                    { ANSWER : "x=-2", FILTER : SHOW_ALL,
-                      STUDENT_WORK : [
-                        { STUDENT_FILE : "jon m.", AUTOMATICALLY_ASSIGNED_SCORE : 1.5,
-                          SCORE : NaN,FEEDBACK : "",
-                          POSSIBLE_POINTS : 6,
-                          LAST_SHOWN_STEP: 1,
-                          PROBLEM_NUMBER : 1,
-                          STEPS : [
-                            { CONTENT : "5x=10"},
-                            { CONTENT : "x=-2"}
-                          ]
-                        }
-                      ]
-                    }
-                ]
-            }
-        }
-    };
+    var expectedOutput = {"ALL_STUDENTS": [{"STUDENT_FILE": "jake r.", "STUDENT_NAME": undefined}, {"STUDENT_FILE": "jon m.", "STUDENT_NAME": undefined}], "CURRENT_FILTERS": {"ANONYMOUS": true, "SIMILAR_ASSIGNMENT_GROUP_INDEX": null}, "CUSTOM_GROUP": null, "PROBLEMS": {"1": {"POSSIBLE_POINTS": 6, "POSSIBLE_POINTS_EDITED": 6, "UNIQUE_ANSWERS": [{"ANSWER": "x=2", "FILTER": "SHOW_ALL", "STUDENT_WORK": [{"AUTOMATICALLY_ASSIGNED_SCORE": 3, "FEEDBACK": "", "LAST_SHOWN_STEP": 1, "POSSIBLE_POINTS": 6, "PROBLEM_NUMBER": 1, "SCORE": NaN, "STEPS": [{"CONTENT": "5x=10"}, {"CONTENT": "x=2"}], "STUDENT_FILE": "jake r.", "STUDENT_NAME": undefined, "STUDENT_SUBMISSION_ID": undefined}]}, {"ANSWER": "x=-2", "FILTER": "SHOW_ALL", "STUDENT_WORK": [{"AUTOMATICALLY_ASSIGNED_SCORE": 1.5, "FEEDBACK": "", "LAST_SHOWN_STEP": 1, "POSSIBLE_POINTS": 6, "PROBLEM_NUMBER": 1, "SCORE": NaN, "STEPS": [{"CONTENT": "5x=10"}, {"CONTENT": "x=-2"}], "STUDENT_FILE": "jon m.", "STUDENT_NAME": undefined, "STUDENT_SUBMISSION_ID": undefined}]}]}}, "SIMILAR_ASSIGNMENT_SETS": []};
     // TODO - figure out how to include depedencies like KAS in webpack so I can test them, currently included
     // in the app using global script tags in index.html
     var output = aggregateStudentWork(allStudentWork, answerKey, function(expr1, expr2) {return expr1 === expr2;});
@@ -330,46 +291,7 @@ it('test aggregate student work no answer key', () => {
     ];
 
     deepFreeze(allStudentWork);
-    var expectedOutput = {
-        CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
-        SIMILAR_ASSIGNMENT_SETS : [ ],
-        PROBLEMS : {
-            "1" : {
-                POSSIBLE_POINTS : 6,
-                POSSIBLE_POINTS_EDITED : 6,
-                UNIQUE_ANSWERS : [
-                    { ANSWER : "x=2", FILTER : SHOW_ALL,
-                      STUDENT_WORK : [
-                        { STUDENT_FILE : "jake r.",
-                          AUTOMATICALLY_ASSIGNED_SCORE : "",
-                          POSSIBLE_POINTS : 6,
-                          SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
-                          PROBLEM_NUMBER : 1,
-                          STEPS : [
-                            { CONTENT : "5x=10"},
-                            { CONTENT : "x=2"}
-                          ]
-                        }
-                      ]
-                    },
-                    { ANSWER : "x=-2", FILTER : SHOW_ALL,
-                      STUDENT_WORK : [
-                        { STUDENT_FILE : "jon m.",
-                          AUTOMATICALLY_ASSIGNED_SCORE : "",
-                          POSSIBLE_POINTS : 6,
-                          SCORE : "", FEEDBACK : "", LAST_SHOWN_STEP: 1,
-                          PROBLEM_NUMBER : 1,
-                          STEPS : [
-                            { CONTENT : "5x=10"},
-                            { CONTENT : "x=-2"}
-                          ]
-                        }
-                      ]
-                    }
-                ]
-            }
-        }
-    };
+    var expectedOutput = {"ALL_STUDENTS": [{"STUDENT_FILE": "jake r.", "STUDENT_NAME": undefined}, {"STUDENT_FILE": "jon m.", "STUDENT_NAME": undefined}], "CURRENT_FILTERS": {"ANONYMOUS": true, "SIMILAR_ASSIGNMENT_GROUP_INDEX": null}, "CUSTOM_GROUP": null, "PROBLEMS": {"1": {"POSSIBLE_POINTS": 6, "POSSIBLE_POINTS_EDITED": 6, "UNIQUE_ANSWERS": [{"ANSWER": "x=2", "FILTER": "SHOW_ALL", "STUDENT_WORK": [{"AUTOMATICALLY_ASSIGNED_SCORE": "", "FEEDBACK": "", "LAST_SHOWN_STEP": 1, "POSSIBLE_POINTS": 6, "PROBLEM_NUMBER": 1, "SCORE": "", "STEPS": [{"CONTENT": "5x=10"}, {"CONTENT": "x=2"}], "STUDENT_FILE": "jake r.", "STUDENT_NAME": undefined, "STUDENT_SUBMISSION_ID": undefined}]}, {"ANSWER": "x=-2", "FILTER": "SHOW_ALL", "STUDENT_WORK": [{"AUTOMATICALLY_ASSIGNED_SCORE": "", "FEEDBACK": "", "LAST_SHOWN_STEP": 1, "POSSIBLE_POINTS": 6, "PROBLEM_NUMBER": 1, "SCORE": "", "STEPS": [{"CONTENT": "5x=10"}, {"CONTENT": "x=-2"}], "STUDENT_FILE": "jon m.", "STUDENT_NAME": undefined, "STUDENT_SUBMISSION_ID": undefined}]}]}}, "SIMILAR_ASSIGNMENT_SETS": []};
 
     // TODO - figure out how to include depedencies like KAS in webpack so I can test them, currently included
     // in the app using global script tags in index.html
