@@ -991,6 +991,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
             const lastStep = _.last(problem[STEPS]);
             // image as the last step is treated as blank text as the answer
+            const somethingSubmitted = problem[STEPS].find(step => step[CONTENT].replace(/\\\s/g, "").trim() !== '');
             var studentAnswer;
             // TODO - encapsulate format check for math to include 'undefined', compatibility with legacy
             if (lastStep && (lastStep[FORMAT] === MATH || lastStep[FORMAT] === TEXT
@@ -1002,6 +1003,8 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                             (lastStep[CONTENT].trim() === ''
                                 && problem[STEPS][problem[STEPS].length - 2][FORMAT] === IMG))) {
                 studentAnswer = 'Image';
+            } else if (! somethingSubmitted) {
+                studentAnswer = 'Blank';
             } else {
                 studentAnswer = '';
             }
@@ -1016,6 +1019,8 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                 } else {
                     automaticallyAssignedGrade = gradeSingleProblem(problem, answerKey);
                 }
+            } else if ( ! somethingSubmitted) {
+                automaticallyAssignedGrade = 0;
             }
 
             // write into the abreviated list of problems completed, used below to fill in placeholder for
