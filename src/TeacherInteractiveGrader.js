@@ -391,6 +391,9 @@ function splitKey(compositeKey) {
 //
 function findSimilarStudentAssignments(allStudentWork) {
 
+    // TODO - fixme, this is interacxting pooly with the new drawing feature disable temprarily
+    return [];
+
     if (allStudentWork.length > 50) {
         if (!window.confirm("You are opening a group of " + allStudentWork.length + " assignments. " +
             "With a class this large the check for overall simular documents for cheating prevention " +
@@ -1616,7 +1619,15 @@ class SimilarGroupSelector extends React.Component {
                 }
                 </div>
                 )
-               : <h3>No students submitted documents sharing a significant amount work.</h3>
+               : <div>
+                    <h3>Similar overall doc check is currently disabled</h3>
+
+                    <p>We have discovered a bug in how the new drawings feature interacts with our automated similar doc check. We
+                       have disabled it and we are working on a fix, but in the meantime you can use the menu below to manually view
+                       students side-by-side if you are worried they might be sharing their work.
+                    </p>
+                </div>
+
             }
             <br /><br />
             <h3>Custom Group</h3>
