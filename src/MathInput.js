@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import _ from 'underscore';
 import TeX from './TeX.js';
 import { symbolGroups } from './MathEditorHelpModal.js';
-import Button from './Button.js';
+import { default as Button, CloseButton } from './Button.js';
 import MathQuillStatic from './MathQuillStatic.js';
 var MathQuill = window.MathQuill;
 
@@ -16,6 +16,7 @@ var symbStyle = { fontSize: "130%" };
 var SET_KEYBOARD_BUTTON_GROUP = 'SET_KEYBOARD_BUTTON_GROUP';
 var BUTTON_GROUP = 'BUTTON_GROUP';
 var CALC = 'CALC';
+var MATRIX = 'MATRIX';
 var GEOMETRY = 'GEOMETRY';
 var BASIC = 'BASIC';
 var SET_THEORY = 'SET_THEORY';
@@ -148,6 +149,96 @@ var buttonSetsType = PropTypes.arrayOf(
         PropTypes.oneOf(_.keys(buttonSets))
     );
 
+class MatrixSizePicker extends React.Component {
+    static propTypes = {
+        onInsert: PropTypes.func.isRequired,
+    };
+    state = {
+        hoveredCell: null,
+        endCaps: 'b'
+    }
+    render() {
+        // based on current hovered cell (if any) return a color for
+        // a given cell, all of the rows and columns before the hovered
+        // cell are highlighted to show the shape/size of the matrix
+        // that will be created clicking on the current cell
+        const cellColor = (row, column) => {
+            if (this.state.hoveredCell &&
+                this.state.hoveredCell[0] >= row &&
+                this.state.hoveredCell[1] >= column) {
+                return '#e0e0e0';
+            } else {
+                return '#ffffff';
+            }
+        }
+        return (
+            <div>
+                <div style={{float: 'left'}}>
+                <br />
+                Choose a Size
+                <br />
+                <div
+                    onMouseLeave={() => {
+                        this.setState({hoveredCell : null});
+                    }}
+                >
+                {
+                _.map([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], row => {
+                    return (<div style={{padding: '0px', margin: '0px', lineHeight: 0.8}}>
+                        {_.map([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], column => {
+                            // create a (component, thing we should send to mathquill) pair
+                            return <button className="fm-close-button"
+                                           style={{float: 'none',
+                                                   height: '15px',
+                                                   width: '15px',
+                                                   padding: '0px',
+                                                   margin: '0px',
+                                                   backgroundColor: cellColor(row, column) }}
+                                    onClick={() => {
+                                        this.props.onInsert(input => {
+                                            const oneRow = new Array(column).join('&');
+                                            const latex = '\\begin{' + this.state.endCaps + 'matrix}' +
+                                                // yes this is dumb, but so is javascript, could be clearer
+                                                // with just polyfilling something but I don't feel like doing
+                                                // that right now
+                                                (row == 1 ? oneRow : new Array(row).join(oneRow + '\\\\')) +
+                                                '\\end{' + this.state.endCaps + 'matrix}';
+                                            input.write(latex);
+                                        });
+                                    }}
+                                    onMouseEnter={() => {
+                                        this.setState({hoveredCell : [row, column]});
+                                    }}
+                                    />
+                        })
+                        }
+                    </div>);
+                })
+                }
+                </div>
+                </div>
+                <div style={{marginLeft: '20px', float:'left'}}>
+                    <br />
+                    End Caps
+                    <br />
+                    <select style={{fontSize: '30px'}}
+                        value={this.state.endCaps}
+                        onChange={(evt) =>
+                                this.setState({endCaps: evt.target.value})
+                            }>
+                                <option value="b">[ ]</option>
+                                <option value="p">( )</option>
+                                <option value="">None</option>
+                                <option value="B">{"{ }"}</option>
+                                <option value="v">| |</option>
+                                <option value="V">‖ ‖</option>
+                    </select>
+                </div>
+            </div>
+        );
+    }
+}
+
 class TexButtons extends React.Component {
     static propTypes = {
         sets: buttonSetsType.isRequired,
@@ -238,6 +329,12 @@ class TexButtons extends React.Component {
                     onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : SET_THEORY });}}/>
+                <Button text="Matrix"
+                        style={this.props.buttonGroup === MATRIX ?
+                                    { backgroundColor: "#052d66"} : {}}
+                    onClick={function() {
+                                window.ephemeralStore.dispatch(
+                                    { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : MATRIX});}}/>
                 <Button text="Calculus"
                         style={this.props.buttonGroup === CALC ?
                                     { backgroundColor: "#052d66"} : {}}
@@ -306,6 +403,10 @@ class TexButtons extends React.Component {
                 </div>
             </div>
             {buttonRows}
+            {this.props.buttonGroup === MATRIX ?
+                    <MatrixSizePicker onInsert={this.props.onInsert}/>
+                    : null
+            }
         </div>;
     }
 }
