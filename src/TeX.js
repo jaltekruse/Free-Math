@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import katex from 'katex';
 
 var Khan = window.Khan;
 var MathJax = window.MathJax;
 var katexA11y = window.katexA11y;
-var katex = window.katex;
 
 // Copied from Khan's Perseus project
 let pendingScripts = [];
