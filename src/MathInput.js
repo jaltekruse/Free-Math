@@ -403,11 +403,11 @@ class TexButtons extends React.Component {
                     </button>
                 </div>
             </div>
-            {buttonRows}
             {this.props.buttonGroup === MATRIX ?
                     <MatrixSizePicker onInsert={this.props.onInsert}/>
                     : null
             }
+            {buttonRows}
         </div>;
     }
 }

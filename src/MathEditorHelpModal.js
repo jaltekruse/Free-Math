@@ -175,6 +175,13 @@ const symbolGroups = {
         //{toType:"\\asymp [Enter]", tex:"\\asymp"},
     ],
     MATRIX: [
+        {toType:"\\dots [Enter]", tex:"\\dots"},
+        {toType:"\\cdots [Enter]", tex:"\\cdots"},
+        {toType:"\\ddots [Enter]", tex:"\\ddots"},
+        // not in Katex yet
+        //{toType:"\\iddots [Enter]", tex:"\\iddots"},
+        {toType:"\\vdots [Enter]", tex:"\\vdots"},
+        {toType:"\\times [Enter]", tex:"\\times"},
     ],
     CALC : [
         {toType:"int", tex:"\\int"},
