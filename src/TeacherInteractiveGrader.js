@@ -114,6 +114,7 @@ var FORMAT = "FORMAT";
 var MATH = "MATH";
 var TEXT = "TEXT";
 var IMG = "IMG";
+var FABRIC_SRC = 'FABRIC_SRC';
 
 var SHOW_ALL = "SHOW_ALL";
 
@@ -392,7 +393,7 @@ function splitKey(compositeKey) {
 function findSimilarStudentAssignments(allStudentWork) {
 
     // TODO - fixme, this is interacxting pooly with the new drawing feature disable temprarily
-    return [];
+    //return [];
 
     if (allStudentWork.length > 50) {
         if (!window.confirm("You are opening a group of " + allStudentWork.length + " assignments. " +
@@ -411,6 +412,9 @@ function findSimilarStudentAssignments(allStudentWork) {
     // TODO - try to remove this deep clone of all docs, don't know if it is safe
     // today to mutate the incoming data.
     allStudentWork = cloneDeep(allStudentWork);
+
+    var imagesBeingReadIn = 0;
+
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
             if (problem[FEEDBACK]) delete problem[FEEDBACK];
@@ -423,12 +427,55 @@ function findSimilarStudentAssignments(allStudentWork) {
             if (problem[STUDENT_SUBMISSION_ID]) delete problem[STUDENT_SUBMISSION_ID];
             problem[STEPS].forEach(function(step, index, array) {
                 if (step[HIGHLIGHT]) delete step[HIGHLIGHT];
-                if (step[FORMAT]) delete step[FORMAT];
+                if (step[FABRIC_SRC]) delete step[FABRIC_SRC];
                 if (step[STEP_ID]) delete step[STEP_ID];
-                step[CONTENT] = step[CONTENT].replace(/\\\s/g, "");
+                // for images, make the content the first 100 and last 100 bytes of the image concatenated together in base64
+                // should uniquify images for avoiding them reporting as collisions (as right now its just the object URL strings that differ)
+                // and for exactly the same image it should be able to catch students uploading the exact same thing as a classmate
+                //
+                // possibly put the content as separate strings in an array, so that there are more nodes in the JSON to report
+                // as diffs, if the images are different
+                if (step[FORMAT] === IMG) {
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('GET', step[CONTENT], true);
+                    xhr.responseType = 'blob';
+                    imagesBeingReadIn++;
+                    xhr.onload = function(e) {
+                      if (this.status === 200) {
+                        var imgBlob = this.response;
+                        imagesBeingReadIn--;
+                      }
+                    }
+                    xhr.send();
+                } else {
+                    step[CONTENT] = step[CONTENT].replace(/\\\s/g, "");
+                }
+                if (step[FORMAT]) delete step[FORMAT];
             });
         });
     });
+
+    var checkImagesLoaded = function() {
+        if (imagesBeingReadIn === 0) {
+            // TODO - need to add a redux action for setting the similar docs
+            // and add a state for "not done comparing similar work yet"
+            // this could either block opening the grading view, as it did in the
+            // previous synchronous version, or it could allow opening the grading view
+            // and show a spinner if they open the similar docs page
+            // possible issue - after the smaller async image loads, there will be one bigger
+            // process to compute the diffs across all docs, this will probably cause the UI
+            // to hang while it is running unless I can figure out how to split it up among several different callbacks
+            // in a chain of setTimeouts
+        } else {
+            // if not all of the images are loaded, check again in 50 milliseconds
+            setTimeout(checkImagesLoaded, 50);
+        }
+    }
+    checkImagesLoaded();
+}
+
+function findSimilarFromNormalizedDocs(allStudentWorkNormalized) {
+
     // with keys of student_doc_1__student_doc_2 with the names sorted alphabetically
     // values are numbers for percentage of unique work from 0 to 1.0
     let similarityScores = {};
@@ -443,7 +490,7 @@ function findSimilarStudentAssignments(allStudentWork) {
     var maxProblemsAttempted = 0;
     // TODO - calculate total number of steps for each student doc
     // use that the calculate size of diff, instead of average doc size
-    allStudentWork.forEach(function(assignment, index, array) {
+    allStudentWorkNormalized.forEach(function(assignment, index, array) {
         if (assignment[ASSIGNMENT].length > maxProblemsAttempted) {
             maxProblemsAttempted = assignment[ASSIGNMENT].length;
         }
@@ -454,13 +501,13 @@ function findSimilarStudentAssignments(allStudentWork) {
         });
     });
     var averageAnswerLength = totalWork / totalProblemsCompleted;
-    var averageNumberOfQuestions = totalProblemsAttempted / allStudentWork.length;
+    var averageNumberOfQuestions = totalProblemsAttempted / allStudentWorkNormalized.length;
 
     // map from student doc names to list of docs that one student is similar to
     var similarDocsToEach = {}
 
-    allStudentWork.forEach(function(assignment1, index, array) {
-        allStudentWork.forEach(function(assignment2, index, array) {
+    allStudentWorkNormalized.forEach(function(assignment1, index, array) {
+        allStudentWorkNormalized.forEach(function(assignment2, index, array) {
             if (assignment1[STUDENT_FILE] === assignment2[STUDENT_FILE]) return;
             var result = diffJson(assignment1, assignment2);
             // currently a rough threshold of 60% unique work, will improve later
