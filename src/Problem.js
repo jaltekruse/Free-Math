@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import MathInput from './MathInput.js';
-import Button from './Button.js';
+import { default as Button, LightButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import BigModal from 'react-modal';
 import { HtmlButton, CloseButton } from './Button.js';
@@ -723,6 +723,227 @@ class ImageStep extends React.Component {
     }
 }
 
+class Step extends React.Component {
+    state = {
+        showMenu: false
+    }
+
+    closeMenu = () => {
+        this.setState({showMenu: false});
+    }
+
+    // https://blog.logrocket.com/controlling-tooltips-pop-up-menus-using-compound-components-in-react-ccedc15c7526/
+    componentDidUpdate() {
+      setTimeout(() => {
+        if(this.state.showMenu){
+          window.addEventListener('click', this.closeMenu);
+        }
+        else{
+          window.removeEventListener('click', this.closeMenu);
+        }
+      }, 0);
+    }
+
+    render() {
+        const step = this.props.step;
+        const stepIndex = this.props.stepIndex;
+        // TODO - should be cleaner and not pass down the whole global state...
+        const value = this.props.value;
+        const probNumber = this.props.value[PROBLEM_NUMBER];
+        const problemIndex = this.props.problemIndex;
+        const showTutorial = this.props.value[SHOW_TUTORIAL];
+        const showImgTutorial = this.props.value[SHOW_IMAGE_TUTORIAL];
+        const showDrawingTutorial= this.props.value[SHOW_DRAWING_TUTORIAL];
+        const buttonGroup = this.props.buttonGroup;
+
+        var styles = {};
+        if (step[HIGHLIGHT] === SUCCESS) {
+            styles = {backgroundColor : GREEN };
+        } else if (step[HIGHLIGHT] === ERROR) {
+            styles = {backgroundColor : SOFT_RED};
+        }
+        return (
+        <div key={step[STEP_ID]} style={{width:"95%"}}>
+            {showImgTutorial && stepIndex === 0 ?
+            (<div style={{overflow:"hidden"}}>
+                <div className="answer-partially-correct"
+                     style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
+                    <span>Grab your notebook or worksheet. Click the button above that says "Snap a Picture"
+                          to take a picture of some math work on the sheet of paper using your webcam
+                          or device camera.</span>
+                </div>
+            </div>) : null}
+            {showDrawingTutorial && stepIndex === 0 ?
+            (<div style={{overflow:"hidden"}}>
+                <div className="answer-partially-correct"
+                     style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
+                    <span>Click on one of the buttons with a pencil on it to add a
+                          drawing canvas. Then click on the "Draw on Image" button to open the
+                          drawing widget.
+                    </span>
+                </div>
+            </div>) : null}
+            {showTutorial && stepIndex === 0 ?
+            (<div style={{overflow:"hidden"}}>
+                <div className="answer-partially-correct"
+                     style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
+                    <span>Click this expression, then press enter.</span>
+                </div>
+            </div>) : null}
+            {showTutorial && stepIndex === 1 ?
+            (<div style={{overflow:"hidden"}}>
+                <div className="answer-partially-correct"
+                     style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
+                    <span>Edit this line to show part of the work for
+                          simplifying this expression, then press enter again.</span>
+                </div>
+            </div>) : null}
+            {showTutorial && stepIndex === 2 ?
+            (<div style={{overflow:"hidden"}}>
+                <div className="answer-partially-correct"
+                     style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
+                    <span>Repeat until you have reached your solution on
+                          the last line you edit.</span></div></div>) : null}
+            <div style={{display:"block"}}>
+        <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
+            <div className="step-actions">
+              <div style={{
+                  position: 'relative',
+                  display: 'inline-block'
+              }}>
+                 <button
+                    className='fm-button-light'
+                    onClick={
+                      function() {
+                          this.setState({showMenu: !this.state.showMenu});
+                      }.bind(this)}
+                    >
+                        <div style={{display:"inline-block"}}>
+                            <div style={{float: "left", fontSize: '20px', paddingTop: "4px"}}>{"\u22EE"}</div>
+                        </div>
+                </button>
+                    <div style={{
+                            backgroundColor: '#f1f1f1', position:'absolute',
+                            boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)',
+                            minWidth: '180px',
+                            // TODO - fix this to keep track of used z-indexes
+                            zIndex: '5',
+                            display: this.state.showMenu ? 'block' : 'none' }}>
+                        <LightButton text='Add Step Above'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {
+                                window.store.dispatch(
+                                    { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
+                                      STEP_KEY : stepIndex});
+                                this.setState({showMenu: !this.state.showMenu});
+                            }}/>
+                        <LightButton text='Change to Text Step'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {
+                                const newStepType = 'TEXT';
+                                window.store.dispatch({
+                                    type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
+                                    NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                });
+                                this.setState({showMenu: !this.state.showMenu});
+                        }}/>
+                        <LightButton text='Change to Math Step'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {
+                                const newStepType = 'MATH';
+                                window.store.dispatch({
+                                    type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
+                                    NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                });
+                                this.setState({showMenu: !this.state.showMenu});
+                        }}/>
+                        <LightButton text='Change to Image Step'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {
+                                const newStepType = 'IMG';
+                                window.store.dispatch({
+                                    type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
+                                    NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                });
+                                this.setState({showMenu: !this.state.showMenu});
+                        }}/>
+
+                    </div>
+                </div>
+            </div>&nbsp;
+            { step[FORMAT] === IMG
+                ?
+                    <ImageStep value={value} id={problemIndex} stepIndex={stepIndex} step={step} />
+                :
+                step[FORMAT] === TEXT ?
+                    (
+                        <textarea value={step[CONTENT]}
+                            style={{...styles, margin : "10px"}}
+                            className="text-step-input"
+                            rows="4"
+                            onChange={
+                                function(evt) {
+                                    window.store.dispatch({
+                                        type : EDIT_STEP,
+                                        PROBLEM_INDEX : problemIndex,
+                                        STEP_KEY : stepIndex,
+                                        FORMAT : TEXT,
+                                        NEW_STEP_CONTENT : evt.target.value});
+                                }}
+                            onKeyDown={function(evt) {
+                                    if(evt.key === 'Enter') {
+                                        window.store.dispatch(
+                                            { type : NEW_BLANK_STEP,
+                                              STEP_KEY : stepIndex,
+                                              PROBLEM_INDEX : problemIndex
+                                            });
+                                        evt.preventDefault();
+                                    }
+                                }
+                            }
+                        />
+                    )
+                :
+                <MathInput
+                    key={stepIndex} buttonsVisible='focused'
+                    className="mathStepEditor"
+                    styles={{...styles, overflow: 'auto'}}
+                    buttonSets={['trig', 'prealgebra',
+                                 'logarithms', 'calculus']}
+                    buttonGroup={buttonGroup}
+                    stepIndex={stepIndex}
+                    problemIndex={problemIndex} value={step[CONTENT]} onChange={
+                        function(value) {
+                            window.store.dispatch({
+                            type : EDIT_STEP,
+                            PROBLEM_INDEX : problemIndex,
+                            STEP_KEY : stepIndex,
+                            FORMAT : MATH,
+                            NEW_STEP_CONTENT : value});
+                    }}
+                    onSubmit={function() {
+                        window.store.dispatch(
+                            { type : NEW_STEP,
+                              STEP_KEY : stepIndex,
+                              PROBLEM_INDEX : problemIndex});
+                    }}
+                />
+            }
+            <CloseButton text="&#10005;" title='Delete step'
+                style={{marginLeft: "10px"}}
+                onClick={function(value) {
+                    window.store.dispatch(
+                        { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+                          STEP_KEY : stepIndex});
+                }}/>
+            </div>
+            </div>
+            <div style={{"clear":"both"}} />
+        </div>
+        );
+    }
+}
+
 class Problem extends React.Component {
     handleStepChange = (event) => {
       this.setState({value: event.target.value});
@@ -815,152 +1036,7 @@ class Problem extends React.Component {
                         <br />
 
                         {steps.map(function(step, stepIndex) {
-                            var styles = {};
-                            if (step[HIGHLIGHT] === SUCCESS) {
-                                styles = {backgroundColor : GREEN };
-                            } else if (step[HIGHLIGHT] === ERROR) {
-                                styles = {backgroundColor : SOFT_RED};
-                            }
-                            return (
-                            <div key={step[STEP_ID]} style={{width:"95%"}}>
-                                {showImgTutorial && stepIndex === 0 ?
-                                (<div style={{overflow:"hidden"}}>
-                                    <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                                        <span>Grab your notebook or worksheet. Click the button above that says "Snap a Picture"
-                                              to take a picture of some math work on the sheet of paper using your webcam
-                                              or device camera.</span>
-                                    </div>
-                                </div>) : null}
-                                {showDrawingTutorial && stepIndex === 0 ?
-                                (<div style={{overflow:"hidden"}}>
-                                    <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                                        <span>Click on one of the buttons with a pencil on it to add a
-                                              drawing canvas. Then click on the "Draw on Image" button to open the
-                                              drawing widget.
-                                        </span>
-                                    </div>
-                                </div>) : null}
-                                {showTutorial && stepIndex === 0 ?
-                                (<div style={{overflow:"hidden"}}>
-                                    <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                                        <span>Click this expression, then press enter.</span>
-                                    </div>
-                                </div>) : null}
-                                {showTutorial && stepIndex === 1 ?
-                                (<div style={{overflow:"hidden"}}>
-                                    <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                                        <span>Edit this line to show part of the work for
-                                              simplifying this expression, then press enter again.</span>
-                                    </div>
-                                </div>) : null}
-                                {showTutorial && stepIndex === 2 ?
-                                (<div style={{overflow:"hidden"}}>
-                                    <div className="answer-partially-correct"
-                                         style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                                        <span>Repeat until you have reached your solution on
-                                              the last line you edit.</span></div></div>) : null}
-                                <div style={{display:"block"}}>
-                            <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
-                                <div className="step-actions">
-                                    {<select
-                                        value={step[FORMAT]}
-                                        onChange={function(evt) {
-                                            window.store.dispatch({
-                                                type : EDIT_STEP,
-                                                PROBLEM_INDEX : problemIndex,
-                                                FORMAT : evt.target.value,
-                                                STEP_KEY : stepIndex,
-                                                NEW_STEP_CONTENT : (evt.target.value === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
-                                            });
-                                        }}>
-                                        <option value="MATH">Math</option>
-                                        <option value="TEXT">Text</option>
-                                        <option value="IMG">Image</option>
-                                    </select>}
-                                    <HtmlButton title='Insert step above'
-                                        content={(
-                                            <img src="images/add_above.png" alt="x"/>
-                                        )}
-                                        onClick={function(value) {
-                                            window.store.dispatch(
-                                                { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
-                                                  STEP_KEY : stepIndex});
-                                    }}/>
-                                </div>&nbsp;
-                                { step[FORMAT] === IMG
-                                    ?
-                                        <ImageStep value={value} id={problemIndex} stepIndex={stepIndex} step={step} />
-                                    :
-                                    step[FORMAT] === TEXT ?
-                                        (
-                                            <textarea value={step[CONTENT]}
-                                                style={{...styles, margin : "10px"}}
-                                                className="text-step-input"
-                                                rows="4"
-                                                onChange={
-                                                    function(evt) {
-                                                        window.store.dispatch({
-                                                            type : EDIT_STEP,
-                                                            PROBLEM_INDEX : problemIndex,
-                                                            STEP_KEY : stepIndex,
-                                                            FORMAT : TEXT,
-                                                            NEW_STEP_CONTENT : evt.target.value});
-                                                    }}
-                                                onKeyDown={function(evt) {
-                                                        if(evt.key === 'Enter') {
-                                                            window.store.dispatch(
-                                                                { type : NEW_BLANK_STEP,
-                                                                  STEP_KEY : stepIndex,
-                                                                  PROBLEM_INDEX : problemIndex
-                                                                });
-                                                            evt.preventDefault();
-                                                        }
-                                                    }
-                                                }
-                                            />
-                                        )
-                                    :
-                                    <MathInput
-                                        key={stepIndex} buttonsVisible='focused'
-                                        className="mathStepEditor"
-                                        styles={{...styles, overflow: 'auto'}}
-                                        buttonSets={['trig', 'prealgebra',
-                                                     'logarithms', 'calculus']}
-                                        buttonGroup={buttonGroup}
-                                        stepIndex={stepIndex}
-                                        problemIndex={problemIndex} value={step[CONTENT]} onChange={
-                                            function(value) {
-                                                window.store.dispatch({
-                                                type : EDIT_STEP,
-                                                PROBLEM_INDEX : problemIndex,
-                                                STEP_KEY : stepIndex,
-                                                FORMAT : MATH,
-                                                NEW_STEP_CONTENT : value});
-                                        }}
-                                        onSubmit={function() {
-                                            window.store.dispatch(
-                                                { type : NEW_STEP,
-                                                  STEP_KEY : stepIndex,
-                                                  PROBLEM_INDEX : problemIndex});
-                                        }}
-                                    />
-                                }
-                                <CloseButton text="&#10005;" title='Delete step'
-                                    style={{marginLeft: "10px"}}
-                                    onClick={function(value) {
-                                        window.store.dispatch(
-                                            { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
-                                              STEP_KEY : stepIndex});
-                                    }}/>
-                                </div>
-                                </div>
-                                <div style={{"clear":"both"}} />
-                            </div>
-                            );
+                            return (<Step step={step} stepIndex={stepIndex} value={value} buttonGroup={buttonGroup} problemIndex={problemIndex}/>)
                         })}
                     </div>
                 </div>

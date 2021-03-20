@@ -71,7 +71,7 @@ class LightButton extends React.Component {
                     onClick();
                 }}
                 title={title}
-                style={{...style}}
+                style={{...unselectable, ...style}}
                 disabled={this.props.disabled}
             >
                 <div style={{display:"inline-block"}}>
@@ -93,7 +93,7 @@ class CloseButton extends React.Component {
         return (
             <button
                 className="fm-close-button"
-                style={{...style}}
+                style={{...unselectable, ...style}}
                 onClick={function() {
                     onClick();
                 }}
