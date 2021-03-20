@@ -210,10 +210,9 @@ a.fm-button:hover
 .fm-button-left {
   border: 2px solid transparent;
   padding: 4px 4px 4px 8px;
-  margin-left: 4px;
+  margin-left: 1px;
   margin-right: 0px;
-  background-color: #0d57bf;
-  color: #f1f1f1;
+  color: #111111;
   border-top-left-radius: 15px;
   border-bottom-left-radius: 15px;
   border-top-right-radius: 0px;
@@ -232,10 +231,9 @@ a.fm-button:hover
 .fm-button-right {
   border: 2px solid transparent;
   padding: 4px 8px 4px 4px;
-  margin-right: 4px;
+  margin-right: 1px;
   margin-left: 0px;
-  background-color: #0d57bf;
-  color: #f1f1f1;
+  color: #111111;
   border-top-right-radius: 15px;
   border-bottom-right-radius: 15px;
   border-top-left-radius: 0px;
@@ -370,7 +368,7 @@ div.problem-container {
     border-radius: 3px;
     border:1px solid #bfbfbf;
     background-color:white;
-    margin: 15px 15px 15px 15px;
+    margin: 0px 0px 15px 0px;
     padding: 15px 15px 30px 15px;
     box-shadow: 0 5px 3px -3px #cfcfcf;
     min-width: 50%;

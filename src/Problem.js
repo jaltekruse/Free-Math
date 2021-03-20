@@ -819,7 +819,7 @@ class Step extends React.Component {
                       }.bind(this)}
                     >
                         <div style={{display:"inline-block"}}>
-                            <div style={{float: "left", fontSize: '20px', paddingTop: "4px"}}>{"\u22EE"}</div>
+                            <div style={{float: "left", fontSize: '16px', paddingTop: "4px"}}>{"\u22EE"}</div>
                         </div>
                 </button>
                     <div style={{
@@ -907,7 +907,7 @@ class Step extends React.Component {
                 <MathInput
                     key={stepIndex} buttonsVisible='focused'
                     className="mathStepEditor"
-                    styles={{...styles, overflow: 'auto'}}
+                    styles={{...styles, overflow: 'auto', marginTop: '8px'}}
                     buttonSets={['trig', 'prealgebra',
                                  'logarithms', 'calculus']}
                     buttonGroup={buttonGroup}
@@ -960,7 +960,7 @@ class Problem extends React.Component {
         const steps = this.props.value[STEPS];
         return (
             <div>
-            <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
+            <div className="problem-container" style={{display:"inline-block", width:"98%", float:'none'}}>
                 <div>
                     <div className="problem-editor-buttons"
                          style={{float:'left', marginRight:"10px", marginBottom: "30px"}}>

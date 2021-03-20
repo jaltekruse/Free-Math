@@ -24,6 +24,7 @@ var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
 
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 var SHOW_IMAGE_TUTORIAL = "SHOW_IMAGE_TUTORIAL";
+var SHOW_DRAWING_TUTORIAL = 'SHOW_DRAWING_TUTORIAL';
 
 var SCORE = "SCORE";
 
@@ -100,11 +101,40 @@ class Assignment extends React.Component {
             <div>
             <div className="menubar-spacer-small"> </div>
             <div style={{ display: "flex", flexWrap: "wrap"}}>
+            <div style={{display: 'block', width: '100%'}}>
+                {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]
+                    || probList[currProblem][SHOW_DRAWING_TUTORIAL]
+                ) && !browserIsIOS ?
+                    (
+                        <div className="answer-partially-correct"
+                         style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                            <span>Work saves to the Downloads folder on your device, or you can save it directly to Google Drive or Google Classroom.</span>
+                        </div>) :
+                    null
+                }
+                {browserIsIOS ?
+                    (
+                        <div className="answer-incorrect"
+                         style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
+                            <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can
+                                  be used to try out the experience, but you will need to visit the site on your Mac,
+                                  Widows PC, Chromebook or Android device to actually use the site.</span>
+                        </div>) :
+                    null
+                }
+            </div>
             {probList.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
                 if (probNum.trim() !== '') {
-                    label = "Problem " + probNum;
+                    if (probList.length < 11) {
+                        label = "Problem " + probNum;
+                        label = "Problem " + probNum;
+                    } else  if (probList.length < 16) {
+                        label = "Prob " + probNum;
+                    } else {
+                        label = "P " + probNum;
+                    }
                 } else {
                     label = "[Need to Set a Problem Number]";
                 }
@@ -116,7 +146,7 @@ class Assignment extends React.Component {
                         display: 'flex',
                         flexDirection: 'column',
                         textAlign: 'center',
-                        marginRight: '15px'}}
+                        marginRight: '0px'}}
 			key={"wrapper_" + problemIndex}>
 
                     {/* bit of a hack for alignment */
@@ -134,9 +164,9 @@ class Assignment extends React.Component {
                     }
                     <div>
                         <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                            className={(problemIndex === currProblem ?
-                                            "fm-button-selected " : "") +
-                                      "fm-button-left fm-button"}
+                            className={"fm-button-left fm-button"}
+                            style={{backgroundColor: (problemIndex === currProblem ? "#b1b1b1" : "#e1e1e1"),
+                                marginBottom: "0px", borderRadius: "15px 0px 0px 0px"}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: problemIndex})}}
@@ -146,6 +176,8 @@ class Assignment extends React.Component {
                             className={(problemIndex === currProblem ?
                                             "fm-button-selected " : "") +
                                       "fm-button-right fm-button"}
+                            style={{backgroundColor: (problemIndex === currProblem ? "#b1b1b1" : "#e1e1e1"),
+                                    marginBottom: "0px", borderRadius: "0px 15px 0px 0px"}}
                             onClick={
                                 function() {
                                     if (this.props.value[PROBLEMS].length === 1) {
@@ -156,7 +188,7 @@ class Assignment extends React.Component {
                                     window.store.dispatch(
                                         { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex})
                             }.bind(this)}
-                            content={(<img src="images/close.png" alt="x"/>)}
+                            content={(<img src="images/close_dark.png" alt="x"/>)}
                         />
                     </div>
                     </div>
@@ -179,38 +211,20 @@ class Assignment extends React.Component {
                         : null
                 }
                 <Button text="Add Problem" className="fm-button-green fm-button"
-                        style={{marginRight: "15px"}}
+                        style={{marginRight: "15px", marginBottom: "0px", borderRadius: "15px 15px 0px 0px"}}
                         onClick={function() {
                     addProblem();
                 }}/>
             </div>
             {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]) ?
-                    (<Button text="Reopen Demo Video" style={{backgroundColor: "#dc0031"}}
+                    (<Button text="Reopen Demo Video"
+                        style={{marginRight: "15px", marginBottom: "0px", borderRadius: "15px 15px 0px 0px", backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
                         onClick={function() {
                             this.setState({showModal: true});
                     }.bind(this)}/>) : null
             }
             </div>
-            {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]) && !browserIsIOS ?
-                (
-                    <div className="answer-partially-correct"
-                     style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                        <span>Work saves to the Downloads folder on your device, or you can save it directly to Google Drive or Google Classroom.</span>
-                    </div>) :
-                null
-            }
-            {browserIsIOS ?
-                (
-                    <div className="answer-incorrect"
-                     style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
-                        <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can
-                              be used to try out the experience, but you will need to visit the site on your Mac,
-                              Widows PC, Chromebook or Android device to actually use the site.</span>
-                    </div>) :
-                null
-            }
-
             <Problem value={probList[currProblem]}
                      id={currProblem}
                      buttonGroup={this.props.value[BUTTON_GROUP]}
