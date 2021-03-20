@@ -89,6 +89,7 @@ const symbolGroups = {
         {toType:"\\subseteq [Enter]", tex:"\\subseteq"},
         {toType:"\\superset [Enter]", tex:"\\supset"},
         {toType:"\\superseteq [Enter]", tex:"\\supseteq"},
+        {toType:"\\emptyset [Enter]", tex:"\\emptyset"},
         {toType:"\\C [Enter]", tex:"\\mathbb{C}", editorCommands: input => {
             input.cmd("\\C");
         }},
@@ -182,6 +183,9 @@ const symbolGroups = {
         //{toType:"\\iddots [Enter]", tex:"\\iddots"},
         {toType:"\\vdots [Enter]", tex:"\\vdots"},
         {toType:"\\times [Enter]", tex:"\\times"},
+        {toType:"\\overrightarrow [Enter]", tex:"\\overrightarrow{a}", editorCommands: input => {
+            input.cmd("\\overrightarrow");
+        }},
     ],
     CALC : [
         {toType:"int", tex:"\\int"},

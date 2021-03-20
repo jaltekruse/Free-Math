@@ -174,7 +174,6 @@ class MatrixSizePicker extends React.Component {
         return (
             <div>
                 <div style={{float: 'left'}}>
-                <br />
                 Choose a Size
                 <br />
                 <div
@@ -218,8 +217,7 @@ class MatrixSizePicker extends React.Component {
                 }
                 </div>
                 </div>
-                <div style={{marginLeft: '20px', float:'left'}}>
-                    <br />
+                <div style={{marginLeft: '20px', marginRight: '20px', float:'left'}}>
                     End Caps
                     <br />
                     <select style={{fontSize: '30px'}}
@@ -403,11 +401,13 @@ class TexButtons extends React.Component {
                     </button>
                 </div>
             </div>
-            {this.props.buttonGroup === MATRIX ?
-                    <MatrixSizePicker onInsert={this.props.onInsert}/>
-                    : null
-            }
-            {buttonRows}
+            <div style={{marginTop: '10px'}}>
+                {this.props.buttonGroup === MATRIX ?
+                        <MatrixSizePicker onInsert={this.props.onInsert}/>
+                        : null
+                }
+                {buttonRows}
+            </div>
         </div>;
     }
 }
