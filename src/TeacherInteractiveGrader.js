@@ -114,6 +114,7 @@ var FORMAT = "FORMAT";
 var MATH = "MATH";
 var TEXT = "TEXT";
 var IMG = "IMG";
+var FABRIC_SRC = 'FABRIC_SRC';
 
 var SHOW_ALL = "SHOW_ALL";
 
@@ -391,9 +392,6 @@ function splitKey(compositeKey) {
 //
 function findSimilarStudentAssignments(allStudentWork) {
 
-    // TODO - fixme, this is interacxting pooly with the new drawing feature disable temprarily
-    return [];
-
     if (allStudentWork.length > 50) {
         if (!window.confirm("You are opening a group of " + allStudentWork.length + " assignments. " +
             "With a class this large the check for overall simular documents for cheating prevention " +
@@ -426,6 +424,7 @@ function findSimilarStudentAssignments(allStudentWork) {
                 if (step[FORMAT]) delete step[FORMAT];
                 if (step[STEP_ID]) delete step[STEP_ID];
                 step[CONTENT] = step[CONTENT].replace(/\\\s/g, "");
+                if (step[FABRIC_SRC]) delete step[FABRIC_SRC];
             });
         });
     });
@@ -1620,12 +1619,9 @@ class SimilarGroupSelector extends React.Component {
                 </div>
                 )
                : <div>
-                    <h3>Similar overall doc check is currently disabled</h3>
+                    <h3>No similar documents were found automatically</h3>
 
-                    <p>We have discovered a bug in how the new drawings feature interacts with our automated similar doc check. We
-                       have disabled it and we are working on a fix, but in the meantime you can use the menu below to manually view
-                       students side-by-side if you are worried they might be sharing their work.
-                    </p>
+                    <p>If you are worried any of your students might have shared work, you can view them together using the menu below.</p>
                 </div>
 
             }
