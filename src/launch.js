@@ -21,6 +21,11 @@ var FORMAT = 'FORMAT';
 var IMG = 'IMG';
 var CONTENT = 'CONTENT';
 
+// this action expects an index for which problem to change
+var UNDO = 'UNDO';
+// this action expects an index for which problem to change
+var REDO = 'REDO';
+
 // used to swap out the entire content of the document, for opening
 // a document from a file
 var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
@@ -166,6 +171,19 @@ window.onload = function() {
         }
       }
     }
+    document.addEventListener('keydown', function(event) {
+        const rootState = getCompositeState();
+        if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+            if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
+                window.store.dispatch({ type : UNDO, PROBLEM_INDEX : rootState[CURRENT_PROBLEM]})
+            }
+        } else if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
+            if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
+                window.store.dispatch({ type : REDO, PROBLEM_INDEX : rootState[CURRENT_PROBLEM]})
+            }
+        }
+    });
+
     render();
 };
 unregister();

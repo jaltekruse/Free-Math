@@ -705,7 +705,11 @@ class ImageStep extends React.Component {
                                     : null
                                 }
                                 <img src={step[CONTENT]} alt="Uploaded student work"
-                                     style={{margin : "10px", minWidth: "380px", maxWidth:"98%", border: "solid"}}/>
+                                     style={{margin : "10px", maxHeight: "700px", maxWidth:"98%", border: "solid"}}
+                                     onMouseDown={() => {
+                                            this.setState({imageMarkup: true});
+                                            openDrawingStudent();
+                                     }}/>
                                 { step[CONTENT] !== ''
                                     ?
                                         <div style={{maxWidth: "95%"}}>
@@ -880,7 +884,7 @@ class Step extends React.Component {
                         <textarea value={step[CONTENT]}
                             style={{...styles, margin : "10px"}}
                             className="text-step-input"
-                            rows="4"
+                            rows="6"
                             onChange={
                                 function(evt) {
                                     window.store.dispatch({
@@ -891,13 +895,18 @@ class Step extends React.Component {
                                         NEW_STEP_CONTENT : evt.target.value});
                                 }}
                             onKeyDown={function(evt) {
-                                    if(evt.key === 'Enter') {
+                                    if ((evt.ctrlKey || evt.metaKey) && evt.key === 'Enter') {
                                         window.store.dispatch(
-                                            { type : NEW_BLANK_STEP,
+                                            { type : NEW_STEP,
                                               STEP_KEY : stepIndex,
-                                              PROBLEM_INDEX : problemIndex
-                                            });
+                                              PROBLEM_INDEX : problemIndex});
                                         evt.preventDefault();
+                                    } else if ((evt.ctrlKey || evt.metaKey) && evt.key === 'm') {
+                                        const newStepType = 'MATH';
+                                        window.store.dispatch({
+                                            type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
+                                            NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                        });
                                     }
                                 }
                             }
@@ -1036,7 +1045,8 @@ class Problem extends React.Component {
                         <br />
 
                         {steps.map(function(step, stepIndex) {
-                            return (<Step step={step} stepIndex={stepIndex} value={value} buttonGroup={buttonGroup} problemIndex={problemIndex}/>)
+                            return (<Step key={problemIndex + ' ' + stepIndex} step={step} stepIndex={stepIndex} value={value}
+                                          buttonGroup={buttonGroup} problemIndex={problemIndex}/>)
                         })}
                     </div>
                 </div>
@@ -1344,6 +1354,9 @@ function problemReducer(problem, action) {
         if (action.type === NEW_STEP) {
             if (action[STEP_DATA]) {
                 oldStep = action[STEP_DATA];
+            } else if (problem[STEPS][action[STEP_KEY]][FORMAT] === TEXT) {
+                // when creating a text step don't copy down previous line
+                oldStep = {CONTENT : "", FORMAT: TEXT};
             } else {
                 oldStep = problem[STEPS][action[STEP_KEY]];
             }
@@ -1412,7 +1425,7 @@ function problemReducer(problem, action) {
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
     console.log(action);
-    console.log(probList);
+    //console.log(probList);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }
