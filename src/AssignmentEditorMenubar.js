@@ -177,7 +177,6 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
         };
         xhr.send();
     }
-    console.log(allProblems);
     allProblems = allProblems.map(function(problem, probIndex, array) {
         // make a new object, as this mutates the state, including changing the blob URLs
         // into filenames that will be in the zip file for images, these changes
@@ -188,7 +187,7 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
         // trim the numbers to avoid extra groups while grading
         problem[PROBLEM_NUMBER] = problem[PROBLEM_NUMBER].trim();
         problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
-            if (step[FORMAT] === IMG) {
+            if (step[FORMAT] === IMG && step[CONTENT] !== '') {
                 var filename = probIndex + "_" + stepIndex + "_img"
                 var newStep = {...step};
                 newStep[CONTENT] = filename;
@@ -310,15 +309,19 @@ function openAssignment(content, filename, driveFileId = false) {
             }
         }
 
-        console.log(images);
+        //console.log(images);
         newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, probIndex, array) {
             problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
                 if (step[FORMAT] === IMG) {
                     step[CONTENT] = images[probIndex + "_" + stepIndex + "_img"];
+                    //console.log(step[CONTENT]);
+                    // if there was no image set, set the step to the state where students can pick an image
+                    if (!step[CONTENT]) step[CONTENT] = '';
+
                     var fabricSrc = step[FABRIC_SRC];
                     if (fabricSrc && fabricSrc[backgroundImage][src]) {
                         var filename = probIndex + "_" + stepIndex + "_background_img";
-                        console.log(filename);
+                        //console.log(filename);
                         step[FABRIC_SRC][backgroundImage][src] = images[filename];
                     }
                 }
