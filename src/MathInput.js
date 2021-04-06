@@ -428,7 +428,9 @@ class MathInput extends React.Component {
         onChange: PropTypes.func,
         onSubmit: PropTypes.func,
         styles: PropTypes.object,
-        buttonGroup: PropTypes.string
+        buttonGroup: PropTypes.string,
+        upOutOf: PropTypes.func,
+        downOutOf: PropTypes.func
     };
 
     static defaultProps = {
@@ -630,7 +632,17 @@ class MathInput extends React.Component {
                     // up to (no numerator or exponent). For ease of use,
                     // interpret this as an attempt to create an exponent.
                     //console.log("Up");
-                    mathField.typedText("^");
+                    //mathField.typedText("^");
+                    this.props.upOutOf();
+                },
+                downOutOf: (mathField) => {
+                    // This handler is called when the user presses the up
+                    // arrow key, but there is nowhere in the expression to go
+                    // up to (no numerator or exponent). For ease of use,
+                    // interpret this as an attempt to create an exponent.
+                    //console.log("Up");
+                    //mathField.typedText("^");
+                    this.props.downOutOf();
                 }
             }
         });

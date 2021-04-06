@@ -5,7 +5,7 @@ import { default as Button, LightButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import BigModal from 'react-modal';
 import { HtmlButton, CloseButton } from './Button.js';
-import { genID, base64ToBlob } from './FreeMath.js';
+import { genID, base64ToBlob, getCompositeState } from './FreeMath.js';
 import Resizer from 'react-image-file-resizer';
 import Webcam from "react-webcam";
 import ImageEditor from '@toast-ui/react-image-editor'
@@ -29,6 +29,7 @@ var STEP_KEY = 'STEP_KEY';
 // long random identifier for a step, used as key for react list of steps
 var STEP_ID = 'STEP_ID';
 
+var PROBLEMS = 'PROBLEMS';
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
@@ -748,17 +749,25 @@ class Step extends React.Component {
       }, 0);
     }
 
+    focus() {
+        // currently this should only not be set for image steps
+        if (this.stepRef) this.stepRef.focus();
+    }
+
     render() {
         const step = this.props.step;
         const stepIndex = this.props.stepIndex;
         // TODO - should be cleaner and not pass down the whole global state...
         const value = this.props.value;
+        const steps = this.props.value[STEPS];
         const probNumber = this.props.value[PROBLEM_NUMBER];
         const problemIndex = this.props.problemIndex;
         const showTutorial = this.props.value[SHOW_TUTORIAL];
         const showImgTutorial = this.props.value[SHOW_IMAGE_TUTORIAL];
-        const showDrawingTutorial= this.props.value[SHOW_DRAWING_TUTORIAL];
+        const showDrawingTutorial = this.props.value[SHOW_DRAWING_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
+        // callback passed in to allow requesting focus of another step in the problem
+        const focusStepCallback = this.props.focusStep;
 
         var styles = {};
         if (step[HIGHLIGHT] === SUCCESS) {
@@ -840,6 +849,7 @@ class Step extends React.Component {
                                     { type : INSERT_STEP_ABOVE, PROBLEM_INDEX : problemIndex,
                                       STEP_KEY : stepIndex});
                                 this.setState({showMenu: !this.state.showMenu});
+                                focusStepCallback(stepIndex);
                             }}/>
                         <LightButton text='Change to Text Step'
                             style={{display: 'block', width: '100%', borderRadius: '0px'}}
@@ -881,62 +891,111 @@ class Step extends React.Component {
                 :
                 step[FORMAT] === TEXT ?
                     (
+                        <span>
                         <textarea value={step[CONTENT]}
-                            style={{...styles, margin : "10px"}}
+                            style={{...styles, margin: "10px 10px 0px 10px"}}
                             className="text-step-input"
                             rows="6"
+                            ref={(ref) => this.stepRef = ref }
                             onChange={
                                 function(evt) {
                                     window.store.dispatch({
-                                        type : EDIT_STEP,
-                                        PROBLEM_INDEX : problemIndex,
-                                        STEP_KEY : stepIndex,
+                                        type : EDIT_STEP, PROBLEM_INDEX : problemIndex, STEP_KEY : stepIndex,
                                         FORMAT : TEXT,
                                         NEW_STEP_CONTENT : evt.target.value});
                                 }}
                             onKeyDown={function(evt) {
-                                    if ((evt.ctrlKey || evt.metaKey) && evt.key === 'Enter') {
+                                    if (!evt.shiftKey && evt.key === 'Enter') {
                                         window.store.dispatch(
                                             { type : NEW_STEP,
                                               STEP_KEY : stepIndex,
                                               PROBLEM_INDEX : problemIndex});
                                         evt.preventDefault();
+                                        focusStepCallback(stepIndex + 1);
+
                                     } else if ((evt.ctrlKey || evt.metaKey) && evt.key === 'm') {
                                         const newStepType = 'MATH';
                                         window.store.dispatch({
                                             type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
                                             NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
                                         });
+                                        focusStepCallback(stepIndex);
+
+                                    } else if (evt.key === 'Backspace') {
+                                        if (step[CONTENT] === '') {
+                                            window.store.dispatch(
+                                                { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+                                                  STEP_KEY : stepIndex});
+                                            focusStepCallback(Math.min(stepIndex, steps.length - 2));
+                                        }
+                                    } else if (evt.key === 'ArrowUp') {
+                                        if (this.stepRef.selectionStart === 0) {
+                                            focusStepCallback(stepIndex - 1);
+                                        }
+                                    } else if (evt.key === 'ArrowDown') {
+                                        if (this.stepRef.selectionStart === this.stepRef.value.length) {
+                                            focusStepCallback(stepIndex + 1);
+                                        }
                                     }
-                                }
+                                }.bind(this)
                             }
                         />
+                        <div style={{display:"block", marginLeft: "15px", color: "grey"}}>
+                            <small>Use Shift+Enter to add a blank line within a text box.</small>
+                        </div>
+                        </span>
                     )
                 :
-                <MathInput
-                    key={stepIndex} buttonsVisible='focused'
-                    className="mathStepEditor"
-                    styles={{...styles, overflow: 'auto', marginTop: '8px'}}
-                    buttonSets={['trig', 'prealgebra',
-                                 'logarithms', 'calculus']}
-                    buttonGroup={buttonGroup}
-                    stepIndex={stepIndex}
-                    problemIndex={problemIndex} value={step[CONTENT]} onChange={
-                        function(value) {
-                            window.store.dispatch({
-                            type : EDIT_STEP,
-                            PROBLEM_INDEX : problemIndex,
-                            STEP_KEY : stepIndex,
-                            FORMAT : MATH,
-                            NEW_STEP_CONTENT : value});
-                    }}
-                    onSubmit={function() {
-                        window.store.dispatch(
-                            { type : NEW_STEP,
-                              STEP_KEY : stepIndex,
-                              PROBLEM_INDEX : problemIndex});
-                    }}
-                />
+                <div
+                    onKeyDown={function(evt) {
+                            if ((evt.ctrlKey || evt.metaKey) && evt.key === 'm') {
+                                const newStepType = 'TEXT';
+                                window.store.dispatch({
+                                    type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
+                                    NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                });
+                                // TODO - this probably belongs in ComponentDidMount or somthing
+                                focusStepCallback(stepIndex);
+                            } else if (evt.key === 'Backspace') {
+                                if (step[CONTENT] === '') {
+                                    window.store.dispatch(
+                                        { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+                                          STEP_KEY : stepIndex});
+                                    focusStepCallback(Math.min(stepIndex, steps.length - 2));
+                                }
+                            }
+                        }.bind(this)
+                    }
+                >
+                    <MathInput
+                        key={stepIndex} buttonsVisible='focused'
+                        className="mathStepEditor"
+                        style={{...styles, overflow: 'auto', marginTop: '8px'}}
+                        buttonSets={['trig', 'prealgebra',
+                                     'logarithms', 'calculus']}
+                        buttonGroup={buttonGroup}
+                        stepIndex={stepIndex}
+                        ref={ (ref) => this.stepRef = ref }
+                        upOutOf={ () => focusStepCallback(stepIndex - 1)}
+                        downOutOf={ () => focusStepCallback(stepIndex + 1)}
+                        problemIndex={problemIndex} value={step[CONTENT]} onChange={
+                            function(value) {
+                                window.store.dispatch({
+                                type : EDIT_STEP,
+                                PROBLEM_INDEX : problemIndex,
+                                STEP_KEY : stepIndex,
+                                FORMAT : MATH,
+                                NEW_STEP_CONTENT : value});
+                        }.bind(this)}
+                        onSubmit={function() {
+                            window.store.dispatch(
+                                { type : NEW_STEP,
+                                  STEP_KEY : stepIndex,
+                                  PROBLEM_INDEX : problemIndex});
+                            focusStepCallback(stepIndex + 1);
+                        }}
+                    />
+                </div>
             }
             <CloseButton text="&#10005;" title='Delete step'
                 style={{marginLeft: "10px"}}
@@ -944,6 +1003,7 @@ class Step extends React.Component {
                     window.store.dispatch(
                         { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
                           STEP_KEY : stepIndex});
+                    focusStepCallback(stepIndex);
                 }}/>
             </div>
             </div>
@@ -967,6 +1027,10 @@ class Problem extends React.Component {
         const showDrawingTutorial= this.props.value[SHOW_DRAWING_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
         const steps = this.props.value[STEPS];
+
+        if (!this.stepRefs) {
+            this.stepRefs = [];
+        }
         return (
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"98%", float:'none'}}>
@@ -1046,8 +1110,17 @@ class Problem extends React.Component {
 
                         {steps.map(function(step, stepIndex) {
                             return (<Step key={problemIndex + ' ' + stepIndex} step={step} stepIndex={stepIndex} value={value}
-                                          buttonGroup={buttonGroup} problemIndex={problemIndex}/>)
-                        })}
+                                        ref={(ref) => this.stepRefs[stepIndex] = ref }
+                                        focusStep={(stepIndex) => {
+                                            setTimeout(() => {
+                                                const steps = getCompositeState()[PROBLEMS][problemIndex][STEPS];
+                                                if (stepIndex > steps.length - 1) stepIndex = steps.length - 1;
+                                                if (stepIndex < 0) stepIndex = 0;
+                                                this.stepRefs[stepIndex].focus()
+                                            }, 50);
+                                        }}
+                                        buttonGroup={buttonGroup} problemIndex={problemIndex}/>)
+                        }.bind(this))}
                     </div>
                 </div>
             </div>
