@@ -41,7 +41,7 @@ const symbolGroups = {
         {toType:"_ (underscore)", tex:"A_b", description: "subscript", editorCommands: input => {
                 input.typedText("_");
         }},
-        {toType:"up arrow or ^ (caret)", tex:"a^b", description:"power", editorCommands: input => {
+        {toType:"^ (caret), i.e. shift+6", tex:"a^b", description:"power", editorCommands: input => {
                 input.typedText("^");
         }},
         {toType:"\\pm [Enter]", tex:"\\pm"},
