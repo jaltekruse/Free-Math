@@ -738,6 +738,17 @@ class Step extends React.Component {
         this.setState({showMenu: false});
     }
 
+    onBackspace = (evt) => {
+        if (evt.key === 'Backspace') {
+            if (this.props.step[CONTENT] === '') {
+                window.store.dispatch(
+                    { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
+                      STEP_KEY : this.props.stepIndex});
+                this.props.focusStep(Math.min(this.props.stepIndex, this.props.value[STEPS].length - 2));
+            }
+        }
+    }
+
     // https://blog.logrocket.com/controlling-tooltips-pop-up-menus-using-compound-components-in-react-ccedc15c7526/
     componentDidUpdate() {
       setTimeout(() => {
@@ -748,20 +759,16 @@ class Step extends React.Component {
           window.removeEventListener('click', this.closeMenu);
         }
       }, 0);
+      if (this.parentDivRef && this.parentDivRef.current) {
+        this.parentDivRef.current.removeEventListener('keydown', this.onBackspace);
+        this.parentDivRef.current.addEventListener('keydown', this.onBackspace, true);
+      }
     }
 
     componentDidMount() {
       if (this.parentDivRef && this.parentDivRef.current) {
-          this.parentDivRef.current.addEventListener('keydown', function(evt) {
-            if (evt.key === 'Backspace') {
-                if (this.props.step[CONTENT] === '') {
-                    window.store.dispatch(
-                        { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
-                          STEP_KEY : this.props.stepIndex});
-                    this.props.focusStep(Math.min(this.props.stepIndex, this.props.value[STEPS].length - 2));
-                }
-            }
-          }.bind(this), true);
+        this.parentDivRef.current.removeEventListener('keydown', this.onBackspace);
+        this.parentDivRef.current.addEventListener('keydown', this.onBackspace, true);
       }
     }
 
