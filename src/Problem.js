@@ -744,7 +744,7 @@ class Step extends React.Component {
                 window.store.dispatch(
                     { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
                       STEP_KEY : this.props.stepIndex});
-                this.props.focusStep(Math.min(this.props.stepIndex, this.props.value[STEPS].length - 2));
+                this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
             }
         }
     }
@@ -949,7 +949,7 @@ class Step extends React.Component {
                                             window.store.dispatch(
                                                 { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
                                                   STEP_KEY : stepIndex});
-                                            focusStepCallback(Math.min(stepIndex, steps.length - 2));
+                                            focusStepCallback(Math.max(stepIndex - 1, 0));
                                         }
                                     } else if (evt.key === 'ArrowUp') {
                                         if (this.stepRef.selectionStart === 0) {
