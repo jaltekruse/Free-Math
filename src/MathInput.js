@@ -610,7 +610,7 @@ class MathInput extends React.Component {
 
                     // Provide a MathQuill-compatible way to generate the
                     // not-equals sign without pasting unicode or typing TeX
-                    value = value.replace(/<>/g, "\\ne");
+                    //value = value.replace(/<>/g, "\\ne");
 
                     if (initialized && this.props.value !== value) {
                         this.props.onChange(value);

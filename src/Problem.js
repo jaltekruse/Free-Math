@@ -506,8 +506,8 @@ class ImageStep extends React.Component {
             window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
             const editorInstance = this.editorRef.current.getInstance();
             const fabricSrc = editorInstance._graphics._canvas.toJSON();
-            console.log(fabricSrc);
-            console.log(editorInstance);
+            //console.log(fabricSrc);
+            //console.log(editorInstance);
             handleImgUrl(editorInstance.toDataURL({format: 'jpeg'}), stepIndex, problemIndex, steps,
                          fabricSrc);
             this.setState({imageMarkup: false});
@@ -729,6 +729,7 @@ class ImageStep extends React.Component {
 }
 
 class Step extends React.Component {
+    parentDivRef = React.createRef();
     state = {
         showMenu: false
     }
@@ -747,6 +748,21 @@ class Step extends React.Component {
           window.removeEventListener('click', this.closeMenu);
         }
       }, 0);
+    }
+
+    componentDidMount() {
+      if (this.parentDivRef && this.parentDivRef.current) {
+          this.parentDivRef.current.addEventListener('keydown', function(evt) {
+            if (evt.key === 'Backspace') {
+                if (this.props.step[CONTENT] === '') {
+                    window.store.dispatch(
+                        { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
+                          STEP_KEY : this.props.stepIndex});
+                    this.props.focusStep(Math.min(this.props.stepIndex, this.props.value[STEPS].length - 2));
+                }
+            }
+          }.bind(this), true);
+      }
     }
 
     focus() {
@@ -947,6 +963,7 @@ class Step extends React.Component {
                     )
                 :
                 <div
+                    ref={this.parentDivRef}
                     onKeyDown={function(evt) {
                             if ((evt.ctrlKey || evt.metaKey) && evt.key === 'm') {
                                 const newStepType = 'TEXT';
@@ -956,13 +973,6 @@ class Step extends React.Component {
                                 });
                                 // TODO - this probably belongs in ComponentDidMount or somthing
                                 focusStepCallback(stepIndex);
-                            } else if (evt.key === 'Backspace') {
-                                if (step[CONTENT] === '') {
-                                    window.store.dispatch(
-                                        { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
-                                          STEP_KEY : stepIndex});
-                                    focusStepCallback(Math.min(stepIndex, steps.length - 2));
-                                }
                             }
                         }.bind(this)
                     }
@@ -978,7 +988,8 @@ class Step extends React.Component {
                         ref={ (ref) => this.stepRef = ref }
                         upOutOf={ () => focusStepCallback(stepIndex - 1)}
                         downOutOf={ () => focusStepCallback(stepIndex + 1)}
-                        problemIndex={problemIndex} value={step[CONTENT]} onChange={
+                        problemIndex={problemIndex} value={step[CONTENT]}
+                        onChange={
                             function(value) {
                                 window.store.dispatch({
                                 type : EDIT_STEP,
