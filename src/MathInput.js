@@ -184,11 +184,10 @@ class MatrixSizePicker extends React.Component {
                 >
                 {
                 _.map([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], row => {
-                    return (<div key={'matrix_row_' + row} style={{padding: '0px', margin: '0px', lineHeight: 0.8}}>
+                    return (<div style={{padding: '0px', margin: '0px', lineHeight: 0.8}}>
                         {_.map([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], column => {
                             // create a (component, thing we should send to mathquill) pair
                             return <button className="fm-close-button"
-                                           key={'matrix_' + row + ' ' + column}
                                            style={{float: 'none',
                                                    height: '15px',
                                                    width: '15px',
