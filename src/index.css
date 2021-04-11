@@ -271,7 +271,7 @@ a.fm-button:hover
 }
 .fm-close-button:hover {
   cursor: pointer;
-  background-color: #e0e0e0;
+  background-color: #f2f2f2;
 }
 .fm-close-button:focus {
   border: 2px solid #ffa535;

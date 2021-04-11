@@ -174,8 +174,6 @@ const symbolGroups = {
         // Katex appears correct
         //{toType:"\\asymp [Enter]", tex:"\\asymp"},
     ],
-    MATRIX: [
-    ],
     CALC : [
         {toType:"int", tex:"\\int"},
         {toType:"' (single quote)", tex:"'"},
