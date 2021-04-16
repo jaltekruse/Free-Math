@@ -861,7 +861,7 @@ class Step extends React.Component {
                     <div style={{
                             backgroundColor: '#f1f1f1', position:'absolute',
                             boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)',
-                            minWidth: '180px',
+                            minWidth: '360px',
                             // TODO - fix this to keep track of used z-indexes
                             zIndex: '5',
                             display: this.state.showMenu ? 'block' : 'none' }}>
@@ -874,20 +874,10 @@ class Step extends React.Component {
                                 this.setState({showMenu: !this.state.showMenu});
                                 focusStepCallback(stepIndex);
                             }}/>
-                        <LightButton text='Change to Text Step'
+                        <LightButton text='Toggle Between (E)xpression Mode and Text (Ctrl e)'
                             style={{display: 'block', width: '100%', borderRadius: '0px'}}
-                            onClick={() => {
-                                const newStepType = 'TEXT';
-                                window.store.dispatch({
-                                    type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
-                                    NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
-                                });
-                                this.setState({showMenu: !this.state.showMenu});
-                        }}/>
-                        <LightButton text='Change to Math Step'
-                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
-                            onClick={() => {
-                                const newStepType = 'MATH';
+                            onClick={(evt) => {
+                                const newStepType = step[FORMAT] === MATH ? TEXT : MATH;
                                 window.store.dispatch({
                                     type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
                                     NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
@@ -936,14 +926,15 @@ class Step extends React.Component {
                                         evt.preventDefault();
                                         focusStepCallback(stepIndex + 1);
 
-                                    } else if ((evt.ctrlKey || evt.metaKey) && evt.key === 'm') {
+                                    } else if ((evt.ctrlKey || evt.metaKey) && evt.key === 'e') {
                                         const newStepType = 'MATH';
                                         window.store.dispatch({
                                             type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
                                             NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
                                         });
+                                        evt.preventDefault();
+                                        evt.stopPropagation();
                                         focusStepCallback(stepIndex);
-
                                     } else if (evt.key === 'Backspace') {
                                         if (step[CONTENT] === '') {
                                             window.store.dispatch(
@@ -972,12 +963,14 @@ class Step extends React.Component {
                 <div
                     ref={this.parentDivRef}
                     onKeyDown={function(evt) {
-                            if ((evt.ctrlKey || evt.metaKey) && evt.key === 'm') {
+                            if ((evt.ctrlKey || evt.metaKey) && evt.key === 'e') {
                                 const newStepType = 'TEXT';
                                 window.store.dispatch({
                                     type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
                                     NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
                                 });
+                                evt.preventDefault();
+                                evt.stopPropagation();
                                 // TODO - this probably belongs in ComponentDidMount or somthing
                                 focusStepCallback(stepIndex);
                             }
