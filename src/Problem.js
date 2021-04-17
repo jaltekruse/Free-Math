@@ -404,6 +404,10 @@ class WebcamCapture extends React.Component {
 };
 
 function openDrawing(fabricSrc, getEditorInstanceCallback, onFailure) {
+
+    //cornerSize: 15,
+    //cornerColor: 'green',
+    //rotatingPointOffset: 70
     waitForConditionThenDo(5,
         function() {
             try {
@@ -418,15 +422,18 @@ function openDrawing(fabricSrc, getEditorInstanceCallback, onFailure) {
         function() {
             const editorInstance = getEditorInstanceCallback();
             const canvas = editorInstance._graphics._canvas;
+            const imageLargestDimension = Math.max(canvas.backgroundImage.width, canvas.backgroundImage.height);
             window.fabric.Object.prototype.cornerColor = 'green';
-            window.fabric.Object.prototype.cornerSize = 15;
+            window.fabric.Object.prototype.cornerSize = 15 * (imageLargestDimension / 1000);
             window.fabric.Object.prototype.borderColor = 'red';
             window.fabric.Object.prototype.transparentCorners = false;
 
-            editorInstance._graphics.setSelectionStyle({
-              cornerSize: 10,
-              cornerColor: 'green',
-            });
+            editorInstance._setSelectionStyle({
+              cornerSize: 15 * (imageLargestDimension / 1000),
+              cornerColor: 'purple',
+              borderColor: 'red',
+              transparentCorners: false
+            }, true, true /* apply to groups */);
             canvas.loadFromJSON(fabricSrc, function() {});
         },
         function() {
@@ -674,11 +681,6 @@ class ImageStep extends React.Component {
                                                 }}
                                                 cssMaxWidth={canvasWidth}
                                                 cssMaxHeight={canvasHeight}
-                                                selectionStyle={{
-                                                  cornerSize: 15,
-                                                  cornerColor: 'green',
-                                                  rotatingPointOffset: 70
-                                                }}
                                                 usageStatistics={false}
                                                 defaultColor={'#000000'}
                                               />
