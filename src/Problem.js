@@ -13,6 +13,7 @@ import { whiteTheme } from './white-theme.js';
 import { waitForConditionThenDo } from './Util.js';
 import { gridImage } from './gridBase64.js';
 import { blankImgBase64 } from './blankImgBase64.js';
+import TextareaAutosize from 'react-textarea-autosize';
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -905,10 +906,10 @@ class Step extends React.Component {
                 step[FORMAT] === TEXT ?
                     (
                         <span>
-                        <textarea value={step[CONTENT]}
-                            style={{...styles, margin: "10px 10px 0px 10px"}}
+                        <TextareaAutosize value={step[CONTENT]}
+                            style={{...styles, fontSize: "15px", margin: "10px 10px 0px 10px"}}
                             className="text-step-input"
-                            rows="6"
+                            minRows="2"
                             ref={(ref) => this.stepRef = ref }
                             onChange={
                                 function(evt) {

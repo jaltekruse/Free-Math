@@ -6,6 +6,7 @@ import { getPersistentState } from './FreeMath.js';
 import { openDrawing } from './Problem.js';
 import { whiteTheme } from './white-theme.js';
 import ImageEditor from '@toast-ui/react-image-editor'
+import TextareaAutosize from 'react-textarea-autosize';
 
 // when grading google classroom docs, show student name instead of filename
 var STUDENT_NAME = 'STUDENT_NAME';
@@ -509,8 +510,8 @@ class SolutionGrader extends React.Component {
                     {feedbackButton("Not Simplified", "Be sure to simplify completely.")}
                     {feedbackButton("Sig Figs", "Incorrect significant figures.")}
                     <br />
-                    <textarea placeholder="Click a button for quick feedback or type custom feedback here."
-                                   cols="30" rows="4" onChange={this.setFeedback} value={feedback}></textarea>
+                    <TextareaAutosize placeholder="Click a button for quick feedback or type custom feedback here."
+                                   cols="30" minRows="3" onChange={this.setFeedback} value={feedback} />
                     </div>
                 )}
                 <br />
