@@ -548,7 +548,7 @@ class MathInput extends React.Component {
         // Ideally, we would be able to pass an initial value directly into
         // the constructor above
         this.mathField().latex(this.props.value);
-        this.mathField().focus();
+
         initialized = true;
     }
 
