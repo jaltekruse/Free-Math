@@ -875,7 +875,7 @@ class Step extends React.Component {
                                 this.setState({showMenu: !this.state.showMenu});
                                 focusStepCallback(stepIndex);
                             }}/>
-                        <LightButton text='Toggle Between (E)xpression Mode and Text (Ctrl e)'
+                        <LightButton text='Change Between Expression Mode and Text (Ctrl e)'
                             style={{display: 'block', width: '100%', borderRadius: '0px'}}
                             onClick={(evt) => {
                                 const newStepType = step[FORMAT] === MATH ? TEXT : MATH;
@@ -919,7 +919,7 @@ class Step extends React.Component {
                                         NEW_STEP_CONTENT : evt.target.value});
                                 }}
                             onKeyDown={function(evt) {
-                                    if (!evt.shiftKey && evt.key === 'Enter') {
+                                    if (evt.shiftKey && evt.key === 'Enter') {
                                         window.store.dispatch(
                                             { type : NEW_STEP,
                                               STEP_KEY : stepIndex,
@@ -956,7 +956,7 @@ class Step extends React.Component {
                             }
                         />
                         <div style={{display:"block", marginLeft: "15px", color: "grey"}}>
-                            <small>Use Shift+Enter to add a blank line within a text box.</small>
+                            <small>Use Shift+Enter to add a new step after a text box.</small>
                         </div>
                         </span>
                     )
