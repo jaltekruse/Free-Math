@@ -164,20 +164,16 @@ class Assignment extends React.Component {
                     }
                     <div>
                         <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                            className={"fm-button-left fm-button"}
-                            style={{backgroundColor: (problemIndex === currProblem ? "#b1b1b1" : "#e1e1e1"),
-                                marginBottom: "0px", borderRadius: "15px 0px 0px 0px"}}
+                            className={"fm-button-left fm-button fm-tab " + ((problemIndex === currProblem) ? "fm-tab-selected" : "")}
+                            style={{marginBottom: "0px", borderRadius: "15px 0px 0px 0px"}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: problemIndex})}}
                         />
                         <HtmlButton text="&#10005;"
                             title="Delete problem" key={problemIndex + " close"}
-                            className={(problemIndex === currProblem ?
-                                            "fm-button-selected " : "") +
-                                      "fm-button-right fm-button"}
-                            style={{backgroundColor: (problemIndex === currProblem ? "#b1b1b1" : "#e1e1e1"),
-                                    marginBottom: "0px", borderRadius: "0px 15px 0px 0px"}}
+                            className={"fm-button-right fm-button fm-tab " + ((problemIndex === currProblem) ? "fm-tab-selected" : "")}
+                            style={{marginBottom: "0px", borderRadius: "0px 15px 0px 0px"}}
                             onClick={
                                 function() {
                                     if (this.props.value[PROBLEMS].length === 1) {
