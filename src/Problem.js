@@ -520,24 +520,24 @@ class ImageStep extends React.Component {
 
         console.log(windowWidth, windowHeight);
         console.log(windowWidth, windowHeight * 1.2);
-        const onVerticalScreen = windowHeight > windowWidth * .75;
+        const onVerticalScreen = windowHeight > windowWidth * .75 || windowWidth < 1300;
         var imageEditorWidth, imageEditorHeight;
         var canvasWidth, canvasHeight;
         var imageEditorMenuPos;
         if (onVerticalScreen) {
             console.log("phone or tablet");
-            imageEditorWidth = windowWidth - 150;
+            imageEditorWidth = windowWidth - 350;
             imageEditorHeight = windowHeight - 150;
-            canvasWidth = windowWidth - 175;
+            canvasWidth = windowWidth - 275;
             canvasHeight = windowHeight - 375;
             console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'top';
         } else {
             console.log("desktop");
-            imageEditorWidth = windowWidth - 150;
-            imageEditorHeight = windowHeight - 150;
-            canvasWidth = windowWidth - 475;
-            canvasHeight = windowHeight - 250;
+            imageEditorWidth = windowWidth - 350;
+            imageEditorHeight = windowHeight - 100;
+            canvasWidth = windowWidth - 675;
+            canvasHeight = windowHeight - 175;
             console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'left';
         }
@@ -587,7 +587,8 @@ class ImageStep extends React.Component {
                             : null
                         }
 
-                        <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
+                        { ! this.state.imageMarkup ?
+                          <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
                                 text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
                                 title={step[FABRIC_SRC] ? "Cannot crop after drawing on an image" :
                                     (this.state.cropping ? "Finished Cropping" : "Crop Image")}
@@ -600,7 +601,16 @@ class ImageStep extends React.Component {
                                         this.setState({cropping : true});
                                     }
                                 }.bind(this)}
-                        />
+                          /> : null
+                        }
+                        { this.state.imageMarkup ?
+                                            <Button className="extra-long-problem-action-button fm-button"
+                                                text="Cancel"
+                                                onClick={function() {
+                                                    this.setState({imageMarkup: false});
+                                                }.bind(this)} />
+                          : null
+                        }
                         { this.state.cropping
                             ?
                             <span>
@@ -620,42 +630,7 @@ class ImageStep extends React.Component {
                             </span>
                            :
                            this.state.imageMarkup ?
-                            <BigModal
-                                onRequestClose={function() {
-                                            this.setState({imageMarkup: false});
-                                        }.bind(this)}
-                                isOpen={this.state.imageMarkup}
-                                shouldCloseOnOverlayClick={true}
-                                style={{
-                                    overlay: {
-                                        position: 'fixed', top: 0, left: 0,right: 0, bottom: 0,
-                                        backgroundColor: 'rgba(100, 100, 100, 0.6)',
-                                        zIndex: 1040,
-                                    },
-                                    content: {
-                                        padding: '10px'
-                                    }
-                                }}
-                            >
                                         <div>
-                                            <Button className="extra-long-problem-action-button fm-button"
-                                                    text={this.state.imageMarkup ?
-                                                        "Save Drawing" : "Draw on Image" }
-                                                    title={this.state.imageMarkup ?
-                                                        "Save Drawing" : "Draw on Image" }
-                                                    onClick={function() {
-                                                        if (this.state.imageMarkup) {
-                                                            saveDrawing();
-                                                        } else {
-                                                            openDrawingStudent();
-                                                        }
-                                                    }.bind(this)}
-                                            />
-                                            <Button className="extra-long-problem-action-button fm-button"
-                                                text="Cancel"
-                                                onClick={function() {
-                                                    this.setState({imageMarkup: false});
-                                                }.bind(this)} />
                                             <ImageEditor
                                                 ref={this.editorRef}
                                                 includeUI={{
@@ -684,7 +659,6 @@ class ImageStep extends React.Component {
                                               />
                                             </div>
 
-                                </BigModal>
                             :
                             <span>
                                 <Button className="long-problem-action-button fm-button"
