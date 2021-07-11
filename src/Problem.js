@@ -14,6 +14,8 @@ import { waitForConditionThenDo } from './Util.js';
 import { gridImage } from './gridBase64.js';
 import { blankImgBase64 } from './blankImgBase64.js';
 import TextareaAutosize from 'react-textarea-autosize';
+import {useCallback} from 'react'
+import {useDropzone} from 'react-dropzone'
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -182,14 +184,13 @@ class ImageUploader extends React.Component {
         const lastStepIndex = steps.length - 1;
 		return (
             <div style={{display:"inline-block"}}>
-                <span>Type math below</span>
                 <span className="homepage-only-on-mobile">
                     &nbsp;or
                 </span>
                 &nbsp;
                 <WebcamCapture
                        handlePicUploadCallback={function(evt) {
-                            addNewImage(evt, steps, lastStepIndex, problemIndex,
+                            addNewImageFiles(evt, steps, lastStepIndex, problemIndex,
                                 function(imgFile, stepIndex, problemIndex, steps) {
                                     addImageToEnd(imgFile, problemIndex, steps);
                                 }
@@ -234,7 +235,19 @@ function addNewLastStepIfNeeded(steps, stepIndex, problemIndex) {
 }
 
 function addNewImage(evt, steps, stepIndex, problemIndex, addImg = handleImg) {
-    var imgFile = evt.target.files[0];
+    let files = evt.target.files;
+    addNewImageFiles(files, steps, stepIndex, problemIndex, addImg);
+}
+
+function addNewImageFiles(files, steps, stepIndex, problemIndex, addImg = handleImg) {
+    files.forEach(function(file) {
+        addNewImageFile(file, steps, stepIndex, problemIndex, addImg);
+    });
+}
+
+// TODO - handle multiple images
+function addNewImageFile(file, steps, stepIndex, problemIndex, addImg = handleImg) {
+    var imgFile = file;
     if(typeof imgFile === "undefined" || !imgFile.type.match(/image.*/)){
             alert("The file is not an image - " + (imgFile ? imgFile.type : ''));
             return;
@@ -380,28 +393,55 @@ class WebcamCapture extends React.Component {
                   :
                   (<span>
                     <span className="homepage-disappear-mobile">
-                        <Button text="Snap a Picture"
+                        <HtmlButton title='New Grid Drawing'
+                            content={(
+                                <img src="images/noun_Camera_757299_white_clipped.svg" style={{marginTop:"3px", height: "40px" }}
+                                     alt="take a picture with webcam or device camera"/>
+                            )}
                             onClick={function() {
                                 this.setState({takingPicture : true});
-                          }.bind(this)} />&nbsp;
-                        Paste an image from the clipboard with ctrl+v,&nbsp;
+                            }.bind(this)} />&nbsp;
+                        <HtmlButton title='Paste Image'
+                            content={(
+                                <img src="images/noun_clipboard_332274.svg" style={{marginTop:"3px", height: "40px" }}
+                                     alt="paste an image"/>
+                            )}
+                            onClick={function() {
+                                this.setState({takingPicture : true});
+                            }.bind(this)} />&nbsp;
                     </span>
-                    <div style={{display: 'inline-block'}}>
-                        <span className="homepage-disappear-mobile">
-                            or upload one&nbsp;
-                        </span>
-                        <span className="homepage-only-on-mobile">
-                            upload an image&nbsp;
-                        </span>
-                        <input type="file" accept="*" onChange={
-                            function(evt) {handlePicUploadCallback(evt)}}/>
-                      </div>
+                    <MyDropzone handlePicUploadCallback={handlePicUploadCallback} />
                     </span>)
               }
             </span>
           );
     }
 };
+
+function MyDropzone(props) {
+
+  // function to handle image uploaded as a file
+  const handlePicUploadCallback = props.handlePicUploadCallback;
+
+  const onDrop = useCallback(acceptedFiles => {
+    // Do something with the files
+    handlePicUploadCallback(acceptedFiles)
+  }, [])
+  const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
+
+  return (
+    <div {...getRootProps()}
+          style={{width: "450px", display: "inline-block", verticalAlign: "top",
+                  padding: "10px", border: "2px dashed", marginTop: "15px"}}>
+      <input {...getInputProps()} />
+      {
+        isDragActive ?
+          <span>Drop the files here ...</span> :
+          <span>Drop some image files here, or click to select files</span>
+      }
+    </div>
+  )
+}
 
 function openDrawing(fabricSrc, getEditorInstanceCallback, onFailure) {
     waitForConditionThenDo(5,
@@ -564,7 +604,7 @@ class ImageStep extends React.Component {
                               );
                         }}
                         handlePicUploadCallback={function(evt)  {
-                            addNewImage(evt, steps, stepIndex, problemIndex);
+                            addNewImageFiles(evt, steps, stepIndex, problemIndex);
                         }}
                     />
                 :
