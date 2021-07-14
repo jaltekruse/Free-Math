@@ -403,7 +403,7 @@ class WebcamCapture extends React.Component {
                             }.bind(this)} />&nbsp;
                         <HtmlButton title='Paste Image'
                             content={(
-                                <img src="images/noun_clipboard_332274.svg" style={{marginTop:"3px", height: "40px" }}
+                                <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg" style={{marginTop:"3px", height: "40px" }}
                                      alt="paste an image"/>
                             )}
                             onClick={function() {
@@ -426,7 +426,7 @@ function MyDropzone(props) {
   const onDrop = useCallback(acceptedFiles => {
     // Do something with the files
     handlePicUploadCallback(acceptedFiles)
-  }, [])
+  }, [handlePicUploadCallback])
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
   return (
