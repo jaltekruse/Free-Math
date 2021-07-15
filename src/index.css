@@ -377,7 +377,6 @@ div.problem-container {
     margin: 0px 0px 15px 0px;
     padding: 15px 15px 30px 15px;
     box-shadow: 0 5px 3px -3px #cfcfcf;
-    min-width: 50%;
 }
 
 .extra-long-problem-action-button {
@@ -395,7 +394,13 @@ div.problem-container {
 .equation-list {
     float:left;
     min-width:50%;
-    max-width:77%
+    max-width:95%;
+    border-radius: 3px;
+    border:1px solid #bfbfbf;
+    background-color:white;
+    margin: 0px 0px 15px 0px;
+    padding: 15px 15px 30px 15px;
+    box-shadow: 0 5px 3px -3px #cfcfcf;
 }
 
 .homepage-actions-container {
@@ -444,7 +449,7 @@ div.problem-container {
 
 @media (min-width: 941px) {
     div.problem-editor-buttons {
-        width: 180px;
+        width: 220px;
      }
 }
 

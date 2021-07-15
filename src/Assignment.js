@@ -100,7 +100,7 @@ class Assignment extends React.Component {
                 } />
             <div>
             <div className="menubar-spacer-small"> </div>
-            <div style={{ display: "flex", flexWrap: "wrap"}}>
+            <div style={{ marginLeft:"250px", display: "flex", flexWrap: "wrap"}}>
             <div style={{display: 'block', width: '100%'}}>
                 {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]
                     || probList[currProblem][SHOW_DRAWING_TUTORIAL]
@@ -127,10 +127,9 @@ class Assignment extends React.Component {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
                 if (probNum.trim() !== '') {
-                    if (probList.length < 11) {
+                    if (probList.length < 8) {
                         label = "Problem " + probNum;
-                        label = "Problem " + probNum;
-                    } else  if (probList.length < 16) {
+                    } else  if (probList.length < 12) {
                         label = "Prob " + probNum;
                     } else {
                         label = "P " + probNum;

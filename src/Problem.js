@@ -342,6 +342,9 @@ class WebcamCapture extends React.Component {
             <span>
               { this.state.takingPicture
                   ?
+                  <FreeMathModal
+                    showModal={this.state.takingPicture}
+                    content={(
                   <span>
                   <br />
                   <ul>
@@ -390,29 +393,30 @@ class WebcamCapture extends React.Component {
                   </div>
                   <br />
                   </span>
-                  :
-                  (<span>
+                    )}
+                  />
+                  : null }
+                  <span>
                     <span className="homepage-disappear-mobile">
                         <HtmlButton title='New Grid Drawing'
                             content={(
-                                <img src="images/noun_Camera_757299_white_clipped.svg" style={{marginTop:"3px", height: "40px" }}
+                                <img src="images/noun_Camera_757299_white_clipped.svg" style={{marginTop:"3px", height: "30px" }}
                                      alt="take a picture with webcam or device camera"/>
                             )}
                             onClick={function() {
                                 this.setState({takingPicture : true});
-                            }.bind(this)} />&nbsp;
+                            }.bind(this)} />
                         <HtmlButton title='Paste Image'
                             content={(
-                                <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg" style={{marginTop:"3px", height: "40px" }}
+                                <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg" style={{marginTop:"3px", height: "30px" }}
                                      alt="paste an image"/>
                             )}
                             onClick={function() {
-                                this.setState({takingPicture : true});
+                                alert("Paste using an image using the keyboard shortcut Ctrl-v");
                             }.bind(this)} />&nbsp;
                     </span>
                     <MyDropzone handlePicUploadCallback={handlePicUploadCallback} />
-                    </span>)
-              }
+                    </span>
             </span>
           );
     }
@@ -431,13 +435,13 @@ function MyDropzone(props) {
 
   return (
     <div {...getRootProps()}
-          style={{width: "450px", display: "inline-block", verticalAlign: "top",
+          style={{width: "135px", display: "inline-block", verticalAlign: "top",
                   padding: "10px", border: "2px dashed", marginTop: "15px"}}>
       <input {...getInputProps()} />
       {
         isDragActive ?
-          <span>Drop the files here ...</span> :
-          <span>Drop some image files here, or click to select files</span>
+          <span><small>Drop the files here ...</small></span> :
+          <span><small>Drop some image files here, or click to select files</small></span>
       }
     </div>
   )
@@ -727,16 +731,22 @@ class ImageStep extends React.Component {
                                 </BigModal>
                             :
                             <span>
-                                <Button className="long-problem-action-button fm-button"
-                                        text="Rotate Left"
-                                        title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
-                                        disabled={step[FABRIC_SRC]}
-                                        onClick={function() { rotate(270);}}
+                                <HtmlButton
+                                    title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
+                                    content={(
+                                        <img src="images/noun_rotate left_3894741_white.svg"
+                                             style={{marginTop:"3px", heiht:"30px"}} alt="rotate image left"/>
+                                    )}
+                                    disabled={step[FABRIC_SRC]}
+                                    onClick={function() { rotate(270);}}
                                 />
-                                <Button className="long-problem-action-button fm-button"
-                                        text="Rotate Right"
-                                        title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
-                                        disabled={step[FABRIC_SRC]}
+                                <HtmlButton
+                                    title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image right"}
+                                    content={(
+                                        <img src="images/noun_rotate right_3894741_white.svg"
+                                             style={{marginTop:"3px", heiht:"30px"}} alt="rotate image right"/>
+                                    )}
+                                    disabled={step[FABRIC_SRC]}
                                         onClick={function() { rotate(90);}}
                                 />
                                 <br />
@@ -755,7 +765,7 @@ class ImageStep extends React.Component {
                                 { step[CONTENT] !== ''
                                     ?
                                         <div style={{maxWidth: "95%"}}>
-                                        If your final answer is a number or expression, type it in the final box below.<br />
+                                        If your final answer is a number, word or expression, type it in the final box below.<br />
                                         Otherwise you can just move to the next problem.
                                         </div>
                                     : null }
@@ -1085,7 +1095,7 @@ class Problem extends React.Component {
         }
         return (
             <div>
-            <div className="problem-container" style={{display:"inline-block", width:"98%", float:'none'}}>
+            <div className="problem-container" style={{display:"inline-block", width:"160px", float:'left'}}>
                 <div>
                     <div className="problem-editor-buttons"
                          style={{float:'left', marginRight:"10px", marginBottom: "30px"}}>
@@ -1101,14 +1111,6 @@ class Problem extends React.Component {
                         }
 
                         <div style={{display:"block", marginLeft:"10px"}}>
-                            <small style={{marginRight: "10px"}}>Problem Number</small>
-                            <input type="text" style={{width: "95px"}}
-                                   value={probNumber} className="problem-number"
-                                   onChange={
-                                        function(evt) {
-                                            window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
-                                                    NEW_PROBLEM_NUMBER : evt.target.value}) }}
-                            /> <br />
                         </div>
                         <br />
                         <Button text="Next Step (Enter)" className="long-problem-action-button fm-button" onClick={
@@ -1121,6 +1123,29 @@ class Problem extends React.Component {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
                             }}/>
+                        <br />
+                        <div style={{display:'inline-block'}}>
+
+                        <HtmlButton title='Undo'
+                            content={(
+                                <img src="images/noun_Undo_3920132_white.svg" style={{marginTop:"3px", height:"30px"}} alt="undo"/>
+                            )}
+                            onClick={
+                            function() {
+                                window.store.dispatch(
+                                    { type : UNDO, PROBLEM_INDEX : problemIndex})
+                            }}/>
+                        <HtmlButton title='Redo'
+                            content={(
+                                <img src="images/noun_Redo_3920132_white.svg" style={{marginTop:"3px", height:"30px"}} alt="redo"/>
+                            )}
+                            onClick={
+                            function() {
+                                window.store.dispatch(
+                                    { type : REDO, PROBLEM_INDEX : problemIndex})
+                            }}/>
+                        </div>
+                        <div style={{display:'inline-block'}}>
                         <HtmlButton title='New Drawing'
                             content={(
                                 <img src="images/small_draw_icon_filled.png" style={{marginTop:"3px"}} alt="new drawing"/>
@@ -1137,29 +1162,29 @@ class Problem extends React.Component {
                                 function() {
                                     addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
                             }}/>
-                        <div style={{display:'inline-block'}}>
-                        <Button text="Undo" className="short-problem-action-button fm-button" onClick={
-                            function() {
-                                window.store.dispatch(
-                                    { type : UNDO, PROBLEM_INDEX : problemIndex})
-                            }}/>
-                        <Button text="Redo" className="short-problem-action-button fm-button" onClick={
-                            function() {
-                                window.store.dispatch(
-                                    { type : REDO, PROBLEM_INDEX : problemIndex})
-                            }}/>
                         </div>
                         <Button type="submit" className="long-problem-action-button fm-button" text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />
-                    </div>
-                        <div className="equation-list" style={{paddingBottom:"150px"}}>
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
-                        <br />
-                        <br />
+                    </div>
+                    </div>
+                    </div>
+                    <div style={{marginLeft: "20px", display:"inline-block", width:"1550px", float:'left', verticalAlign: "top"}}>
+                    <div>
+                        <div className="equation-list" style={{width: "1550px", paddingBottom:"150px"}}>
+                            <small style={{marginRight: "10px"}}>Problem Number</small>
+                            <input type="text" style={{width: "95px"}}
+                                   value={probNumber} className="problem-number"
+                                   onChange={
+                                        function(evt) {
+                                            window.store.dispatch({ type : SET_PROBLEM_NUMBER, PROBLEM_INDEX : problemIndex,
+                                                    NEW_PROBLEM_NUMBER : evt.target.value}) }}
+                            /> <br />
 
+                        <br />
                         {steps.map(function(step, stepIndex) {
                             return (<Step key={problemIndex + ' ' + stepIndex} step={step} stepIndex={stepIndex} value={value}
                                         ref={(ref) => this.stepRefs[stepIndex] = ref }
