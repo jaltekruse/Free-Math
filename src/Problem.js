@@ -184,10 +184,6 @@ class ImageUploader extends React.Component {
         const lastStepIndex = steps.length - 1;
 		return (
             <div style={{display:"inline-block"}}>
-                <span className="homepage-only-on-mobile">
-                    &nbsp;or
-                </span>
-                &nbsp;
                 <WebcamCapture
                        handlePicUploadCallback={function(evt) {
                             addNewImageFiles(evt, steps, lastStepIndex, problemIndex,
@@ -396,11 +392,12 @@ class WebcamCapture extends React.Component {
                     )}
                   />
                   : null }
-                  <span>
-                    <span className="homepage-disappear-mobile">
-                        <HtmlButton title='New Grid Drawing'
+                  <div>
+                    <div className="homepage-disappear-mobile">
+                        <HtmlButton title='Snap a Picture'
                             content={(
-                                <img src="images/noun_Camera_757299_white_clipped.svg" style={{marginTop:"3px", height: "30px" }}
+                                <img src="images/noun_Camera_757299_white_clipped.svg"
+                                     style={{marginTop:"3px", height: "40px" }}
                                      alt="take a picture with webcam or device camera"/>
                             )}
                             onClick={function() {
@@ -408,15 +405,16 @@ class WebcamCapture extends React.Component {
                             }.bind(this)} />
                         <HtmlButton title='Paste Image'
                             content={(
-                                <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg" style={{marginTop:"3px", height: "30px" }}
+                                <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg"
+                                     style={{marginTop:"3px", height: "40px" }}
                                      alt="paste an image"/>
                             )}
                             onClick={function() {
                                 alert("Paste using an image using the keyboard shortcut Ctrl-v");
-                            }.bind(this)} />&nbsp;
-                    </span>
+                            }.bind(this)} />
+                    </div>
                     <MyDropzone handlePicUploadCallback={handlePicUploadCallback} />
-                    </span>
+                    </div>
             </span>
           );
     }
@@ -1128,7 +1126,7 @@ class Problem extends React.Component {
 
                         <HtmlButton title='Undo'
                             content={(
-                                <img src="images/noun_Undo_3920132_white.svg" style={{marginTop:"3px", height:"30px"}} alt="undo"/>
+                                <img src="images/noun_Undo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="undo"/>
                             )}
                             onClick={
                             function() {
@@ -1137,7 +1135,7 @@ class Problem extends React.Component {
                             }}/>
                         <HtmlButton title='Redo'
                             content={(
-                                <img src="images/noun_Redo_3920132_white.svg" style={{marginTop:"3px", height:"30px"}} alt="redo"/>
+                                <img src="images/noun_Redo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="redo"/>
                             )}
                             onClick={
                             function() {
@@ -1148,7 +1146,8 @@ class Problem extends React.Component {
                         <div style={{display:'inline-block'}}>
                         <HtmlButton title='New Drawing'
                             content={(
-                                <img src="images/small_draw_icon_filled.png" style={{marginTop:"3px"}} alt="new drawing"/>
+                                <img src="images/noun_Draw_3104195_white.svg"
+                                    style={{marginTop:"3px", height:"40px"}} alt="new drawing"/>
                             )}
                             onClick={
                                 function() {
@@ -1156,18 +1155,19 @@ class Problem extends React.Component {
                             }}/>
                         <HtmlButton title='New Grid Drawing'
                             content={(
-                                <img src="images/small_grid_icon_filled.png" style={{marginTop:"3px"}} alt="new grid drawing"/>
+                                <img src="images/noun_grid_347013_white.svg"
+                                    style={{marginTop:"3px", height:"40px"}} alt="new grid drawing"/>
                             )}
                             onClick={
                                 function() {
                                     addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
                             }}/>
                         </div>
-                        <Button type="submit" className="long-problem-action-button fm-button" text="Clone Problem"
+                        {/*<Button type="submit" className="long-problem-action-button fm-button" text="Clone Problem"
                                 title="Make a copy of this work, useful if you need to reference it while trying another solution path."
                                 onClick={function() {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
-                        />
+                        />*/}
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
                     </div>
                     </div>

@@ -10,12 +10,12 @@
    version="1.1"
    x="0px"
    y="0px"
-   viewBox="0 0 100 75"
+   viewBox="0 0 100 100"
    id="svg877"
    sodipodi:docname="noun_Camera_757299_white_clipped.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    width="100"
-   height="75">
+   height="100">
   <metadata
      id="metadata883">
     <rdf:RDF>
@@ -45,14 +45,14 @@
      showgrid="false"
      inkscape:pagecheckerboard="true"
      inkscape:zoom="6.704"
-     inkscape:cx="50"
-     inkscape:cy="32.667064"
+     inkscape:cx="23.672434"
+     inkscape:cy="55.936754"
      inkscape:window-x="78"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg877" />
   <g
-     transform="translate(0.14916468,-964.92187)"
+     transform="matrix(1.1508992,0,0,1.0681895,-7.54496,-1020.7128)"
      id="g871"
      style="fill:#ffffff;fill-opacity:1">
     <path
