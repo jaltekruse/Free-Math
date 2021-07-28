@@ -393,7 +393,7 @@ class WebcamCapture extends React.Component {
                   />
                   : null }
                   <div>
-                    <div className="homepage-disappear-mobile">
+                    <div className="homepage-disappear-mobile" style={{display:"inline-block"}}>
                         <HtmlButton title='Snap a Picture'
                             content={(
                                 <img src="images/noun_Camera_757299_white_clipped.svg"
@@ -433,7 +433,7 @@ function MyDropzone(props) {
 
   return (
     <div {...getRootProps()}
-          style={{width: "135px", display: "inline-block", verticalAlign: "top",
+          style={{display: "inline-block", verticalAlign: "top",
                   padding: "10px", border: "2px dashed", marginTop: "15px"}}>
       <input {...getInputProps()} />
       {
@@ -576,10 +576,10 @@ class ImageStep extends React.Component {
             imageEditorMenuPos = 'top';
         } else {
             console.log("desktop");
-            imageEditorWidth = windowWidth - 150;
-            imageEditorHeight = windowHeight - 150;
-            canvasWidth = windowWidth - 475;
-            canvasHeight = windowHeight - 250;
+            imageEditorWidth = windowWidth - 70;
+            imageEditorHeight = windowHeight - 70;
+            canvasWidth = windowWidth - 400;
+            canvasHeight = windowHeight - 100;
             console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'left';
         }
@@ -628,24 +628,35 @@ class ImageStep extends React.Component {
                             />
                             : null
                         }
-
-                        <Button className={(this.state.cropping ? "extra-long-problem-action-button" : "long-problem-action-button") + " fm-button"}
-                                text={this.state.cropping ? "Finished Cropping" : "Crop Image" }
-                                title={step[FABRIC_SRC] ? "Cannot crop after drawing on an image" :
-                                    (this.state.cropping ? "Finished Cropping" : "Crop Image")}
-                                disabled={step[FABRIC_SRC]}
-                                onClick={function() {
-                                    if (this.state.cropping) {
-                                        handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(), stepIndex, problemIndex, steps);
-                                        this.setState({cropping : false});
-                                    } else {
-                                        this.setState({cropping : true});
-                                    }
-                                }.bind(this)}
-                        />
+                        { !this.state.cropping
+                            ?
+                                <HtmlButton
+                                    title={step[FABRIC_SRC] ? "Cannot crop after drawing on an image" : "Crop"}
+                                    content={(
+                                        <img src="images/noun_cropping_4070068_white.svg"
+                                             style={{marginTop:"3px", height:"30px"}} alt="Crop"/>
+                                    )}
+                                    disabled={step[FABRIC_SRC]}
+                                    onClick={() => { this.setState({cropping : true});}}
+                                />
+                            : null }
                         { this.state.cropping
                             ?
                             <span>
+                                <Button className="extra-long-problem-action-button fm-button"
+                                    text="Finished Cropping"
+                                    title={step[FABRIC_SRC] ? "Cannot crop after drawing on an image" :
+                                            "Finished Cropping"}
+                                        disabled={step[FABRIC_SRC]}
+                                        onClick={function() {
+                                            if (this.state.cropping) {
+                                                handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(),
+                                                             stepIndex, problemIndex, steps);
+                                                this.setState({cropping : false});
+                                            } else {
+                                            }
+                                        }.bind(this)}
+                                />
                                 <Button className="long-problem-action-button fm-button"
                                     text="Cancel"
                                     title="Cancel Cropping"
@@ -675,7 +686,8 @@ class ImageStep extends React.Component {
                                         zIndex: 1040,
                                     },
                                     content: {
-                                        padding: '10px'
+                                        padding: '5px',
+                                        inset: "10px",
                                     }
                                 }}
                             >
@@ -733,7 +745,7 @@ class ImageStep extends React.Component {
                                     title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image left"}
                                     content={(
                                         <img src="images/noun_rotate left_3894741_white.svg"
-                                             style={{marginTop:"3px", heiht:"30px"}} alt="rotate image left"/>
+                                             style={{marginTop:"3px", height:"30px"}} alt="rotate image left"/>
                                     )}
                                     disabled={step[FABRIC_SRC]}
                                     onClick={function() { rotate(270);}}
@@ -742,7 +754,7 @@ class ImageStep extends React.Component {
                                     title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image right"}
                                     content={(
                                         <img src="images/noun_rotate right_3894741_white.svg"
-                                             style={{marginTop:"3px", heiht:"30px"}} alt="rotate image right"/>
+                                             style={{marginTop:"3px", height:"30px"}} alt="rotate image right"/>
                                     )}
                                     disabled={step[FABRIC_SRC]}
                                         onClick={function() { rotate(90);}}
@@ -1093,35 +1105,35 @@ class Problem extends React.Component {
         }
         return (
             <div>
-            <div className="problem-container" style={{display:"inline-block", width:"160px", float:'left'}}>
-                <div>
-                    <div className="problem-editor-buttons"
-                         style={{float:'left', marginRight:"10px", marginBottom: "30px"}}>
-
+            <div className="problem-container problem-editor-buttons"
+                  style={{display:"inline-block", marginRight:"10px", float:'left'}}>
                         {/*   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                                : null
                         */}
-                        {   this.props.value[FEEDBACK] !== undefined
-                                ? (<div className="answer-partially-correct">
-                                        <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''} Teacher Feedback</b><br />
-                                        {this.props.value[FEEDBACK]}
-                                   </div>) : null
-                        }
-
                         <div style={{display:"block", marginLeft:"10px"}}>
                         </div>
                         <br />
-                        <Button text="Next Step (Enter)" className="long-problem-action-button fm-button" onClick={
-                            function() {
+
+                        <div style={{display:'inline-block'}}>
+                        <HtmlButton title='Next Step (Enter)'
+                            content={(
+                                <img src="images/noun_new_1887016_white.svg"
+                                    style={{marginTop:"3px", height:"40px"}} alt="Next Step"/>
+                            )}
+                            onClick={function() {
                                 window.store.dispatch(
                                     { type : NEW_STEP, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <Button text="New Blank Step" className="long-problem-action-button fm-button" onClick={
-                            function() {
+                        <HtmlButton title='New Blank Step'
+                            content={(
+                                <img src="images/noun_new_1887016_white_empty.svg"
+                                    style={{marginTop:"3px", height:"40px"}} alt="New Blank Step"/>
+                            )}
+                            onClick={function() {
                                 window.store.dispatch(
                                     { type : NEW_BLANK_STEP, PROBLEM_INDEX : problemIndex});
                             }}/>
-                        <br />
+                        </div>
                         <div style={{display:'inline-block'}}>
 
                         <HtmlButton title='Undo'
@@ -1170,11 +1182,9 @@ class Problem extends React.Component {
                         />*/}
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
                     </div>
-                    </div>
-                    </div>
-                    <div style={{marginLeft: "20px", display:"inline-block", width:"1550px", float:'left', verticalAlign: "top"}}>
+                    <div style={{marginLeft: "20px", display:"inline-block", width:"85%", float:'left', verticalAlign: "top"}}>
                     <div>
-                        <div className="equation-list" style={{width: "1550px", paddingBottom:"150px"}}>
+                        <div className="equation-list" style={{width:"100%", paddingBottom:"150px"}}>
                             <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
@@ -1185,6 +1195,14 @@ class Problem extends React.Component {
                             /> <br />
 
                         <br />
+                        {   this.props.value[FEEDBACK] !== undefined
+                                ? (<div className="answer-partially-correct"
+                                        style={{width:"500px"}}>
+                                        <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''}
+                                            Teacher Feedback</b><br />
+                                        {this.props.value[FEEDBACK]}
+                                   </div>) : null
+                        }
                         {steps.map(function(step, stepIndex) {
                             return (<Step key={problemIndex + ' ' + stepIndex} step={step} stepIndex={stepIndex} value={value}
                                         ref={(ref) => this.stepRefs[stepIndex] = ref }

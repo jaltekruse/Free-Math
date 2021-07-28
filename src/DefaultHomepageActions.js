@@ -872,17 +872,6 @@ class UserActions extends React.Component {
                 )}
             />
             <div style={{display:"inline-block", width:"100%"}}>
-            <div className="homepage-center">
-                <div className="answer-partially-correct" style={{display:"inline-block", marginBottom: "15px"}}>
-                    <b>What's New</b>
-                        <br />
-                        <img src="images/small_grid_icon_filled.png" style={{marginTop:"3px"}} alt="new grid drawing"/>
-                        &nbsp; &nbsp;
-                        <img src="images/small_draw_icon_filled.png" style={{marginTop:"3px"}} alt="new drawing"/>
-                        <br />
-                        Students can now add digital drawings to their documents!
-                </div>
-            </div>
             <div className="homepage-center-mobile">
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
