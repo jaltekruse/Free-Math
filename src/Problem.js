@@ -488,6 +488,51 @@ function openDrawing(fabricSrc, getEditorInstanceCallback, onFailure) {
     );
 };
 
+function rotateBlobImg(degrees, imgBlob, imgCallback) {
+    // https://medium.com/the-everyday-developer/
+    // detect-file-mime-type-using-magic-numbers-and-javascript-16bc513d4e1e
+    const uint = new Uint8Array(imgBlob.slice(0, 4))
+    let bytes = []
+    uint.forEach((byte) => {
+        bytes.push(byte.toString(16))
+    })
+    const hex = bytes.join('').toUpperCase()
+    var type = getMimetype(hex);
+
+    if (type.includes("gif")) {
+        // TODO - check size, as this isn't as easy to scale down, good to set a max of\
+        // something like 0.5-1MB
+        alert("Cannot rotate gifs");
+    } else {
+        Resizer.imageFileResizer(
+            imgBlob, 1200, 1200, 'JPEG', 80, degrees,
+            imgFile => {
+                imgCallback(imgFile);
+            },
+            'blob'
+        );
+    }
+}
+
+function rotate(degrees, imgUri, imgCallback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', imgUri, true);
+    xhr.responseType = 'blob';
+    xhr.onload = function(e) {
+      if (this.status === 200) {
+        var imgBlob = this.response;
+        // imgBlob is now the blob that the object URL pointed to.
+        var fr = new FileReader();
+        fr.addEventListener('load', function() {
+            var imgFile = new Blob([this.result]);
+            rotateBlobImg(degrees, imgFile, imgCallback);
+        });
+        return fr.readAsArrayBuffer(imgBlob);
+      }
+    };
+    xhr.send();
+}
+
 class ImageStep extends React.Component {
     editorRef = React.createRef();
     state = {
@@ -500,48 +545,6 @@ class ImageStep extends React.Component {
         const steps = this.props.value[STEPS];
         const step = this.props.step;
         const stepIndex = this.props.stepIndex;
-
-        const rotate = function(degrees) {
-
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', step[CONTENT], true);
-            xhr.responseType = 'blob';
-            xhr.onload = function(e) {
-              if (this.status === 200) {
-                var imgBlob = this.response;
-                // imgBlob is now the blob that the object URL pointed to.
-                var fr = new FileReader();
-                fr.addEventListener('load', function() {
-                    var imgFile = new Blob([this.result]);
-                    // https://medium.com/the-everyday-developer/
-                    // detect-file-mime-type-using-magic-numbers-and-javascript-16bc513d4e1e
-                    const uint = new Uint8Array(this.result.slice(0, 4))
-                    let bytes = []
-                    uint.forEach((byte) => {
-                        bytes.push(byte.toString(16))
-                    })
-                    const hex = bytes.join('').toUpperCase()
-                    var type = getMimetype(hex);
-
-                    if (type.includes("gif")) {
-                        // TODO - check size, as this isn't as easy to scale down, good to set a max of\
-                        // something like 0.5-1MB
-                        alert("Cannot rotate gifs");
-                    } else {
-                        Resizer.imageFileResizer(
-                            imgFile, 1200, 1200, 'JPEG', 80, degrees,
-                            imgFile => {
-                                handleImg(imgFile, stepIndex, problemIndex, steps);
-                            },
-                            'blob'
-                        );
-                    }
-                });
-                return fr.readAsArrayBuffer(imgBlob);
-              }
-            };
-            xhr.send();
-        };
 
         const openDrawingStudent = function() {
             openDrawing(
@@ -579,10 +582,10 @@ class ImageStep extends React.Component {
         var imageEditorMenuPos;
         if (onVerticalScreen) {
             console.log("phone or tablet");
-            imageEditorWidth = windowWidth - 150;
-            imageEditorHeight = windowHeight - 150;
-            canvasWidth = windowWidth - 175;
-            canvasHeight = windowHeight - 375;
+            imageEditorWidth = windowWidth - 40;
+            imageEditorHeight = windowHeight - 70;
+            canvasWidth = windowWidth - 70;
+            canvasHeight = windowHeight - 300;
             console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'top';
         } else {
@@ -623,20 +626,20 @@ class ImageStep extends React.Component {
                 :
                     <span>
                         { !this.state.cropping ?
-                            <Button className="extra-long-problem-action-button fm-button-green fm-button"
-                                    text={this.state.imageMarkup ?
-                                        "Save Drawing" : "Draw on Image" }
-                                    title={this.state.imageMarkup ?
-                                        "Save Drawing" : "Draw on Image" }
-                                    onClick={function() {
+                            <HtmlButton title='Draw on Image' className="fm-button-green fm-button"
+                                content={(
+                                    <img src="images/noun_Draw_3104195_white.svg"
+                                        style={{marginTop:"3px", height:"30px"}} alt="new drawing"/>
+                                )}
+                                onClick={
+                                    function() {
                                         if (this.state.imageMarkup) {
                                             saveDrawing();
                                         } else {
                                             this.setState({imageMarkup: true});
                                             openDrawingStudent();
                                         }
-                                    }.bind(this)}
-                            />
+                                }.bind(this)}/>
                             : null
                         }
                         { !this.state.cropping
@@ -759,7 +762,11 @@ class ImageStep extends React.Component {
                                              style={{marginTop:"3px", height:"30px"}} alt="rotate image left"/>
                                     )}
                                     disabled={step[FABRIC_SRC]}
-                                    onClick={function() { rotate(270);}}
+
+                                    onClick={function() {
+                                        rotate(270, step[CONTENT],
+                                               (imgFile) => {handleImg(imgFile, stepIndex, problemIndex, steps)});
+                                    }}
                                 />
                                 <HtmlButton
                                     title={step[FABRIC_SRC] ? "Cannot rotate after drawing on an image" : "Rotate image right"}
@@ -768,7 +775,10 @@ class ImageStep extends React.Component {
                                              style={{marginTop:"3px", height:"30px"}} alt="rotate image right"/>
                                     )}
                                     disabled={step[FABRIC_SRC]}
-                                        onClick={function() { rotate(90);}}
+                                        onClick={function() {
+                                            rotate(90, step[CONTENT],
+                                                   (imgFile) => {handleImg(imgFile, stepIndex, problemIndex, steps)});
+                                        }}
                                 />
                                 <br />
                                 {step[FABRIC_SRC] ?
@@ -1172,7 +1182,18 @@ class Problem extends React.Component {
                             )}
                             onClick={
                                 function() {
-                                    addImageToEnd(base64ToBlob(blankImgBase64), problemIndex, steps);
+                                    const windowWidth = window.innerWidth;
+                                    const windowHeight = window.innerHeight;
+
+                                    const onVerticalScreen = windowHeight > windowWidth * .75;
+                                    let img = blankImgBase64;
+                                    if (onVerticalScreen) {
+                                        rotateBlobImg(90, base64ToBlob(blankImgBase64), (img) => {
+                                            addImageToEnd(img, problemIndex, steps);
+                                        });
+                                    } else {
+                                        addImageToEnd(base64ToBlob(blankImgBase64), problemIndex, steps);
+                                    }
                             }}/>
                         <HtmlButton title='New Grid Drawing'
                             content={(
@@ -1181,7 +1202,18 @@ class Problem extends React.Component {
                             )}
                             onClick={
                                 function() {
-                                    addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
+                                    const windowWidth = window.innerWidth;
+                                    const windowHeight = window.innerHeight;
+
+                                    const onVerticalScreen = windowHeight > windowWidth * .75;
+                                    let img = blankImgBase64;
+                                    if (onVerticalScreen) {
+                                        rotateBlobImg(90, base64ToBlob(gridImage), (img) => {
+                                            addImageToEnd(img, problemIndex, steps);
+                                        });
+                                    } else {
+                                        addImageToEnd(base64ToBlob(gridImage), problemIndex, steps);
+                                    }
                             }}/>
                         </div>
                         {/*<Button type="submit" className="long-problem-action-button fm-button" text="Clone Problem"
