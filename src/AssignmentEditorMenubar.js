@@ -854,11 +854,11 @@ class AssignmentEditorMenubar extends React.Component {
                     selectSubmissionCallback={selectSubmissionCallback}
                     ref="submissionSelector"/>
                 <div style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
-                    <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <LogoHomeNav />&nbsp;&nbsp;&nbsp;&nbsp;
+                  <span className="navBarElms" style={{paddingTop: "10px", lineHeight : 1}}>
 
-                  <div className="navBarElms" style={{float: "right",  marginTop: "0px",
-                                                      verticalAlign:"top", lineHeight : 1}}>
-                   <div style={{ visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
+                  <div className="homepage-disappear-mobile">
+                    <div style={{ display:"inline-block", visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
                            color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")
                         }}
                         className="save-state-message"
@@ -868,6 +868,8 @@ class AssignmentEditorMenubar extends React.Component {
                             <span>{saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}</span>
                         }
                     </div>
+                  </div>
+
 
                       {!browserIsIOS ?
                       (<div className="navBarItem" style={{display:"inline-block"}}>
@@ -926,7 +928,7 @@ class AssignmentEditorMenubar extends React.Component {
                              </div>
                          </a>
                       </div>) : null}
-                    </div>
+                    </span>
                 </div>
             </div>
           );
