@@ -562,6 +562,9 @@ div.problem-container {
 }
 
 @media (min-width: 641px) {
+    .inline-block-when-not-on-mobile {
+        display: inline-block
+    }
     div.problem-editor-buttons {
         width: 140px;
      }

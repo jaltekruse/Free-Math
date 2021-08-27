@@ -857,7 +857,7 @@ class AssignmentEditorMenubar extends React.Component {
                   <LogoHomeNav />&nbsp;&nbsp;&nbsp;&nbsp;
                   <span className="navBarElms" style={{paddingTop: "10px", lineHeight : 1}}>
 
-                  <div className="homepage-disappear-mobile">
+                  <div className="homepage-disappear-mobile inline-block-when-not-on-mobile">
                     <div style={{ display:"inline-block", visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
                            color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")
                         }}
