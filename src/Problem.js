@@ -943,7 +943,7 @@ class Step extends React.Component {
                     <div style={{
                             backgroundColor: '#f1f1f1', position:'absolute',
                             boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)',
-                            minWidth: '360px',
+                            minWidth: '400px',
                             // TODO - fix this to keep track of used z-indexes
                             zIndex: '5',
                             display: this.state.showMenu ? 'block' : 'none' }}>
