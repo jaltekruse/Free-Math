@@ -392,8 +392,8 @@ class WebcamCapture extends React.Component {
                     )}
                   />
                   : null }
-                  <div>
-                    <div className="homepage-disappear-mobile" style={{display:"inline-block"}}>
+                  <div style={{display:"inline-block"}}>
+                    <div className="homepage-disappear-mobile">
                         <HtmlButton title='Snap a Picture'
                             content={(
                                 <img src="images/noun_Camera_757299_white_clipped.svg"
@@ -432,15 +432,26 @@ function MyDropzone(props) {
   const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop})
 
   return (
-    <div {...getRootProps()}
-          style={{display: "inline-block", verticalAlign: "top",
+    <div {...getRootProps()}>
+        <div className="homepage-disappear-mobile"
+          style={{verticalAlign: "top",
                   padding: "10px", border: "2px dashed", marginTop: "15px"}}>
-      <input {...getInputProps()} />
-      {
-        isDragActive ?
-          <span><small>Drop the files here ...</small></span> :
-          <span><small>Drop some image files here, or click to select files</small></span>
-      }
+          <input {...getInputProps()} />
+          {
+            isDragActive ?
+              <span><small>Drop the files here ...</small></span> :
+              <span><small>Drop some image files here, or click to select files</small></span>
+          }
+      </div>
+      <div className="homepage-only-on-mobile">
+        <HtmlButton title='Snap a Picture'
+            content={(
+                <img src="images/noun_Camera_757299_white_clipped.svg"
+                     style={{marginTop:"3px", height: "40px" }}
+                     alt="take a picture with webcam or device camera"/>
+            )}
+            onClick={() => {}} />
+      </div>
     </div>
   )
 }
@@ -1105,14 +1116,12 @@ class Problem extends React.Component {
         }
         return (
             <div>
-            <div className="problem-container problem-editor-buttons"
+            <div className="problem-container" style={{display:"inline-block", width:"98%", float:'none'}}>
+                <div className="problem-editor-buttons"
                   style={{display:"inline-block", marginRight:"10px", float:'left'}}>
                         {/*   score !== undefined ? (<ScoreBox value={this.props.value} />)
                                                : null
                         */}
-                        <div style={{display:"block", marginLeft:"10px"}}>
-                        </div>
-                        <br />
 
                         <div style={{display:'inline-block'}}>
                         <HtmlButton title='Next Step (Enter)'
@@ -1182,9 +1191,8 @@ class Problem extends React.Component {
                         />*/}
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
                     </div>
-                    <div style={{marginLeft: "20px", display:"inline-block", width:"85%", float:'left', verticalAlign: "top"}}>
                     <div>
-                        <div className="equation-list" style={{width:"100%", paddingBottom:"150px"}}>
+                        <div className="equation-list" style={{marginTop: "10px", paddingBottom:"150px"}}>
                             <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
@@ -1198,7 +1206,7 @@ class Problem extends React.Component {
                         {   this.props.value[FEEDBACK] !== undefined
                                 ? (<div className="answer-partially-correct"
                                         style={{width:"500px"}}>
-                                        <b>{this.props.value[FEEDBACK] === "" ? 'No' : ''}
+                                        <b>{this.props.value[FEEDBACK] === "" ? 'No ' : ''}
                                             Teacher Feedback</b><br />
                                         {this.props.value[FEEDBACK]}
                                    </div>) : null

@@ -100,7 +100,7 @@ class Assignment extends React.Component {
                 } />
             <div>
             <div className="menubar-spacer-small"> </div>
-            <div style={{ marginLeft:"250px", display: "flex", flexWrap: "wrap"}}>
+            <div style={{ marginLeft:"20px", display: "flex", flexWrap: "wrap"}}>
             <div style={{display: 'block', width: '100%'}}>
                 {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]
                     || probList[currProblem][SHOW_DRAWING_TUTORIAL]
