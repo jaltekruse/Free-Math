@@ -507,9 +507,13 @@ div.problem-container {
         box-sizing: border-box;
         margin-top: 5px;
         padding: 10px;
+        width: 601px;
+    }
+    .matrix-end-caps-and-buttons {
+        max-width: 150px
     }
     .math-input-buttons.absolute {
-      left: -150px;
+      left: -75px;
       right: -200px;
       position: absolute;
       top: -3px;

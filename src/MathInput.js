@@ -189,8 +189,8 @@ class MatrixSizePicker extends React.Component {
                             return <button className="fm-close-button"
                                            key={'matrix_' + row + ' ' + column}
                                            style={{float: 'none',
-                                                   height: '15px',
-                                                   width: '15px',
+                                                   height: '25px',
+                                                   width: '25px',
                                                    padding: '0px',
                                                    margin: '0px',
                                                    backgroundColor: cellColor(row, column) }}
@@ -217,7 +217,7 @@ class MatrixSizePicker extends React.Component {
                 }
                 </div>
                 </div>
-                <div style={{marginLeft: '20px', marginRight: '20px', float:'left'}}>
+                <div className="matrix-end-caps-and-buttons" style={{marginLeft: '10px', marginRight: '10px', float:'left'}}>
                     End Caps
                     <br />
                     <select style={{fontSize: '30px'}}
@@ -232,6 +232,9 @@ class MatrixSizePicker extends React.Component {
                                 <option value="v">| |</option>
                                 <option value="V">‖ ‖</option>
                     </select>
+                    <br />
+                    <br />
+                    {this.props.buttonRows}
                 </div>
             </div>
         );
@@ -403,10 +406,10 @@ class TexButtons extends React.Component {
             </div>
             <div style={{marginTop: '10px'}}>
                 {this.props.buttonGroup === MATRIX ?
-                        <MatrixSizePicker onInsert={this.props.onInsert}/>
-                        : null
+                        <MatrixSizePicker onInsert={this.props.onInsert} buttonRows={buttonRows}/>
+                        : <span>{buttonRows} </span>
                 }
-                {buttonRows}
+
             </div>
         </div>;
     }
