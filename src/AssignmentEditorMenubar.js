@@ -893,6 +893,7 @@ class AssignmentEditorMenubar extends React.Component {
                                         saveAs(finalBlob, persistentState[ASSIGNMENT_NAME] + '.math');
                                   });
                               }} /> &nbsp;&nbsp;&nbsp;
+                        {/*
                         <HtmlButton
                             className="fm-button-light"
                             ref="saveToDrive"
@@ -922,6 +923,7 @@ class AssignmentEditorMenubar extends React.Component {
                                                 height="16px"/>
                                     </div>
                             )} />&nbsp;&nbsp;&nbsp;
+                         */}
                          <a href="launch.html?mode=studentDemo" target="_blank">
                              <div className="fm-button-light" style={{display: "inline-block", paddingTop: "4px"}}>
                                 Tutorial

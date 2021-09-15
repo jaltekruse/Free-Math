@@ -394,20 +394,28 @@ class WebcamCapture extends React.Component {
                   : null }
                   <div style={{display:"inline-block"}}>
                     <div className="homepage-disappear-mobile">
-                        <HtmlButton title='Snap a Picture'
+                        <HtmlButton title='Snap or Upload an Image'
                             content={(
-                                <img src="images/noun_Camera_757299_white_clipped.svg"
-                                     style={{marginTop:"3px", height: "40px" }}
-                                     alt="take a picture with webcam or device camera"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_Camera_757299_white_clipped.svg"
+                                         style={{marginTop:"3px", height: "40px" }}
+                                         alt="Snap or upload an Image"/>
+                                    <br />
+                                    Image
+                                </div>
                             )}
                             onClick={function() {
                                 this.setState({takingPicture : true});
                             }.bind(this)} />
                         <HtmlButton title='Paste Image'
                             content={(
-                                <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg"
-                                     style={{marginTop:"3px", height: "40px" }}
-                                     alt="paste an image"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg"
+                                         style={{marginTop:"3px", height: "40px" }}
+                                         alt="paste an image"/>
+                                    <br />
+                                    Paste
+                                </div>
                             )}
                             onClick={function() {
                                 alert("Paste using an image using the keyboard shortcut Ctrl-v");
@@ -444,11 +452,16 @@ function MyDropzone(props) {
           }
       </div>
       <div className="homepage-only-on-mobile">
-        <HtmlButton title='Snap a Picture'
+        <HtmlButton title='Snap or upload an image'
             content={(
-                <img src="images/noun_Camera_757299_white_clipped.svg"
-                     style={{marginTop:"3px", height: "40px" }}
-                     alt="take a picture with webcam or device camera"/>
+                <div className="fm-button-with-icon">
+                    <img src="images/noun_Camera_757299_white_clipped.svg"
+                         style={{marginTop:"3px", height: "40px" }}
+                         title="take a picture with webcam or device camera"
+                         alt="Add Image"/>
+                    <br />
+                    Image
+                </div>
             )}
             onClick={() => {}} />
       </div>
@@ -1135,8 +1148,12 @@ class Problem extends React.Component {
                         <div style={{display:'inline-block'}}>
                         <HtmlButton title='Next Step (Enter)'
                             content={(
-                                <img src="images/noun_new_1887016_white.svg"
-                                    style={{marginTop:"3px", height:"40px"}} alt="Next Step"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_new_1887016_white.svg"
+                                        style={{marginTop:"3px", height:"40px"}} alt="Next Step"/>
+                                    <br />
+                                    <small>Copy Step</small>
+                                </div>
                             )}
                             onClick={function() {
                                 window.store.dispatch(
@@ -1144,8 +1161,12 @@ class Problem extends React.Component {
                             }}/>
                         <HtmlButton title='New Blank Step'
                             content={(
-                                <img src="images/noun_new_1887016_white_empty.svg"
-                                    style={{marginTop:"3px", height:"40px"}} alt="New Blank Step"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_new_1887016_white_empty.svg"
+                                        style={{marginTop:"3px", height:"40px"}} alt="New Blank Step"/>
+                                    <br />
+                                    <small>New Step</small>
+                                </div>
                             )}
                             onClick={function() {
                                 window.store.dispatch(
@@ -1156,7 +1177,11 @@ class Problem extends React.Component {
 
                         <HtmlButton title='Undo'
                             content={(
-                                <img src="images/noun_Undo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="undo"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_Undo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="undo"/>
+                                    <br />
+                                    Undo
+                                </div>
                             )}
                             onClick={
                             function() {
@@ -1165,7 +1190,11 @@ class Problem extends React.Component {
                             }}/>
                         <HtmlButton title='Redo'
                             content={(
-                                <img src="images/noun_Redo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="redo"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_Redo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="redo"/>
+                                    <br />
+                                    Redo
+                                </div>
                             )}
                             onClick={
                             function() {
@@ -1176,8 +1205,12 @@ class Problem extends React.Component {
                         <div style={{display:'inline-block'}}>
                         <HtmlButton title='New Drawing'
                             content={(
-                                <img src="images/noun_Draw_3104195_white.svg"
-                                    style={{marginTop:"3px", height:"40px"}} alt="new drawing"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_Draw_3104195_white.svg"
+                                        style={{marginTop:"3px", height:"40px"}} alt="new drawing"/>
+                                    <br />
+                                    Drawing
+                                </div>
                             )}
                             onClick={
                                 function() {
@@ -1196,8 +1229,12 @@ class Problem extends React.Component {
                             }}/>
                         <HtmlButton title='New Grid Drawing'
                             content={(
-                                <img src="images/noun_grid_347013_white.svg"
-                                    style={{marginTop:"3px", height:"40px"}} alt="new grid drawing"/>
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_grid_347013_white.svg"
+                                        style={{marginTop:"3px", height:"40px"}} alt="new grid drawing"/>
+                                    <br />
+                                    Grid
+                                </div>
                             )}
                             onClick={
                                 function() {
