@@ -886,7 +886,7 @@ class Step extends React.Component {
             (<div style={{overflow:"hidden"}}>
                 <div className="answer-partially-correct"
                      style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                    <span>Grab your notebook or worksheet. Click the button above that says "Snap a Picture"
+                    <span>Grab your notebook or worksheet. Click the button in the left menu with a camera on it
                           to take a picture of some math work on the sheet of paper using your webcam
                           or device camera.</span>
                 </div>
@@ -895,9 +895,8 @@ class Step extends React.Component {
             (<div style={{overflow:"hidden"}}>
                 <div className="answer-partially-correct"
                      style={{display:"inline-block", "float":"left", padding:"5px", margin: "5px"}}>
-                    <span>Click on one of the buttons with a pencil on it to add a
-                          drawing canvas. Then click on the "Draw on Image" button to open the
-                          drawing widget.
+                    <span>Click on the either the button with the pencil or the grid on it in the left
+                          menu to add a blank drawing canvas or a graph. Then click on the image to open the drawing widget.
                     </span>
                 </div>
             </div>) : null}
@@ -1263,7 +1262,7 @@ class Problem extends React.Component {
                 (<div>
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
-                    <span>Scroll to the top of the page and click on the blue button labeled "Problem Image Demo", to learn about
+                    <span>Scroll to the top of the page and click on the button labeled "Problem Image Demo", to learn about
                           adding images to your documents.</span>
                     </div>
                 </div>
@@ -1272,7 +1271,7 @@ class Problem extends React.Component {
                 (<div>
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
-                    <span>Scroll to the top of the page and click on the blue button labeled "Problem Drawing Demo", to learn about
+                    <span>Scroll to the top of the page and click on the button labeled "Problem Drawing Demo", to learn about
                           adding digital drawings and graphs to your documents.</span>
                     </div>
                 </div>
