@@ -12,7 +12,8 @@ import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
          calculateGrades, removeStudentsFromGradingView } from './TeacherInteractiveGrader.js';
 import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
-         listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads } from './GoogleApi.js';
+         listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads,
+         listRecentFilesOnGoogle } from './GoogleApi.js';
 
 var MathQuill = window.MathQuill;
 
@@ -189,6 +190,12 @@ class UserActions extends React.Component {
     componentDidMount() {
 
         const attachClickHandlers = function() {
+
+            var googleStudentDocs = listRecentFilesOnGoogle(
+                (response) =>
+                    console.log(response)
+            );
+
             // componentDidMount is called after all the child components have been mounted,
             // but before any parent components have been mounted.
             // https://stackoverflow.com/questions/49887433/dom-isnt-ready-in-time-after-componentdidmount-in-react
@@ -754,6 +761,8 @@ class UserActions extends React.Component {
         var recoveredStudentDocs = getStudentRecoveredDocs();
         var recoveredTeacherDocs = getTeacherRecoveredDocs();
 
+        var googleStudentDocs = []; //listRecentFilesOnGoogle();
+
         // sort by date, TODO - also allow switch to sort by name
         if (this.state.studentRecoveredSorting === "DATE") {
             recoveredStudentDocs = sortByDate(recoveredStudentDocs);
@@ -918,6 +927,32 @@ class UserActions extends React.Component {
                                 Select a Free Math file you previously saved, or one that your teacher
                                 returned to you after grading.
                         <br />
+                        { (googleStudentDocs.length > 0) ?
+                        (<span><h4>Assignments in Drive</h4>
+                            { googleStudentDocs.map(function(driveFile, index) {
+                                return (
+                                        <div style={{marginBottom:"20px",
+                                                     textOverflow:"ellipsis",
+                                                     overflow: "hidden"}}
+                                             key={"TODO filename"}>
+                                        {"todo filename"}
+                                        <br />
+                                        <Button text="Open"
+                                                onClick={function() {
+                                                    ;// TODO
+                                                }} />
+                                        <Button text="Delete"
+                                                onClick={function() {
+                                                    ;// TODO
+                                                }} />
+                                        &nbsp;&nbsp;{driveFile.date}
+                                        <br />
+                                        </div>
+                                );
+                                })}
+
+                            </span>) : null
+                        }
                         { (recoveredStudentDocs.length > 0) ?
                             (<span><h4>Recovered Assignments &nbsp;
                                 <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
@@ -1151,6 +1186,8 @@ class DefaultHomepageActions extends React.Component {
         const openSpinner = this.openSpinner;
         const closeSpinner = this.closeSpinner;
         var browserIsIOS = false; ///iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+        console.log(this.props);
         return (
             <div>
             <FreeMathModal

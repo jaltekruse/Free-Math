@@ -134,6 +134,8 @@ export function checkLoginNoPopup() {
 }
 
 function checkLogin() {
+    // TODO FIX - this is the wrong check
+    return true;
     if (! gapi.auth2.getAuthInstance().isSignedIn.get()) {
         alert('Need to authorize access to Google Services.');
         handleAuthClick();
@@ -175,6 +177,11 @@ export function listGoogleClassroomSubmissionsNoFailureAlert(courseId, courseWor
 export function listGoogleClassroomSubmissions(courseId, courseWorkId, callback, errorCallback = function(){}) {
     let url = 'https://classroom.googleapis.com/v1/courses/' + courseId + '/courseWork/' +
                 courseWorkId + '/studentSubmissions';
+    googleGet(true, url, callback, errorCallback);
+}
+
+export function listRecentFilesOnGoogle(callback, errorCallback = function(){}) {
+    let url = 'https://www.googleapis.com/drive/v3/files';
     googleGet(true, url, callback, errorCallback);
 }
 
