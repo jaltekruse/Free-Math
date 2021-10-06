@@ -131,7 +131,7 @@ const symbolGroups = {
             input.cmd("\\overleftrightarrow");
         }},
         /* not in katex */
-        {toType:"\\overarc [Enter]", htmlComponent:
+        {toType:"\\overarc [Enter]", tex:"\\overarc{AB}", htmlComponent:
             (<span className="mq-math-mode">
                 <span className="mq-selectable">{"\\overarc{AB}"}</span>
                 <span className="mq-root-block mq-hasCursor">
