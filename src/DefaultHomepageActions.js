@@ -1181,14 +1181,15 @@ class DefaultHomepageActions extends React.Component {
                     <div className="navBarElms" style={{float:"right"}}>
                     <a href="gettingStarted.html"
                         style={{color:"white", marginRight:"15px"}} >
-                        Getting Started
+                            Get Started
+                    </a>{' '}
+                    <a href="edsurge_article.html"
+                        style={{color:"white", marginRight:"15px"}} >
+                            Classroom Impact
                     </a>{' '}
                     <a href="contact.html"
                         style={{color:"white", marginRight:"15px"}} >
                             Contact
-                    </a>{' '}
-                    <a href="faq.html" style={{color:"white"}} >
-                        FAQ
                     </a>
                     </div>
                 </div>
