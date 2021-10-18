@@ -1228,9 +1228,6 @@ font-size:1.4rem;line-height:1.6
 p.light,span.light{
 color:#434a52
 }
-*,*::after,*::before{
-box-sizing:border-box
-}
 *:focus{
 outline:none
 }
