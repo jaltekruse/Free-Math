@@ -398,7 +398,7 @@ class WebcamCapture extends React.Component {
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_Camera_757299_white_clipped.svg"
-                                         style={{marginTop:"3px", height: "40px" }}
+                                         className="fm-button-icon"
                                          alt="Snap or upload an Image"/>
                                     <br />
                                     Image
@@ -411,7 +411,7 @@ class WebcamCapture extends React.Component {
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg"
-                                         style={{marginTop:"3px", height: "40px" }}
+                                         className="fm-button-icon"
                                          alt="paste an image"/>
                                     <br />
                                     Paste
@@ -456,7 +456,7 @@ function MyDropzone(props) {
             content={(
                 <div className="fm-button-with-icon">
                     <img src="images/noun_Camera_757299_white_clipped.svg"
-                         style={{marginTop:"3px", height: "40px" }}
+                         className="fm-button-icon"
                          title="take a picture with webcam or device camera"
                          alt="Add Image"/>
                     <br />
@@ -706,6 +706,7 @@ class ImageStep extends React.Component {
                                         }.bind(this)}
                                 isOpen={this.state.imageMarkup}
                                 shouldCloseOnOverlayClick={true}
+                                appElement={document.getElementById('root')}
                                 style={{
                                     overlay: {
                                         position: 'fixed', top: 0, left: 0,right: 0, bottom: 0,
@@ -1150,7 +1151,8 @@ class Problem extends React.Component {
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_new_1887016_white.svg"
-                                        style={{marginTop:"3px", height:"40px"}} alt="Next Step"/>
+                                         className="fm-button-icon"
+                                        alt="Next Step"/>
                                     <br />
                                     <small>Copy Step</small>
                                 </div>
@@ -1163,7 +1165,8 @@ class Problem extends React.Component {
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_new_1887016_white_empty.svg"
-                                        style={{marginTop:"3px", height:"40px"}} alt="New Blank Step"/>
+                                         className="fm-button-icon"
+                                         alt="New Blank Step"/>
                                     <br />
                                     <small>New Step</small>
                                 </div>
@@ -1178,7 +1181,9 @@ class Problem extends React.Component {
                         <HtmlButton title='Undo'
                             content={(
                                 <div className="fm-button-with-icon">
-                                    <img src="images/noun_Undo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="undo"/>
+                                    <img src="images/noun_Undo_3920132_white.svg"
+                                         className="fm-button-icon"
+                                         style={{height:"27px"}} alt="undo"/>
                                     <br />
                                     Undo
                                 </div>
@@ -1191,7 +1196,10 @@ class Problem extends React.Component {
                         <HtmlButton title='Redo'
                             content={(
                                 <div className="fm-button-with-icon">
-                                    <img src="images/noun_Redo_3920132_white.svg" style={{marginTop:"3px", height:"37px"}} alt="redo"/>
+                                    <img src="images/noun_Redo_3920132_white.svg"
+                                         className="fm-button-icon"
+                                         style={{height:"27px"}}
+                                         alt="redo"/>
                                     <br />
                                     Redo
                                 </div>
@@ -1207,7 +1215,8 @@ class Problem extends React.Component {
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_Draw_3104195_white.svg"
-                                        style={{marginTop:"3px", height:"40px"}} alt="new drawing"/>
+                                         className="fm-button-icon"
+                                         alt="new drawing"/>
                                     <br />
                                     Drawing
                                 </div>
@@ -1231,7 +1240,8 @@ class Problem extends React.Component {
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_grid_347013_white.svg"
-                                        style={{marginTop:"3px", height:"40px"}} alt="new grid drawing"/>
+                                         className="fm-button-icon"
+                                         alt="new grid drawing"/>
                                     <br />
                                     Grid
                                 </div>

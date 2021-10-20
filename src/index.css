@@ -152,8 +152,13 @@ a.fm-button-grey:hover
 }
 
 .fm-button-with-icon {
-    height:70px;
-    width:62px
+    height: 58px;
+    width: 50px
+}
+
+.fm-button-icon {
+    margin-top: 3px;
+    height: 30px
 }
 
 .fm-button {
