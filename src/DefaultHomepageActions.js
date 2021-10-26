@@ -1261,6 +1261,8 @@ class DefaultHomepageActions extends React.Component {
             <div style={{"padding":"0px 100px 0px 100px"}}>
                     <p>
                         <a className="lightLink" href="privacyPolicy.html">Privacy Policy</a>
+                        &nbsp;&nbsp;&nbsp;
+                        <a className="lightLink" href="acknowledgements.html">Creative Commons Media and Open Source Code Used in this Site</a>
                     </p>
                     <small>
                         Free Math is free software: you can redistribute it and/or modify

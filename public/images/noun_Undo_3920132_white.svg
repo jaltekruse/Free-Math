@@ -24,7 +24,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -44,9 +44,9 @@
      id="namedview4634"
      showgrid="false"
      inkscape:pagecheckerboard="true"
-     inkscape:zoom="59.464567"
-     inkscape:cx="6.2675239"
-     inkscape:cy="6.2622678"
+     inkscape:zoom="5.2559748"
+     inkscape:cx="-25.632446"
+     inkscape:cy="41.036188"
      inkscape:window-x="149"
      inkscape:window-y="108"
      inkscape:window-maximized="0"
@@ -61,15 +61,15 @@
        inkscape:connector-curvature="0" />
   </g>
   <text
-     x="0"
-     y="23.700001"
+     x="-1.712337"
+     y="18.18247"
      font-size="5px"
      font-weight="bold"
      id="text4628"
      style="font-weight:bold;font-size:5px;font-family:'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif;fill:#000000">Created by Phạm Thanh Lộc</text>
   <text
-     x="0"
-     y="28.700001"
+     x="-1.712337"
+     y="23.18247"
      font-size="5px"
      font-weight="bold"
      id="text4630"

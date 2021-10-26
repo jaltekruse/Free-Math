@@ -1239,7 +1239,7 @@ class Problem extends React.Component {
                         <HtmlButton title='New Grid Drawing'
                             content={(
                                 <div className="fm-button-with-icon">
-                                    <img src="images/noun_grid_347013_white.svg"
+                                    <img src="images/noun_grid_4065750_white.svg"
                                          className="fm-button-icon"
                                          alt="new grid drawing"/>
                                     <br />
