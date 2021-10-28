@@ -1152,9 +1152,10 @@ class Problem extends React.Component {
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_new_1887016_white.svg"
                                          className="fm-button-icon"
-                                        alt="Next Step"/>
+                                         style={{height:"27px"}}
+                                         alt="Next Step"/>
                                     <br />
-                                    <small>Copy Step</small>
+                                    <small style={{fontSize:"9px"}}>Copy Step</small>
                                 </div>
                             )}
                             onClick={function() {
@@ -1166,9 +1167,10 @@ class Problem extends React.Component {
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_new_1887016_white_empty.svg"
                                          className="fm-button-icon"
+                                         style={{height:"27px"}}
                                          alt="New Blank Step"/>
                                     <br />
-                                    <small>New Step</small>
+                                    <small style={{fontSize:"9px"}}>New Step</small>
                                 </div>
                             )}
                             onClick={function() {
@@ -1218,7 +1220,7 @@ class Problem extends React.Component {
                                          className="fm-button-icon"
                                          alt="new drawing"/>
                                     <br />
-                                    Drawing
+                                    Draw
                                 </div>
                             )}
                             onClick={
@@ -1270,7 +1272,7 @@ class Problem extends React.Component {
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
                     </div>
                     <div>
-                        <div className="equation-list" style={{marginTop: "10px", paddingBottom:"150px"}}>
+                        <div className="equation-list" style={{marginTop: "10px", paddingBottom:"350px"}}>
                             <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
