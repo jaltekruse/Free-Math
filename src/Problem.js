@@ -1139,7 +1139,7 @@ class Problem extends React.Component {
         }
         return (
             <div>
-            <div className="problem-container" style={{display:"inline-block", width:"98%", float:'none'}}>
+            <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div className="problem-editor-buttons"
                   style={{display:"inline-block", marginRight:"10px", float:'left'}}>
                         {/*   score !== undefined ? (<ScoreBox value={this.props.value} />)
