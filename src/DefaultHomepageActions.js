@@ -1201,7 +1201,7 @@ class DefaultHomepageActions extends React.Component {
                          padding:"50px 0px 50px 0px",
                          }}
                  className="homepage-center">
-                   <div id="mc_embed_signup" style={{"padding":"0px 100px 0px 100px"}}>
+                   <div id="mc_embed_signup">
                        <form action="https://freemathapp.us17.list-manage.com/subscribe/post?u=9529516f2eeb3f44372a20887&id=ed42803cd3"
                               method="post" id="mc-embedded-subscribe-form"
                               name="mc-embedded-subscribe-form" className="validate"
