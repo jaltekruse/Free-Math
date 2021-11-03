@@ -4,7 +4,7 @@ Copied from persus project
 .math-input-buttons.absolute {
   left: -2px;
   position: absolute;
-  top: -3px;
+  top: 100px;
   z-index: 101;
 }
 .tex-button {
@@ -524,7 +524,7 @@ div.problem-container {
         max-width: 150px
     }
     .math-input-buttons.absolute {
-      left: -90px;
+      left: -60px;
       right: -200px;
       position: absolute;
       top: -3px;

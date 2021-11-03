@@ -80,7 +80,7 @@ class Assignment extends React.Component {
             window.ephemeralStore.dispatch({ type : SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probs.length });
         }.bind(this);
         return (
-        <div style={{backgroundColor:"#f9f9f9", padding:"30px 30px 200px 30px"}}>
+        <div style={{backgroundColor:"#f9f9f9"}}>
             <FreeMathModal
                 closeModal={function() {
                             this.setState({ showModal: false});
@@ -98,7 +98,7 @@ class Assignment extends React.Component {
                     </div>
                     )
                 } />
-            <div>
+            <div style={{minHeight: "100vh", padding:"30px 15px 100px 15px"}}>
             <div className="menubar-spacer-small"> </div>
             <div style={{ marginLeft:"20px", display: "flex", flexWrap: "wrap"}}>
             <div style={{display: 'block', width: '100%'}}>
@@ -225,11 +225,39 @@ class Assignment extends React.Component {
                      buttonGroup={this.props.value[BUTTON_GROUP]}
             />
             </div>
-            <br />
             {/* Replaced by better onscreen math keyboard with shortcuts in
                 the title text of the buttons
             <Button onClick={this.toggleModal} text={this.state.showModal ? "Hide Symbol List" : "Show Available Symbol List" } />
                 this.state.showModal ? <MathEditorHelp /> : null */}
+            <div style={{"width" : "100%", "margin":"100px 0px 0px 0px",
+                             "padding":"50px 0px 70px 0px",
+                             "backgroundColor": "rgba(10,0,30,1)",
+                              color: "#eee"
+                             }}>
+            <div style={{"padding":"0px 100px 0px 100px"}}>
+                    <p>
+                        <a className="lightLink" target="_blank" href="privacyPolicy.html">Privacy Policy</a>
+                        &nbsp;&nbsp;&nbsp;
+                        <a className="lightLink" target="_blank" href="acknowledgements.html">
+                            Creative Commons Media and Open Source Code Used in this Site
+                        </a>
+                    </p>
+                    <small>
+                        Free Math is free software: you can redistribute it and/or modify
+                        it under the terms of the GNU General Public License as published by
+                        the Free Software Foundation, either version 3 of the License, or
+                        (at your option) any later version.
+
+                        Free Math is distributed in the hope that it will be useful,
+                        but WITHOUT ANY WARRANTY; without even the implied warranty of
+                        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                        GNU General Public License for more details.
+
+                        You should have received a copy of the GNU General Public License
+                        along with Free Math.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+                    </small>
+                </div>
+            </div>
         </div>
       )
     }
