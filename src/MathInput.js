@@ -408,40 +408,32 @@ class TexButtons extends React.Component {
                                     { type : SET_KEYBOARD_BUTTON_GROUP, [BUTTON_GROUP] : GREEK });}}/>
             </div>
 
-            <div>Move Cursor
-                <div style={{display: "inline-block"}}>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                            onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Left");
-                            });
-                        }}>
-                        <TeX>{"\\leftarrow"}</TeX>
-                    </button>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                            onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Right");
-                            });
-                        }}>
-                        <TeX>{"\\rightarrow"}</TeX>
-                    </button>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                            onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Up");
-                            });
-                        }}>
-                        <TeX>{"\\uparrow"}</TeX>
-                    </button>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                              onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Down");
-                            });
-                        }}>
-                        <TeX>{"\\downarrow"}</TeX>
-                    </button>
+            <div>
+            <div style={{display: "inline-block", verticalAlign:"top"}}>
+                <div>
+                    {_.map([1,2,3,4,5,6,7,8,9,0,'.'], number => {
+                        // create a (component, thing we should send to mathquill) pair
+                        return <button onClick={() => { this.props.onInsert(number)}}
+                                       className="tex-button"
+                                       key={number}
+                                       tabIndex={-1}
+                                       type="button">
+                            <TeX>{number + ''}</TeX>
+                        </button>;
+                    })}
+                </div>
+                <div>
+                    {_.map(['a','b','c','x','y','z'], letter => {
+                        // create a (component, thing we should send to mathquill) pair
+                        return <button onClick={() => { this.props.onInsert(letter)}}
+                                       className="tex-button"
+                                       key={letter}
+                                       tabIndex={-1}
+                                       type="button">
+                            <TeX>{letter + ''}</TeX>
+                        </button>;
+                    })}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
                     <button title={"\\text [Enter]"} className="tex-button wide-tex-button"
                         style={{display: "inline-block", float: "none"}}
                               onClick={() => {
@@ -460,6 +452,59 @@ class TexButtons extends React.Component {
                         <TeX>{"\\text{Backspace}"}</TeX>
                     </button>
                 </div>
+            </div>
+            <div style={{display: "inline-block"}}>
+                <table style={{borderCollapse:"collapse"}}>
+                <tbody>
+                <tr>
+                <td></td>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Up");
+                            });
+                        }}>
+                        <TeX>{"\\uparrow"}</TeX>
+                    </button>
+                </td>
+                <td></td>
+                </tr>
+                <tr>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Left");
+                            });
+                        }}>
+                        <TeX>{"\\leftarrow"}</TeX>
+                    </button>
+                </td>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                              onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Down");
+                            });
+                        }}>
+                        <TeX>{"\\downarrow"}</TeX>
+                    </button>
+                </td>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Right");
+                            });
+                        }}>
+                        <TeX>{"\\rightarrow"}</TeX>
+                    </button>
+                </td>
+                </tr>
+                </tbody>
+                </table>
+            </div>
             </div>
             <div style={{marginTop: '10px'}}>
                 {this.props.buttonGroup === MATRIX ?
