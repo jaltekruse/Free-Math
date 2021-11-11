@@ -40,6 +40,10 @@ var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 var PROBLEMS = 'PROBLEMS';
 var SET_SHOW_TUTORIAL = 'SET_SHOW_TUTORIAL';
 var SHOW_TUTORIAL = 'SHOW_TUTORIAL'
+var SET_IMAGE_BEING_EDITED = 'SET_IMAGE_BEING_EDITED';
+var IMAGE_BEING_EDITED = 'IMAGE_BEING_EDITED';
+var PROBLEM_INDEX = 'PROBLEM_INDEX';
+var STEP_KEY = 'STEP_KEY';
 
 var SET_GOOGLE_CLASS_LIST = 'SET_GOOGLE_CLASS_LIST';
 var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
@@ -674,6 +678,13 @@ function ephemeralStateReducer(state, action) {
     } else if (action.type === SET_KEYBOARD_BUTTON_GROUP) {
         return { ...state,
                  BUTTON_GROUP : action[BUTTON_GROUP]
+        }
+    } else if (action.type === SET_IMAGE_BEING_EDITED) {
+        return { ...state,
+                 IMAGE_BEING_EDITED : {
+                     PROBLEM_INDEX: action[PROBLEM_INDEX],
+                     STEP_KEY: action[STEP_KEY]
+                }
         }
     } else if (action.type === SET_GOOGLE_DRIVE_STATE) {
         return { ...state,

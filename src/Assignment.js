@@ -28,6 +28,8 @@ var SHOW_DRAWING_TUTORIAL = 'SHOW_DRAWING_TUTORIAL';
 
 var SCORE = "SCORE";
 
+var IMAGE_BEING_EDITED = 'IMAGE_BEING_EDITED';
+
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
     if (state === undefined) {
@@ -223,6 +225,7 @@ class Assignment extends React.Component {
             <Problem value={probList[currProblem]}
                      id={currProblem}
                      buttonGroup={this.props.value[BUTTON_GROUP]}
+                     imageBeingEdited={this.props.value[IMAGE_BEING_EDITED]}
             />
             </div>
             {/* Replaced by better onscreen math keyboard with shortcuts in

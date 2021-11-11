@@ -1,6 +1,6 @@
 import { createStore } from 'redux';
 import './index.css';
-import { getCompositeState, rootReducer, ephemeralStateReducer } from './FreeMath';
+import { getCompositeState, getEphemeralState, rootReducer, ephemeralStateReducer } from './FreeMath';
 import { render, loadDemoGrading, checkAllSaved } from './DefaultHomepageActions';
 import { removeExtension, openAssignment} from './AssignmentEditorMenubar.js';
 import { autoSave } from './FreeMath.js';
@@ -14,12 +14,15 @@ var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var APP_MODE = 'APP_MODE';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 
+var IMAGE_BEING_EDITED = 'IMAGE_BEING_EDITED';
+
 var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 var STEPS = 'STEPS';
 var PROBLEMS = 'PROBLEMS';
 var FORMAT = 'FORMAT';
 var IMG = 'IMG';
 var CONTENT = 'CONTENT';
+var PROBLEM_INDEX = 'PROBLEM_INDEX';
 
 // this action expects an index for which problem to change
 var UNDO = 'UNDO';
@@ -45,6 +48,15 @@ var resourceKeys = 'resourceKeys';
 var title = 'title';
 var capabilities = 'capabilities';
 var canEdit = 'canEdit';
+
+function imageEditorNotActive() {
+    const rootState = getEphemeralState();
+    const imageBeingEdited = rootState[IMAGE_BEING_EDITED];
+    return (rootState[APP_MODE] === EDIT_ASSIGNMENT &&
+            ( !imageBeingEdited ||
+              (imageBeingEdited && imageBeingEdited[PROBLEM_INDEX] == null)
+            ));
+}
 
 window.onload = function() {
     /* No longer necessary, figured out how to set up server level https
@@ -154,7 +166,7 @@ window.onload = function() {
             var blob = item.getAsFile();
             //console.log(event.target.result);
             const rootState = getCompositeState();
-            if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
+            if (rootState[APP_MODE] === EDIT_ASSIGNMENT && imageEditorNotActive()) {
                 // see if there is a step of type image with empty contents
                 // if so paste it there
                 const currProbSteps = rootState[PROBLEMS][rootState[CURRENT_PROBLEM]][STEPS];
@@ -173,11 +185,11 @@ window.onload = function() {
     }
     document.addEventListener('keydown', function(event) {
         const rootState = getCompositeState();
-        if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'z' && imageEditorNotActive()) {
             if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
                 window.store.dispatch({ type : UNDO, PROBLEM_INDEX : rootState[CURRENT_PROBLEM]})
             }
-        } else if ((event.ctrlKey || event.metaKey) && event.key === 'y') {
+        } else if ((event.ctrlKey || event.metaKey) && event.key === 'y' && imageEditorNotActive()) {
             if (rootState[APP_MODE] === EDIT_ASSIGNMENT) {
                 window.store.dispatch({ type : REDO, PROBLEM_INDEX : rootState[CURRENT_PROBLEM]})
             }

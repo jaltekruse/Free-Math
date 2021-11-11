@@ -32,6 +32,9 @@ var STEP_KEY = 'STEP_KEY';
 // long random identifier for a step, used as key for react list of steps
 var STEP_ID = 'STEP_ID';
 
+var SET_IMAGE_BEING_EDITED = 'SET_IMAGE_BEING_EDITED';
+var IMAGE_BEING_EDITED = 'IMAGE_BEING_EDITED';
+
 var PROBLEMS = 'PROBLEMS';
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
@@ -550,7 +553,6 @@ class ImageStep extends React.Component {
     editorRef = React.createRef();
     state = {
         cropping : false,
-        imageMarkup : false
     };
 
     render() {
@@ -558,6 +560,7 @@ class ImageStep extends React.Component {
         const steps = this.props.value[STEPS];
         const step = this.props.step;
         const stepIndex = this.props.stepIndex;
+        const editingImage = this.props.editingImage;
 
         const openDrawingStudent = function() {
             openDrawing(
@@ -567,7 +570,11 @@ class ImageStep extends React.Component {
                 }.bind(this),
                 function() {
                     alert("Failed to load image editor");
-                    this.setState({imageMarkup: false});
+                    window.ephemeralStore.dispatch({
+                        type : SET_IMAGE_BEING_EDITED,
+                        PROBLEM_INDEX: problemIndex,
+                        STEP_KEY: stepIndex
+                    });
                 }.bind(this),
             );
         }.bind(this);
@@ -580,7 +587,11 @@ class ImageStep extends React.Component {
             //console.log(editorInstance);
             handleImgUrl(editorInstance.toDataURL({format: 'jpeg'}), stepIndex, problemIndex, steps,
                          fabricSrc);
-            this.setState({imageMarkup: false});
+            window.ephemeralStore.dispatch({
+                type : SET_IMAGE_BEING_EDITED,
+                PROBLEM_INDEX: null,
+                STEP_KEY: null
+            });
         }.bind(this);
 
 
@@ -646,10 +657,14 @@ class ImageStep extends React.Component {
                                 )}
                                 onClick={
                                     function() {
-                                        if (this.state.imageMarkup) {
+                                        if (editingImage) {
                                             saveDrawing();
                                         } else {
-                                            this.setState({imageMarkup: true});
+                                            window.ephemeralStore.dispatch({
+                                                type : SET_IMAGE_BEING_EDITED,
+                                                PROBLEM_INDEX: problemIndex,
+                                                STEP_KEY: stepIndex
+                                            });
                                             openDrawingStudent();
                                         }
                                 }.bind(this)}/>
@@ -699,12 +714,16 @@ class ImageStep extends React.Component {
                                     crop={function(){}} />
                             </span>
                            :
-                           this.state.imageMarkup ?
+                           editingImage ?
                             <BigModal
                                 onRequestClose={function() {
-                                            this.setState({imageMarkup: false});
+                                            window.ephemeralStore.dispatch({
+                                                type : SET_IMAGE_BEING_EDITED,
+                                                PROBLEM_INDEX: null,
+                                                STEP_KEY: null
+                                            });
                                         }.bind(this)}
-                                isOpen={this.state.imageMarkup}
+                                isOpen={editingImage}
                                 shouldCloseOnOverlayClick={true}
                                 appElement={document.getElementById('root')}
                                 style={{
@@ -721,12 +740,12 @@ class ImageStep extends React.Component {
                             >
                                         <div>
                                             <Button className="extra-long-problem-action-button fm-button"
-                                                    text={this.state.imageMarkup ?
+                                                    text={editingImage ?
                                                         "Save Drawing" : "Draw on Image" }
-                                                    title={this.state.imageMarkup ?
+                                                    title={editingImage ?
                                                         "Save Drawing" : "Draw on Image" }
                                                     onClick={function() {
-                                                        if (this.state.imageMarkup) {
+                                                        if (editingImage) {
                                                             saveDrawing();
                                                         } else {
                                                             openDrawingStudent();
@@ -804,7 +823,11 @@ class ImageStep extends React.Component {
                                 <img src={step[CONTENT]} alt="Uploaded student work"
                                      style={{margin : "10px", maxHeight: "700px", maxWidth:"98%", border: "solid"}}
                                      onMouseDown={() => {
-                                            this.setState({imageMarkup: true});
+                                            window.ephemeralStore.dispatch({
+                                                type : SET_IMAGE_BEING_EDITED,
+                                                PROBLEM_INDEX: problemIndex,
+                                                STEP_KEY: stepIndex
+                                            });
                                             openDrawingStudent();
                                      }}/>
                                 { step[CONTENT] !== ''
@@ -885,6 +908,7 @@ class Step extends React.Component {
         const showImgTutorial = this.props.value[SHOW_IMAGE_TUTORIAL];
         const showDrawingTutorial = this.props.value[SHOW_DRAWING_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
+        const editingImage = this.props.editingImage;
         // callback passed in to allow requesting focus of another step in the problem
         const focusStepCallback = this.props.focusStep;
 
@@ -995,7 +1019,8 @@ class Step extends React.Component {
             </div>&nbsp;
             { step[FORMAT] === IMG
                 ?
-                    <ImageStep value={value} id={problemIndex} stepIndex={stepIndex} step={step} />
+                    <ImageStep value={value} id={problemIndex} stepIndex={stepIndex} step={step}
+                               editingImage={editingImage} />
                 :
                 step[FORMAT] === TEXT ?
                     (
@@ -1024,8 +1049,10 @@ class Step extends React.Component {
                                     } else if ((evt.ctrlKey || evt.metaKey) && evt.key === 'e') {
                                         const newStepType = 'MATH';
                                         window.store.dispatch({
-                                            type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
-                                            NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                            type : EDIT_STEP, PROBLEM_INDEX : problemIndex,
+                                            FORMAT : newStepType, STEP_KEY : stepIndex,
+                                            NEW_STEP_CONTENT :
+                                                (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
                                         });
                                         evt.preventDefault();
                                         evt.stopPropagation();
@@ -1061,8 +1088,10 @@ class Step extends React.Component {
                             if ((evt.ctrlKey || evt.metaKey) && evt.key === 'e') {
                                 const newStepType = 'TEXT';
                                 window.store.dispatch({
-                                    type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
-                                    NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                    type : EDIT_STEP, PROBLEM_INDEX : problemIndex,
+                                    FORMAT : newStepType, STEP_KEY : stepIndex,
+                                    NEW_STEP_CONTENT :
+                                        (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
                                 });
                                 evt.preventDefault();
                                 evt.stopPropagation();
@@ -1133,6 +1162,7 @@ class Problem extends React.Component {
         const showDrawingTutorial= this.props.value[SHOW_DRAWING_TUTORIAL];
         const buttonGroup = this.props.buttonGroup;
         const steps = this.props.value[STEPS];
+        const imageBeingEdited = this.props.imageBeingEdited;
 
         if (!this.stepRefs) {
             this.stepRefs = [];
@@ -1302,7 +1332,13 @@ class Problem extends React.Component {
                                                 this.stepRefs[stepIndex].focus()
                                             }, 50);
                                         }}
-                                        buttonGroup={buttonGroup} problemIndex={problemIndex}/>)
+                                        buttonGroup={buttonGroup} problemIndex={problemIndex}
+                                        editingImage={
+                                            imageBeingEdited &&
+                                            imageBeingEdited[PROBLEM_INDEX] === problemIndex &&
+                                            imageBeingEdited[STEP_KEY] === stepIndex
+                                        }
+                                        />)
                         }.bind(this))}
                     </div>
                 </div>
