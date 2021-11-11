@@ -421,7 +421,7 @@ class WebcamCapture extends React.Component {
                                 </div>
                             )}
                             onClick={function() {
-                                alert("Paste using an image using the keyboard shortcut Ctrl-v");
+                                alert("Paste an image using the keyboard shortcut Ctrl-v");
                             }.bind(this)} />
                     </div>
                     <MyDropzone handlePicUploadCallback={handlePicUploadCallback} />
@@ -755,7 +755,11 @@ class ImageStep extends React.Component {
                                             <Button className="extra-long-problem-action-button fm-button"
                                                 text="Cancel"
                                                 onClick={function() {
-                                                    this.setState({imageMarkup: false});
+                                                    window.ephemeralStore.dispatch({
+                                                        type : SET_IMAGE_BEING_EDITED,
+                                                        PROBLEM_INDEX: null,
+                                                        STEP_KEY: null
+                                                    });
                                                 }.bind(this)} />
                                             <ImageEditor
                                                 ref={this.editorRef}
@@ -1085,6 +1089,14 @@ class Step extends React.Component {
                 <div
                     ref={this.parentDivRef}
                     onKeyDown={function(evt) {
+                            if (evt.shiftKey && evt.key === 'Enter') {
+                                window.store.dispatch(
+                                    { type : NEW_BLANK_STEP,
+                                      STEP_KEY : stepIndex,
+                                      PROBLEM_INDEX : problemIndex});
+                                evt.preventDefault();
+                                focusStepCallback(stepIndex + 1);
+                            }
                             if ((evt.ctrlKey || evt.metaKey) && evt.key === 'e') {
                                 const newStepType = 'TEXT';
                                 window.store.dispatch({
@@ -1192,7 +1204,7 @@ class Problem extends React.Component {
                                 window.store.dispatch(
                                     { type : NEW_STEP, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <HtmlButton title='New Blank Step'
+                        <HtmlButton title='New Blank Step (Shift+Enter)'
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_new_1887016_white_empty.svg"
@@ -1210,7 +1222,7 @@ class Problem extends React.Component {
                         </div>
                         <div style={{display:'inline-block'}}>
 
-                        <HtmlButton title='Undo'
+                        <HtmlButton title='Undo Ctrl-z'
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_Undo_3920132_white.svg"
@@ -1225,7 +1237,7 @@ class Problem extends React.Component {
                                 window.store.dispatch(
                                     { type : UNDO, PROBLEM_INDEX : problemIndex})
                             }}/>
-                        <HtmlButton title='Redo'
+                        <HtmlButton title='Redo Ctrl-y'
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_Redo_3920132_white.svg"
