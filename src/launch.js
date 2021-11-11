@@ -52,10 +52,9 @@ var canEdit = 'canEdit';
 function imageEditorNotActive() {
     const rootState = getEphemeralState();
     const imageBeingEdited = rootState[IMAGE_BEING_EDITED];
-    return (rootState[APP_MODE] === EDIT_ASSIGNMENT &&
-            ( !imageBeingEdited ||
+    return ( !imageBeingEdited ||
               (imageBeingEdited && imageBeingEdited[PROBLEM_INDEX] == null)
-            ));
+    );
 }
 
 window.onload = function() {
