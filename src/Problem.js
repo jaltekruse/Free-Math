@@ -655,19 +655,18 @@ class ImageStep extends React.Component {
                                     <img src="images/noun_Draw_3104195_white.svg"
                                         style={{marginTop:"3px", height:"30px"}} alt="new drawing"/>
                                 )}
-                                onClick={
-                                    function() {
-                                        if (editingImage) {
-                                            saveDrawing();
-                                        } else {
-                                            window.ephemeralStore.dispatch({
-                                                type : SET_IMAGE_BEING_EDITED,
-                                                PROBLEM_INDEX: problemIndex,
-                                                STEP_KEY: stepIndex
-                                            });
-                                            openDrawingStudent();
-                                        }
-                                }.bind(this)}/>
+                                onClick={() => {
+                                    if (editingImage) {
+                                        saveDrawing();
+                                    } else {
+                                        window.ephemeralStore.dispatch({
+                                            type : SET_IMAGE_BEING_EDITED,
+                                            PROBLEM_INDEX: problemIndex,
+                                            STEP_KEY: stepIndex
+                                        });
+                                        openDrawingStudent();
+                                    }
+                                }}/>
                             : null
                         }
                         { !this.state.cropping
@@ -826,7 +825,10 @@ class ImageStep extends React.Component {
                                 }
                                 <img src={step[CONTENT]} alt="Uploaded student work"
                                      style={{margin : "10px", maxHeight: "700px", maxWidth:"98%", border: "solid"}}
-                                     onMouseDown={() => {
+                                     onMouseDown={(e) => {
+                                            // only use left click
+                                            if (e.button !== 0) return;
+
                                             window.ephemeralStore.dispatch({
                                                 type : SET_IMAGE_BEING_EDITED,
                                                 PROBLEM_INDEX: problemIndex,
