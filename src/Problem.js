@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import MathInput from './MathInput.js';
+import TeX from './TeX.js';
 import { default as Button, LightButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import BigModal from 'react-modal';
@@ -145,9 +146,9 @@ class ScoreBox extends React.Component {
         }
         var scoreMessage = null;
         if (score === '')
-            scoreMessage = 'Complete';
+            scoreMessage = '\\text{Complete}';
         else if (score !== undefined)
-            scoreMessage = 'Score ' + score + ' / ' + possiblePoints;
+            scoreMessage =  '\\frac{' + score + '}{' + possiblePoints + '}';
         return (
             <div onClick={onClick}>
                 {
@@ -159,7 +160,7 @@ class ScoreBox extends React.Component {
                             <div className={scoreClass}>
                                 <div style={{padding:"3px 0px 1px 0px", display:"inline-block"
                                             /* alignment because of border on teacher feedback indicator*/ }}>
-                                    <b>{scoreMessage}</b>
+                                    <TeX>{scoreMessage}</TeX>
                                 </div>
                                 { feedback
                                     ? (<div title="Teacher feedback or highlights"
@@ -1090,6 +1091,7 @@ class Step extends React.Component {
                 :
                 <div
                     ref={this.parentDivRef}
+                    style={{...styles}}
                     onKeyDown={function(evt) {
                             if (evt.shiftKey && evt.key === 'Enter') {
                                 window.store.dispatch(
@@ -1118,7 +1120,7 @@ class Step extends React.Component {
                     <MathInput
                         key={stepIndex} buttonsVisible='focused'
                         className="mathStepEditor"
-                        style={{...styles, overflow: 'auto', marginTop: '8px'}}
+                        style={{overflow: 'auto', marginTop: '8px'}}
                         buttonSets={['trig', 'prealgebra',
                                      'logarithms', 'calculus']}
                         buttonGroup={buttonGroup}
@@ -1330,7 +1332,7 @@ class Problem extends React.Component {
                         {   this.props.value[FEEDBACK] !== undefined
                                 ? (<div className="answer-partially-correct"
                                         style={{width:"500px"}}>
-                                        <b>{this.props.value[FEEDBACK] === "" ? 'No ' : ''}
+                                        <b>{this.props.value[FEEDBACK] === "" ? 'No Written ' : ''}
                                             Teacher Feedback</b><br />
                                         {this.props.value[FEEDBACK]}
                                    </div>) : null
