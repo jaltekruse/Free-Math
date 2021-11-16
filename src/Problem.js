@@ -425,14 +425,14 @@ class WebcamCapture extends React.Component {
                                 alert("Paste an image using the keyboard shortcut Ctrl-v");
                             }.bind(this)} />
                     </div>
-                    <MyDropzone handlePicUploadCallback={handlePicUploadCallback} />
+                    <ImgDropzone handlePicUploadCallback={handlePicUploadCallback} />
                     </div>
             </span>
           );
     }
 };
 
-function MyDropzone(props) {
+function ImgDropzone(props) {
 
   // function to handle image uploaded as a file
   const handlePicUploadCallback = props.handlePicUploadCallback;
