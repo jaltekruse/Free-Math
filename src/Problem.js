@@ -398,14 +398,14 @@ class WebcamCapture extends React.Component {
                   : null }
                   <div style={{display:"inline-block"}}>
                     <div className="homepage-disappear-mobile">
-                        <HtmlButton title='Snap or Upload an Image'
+                        <HtmlButton title='Snap an image from a webcam or device camera'
                             content={(
                                 <div className="fm-button-with-icon">
                                     <img src="images/noun_Camera_757299_white_clipped.svg"
                                          className="fm-button-icon"
                                          alt="Snap or upload an Image"/>
                                     <br />
-                                    Image
+                                   Snap
                                 </div>
                             )}
                             onClick={function() {
@@ -461,7 +461,6 @@ function MyDropzone(props) {
                 <div className="fm-button-with-icon">
                     <img src="images/noun_Camera_757299_white_clipped.svg"
                          className="fm-button-icon"
-                         title="take a picture with webcam or device camera"
                          alt="Add Image"/>
                     <br />
                     Image
