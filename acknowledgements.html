@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<!--    
+    This file is part of Free Math 
+
+    Free Math is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Free Math is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Free Math.  If not, see <http://www.gnu.org/licenses/>. 
+
+    -->
+<!--
+This project includes code from the Persus project from Khan Academy. These
+portions of the code are licensed under the MIT license.
+
+The MIT License (MIT)
+
+Copyright (c) 2014 Khan Academy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<!--
+This project includes code from the MathQuill project. These
+portions of the code are licensed under the Mozilla Public License, v. 2.0.
+http://mozilla.org/MPL/2.0/
+
+-->
+<html>
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script>
+<script>
+
+    window.onload = function() {
+          var deps = {
+            "devDependencies": {
+                "autoprefixer": "7.1.2",
+                "babel-core": "6.25.0",
+                "babel-eslint": "7.2.3",
+                "babel-jest": "20.0.3",
+                "babel-loader": "7.1.1",
+                "babel-plugin-react-require": "^3.0.0",
+                "babel-preset-react-app": "^3.0.2",
+                "babel-runtime": "6.23.0",
+                "case-sensitive-paths-webpack-plugin": "2.1.1",
+                "chalk": "1.1.3",
+                "dotenv": "4.0.0",
+                "eslint": "4.4.1",
+                "eslint-config-react-app": "^2.0.0",
+                "eslint-loader": "1.9.0",
+                "eslint-plugin-flowtype": "2.35.0",
+                "eslint-plugin-import": "2.7.0",
+                "eslint-plugin-jsx-a11y": "5.1.1",
+                "eslint-plugin-react": "7.1.0",
+                "extract-text-webpack-plugin": "3.0.0",
+                "jest": "20.0.4",
+                "object-assign": "4.1.1",
+                "postcss-flexbugs-fixes": "3.2.0",
+                "postcss-loader": "2.0.6",
+                "promise": "8.0.1",
+                "webpack": "3.5.1",
+                "webpack-dev-server": "2.7.1",
+                "webpack-manifest-plugin": "1.2.1",
+                "whatwg-fetch": "2.0.3"
+              },
+              "dependencies": {
+                "@toast-ui/react-image-editor": "github:jaltekruse/toast-ui.react-image-editor#70b2b87fd5eae8eb1b42520e0901044fef53a676",
+                "@ungap/url-search-params": "^0.2.2",
+                "chart.js": "^2.5.0",
+                "create-react-class": "^15.6.3",
+                "css-loader": "0.28.4",
+                "diff": "^3.4.0",
+                "file-loader": "0.11.2",
+                "file-saver": "^1.3.3",
+                "fs-extra": "3.0.1",
+                "html-webpack-plugin": "2.29.0",
+                "jszip": "^2.6.0",
+                "katex": "^0.8.2",
+                "mathjax": "^2.7.2-rc",
+                "moment": "^2.24.0",
+                "prop-types": "^15.6.1",
+                "react": "^16.0.0",
+                "react-chartjs-2": "^2.9.0",
+                "react-components": "^0.5.1",
+                "react-cropper": "^1.3.0",
+                "react-dev-utils": "^3.1.0",
+                "react-dom": "^16.0.0",
+                "react-dropzone": "^11.3.4",
+                "react-error-overlay": "^1.0.10",
+                "react-image-file-resizer": "^0.2.3",
+                "react-modal": "^3.12.1",
+                "react-overlays": "^0.8.3",
+                "react-require": "^1.0.1",
+                "react-select": "^3.2.0",
+                "react-textarea-autosize": "^8.3.2",
+                "react-webcam": "^5.0.1",
+                "redux": "^3.7.2",
+                "style-loader": "0.18.2",
+                "stylis": "^3.5.4",
+                "sw-precache-webpack-plugin": "0.11.4",
+                "underscore": "^1.4.4",
+                "url-loader": "0.5.9"
+            }
+        }
+        let depsList = document.getElementById("dependencies");
+        var runtimeDeps = deps['dependencies'];
+        var devDeps = deps['devDependencies']
+        var allDeps = Object.assign({}, runtimeDeps, devDeps);
+        for (var prop in allDeps) {
+            if (allDeps.hasOwnProperty(prop)) {
+                let child = document.createElement('li');
+                let anchor = document.createElement('a');
+                anchor.href = "https://www.npmjs.com/package/" + prop
+                anchor.innerText = prop;
+                child.appendChild(anchor);
+                depsList.appendChild(child);
+            }
+        }
+  }
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70441517-2');
+</script>
+
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF --> 
+
+<meta name="viewport" content="width=624">
+<meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
+<meta property="og:site_name" content="Free Math">
+<title>Free Math - Collect, Organize and Review Digital Math Homework</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+<!--link rel="stylesheet" type="text/css" href="../perseus.css"-->
+<link rel="stylesheet" type="text/css" href="support/home.css">
+
+<link rel="stylesheet" href="katex.min.css">
+</head>
+<body style="margin-top:40px">
+    <div>
+        <div class="menuBar">
+            <div style="max-width:1024px; margin-left:auto; margin-right:auto; padding: 0 10px 0 10px" class="nav">
+                <div class="freemath-logo" style="float:left; line-height: 1">
+                    <a style="text-decoration: none; color: #eee" href="index.html">
+                    <h3 class="freemath-logo-text" style="display:inline; color: #eee">
+                        <div style="padding: 3px">
+                        <span class="katex">
+                            <span class="mord">Free&nbsp;Math</span>
+                        </span>
+                        </div>
+                    </h3>
+                    </a>
+                </div>
+                <div class="navBarElms" style="float:right">
+                    <a href="gettingStarted.html" style="color:white; margin-right:15px" >Get Started</a>
+                    <a href="edsurge_article.html" style="color:white; margin-right: 15px" >Classroom Impact</a>
+                    <a href="contact.html" style="color:white; margin-right: 15px" >Contact</a>
+                </div>
+            </div>
+        </div>
+     <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
+        class="fm-button" style="display:block; position:fixed; bottom:0; right:0; z-index: 100;
+                                                   box-shadow: rgb(126, 127, 128) 0px 10px 50px; margin: 0 30px 30px 0;
+                                                   width: 85px">
+           Site Feedback
+     </a>
+        <div style="margin-left:auto; margin-right: auto; max-width: 850px; padding:30px 3vw 100px 3vw">
+            <h2>Acknowledgements</h2>
+            <br />
+            <h3>Built on Open Source Software</h3>
+                This website is built with a variety of open source libraries and tools. We are grateful to all of the teams
+                that written high quality code and released it under open licenses to make projects like Free Math
+                easier to build and maintain.
+            <br />
+            <br />
+            <b>Free Math is Built With</b>
+            <ul id="dependencies">
+                <li><a href="http://mathquill.com/">MathQuill</a></li>
+                <li><a href="https://github.com/Khan/perseus">Persus by the Khan Academy Team</a></li>
+                <li><a href="https://jquery.com/">jQuery</a></li>
+                <li><a href="https://github.com/Khan/KAS">KAS</a></li>
+
+            </ul>
+
+            <br />
+            <br />
+            <h3>Free Math Includes Creative Commons Licensed Icons and Media</h3>
+
+            Free Math would also like to thank the creative professionals that have generously released
+            their work under the Creative Commons license and in doing so help make the site look awesome.
+            <br />
+            <br />
+
+            Camera by Alfa Design from the Noun Project<br />
+            <li>modified to change color to white</li>
+            <br />
+            clipboard by Creative Stall from the Noun Project<br />
+            <li>combined with the Picture icon and modified color to white</li>
+            <br />
+            cropping by iconixar from the Noun Project<br />
+            <li>modified to change color to white</li>
+            <br />
+            Draw by IronSV from the Noun Project<br />
+            <li>modified to change color to white</li>
+            <br />
+            grid by Studio 365 from the Noun Project<br />
+            <li>modified to change color to white </li>
+            <br />
+            "new" by Alice Design from the Noun Project <br />
+            <li>Modified to change color to white</li>
+            <li>also duplicated and removed the inner plus sign for a separate icon</li>
+            <br />
+            Picture by ProSymbols from the Noun Project<br />
+            <li>combined with the clipboard icon and modified color to white</li>
+            <br />
+            Undo by Phạm Thanh Lộc from the Noun Project<br />
+            <li>modified to change color to white</li>
+            <li>also flipped to make Redo icon</li>
+            <br />
+            rotate left by Paweł Gleń from the Noun Project<br />
+            <li>modified to change color to white</li>
+            <li>also flipped to make rotate right icon</li>
+            <br />
+        </div>
+            <div style="width: 100%; margin: 100px 0px 0px 0px; padding: 50px 0px 50px 0px;
+                        background-color: rgba(10,0,30,1); color: #eee">
+
+                <div style="padding: 0px 100px 0px 100px">
+                <p>
+                    <a class="lightLink" href="privacyPolicy.html">Privacy Policy</a>
+                    &nbsp;&nbsp;&nbsp;
+                    <a class="lightLink" href="acknowledgements.html">Creative Commons Media and Open Source Code Used in this Site</a>
+                </p>
+                <small>
+                    Free Math is free software: you can redistribute it and/or modify
+                    it under the terms of the GNU General Public License as published by
+                    the Free Software Foundation, either version 3 of the License, or
+                    (at your option) any later version.
+
+                    Free Math is distributed in the hope that it will be useful,
+                    but WITHOUT ANY WARRANTY; without even the implied warranty of
+                    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                    GNU General Public License for more details.
+
+                    You should have received a copy of the GNU General Public License
+                    along with Free Math.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+                </small>
+                </div>
+                </div>
+        </div>
+    </div>
+</body>
+</html>
