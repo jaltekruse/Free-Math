@@ -69,9 +69,11 @@ class Assignment extends React.Component {
         // but here it represents an integer index into the list of problems, but for the teacher
         // view it is a string typed as a problem number
         if (typeof probList[currProblem] === 'undefined') {
+            console.log("auto fixing current problem");
             let probs = this.props.value[PROBLEMS];
             currProblem = probs.length - 1;
-            this.props.value[CURRENT_PROBLEM] = currProblem;
+            window.ephemeralStore.dispatch(
+                {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: currProblem});
         }
         var addProblem = function() {
             var probs = this.props.value[PROBLEMS];
@@ -182,6 +184,8 @@ class Assignment extends React.Component {
                                         return;
                                     }
                                     if (!window.confirm("Are you sure you want to delete this problem?")) { return; }
+                                    window.ephemeralStore.dispatch(
+                                        {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: Math.max(0, currProblem - 1)});
                                     window.store.dispatch(
                                         { type : REMOVE_PROBLEM, PROBLEM_INDEX : problemIndex})
                             }.bind(this)}
