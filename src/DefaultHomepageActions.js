@@ -951,7 +951,9 @@ class UserActions extends React.Component {
                                                         <div style={{marginBottom:"20px",
                                                                      textOverflow:"ellipsis",
                                                                      overflow: "hidden"}}
-                                                             key={autoSaveFullName}>
+                                                             key={autoSaveFullName}
+                                                             title={filename}
+                                                        >
                                                         {filename}
                                                         <br />
                                                         <Button text="Open"
@@ -1052,7 +1054,12 @@ class UserActions extends React.Component {
                                                 var filename = nameAndDate[1];
                                                 var datePart = nameAndDate[2];
                                                 return (
-                                                        <div style={{marginBottom:"20px"}} key={autoSaveFullName}>
+                                                        <div style={{marginBottom:"20px",
+                                                                     textOverflow:"ellipsis",
+                                                                     overflow: "hidden"}}
+                                                             key={autoSaveFullName}
+                                                             title={filename}
+                                                        >
                                                         {filename}
                                                         <br />
                                                         <Button text="Open"
