@@ -624,7 +624,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
                         {rootState[GOOGLE_ASSIGNMENT_LIST].courseWork
                             .map(function(assignment, index) {
                                 return (
-                                    <span>
+                                    <span key={assignment.title}>
                                     <Button text={assignment.title}
                                         onClick={
                                             function() {
