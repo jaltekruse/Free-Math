@@ -447,7 +447,7 @@ function ImgDropzone(props) {
     <div {...getRootProps()}>
         <div className="homepage-disappear-mobile"
           style={{verticalAlign: "top",
-                  padding: "10px", border: "2px dashed", marginTop: "15px"}}>
+                  padding: "10px", border: "2px dashed", marginTop: "15px", minHeight: "80px"}}>
           <input {...getInputProps()} />
           {
             isDragActive ?
@@ -839,8 +839,7 @@ class ImageStep extends React.Component {
                                 { step[CONTENT] !== ''
                                     ?
                                         <div style={{maxWidth: "95%"}}>
-                                        If your final answer is a number, word or expression, type it in the final box below.<br />
-                                        Otherwise you can just move to the next problem.
+                                        If your final answer is a number, word or expression, type it in the final box below.
                                         </div>
                                     : null }
                             </span>
