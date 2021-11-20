@@ -864,13 +864,15 @@ class Step extends React.Component {
     }
 
     onBackspace = (evt) => {
-        if (evt.key === 'Backspace' && !this.state.holdingBackspace && this.props.step[CONTENT] === '') {
-            window.store.dispatch(
-                { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
-                  STEP_KEY : this.props.stepIndex});
-            this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
+        if (evt.key === 'Backspace' && !this.state.holdingBackspace) {
+            if (this.props.step[CONTENT] === '') {
+                window.store.dispatch(
+                    { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
+                      STEP_KEY : this.props.stepIndex});
+                this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
+            }
+            this.setState({holdingBackspace: true});
         }
-        this.setState({holdingBackspace: true});
     }
     onKeyup = (evt) => {
         if (evt.key === 'Backspace') {
