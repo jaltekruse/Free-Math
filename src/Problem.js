@@ -855,7 +855,8 @@ class ImageStep extends React.Component {
 class Step extends React.Component {
     parentDivRef = React.createRef();
     state = {
-        showMenu: false
+        showMenu: false,
+        holdingBackspace: false
     }
 
     closeMenu = () => {
@@ -863,13 +864,19 @@ class Step extends React.Component {
     }
 
     onBackspace = (evt) => {
-        if (evt.key === 'Backspace') {
+        if (evt.key === 'Backspace' && !this.state.holdingBackspace) {
             if (this.props.step[CONTENT] === '') {
                 window.store.dispatch(
                     { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
                       STEP_KEY : this.props.stepIndex});
                 this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
             }
+            this.setState({holdingBackspace: true});
+        }
+    }
+    onKeyup = (evt) => {
+        if (evt.key === 'Backspace') {
+            this.setState({holdingBackspace: false});
         }
     }
 
@@ -886,6 +893,8 @@ class Step extends React.Component {
       if (this.parentDivRef && this.parentDivRef.current) {
         this.parentDivRef.current.removeEventListener('keydown', this.onBackspace);
         this.parentDivRef.current.addEventListener('keydown', this.onBackspace, true);
+        this.parentDivRef.current.removeEventListener('keyup', this.onKeyup);
+        this.parentDivRef.current.addEventListener('keyup', this.onKeyup, true);
       }
     }
 
@@ -893,6 +902,8 @@ class Step extends React.Component {
       if (this.parentDivRef && this.parentDivRef.current) {
         this.parentDivRef.current.removeEventListener('keydown', this.onBackspace);
         this.parentDivRef.current.addEventListener('keydown', this.onBackspace, true);
+        this.parentDivRef.current.removeEventListener('keyup', this.onKeyup);
+        this.parentDivRef.current.addEventListener('keyup', this.onKeyup, true);
       }
     }
 
@@ -1062,13 +1073,14 @@ class Step extends React.Component {
                                         evt.preventDefault();
                                         evt.stopPropagation();
                                         focusStepCallback(stepIndex);
-                                    } else if (evt.key === 'Backspace') {
-                                        if (step[CONTENT] === '') {
+                                    } else if (evt.key === 'Backspace' && !this.state.holdingBackspace) {
+                                        if (this.props.step[CONTENT] === '') {
                                             window.store.dispatch(
-                                                { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
-                                                  STEP_KEY : stepIndex});
-                                            focusStepCallback(Math.max(stepIndex - 1, 0));
+                                                { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
+                                                  STEP_KEY : this.props.stepIndex});
+                                            this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
                                         }
+                                        this.setState({holdingBackspace: true});
                                     } else if (evt.key === 'ArrowUp') {
                                         if (this.stepRef.selectionStart === 0) {
                                             focusStepCallback(stepIndex - 1);
@@ -1080,6 +1092,11 @@ class Step extends React.Component {
                                     }
                                 }.bind(this)
                             }
+                            onKeyUp={(evt) => {
+                                if (evt.key === 'Backspace') {
+                                    this.setState({holdingBackspace: false});
+                                }
+                            }}
                         />
                         <div style={{display:"block", marginLeft: "15px", color: "grey"}}>
                             <small>Use Shift+Enter to add a new step after a text box.</small>
