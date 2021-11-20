@@ -863,13 +863,12 @@ class Step extends React.Component {
     }
 
     onBackspace = (evt) => {
-        if (evt.key === 'Backspace') {
-            if (this.props.step[CONTENT] === '') {
-                window.store.dispatch(
-                    { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
-                      STEP_KEY : this.props.stepIndex});
-                this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
-            }
+        if (evt.shiftKey && evt.key === 'Backspace') {
+            window.store.dispatch(
+                { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
+                  STEP_KEY : this.props.stepIndex});
+            evt.preventDefault();
+            this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
         }
     }
 
@@ -1336,7 +1335,7 @@ class Problem extends React.Component {
                                    </div>) : null
                         }
                         {steps.map(function(step, stepIndex) {
-                            return (<Step key={problemIndex + ' ' + stepIndex} step={step} stepIndex={stepIndex} value={value}
+                            return (<Step key={problemIndex + ' ' + step[STEP_ID] + ' ' + stepIndex} step={step} stepIndex={stepIndex} value={value}
                                         ref={(ref) => this.stepRefs[stepIndex] = ref }
                                         focusStep={(stepIndex) => {
                                             setTimeout(() => {
