@@ -855,7 +855,8 @@ class ImageStep extends React.Component {
 class Step extends React.Component {
     parentDivRef = React.createRef();
     state = {
-        showMenu: false
+        showMenu: false,
+        holdingBackspace: false
     }
 
     closeMenu = () => {
@@ -863,19 +864,17 @@ class Step extends React.Component {
     }
 
     onBackspace = (evt) => {
-        if (evt.shiftKey && evt.key === 'Backspace') {
-            // event bubbling is somewhat broken, but if we clear the contents of the
-            // step before deleting MathQuill/MathInput.js won't send anedited event
-            // for a change to a deleted step
-            window.store.dispatch({
-                type : EDIT_STEP, PROBLEM_INDEX : this.props.problemIndex,
-                FORMAT : MATH, STEP_KEY : this.props.stepIndex,
-                NEW_STEP_CONTENT : ''
-            });
+        if (evt.key === 'Backspace' && !this.state.holdingBackspace && this.props.step[CONTENT] === '') {
             window.store.dispatch(
                 { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
                   STEP_KEY : this.props.stepIndex});
             this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
+        }
+        this.setState({holdingBackspace: true});
+    }
+    onKeyup = (evt) => {
+        if (evt.key === 'Backspace') {
+            this.setState({holdingBackspace: false});
         }
     }
 
@@ -892,6 +891,8 @@ class Step extends React.Component {
       if (this.parentDivRef && this.parentDivRef.current) {
         this.parentDivRef.current.removeEventListener('keydown', this.onBackspace);
         this.parentDivRef.current.addEventListener('keydown', this.onBackspace, true);
+        this.parentDivRef.current.removeEventListener('keyup', this.onKeyup);
+        this.parentDivRef.current.addEventListener('keyup', this.onKeyup, true);
       }
     }
 
@@ -899,6 +900,8 @@ class Step extends React.Component {
       if (this.parentDivRef && this.parentDivRef.current) {
         this.parentDivRef.current.removeEventListener('keydown', this.onBackspace);
         this.parentDivRef.current.addEventListener('keydown', this.onBackspace, true);
+        this.parentDivRef.current.removeEventListener('keyup', this.onKeyup);
+        this.parentDivRef.current.addEventListener('keyup', this.onKeyup, true);
       }
     }
 
