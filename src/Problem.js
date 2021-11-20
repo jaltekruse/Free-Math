@@ -1073,19 +1073,14 @@ class Step extends React.Component {
                                         evt.preventDefault();
                                         evt.stopPropagation();
                                         focusStepCallback(stepIndex);
-                                    } else if (evt.shiftKey && evt.key === 'Backspace') {
-                                        // event bubbling is somewhat broken, but if we clear the contents of the
-                                        // step before deleting MathQuill/MathInput.js won't send an edited event
-                                        // for a change to a deleted step
-                                        window.store.dispatch({
-                                            type : EDIT_STEP, PROBLEM_INDEX : this.props.problemIndex,
-                                            FORMAT : TEXT, STEP_KEY : this.props.stepIndex,
-                                            NEW_STEP_CONTENT : ''
-                                        });
-                                        window.store.dispatch(
-                                            { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
-                                              STEP_KEY : this.props.stepIndex});
-                                        focusStepCallback(Math.max(stepIndex - 1, 0));
+                                    } else if (evt.key === 'Backspace' && !this.state.holdingBackspace) {
+                                        if (this.props.step[CONTENT] === '') {
+                                            window.store.dispatch(
+                                                { type : DELETE_STEP, PROBLEM_INDEX : this.props.problemIndex,
+                                                  STEP_KEY : this.props.stepIndex});
+                                            this.props.focusStep(Math.max(this.props.stepIndex - 1, 0));
+                                        }
+                                        this.setState({holdingBackspace: true});
                                     } else if (evt.key === 'ArrowUp') {
                                         if (this.stepRef.selectionStart === 0) {
                                             focusStepCallback(stepIndex - 1);
@@ -1097,6 +1092,11 @@ class Step extends React.Component {
                                     }
                                 }.bind(this)
                             }
+                            onKeyUp={(evt) => {
+                                if (evt.key === 'Backspace') {
+                                    this.setState({holdingBackspace: false});
+                                }
+                            }}
                         />
                         <div style={{display:"block", marginLeft: "15px", color: "grey"}}>
                             <small>Use Shift+Enter to add a new step after a text box.</small>
