@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import _ from 'underscore';
 import TeX from './TeX.js';
 import { symbolGroups } from './MathEditorHelpModal.js';
-import { default as Button, CloseButton } from './Button.js';
+import { default as Button, CloseButton, LightButton } from './Button.js';
 import MathQuillStatic from './MathQuillStatic.js';
 var MathQuill = window.MathQuill;
 
@@ -154,9 +154,26 @@ class MatrixSizePicker extends React.Component {
         onInsert: PropTypes.func.isRequired,
     };
     state = {
+        showMenu: false,
         hoveredCell: null,
         endCaps: 'b'
     }
+    closeMenu = () => {
+        this.setState({showMenu: false});
+    }
+
+    // https://blog.logrocket.com/controlling-tooltips-pop-up-menus-using-compound-components-in-react-ccedc15c7526/
+    componentDidUpdate() {
+      setTimeout(() => {
+        if(this.state.showMenu){
+          window.addEventListener('click', this.closeMenu);
+        }
+        else{
+          window.removeEventListener('click', this.closeMenu);
+        }
+      }, 0);
+    }
+
     render() {
         // based on current hovered cell (if any) return a color for
         // a given cell, all of the rows and columns before the hovered
@@ -220,18 +237,57 @@ class MatrixSizePicker extends React.Component {
                 <div className="matrix-end-caps-and-buttons" style={{marginLeft: '10px', marginRight: '10px', float:'left'}}>
                     End Caps
                     <br />
-                    <select style={{fontSize: '30px'}}
-                        value={this.state.endCaps}
-                        onChange={(evt) =>
-                                this.setState({endCaps: evt.target.value})
-                            }>
-                                <option value="b">[ ]</option>
-                                <option value="p">( )</option>
-                                <option value="">None</option>
-                                <option value="B">{"{ }"}</option>
-                                <option value="v">| |</option>
-                                <option value="V">‖ ‖</option>
-                    </select>
+
+                     <button
+                        className='fm-button-light'
+                        onClick={
+                          function() {
+                              this.setState({showMenu: !this.state.showMenu});
+                          }.bind(this)}
+                        >
+                            <div style={{display:"inline-block"}}>
+                                <div style={{float: "left", fontSize: '16px', paddingTop: "4px"}}>
+                                    {
+                                        function() {
+                                            switch(this.state.endCaps) {
+                                                case 'b': var caps = '[ ]'; break;
+                                                case 'p': var caps = '( )'; break;
+                                                case '' : var caps = 'None'; break;
+                                                case 'B': var caps = '{ }'; break;
+                                                case 'v': var caps = '| |'; break;
+                                                case 'V': var caps = '‖ ‖'; break;
+                                            };
+                                            return caps + " \u25BC";
+                                        }.bind(this)()}
+                                </div>
+                            </div>
+                    </button>
+                    <div style={{
+                            backgroundColor: '#f1f1f1', position:'absolute',
+                            boxShadow: '0px 8px 16px 0px rgba(0,0,0,0.2)',
+                            minWidth: '50px',
+                            // TODO - fix this to keep track of used z-indexes
+                            zIndex: '5',
+                            display: this.state.showMenu ? 'block' : 'none' }}>
+                        <LightButton text='[ ]'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {this.setState({endCaps: 'b'}); this.closeMenu();}}/>
+                        <LightButton text='( )'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {this.setState({endCaps: 'p'}); this.closeMenu();}}/>
+                        <LightButton text='None'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {this.setState({endCaps: ''}); this.closeMenu();}}/>
+                        <LightButton text='{ }'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {this.setState({endCaps: 'B'}); this.closeMenu();}}/>
+                        <LightButton text='| |'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {this.setState({endCaps: 'v'}); this.closeMenu();}}/>
+                        <LightButton text='‖ ‖'
+                            style={{display: 'block', width: '100%', borderRadius: '0px'}}
+                            onClick={() => {this.setState({endCaps: 'V'}); this.closeMenu();}}/>
+                    </div>
                     <br />
                     <br />
                     {this.props.buttonRows}
