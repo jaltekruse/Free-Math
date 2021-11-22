@@ -249,13 +249,14 @@ class MatrixSizePicker extends React.Component {
                                 <div style={{float: "left", fontSize: '16px', paddingTop: "4px"}}>
                                     {
                                         function() {
+                                            var caps;
                                             switch(this.state.endCaps) {
-                                                case 'b': var caps = '[ ]'; break;
-                                                case 'p': var caps = '( )'; break;
-                                                case '' : var caps = 'None'; break;
-                                                case 'B': var caps = '{ }'; break;
-                                                case 'v': var caps = '| |'; break;
-                                                case 'V': var caps = '‖ ‖'; break;
+                                                case 'b': caps = '[ ]'; break;
+                                                case 'p': caps = '( )'; break;
+                                                case '' : caps = 'None'; break;
+                                                case 'B': caps = '{ }'; break;
+                                                case 'v': caps = '| |'; break;
+                                                case 'V': caps = '‖ ‖'; break;
                                             };
                                             return caps + " \u25BC";
                                         }.bind(this)()}

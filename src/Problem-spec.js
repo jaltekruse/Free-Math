@@ -17,6 +17,10 @@ var LAST_SHOWN_STEP = 'LAST_SHOWN_STEP';
 
 var STEP_KEY = 'STEP_KEY';
 
+var FORMAT = "FORMAT";
+var MATH = "MATH";
+var TEXT = "TEXT";
+
 // editing assignmnt mode actions
 var SET_ASSIGNMENT_NAME = 'SET_ASSIGNMENT_NAME';
 // used to swap out the entire content of the document, for opening
@@ -78,6 +82,184 @@ it('test problem format conversion', () => {
                        STEPS : [{CONTENT : "4-2"}, {CONTENT : "2"}], LAST_SHOWN_STEP : 0 }
         ]
     }
+})
+
+// this didn't end up reproducing the bug, it required getting the text in a real MathQuill
+// wrapped with the MathInput react component. The bug had was caused by mismatch in the
+// incoming TeX to parse and what MathQuill will give back from .latex(), which won't have
+// whitespace and newlines in it. Currently these two things are compared to see when the
+// MathQuill updates to see if a new state should be created in redux.
+it('test undo bug with multi-line text converted to/from math', () => {
+    var initialAssignment = {
+        APP_MODE : EDIT_ASSIGNMENT,
+        ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
+        PROBLEMS : [ { PROBLEM_NUMBER : "1",
+                       REDO_STACK: [],
+                       UNDO_STACK: [],
+                       STEPS : [{CONTENT : "asdf", FORMAT: MATH}]}
+        ]
+    };
+
+    deepFreeze(initialAssignment);
+
+    var expectedAssignment =
+    {
+        "APP_MODE": "EDIT_ASSIGNMENT", "ASSIGNMENT_NAME": "Untitled Assignment",
+        "CURRENT_PROBLEM": 0, "PROBLEMS": [
+            {
+                "PROBLEM_NUMBER": "1", "REDO_STACK": [],
+                "STEPS": [
+                    {"CONTENT": "asdf", "FABRIC_SRC": undefined, "FORMAT": "TEXT"}],
+                "UNDO_STACK": [
+                    {"FORMAT": "MATH", "INVERSE_ACTION": {
+                        "EDIT_TYPE": undefined, "FORMAT": "TEXT", "POS": undefined,
+                        "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "EDIT_STEP", "NEW_STEP_CONTENT": "asdf"},
+                        "NEW_FABRIC_SRC": undefined, "NEW_STEP_CONTENT": "asdf",
+                        "STEP_KEY": 0, "type": "EDIT_STEP"}
+                ]
+            }
+        ]
+    };
+
+    compareOverallEditorState(
+        expectedAssignment,
+        assignmentReducer(convertToCurrentFormat(initialAssignment),
+		                  { type : EDIT_STEP, PROBLEM_INDEX : 0, STEP_KEY : 0, FORMAT : TEXT, NEW_STEP_CONTENT : "asdf"}),
+    );
+
+    const expectedAfterEditText = cloneDeep(expectedAssignment);
+    expectedAfterEditText[PROBLEMS][0][STEPS][0][CONTENT] = "asdf\nasdf";
+    expectedAfterEditText[PROBLEMS][0][UNDO_STACK].unshift(
+        {
+              "FORMAT": "TEXT",
+              "INVERSE_ACTION": {
+                "EDIT_TYPE": undefined,
+                "FORMAT": "TEXT",
+                "NEW_STEP_CONTENT": "asdf\nasdf",
+                "POS": undefined,
+                "PROBLEM_INDEX": 0,
+                "STEP_KEY": 0,
+                "type": "EDIT_STEP",
+              },
+              "NEW_FABRIC_SRC": undefined,
+              "NEW_STEP_CONTENT": "asdf",
+              "STEP_KEY": 0,
+              "type": "EDIT_STEP",
+            });
+    deepFreeze(expectedAssignment);
+
+    compareOverallEditorState(
+        expectedAfterEditText,
+        assignmentReducer(convertToCurrentFormat(expectedAssignment),
+		                  { type : EDIT_STEP, PROBLEM_INDEX : 0, STEP_KEY : 0, FORMAT : TEXT, NEW_STEP_CONTENT : "asdf\nasdf"}),
+    );
+
+
+    const expectedAfterChangeBackToMath = cloneDeep(expectedAfterEditText);
+    expectedAfterChangeBackToMath[PROBLEMS][0][STEPS][0][CONTENT] = "asdf\nasdf";
+    expectedAfterChangeBackToMath[PROBLEMS][0][STEPS][0][FORMAT] = MATH;
+    expectedAfterChangeBackToMath[PROBLEMS][0][UNDO_STACK].unshift(
+        {
+              "FORMAT": "TEXT",
+              "INVERSE_ACTION": {
+                "EDIT_TYPE": undefined,
+                "FORMAT": "MATH",
+                "NEW_STEP_CONTENT": "asdf\nasdf",
+                "POS": undefined,
+                "PROBLEM_INDEX": 0,
+                "STEP_KEY": 0,
+                "type": "EDIT_STEP",
+              },
+              "NEW_FABRIC_SRC": undefined,
+              "NEW_STEP_CONTENT": "asdf\nasdf",
+              "STEP_KEY": 0,
+              "type": "EDIT_STEP",
+            });
+    deepFreeze(expectedAfterEditText);
+
+    compareOverallEditorState(
+        expectedAfterChangeBackToMath,
+        assignmentReducer(convertToCurrentFormat(expectedAfterEditText),
+		                  { type : EDIT_STEP, PROBLEM_INDEX : 0, STEP_KEY : 0, FORMAT : MATH, NEW_STEP_CONTENT : "asdf\nasdf"}),
+    );
+
+    const expectedAfterChangeBackToText = cloneDeep(expectedAfterChangeBackToMath);
+    expectedAfterChangeBackToText[PROBLEMS][0][STEPS][0][CONTENT] = "asdf\nasdf";
+    expectedAfterChangeBackToText[PROBLEMS][0][STEPS][0][FORMAT] = TEXT;
+    expectedAfterChangeBackToText[PROBLEMS][0][UNDO_STACK].unshift(
+        {
+              "FORMAT": "MATH",
+              "INVERSE_ACTION": {
+                "EDIT_TYPE": undefined,
+                "FORMAT": "TEXT",
+                "NEW_STEP_CONTENT": "asdf\nasdf",
+                "POS": undefined,
+                "PROBLEM_INDEX": 0,
+                "STEP_KEY": 0,
+                "type": "EDIT_STEP",
+              },
+              "NEW_FABRIC_SRC": undefined,
+              "NEW_STEP_CONTENT": "asdf\nasdf",
+              "STEP_KEY": 0,
+              "type": "EDIT_STEP",
+            });
+    deepFreeze(expectedAfterChangeBackToMath);
+
+    compareOverallEditorState(
+        expectedAfterChangeBackToText,
+        assignmentReducer(convertToCurrentFormat(expectedAfterChangeBackToMath),
+		                  { type : EDIT_STEP, PROBLEM_INDEX : 0, STEP_KEY : 0, FORMAT : TEXT, NEW_STEP_CONTENT : "asdf\nasdf"}),
+    );
+
+    const expectedAfterFirstUndo = cloneDeep(expectedAfterChangeBackToText);
+    expectedAfterFirstUndo[PROBLEMS][0][STEPS][0][FORMAT] = MATH;
+    expectedAfterFirstUndo[PROBLEMS][0][REDO_STACK] =
+        [{"FORMAT": "TEXT", "INVERSE_ACTION": {
+            "FORMAT": "MATH", "INVERSE_ACTION": undefined, "NEW_STEP_CONTENT": "asdf\nasdf",
+            "STEP_KEY": 0, "type": "EDIT_STEP"
+        }, "NEW_STEP_CONTENT": "asdf\nasdf", "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "EDIT_STEP"}];
+    expectedAfterFirstUndo[PROBLEMS][0][UNDO_STACK].shift();
+    deepFreeze(expectedAfterChangeBackToText);
+
+    compareOverallEditorState(
+        expectedAfterFirstUndo,
+        assignmentReducer(convertToCurrentFormat(expectedAfterChangeBackToText),
+		                  { type : UNDO, PROBLEM_INDEX : 0}),
+    );
+
+    const expectedAfterSecondUndo = cloneDeep(expectedAfterFirstUndo);
+    expectedAfterSecondUndo[PROBLEMS][0][STEPS][0][FORMAT] = TEXT;
+    expectedAfterSecondUndo[PROBLEMS][0][REDO_STACK].unshift(
+        {"FORMAT": "MATH", "INVERSE_ACTION": {
+            "FORMAT": "TEXT", "INVERSE_ACTION": undefined, "NEW_STEP_CONTENT": "asdf\nasdf",
+            "STEP_KEY": 0, "type": "EDIT_STEP"
+        }, "NEW_STEP_CONTENT": "asdf\nasdf", "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "EDIT_STEP"});
+    expectedAfterSecondUndo[PROBLEMS][0][UNDO_STACK].shift();
+    deepFreeze(expectedAfterFirstUndo);
+
+    compareOverallEditorState(
+        expectedAfterSecondUndo,
+        assignmentReducer(convertToCurrentFormat(expectedAfterFirstUndo),
+		                  { type : UNDO, PROBLEM_INDEX : 0}),
+    );
+
+
+    const expectedAfterThirdUndo = cloneDeep(expectedAfterSecondUndo);
+    expectedAfterThirdUndo[PROBLEMS][0][STEPS][0][FORMAT] = TEXT;
+    expectedAfterThirdUndo[PROBLEMS][0][STEPS][0][CONTENT] = "asdf";
+    expectedAfterThirdUndo[PROBLEMS][0][REDO_STACK].unshift(
+        {"FORMAT": "TEXT", "INVERSE_ACTION": {
+            "FORMAT": "TEXT", "INVERSE_ACTION": undefined, "NEW_STEP_CONTENT": "asdf",
+            "STEP_KEY": 0, "type": "EDIT_STEP"
+        }, "NEW_STEP_CONTENT": "asdf\nasdf", "PROBLEM_INDEX": 0, "STEP_KEY": 0, "type": "EDIT_STEP"});
+    expectedAfterThirdUndo[PROBLEMS][0][UNDO_STACK].shift();
+    deepFreeze(expectedAfterSecondUndo);
+
+    compareOverallEditorState(
+        expectedAfterThirdUndo,
+        assignmentReducer(convertToCurrentFormat(expectedAfterSecondUndo),
+		                  { type : UNDO, PROBLEM_INDEX : 0}),
+    );
 })
 
 it('test demo creation, undo/redo bug', () => {

@@ -1013,9 +1013,10 @@ class Step extends React.Component {
                             style={{display: 'block', width: '100%', borderRadius: '0px'}}
                             onClick={(evt) => {
                                 const newStepType = step[FORMAT] === MATH ? TEXT : MATH;
+                                const newContent = ((newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]).replace('\n','')
                                 window.store.dispatch({
                                     type : EDIT_STEP, PROBLEM_INDEX : problemIndex, FORMAT : newStepType, STEP_KEY : stepIndex,
-                                    NEW_STEP_CONTENT : (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                    NEW_STEP_CONTENT : newContent
                                 });
                                 this.setState({showMenu: !this.state.showMenu});
                         }}/>
@@ -1064,11 +1065,11 @@ class Step extends React.Component {
 
                                     } else if ((evt.ctrlKey || evt.metaKey) && evt.key === 'e') {
                                         const newStepType = 'MATH';
+                                        const newContent = ((newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]).replace('\n','');
                                         window.store.dispatch({
                                             type : EDIT_STEP, PROBLEM_INDEX : problemIndex,
                                             FORMAT : newStepType, STEP_KEY : stepIndex,
-                                            NEW_STEP_CONTENT :
-                                                (newStepType === IMG || step[FORMAT] === IMG) ? '' : step[CONTENT]
+                                            NEW_STEP_CONTENT : newContent
                                         });
                                         evt.preventDefault();
                                         evt.stopPropagation();
@@ -1716,8 +1717,9 @@ function problemReducer(problem, action) {
         let inverseAction = {...undoAction[INVERSE_ACTION],
                              INVERSE_ACTION : {...undoAction, INVERSE_ACTION : undefined}};
         let ret = problemReducer(problem, undoAction)
+        let newUndoStack = problem[UNDO_STACK].slice(1, problem[UNDO_STACK].length);
         return {...ret,
-                UNDO_STACK : problem[UNDO_STACK].slice(1, problem[UNDO_STACK].length),
+                UNDO_STACK : newUndoStack,
                 REDO_STACK : [
                     inverseAction,
                     ...problem[REDO_STACK]
