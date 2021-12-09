@@ -658,7 +658,7 @@ class MathInput extends React.Component {
             autoCommands: 'subset superset union intersect forall therefore exists alpha beta gamma Gamma delta epsilon digamma zeta eta theta iota kappa lambda xikappa lambda omicron pi rho varrho sigma Sigma tau upsilon Upsilon omega sqrt sum int',
 
             autoSubscriptNumerals: true,
-            charsThatBreakOutOfSupSub: '+-*/=<>≠≤≥',
+            charsThatBreakOutOfSupSub: '=<>≠≤≥',
 
             handlers: {
                 edited: (mathField) => {
