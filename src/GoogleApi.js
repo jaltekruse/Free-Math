@@ -44,6 +44,10 @@ var SCOPES = 'https://www.googleapis.com/auth/drive.file ' +
 
 var APP_ID = 'quickstart-1561689319732';
 
+// Canvas Integration, TODO will move to another file soon
+
+// end canvas stuff
+
 /**
  *  Initializes the API client library and sets up sign-in state
  *  listeners.
