@@ -422,7 +422,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
 
         // bit hacky, this prevent the intial load of a document or grading session from
         // kicking off an auto-save event
-        console.log(currentAppMode);
+        //console.log(currentAppMode);
         // TODO - very weird bug, for some reaso I can't use currentAppMode in this comparison
         // Even though the line above logs the correct value?!?!?
         // Always allow explicit saves, which can use this method passing in a delay of 0
