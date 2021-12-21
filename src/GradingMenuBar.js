@@ -38,38 +38,41 @@ class GradingMenuBar extends React.Component {
             // the main thread to allow a repaint
 
             setTimeout(function() {
+                // TODO - note currently unused, may delete soon, but updated for new JSZip version anyway
                 const saveCallback = function() {
                     var persistentState = getPersistentState();
                     var zip = saveGradedStudentWorkToBlob(persistentState);
-                    var content = zip.generate({type: "blob"});
-                    var googleId = getEphemeralState()[GOOGLE_ID];
-                    console.log("update in google drive:" + googleId);
-                    if (googleId) {
-                        updateFileWithBinaryContent (
-                            persistentState[ASSIGNMENT_NAME] + '.zip',
-                            content,
-                            googleId,
-                            'application/zip',
-                            function() {
-                                window.ephemeralStore.dispatch(
-                                    { type : SET_GOOGLE_DRIVE_STATE,
-                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
+                    zip.generateAsync({type: 'blob'}).then(
+                        (content) => {
+                            var googleId = getEphemeralState()[GOOGLE_ID];
+                            console.log("update in google drive:" + googleId);
+                            if (googleId) {
+                                updateFileWithBinaryContent (
+                                    persistentState[ASSIGNMENT_NAME] + '.zip',
+                                    content,
+                                    googleId,
+                                    'application/zip',
+                                    function() {
+                                        window.ephemeralStore.dispatch(
+                                            { type : SET_GOOGLE_DRIVE_STATE,
+                                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                                    }
+                                );
+                            } else {
+                                createFileWithBinaryContent (
+                                    persistentState[ASSIGNMENT_NAME] + '.zip',
+                                    content,
+                                    'application/zip',
+                                    function(response) {
+                                        window.ephemeralStore.dispatch(
+                                            {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
+                                        window.ephemeralStore.dispatch(
+                                            { type : SET_GOOGLE_DRIVE_STATE,
+                                                GOOGLE_DRIVE_STATE : ALL_SAVED});
+                                    }
+                                );
                             }
-                        );
-                    } else {
-                        createFileWithBinaryContent (
-                            persistentState[ASSIGNMENT_NAME] + '.zip',
-                            content,
-                            'application/zip',
-                            function(response) {
-                                window.ephemeralStore.dispatch(
-                                    {type : SET_GOOGLE_ID, GOOGLE_ID: response.id});
-                                window.ephemeralStore.dispatch(
-                                    { type : SET_GOOGLE_DRIVE_STATE,
-                                        GOOGLE_DRIVE_STATE : ALL_SAVED});
-                            }
-                        );
-                    }
+                    });
                 }
                 // TODO - old code, may bring back, this was for allong saving a graded zip to drive,
                 // I thought it would be confusing to have this along with the classroom features.
