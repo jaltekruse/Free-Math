@@ -227,18 +227,18 @@ class UserActions extends React.Component {
                             let name = docs[0].name;
                             let driveFileId = docs[0].id;
                             downloadFileNoFailureAlert(driveFileId, true, function(content) {
-                                var newDoc = openAssignment(content, name, driveFileId);
+                                openAssignment(content, name, function(newDoc) {
+                                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                        PROBLEMS : newDoc[PROBLEMS],
+                                        ASSIGNMENT_NAME : removeExtension(name)});
 
-                                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                    PROBLEMS : newDoc[PROBLEMS],
-                                    ASSIGNMENT_NAME : removeExtension(name)});
-
-                                window.ephemeralStore.dispatch(
-                                    {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
-                                // turn on confirmation dialog upon navigation away
-                                window.onbeforeunload = checkAllSaved;
-                                window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                    window.ephemeralStore.dispatch(
+                                        {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
+                                    // turn on confirmation dialog upon navigation away
+                                    window.onbeforeunload = checkAllSaved;
+                                    window.location.hash = '';
+                                    document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                }, driveFileId);
                             },
                             function(xhr) {
                                 if (xhr.status === 200) {
@@ -583,18 +583,19 @@ class UserActions extends React.Component {
                             const downloadFile = function(fileId, studentName, submissionId) {
                                 downloadFileNoFailureAlert(fileId, true,
                                     function(response) {
-                                        var newDoc = openAssignment(response, "filename" /* TODO */);
-                                        allStudentWork.push(
-                                            { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
-                                              STUDENT_SUBMISSION_ID: submissionId,
-                                              ASSIGNMENT : newDoc[PROBLEMS]});
-                                        pendingOpens--;
-                                        if (downloadQueue.length > 0) {
-                                            let next = downloadQueue.pop();
-                                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
-                                        } else {
-                                            checkAllDownloaded();
-                                        }
+                                        openAssignment(response, "filename", function(newDoc) {
+                                            allStudentWork.push(
+                                                { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
+                                                  STUDENT_SUBMISSION_ID: submissionId,
+                                                  ASSIGNMENT : newDoc[PROBLEMS]});
+                                            pendingOpens--;
+                                            if (downloadQueue.length > 0) {
+                                                let next = downloadQueue.pop();
+                                                downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
+                                            } else {
+                                                checkAllDownloaded();
+                                            }
+                                        }, /* TODO */);
                                     },
                                     function() { // failure callback
                                         errorsDownloading.push(studentName);
@@ -654,16 +655,17 @@ class UserActions extends React.Component {
             if (appMode === EDIT_ASSIGNMENT) {
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
                 try {
-                    recovered = openAssignment(base64ToArrayBuffer(
+                    openAssignment(base64ToArrayBuffer(
                         window.localStorage.getItem(autoSaveFullName)),
-                        filename);
+                        filename, function(recovered) {
+                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                ASSIGNMENT_NAME : filename,
+                                DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
+                        });
                 } catch (e) {
                     loadLegacyFormat();
                     return;
                 }
-                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                    ASSIGNMENT_NAME : filename,
-                    DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
             } else if (appMode === GRADE_ASSIGNMENTS) {
                 // TODO - NEED a convert to current format here!!
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Grading');

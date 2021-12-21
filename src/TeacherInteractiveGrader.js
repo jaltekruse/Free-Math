@@ -13,7 +13,6 @@ import FreeMathModal from './Modal.js';
 import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
 import { Chart, Bar } from 'react-chartjs-2';
-import { defaults } from 'react-chartjs-2';
 import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
 import Select from "react-select";
 
@@ -1421,103 +1420,122 @@ function makeBackwardsCompatible(newDoc) {
 // TODO - be careful merging in the google branch, changed the signature here to include docId,
 // as this codepath is now used for restoring auto-saves from html5 localStorage, not just reading from files
 function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, googleId = false) {
+
+    var processAllStudentWork = function(allStudentWork) {
+        try {
+            window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
+            // TODO - add back answer key
+            //console.log(allStudentWork);
+            if (allStudentWork.length === 0) {
+                alert("Zip file did not contain any valid Free Math files.");
+                return;
+            }
+            var aggregatedWork = aggregateStudentWork(allStudentWork);
+            console.log("opened docs");
+            //console.log(aggregatedWork);
+
+            // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
+            // from before this call, but defensively re-setting ti anyway. This was previously set as part
+            // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
+            window.ephemeralStore.dispatch(
+                {type : SET_GOOGLE_ID, GOOGLE_ID: googleId});
+
+            window.store.dispatch(
+                { type : SET_ASSIGNMENTS_TO_GRADE,
+                  DOC_ID : docId,
+                  NEW_STATE :
+                    {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
+            onSuccess();
+        } catch (e) {
+            // TODO - try to open a single student doc
+            console.log(e);
+            window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
+            alert("Error opening file, you should be opening a zip file full of Free Math documents.");
+            onFailure();
+            return;
+        }
+    };
     var new_zip = new JSZip();
     var allStudentWork = [];
     var failureCount = 0;
     var badFiles = [];
+
+    // start with one operation to ensure we finish the loop and queue up all files
+    // before we do the follow up action after allimages and the main doc are loaded
+    let operationsStillToFinish = 1;
+
     // try opening file as a single student doc
-    try {
-        // TODO - should I set googleId? Should grading a single student doc save back as a single
-        // student doc file instead of a zip containing a single file?
-        var singleStudentDoc = openAssignment(content, filename);
+    // TODO - should I set googleId? Should grading a single student doc save back as a single
+    // student doc file instead of a zip containing a single file?
+    openAssignment(content, filename, function(singleStudentDoc) {
         allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
-    } catch (ex) {
+    }, function() {
         try {
             // otherwise try to open as a zip full of student docs
-            new_zip.load(content);
 
-            var docCount = 0;
-            for (let file in new_zip.files) {
-                if (new_zip.files.hasOwnProperty(file)) {
-                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
-                    else if (new_zip.file(file) === null) continue;
-                    else docCount++;
+
+            // TODO - add this as callback when all files are loaded
+            let afterAllFilesLoaded = function() {
+                if (failureCount > 0) {
+                    alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
+                    window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
+                    window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
                 }
-            }
-            console.log("opening " + docCount + " files.");
-            // you now have every files contained in the loaded zip
-            for (let file in new_zip.files) {
-                // don't get properties from prototype
-                if (new_zip.files.hasOwnProperty(file)) {
+            };
+
+            var zipPromise = JSZip.loadAsync(content)
+            .then(function(new_zip) {
+                var filePromise;
+
+                console.log(new_zip)
+                var docCount = 0;
+                new_zip.forEach(function (file, zipEntry) {
+                        if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) return;
+                        else if (new_zip.file(file) === null) return;
+                        else docCount++;
+                });
+                console.log("opening " + docCount + " files.");
+                // you now have every files contained in the loaded zip
+                new_zip.forEach(function (file, zipEntry) {
+
                     // extra directory added when zipping files on mac
                     // TODO - check for other things to filter out from zip
                     // files created on other platforms
-                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                    if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) return;
                     // check the extension is .math
                     // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
                     // TODO - disabled because mobile devices were adding .zip. at the end of the filename
                     // still opens fine, but would be good for the extensions to be consistent
                     //if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
                     // filter out directories which are part of this list
-                    if (new_zip.file(file) === null) continue;
-                    try {
-                        var fileContents = new_zip.file(file).asArrayBuffer();
-                        var newDoc = openAssignment(fileContents, file);
-                        //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
-                        allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
+                    if (new_zip.file(file) === null) return;
 
-                        console.log("opened student doc");
-                    } catch (e) {
-                        console.log("failed to parse file: " + file);
-                        console.log(e);
-                        failureCount++;
-                        badFiles.push(file);
-                    }
-                }
-            }
-            if (failureCount > 0) {
-                alert("Failed to open " + failureCount + " student documents.\n" + badFiles.join("\n"));
-                window.ga('send', 'exception', 'error', 'teacher', 'error parsing some student docs', failureCount);
-                window.ga('send', 'exception', { 'exDescription' : 'error parsing ' + failureCount + ' student docs' } );
-            }
+                    operationsStillToFinish++;
+                    var fileContents = new_zip.file(file)
+                        .async("arraybuffer")
+                        .then(function (fileContents) {
+                            openAssignment(fileContents, file, function(newDoc) {
+                                allStudentWork.push({STUDENT_FILE : file, ASSIGNMENT : newDoc[PROBLEMS]});
+                                operationsStillToFinish--;
+                                if (operationsStillToFinish == 0) processAllStudentWork(allStudentWork);
+                                console.log("opened student doc");
+                            });
+                        }, function(e) {
+                            console.log("failed to parse file: " + file);
+                            console.log(e);
+                            failureCount++;
+                            badFiles.push(file);
+                        });
+                });
+                operationsStillToFinish--;
+                if (operationsStillToFinish == 0) processAllStudentWork(allStudentWork);
+            });
         } catch (e) {
+            console.log(e);
             alert("Error opening file, you should be opening a zip file full of Free Math documents, or a single Free Math assignment.");
             window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
         }
-    }
-
-    try {
-        window.ga('send', 'event', 'Actions', 'edit', 'Open docs to grade', allStudentWork.length);
-        // TODO - add back answer key
-        //console.log(allStudentWork);
-        if (allStudentWork.length === 0) {
-            alert("Zip file did not contain any valid Free Math files.");
-            return;
-        }
-        var aggregatedWork = aggregateStudentWork(allStudentWork);
-        console.log("opened docs");
-        //console.log(aggregatedWork);
-
-        // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
-        // from before this call, but defensively re-setting ti anyway. This was previously set as part
-        // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
-        window.ephemeralStore.dispatch(
-            {type : SET_GOOGLE_ID, GOOGLE_ID: googleId});
-
-        window.store.dispatch(
-            { type : SET_ASSIGNMENTS_TO_GRADE,
-              DOC_ID : docId,
-              NEW_STATE :
-                {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
-        onSuccess();
-    } catch (e) {
-        // TODO - try to open a single student doc
-        console.log(e);
-        window.ga('send', 'exception', { 'exDescription' : 'error opening zip full of docs to grade' } );
-        alert("Error opening file, you should be opening a zip file full of Free Math documents.");
-        onFailure();
-        return;
-    }
+    });
 }
 
 // open zip file full of student assignments for grading
@@ -1869,8 +1887,9 @@ class TeacherInteractiveGrader extends React.Component {
             else e.target.style.cursor = 'default';
         }.bind(this);
 
-        defaults.global.defaultFontColor = '#010101';
-        defaults.global.defaultFontSize = 16;
+        // TODO - update to set this correctly in the new version
+        //defaults.global.defaultFontColor = '#010101';
+        //defaults.global.defaultFontSize = 16;
         // todo - figure out the right way to do this
         // todo - do i want to be able to change the sort ordering, possibly to put
         //        the most important to review problem first, rather than just the

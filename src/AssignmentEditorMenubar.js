@@ -169,6 +169,7 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
             var fr = new FileReader();
             fr.addEventListener('load', function() {
                 var data = this.result;
+                console.log("Image added to zip");
                 zip.file(filename, data);
                 imagesBeingAddedToZip--;
             });
@@ -230,9 +231,12 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
             fr.addEventListener('load', function () {
                 var data = this.result;
                 zip.file("mainDoc", data);
+                console.log("mainDoc added to zip");
                 zip.file(INSTRUCTIONS_HIDDEN_IN_ZIP_FILE, "Visit the website freemathapp.org to open this file.");
-                var finalBlob = zip.generate({type: 'blob'});
-                handleFinalBlobCallback(finalBlob);
+                console.log("website info added to zip");
+                var finalBlob = zip.generateAsync({type: 'blob'}).then(
+                    (finalBlob) => handleFinalBlobCallback(finalBlob)
+                );
                 // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!
                 //success(this.result);
             }, false);
@@ -267,73 +271,134 @@ function removeExtension(filename) {
 // can throws exception if thw wrong file type is opened
 // successfully opens both the current zip-based format that allows
 // saving images as well as the old format that was just json in a text file
-function openAssignment(content, filename, driveFileId = false) {
-    var new_zip = new JSZip();
-    try {
-        new_zip.load(content);
+function openAssignment(content, filename, handleFileCallback, handleError, driveFileId = false) {
 
-        // this will be set when we find the file in the zip called mainDoc
-        let newDoc;
-        var images = {};
+    var handleDocAndImages = function(newDoc, images) {
+            //console.log(images);
+        try {
+            newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, probIndex, array) {
+                problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
+                    if (step[FORMAT] === IMG) {
+                        step[CONTENT] = images[probIndex + "_" + stepIndex + "_img"];
+                        //console.log(step[CONTENT]);
+                        // if there was no image set, set the step to the state where students can pick an image
+                        if (!step[CONTENT]) step[CONTENT] = '';
+
+                        var fabricSrc = step[FABRIC_SRC];
+                        if (fabricSrc && fabricSrc[backgroundImage][src]) {
+                            var filename = probIndex + "_" + stepIndex + "_background_img";
+                            //console.log(filename);
+                            step[FABRIC_SRC][backgroundImage][src] = images[filename];
+                        }
+                    }
+                    return step;
+                });
+                return problem;
+            });
+
+            newDoc[ASSIGNMENT_NAME] = removeExtension(filename);
+            handleFileCallback(newDoc);
+        } catch (e) {
+            console.log(e);
+            handleError();
+        }
+    };
+
+    var new_zip = new JSZip();
+    // this will be set when we find the file in the zip called mainDoc
+    let newDoc;
+    var images = {};
+    // start with one operation to ensure we finish the loop and queue up all files
+    // before we do the follow up action after allimages and the main doc are loaded
+    let operationsStillToFinish = 1;
+
+    var zipPromise = JSZip.loadAsync(content)
+    .then(function(new_zip) {
+        var filePromise;
+
+        console.log(new_zip)
         // you now have every files contained in the loaded zip
-        for (var file in new_zip.files) {
-            // don't get properties from prototype
-            if (new_zip.files.hasOwnProperty(file)) {
+        new_zip.forEach(function (file, zipEntry) {
                 // extra directory added when zipping files on mac
                 // TODO - check for other things to filter out from zip
                 // files created on other platforms
-                if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) continue;
+                if (file.indexOf("__MACOSX") > -1 || file.indexOf(".DS_Store") > -1) return;
                 // check the extension is .math
                 // hack for "endsWith" function, this is in ES6 consider using Ployfill instead
                 //if (file.indexOf(".math", file.length - ".math".length) === -1) continue;
                 // filter out directories which are part of this list
-                if (new_zip.file(file) === null) continue;
+                if (zipEntry === null) return;
                 try {
                     if (file === "mainDoc") {
-                        let fileContents = new_zip.file(file).asText();
-                        newDoc = JSON.parse(fileContents);
+                        //let fileContents = zipEntry.asText();
+                        console.log("load mainDoc");
+                        console.log(zipEntry);
+                        operationsStillToFinish++;
+                        if (!filePromise) {
+                            filePromise = zipEntry
+                                .async("string")
+                                .then(function (data) {
+                                    newDoc = JSON.parse(data);
+                                    newDoc = convertToCurrentFormat(newDoc);
+                                    operationsStillToFinish--;
+                                    if (operationsStillToFinish == 0) handleDocAndImages(newDoc, images);
+                                });
+                        } else {
+                            console.log("chain mainDoc");
+                            filePromise = filePromise.then(() => {
+                                filePromise = filePromise.then(() => {
+                                    zipEntry
+                                        .async("string")
+                                        .then(function (data) {
+                                            newDoc = JSON.parse(data);
+                                            newDoc = convertToCurrentFormat(newDoc);
+                                            operationsStillToFinish--;
+                                            if (operationsStillToFinish == 0) handleDocAndImages(newDoc, images);
+                                        });
+                                });
+                            });
+                        }
+
                         // compatibility for old files, need to convert the old proerty names as
                         // well as add the LAST_SHOWN_STEP
-                        newDoc = convertToCurrentFormat(newDoc);
                     } else if (file === INSTRUCTIONS_HIDDEN_IN_ZIP_FILE) {
                         // this is just used to redirect users to the site if they open with a zip viewer
                     } else {
                         // should be an image
-                        let fileContents = new_zip.file(file).asArrayBuffer();
-                        images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                        //let fileContents = new_zip.file(file).asArrayBuffer();
+                        console.log("load image");
+                        operationsStillToFinish++;
+                        if (!filePromise) {
+                            console.log("first load image");
+                            filePromise = zipEntry
+                                .async("arraybuffer")
+                                .then(function (data) {
+                                    images[file] = window.URL.createObjectURL(new Blob([data]));
+                                    operationsStillToFinish--;
+                                    if (operationsStillToFinish == 0) handleDocAndImages(newDoc, images);
+                                });
+                        } else {
+                            console.log("chain image");
+                            filePromise = filePromise.then(() => {
+                                zipEntry
+                                    .async("arraybuffer")
+                                    .then(function (data) {
+                                        images[file] = window.URL.createObjectURL(new Blob([data]));
+                                        operationsStillToFinish--;
+                                        if (operationsStillToFinish == 0) handleDocAndImages(newDoc, images);
+                                    });
+                            });
+                        }
                     }
                 } catch (e) {
                     console.log("failed to parse file: " + file);
                     console.log(e);
                 }
-            }
-        }
-
-        //console.log(images);
-        newDoc[PROBLEMS] = newDoc[PROBLEMS].map(function(problem, probIndex, array) {
-            problem[STEPS] = problem[STEPS].map(function(step, stepIndex, steps) {
-                if (step[FORMAT] === IMG) {
-                    step[CONTENT] = images[probIndex + "_" + stepIndex + "_img"];
-                    //console.log(step[CONTENT]);
-                    // if there was no image set, set the step to the state where students can pick an image
-                    if (!step[CONTENT]) step[CONTENT] = '';
-
-                    var fabricSrc = step[FABRIC_SRC];
-                    if (fabricSrc && fabricSrc[backgroundImage][src]) {
-                        var filename = probIndex + "_" + stepIndex + "_background_img";
-                        //console.log(filename);
-                        step[FABRIC_SRC][backgroundImage][src] = images[filename];
-                    }
-                }
-                return step;
             });
-            return problem;
-        });
-
-        newDoc[ASSIGNMENT_NAME] = removeExtension(filename);
-        return newDoc;
-
-    } catch (e) {
+        // now remove the extra "operation" that was the loop itself
+        operationsStillToFinish--;
+        if (operationsStillToFinish == 0) handleDocAndImages(newDoc, images);
+    }, function(e) {
         console.log(e);
         console.log(filename);
         // this can throw an exception if it is the wrong file type (like a user opened a PDF)
@@ -342,8 +407,8 @@ function openAssignment(content, filename, driveFileId = false) {
             // google drive provides these as strings immediately in the response
             typeof content === 'string' ? content : ab2str(content),
             filename, driveFileId);
-        return newDoc;
-    }
+        handleFileCallback(newDoc);
+    });
 }
 
 function ab2str(buf) {
@@ -371,16 +436,18 @@ export function readSingleFile(evt, driveFileId = false) {
             r.onload = function(e) {
                 try {
                     var contents = e.target.result;
-                    var newDoc = openAssignment(contents, f.name, driveFileId);
+                    openAssignment(contents, f.name,
+                        function(newDoc) {
+                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                PROBLEMS : newDoc[PROBLEMS],
+                                ASSIGNMENT_NAME : removeExtension(f.name)});
 
-                    window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                        PROBLEMS : newDoc[PROBLEMS],
-                        ASSIGNMENT_NAME : removeExtension(f.name)});
+                            window.ephemeralStore.dispatch(
+                                {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
+                            window.ephemeralStore.dispatch(
+                                {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
+                        }, driveFileId);
 
-                    window.ephemeralStore.dispatch(
-                        {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
-                    window.ephemeralStore.dispatch(
-                        {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
                 } catch (e) {
                     console.log(e);
                     window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
