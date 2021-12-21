@@ -690,7 +690,7 @@ class ImageStep extends React.Component {
                                         disabled={step[FABRIC_SRC]}
                                         onClick={function() {
                                             if (this.state.cropping) {
-                                                handleImgUrl(this.cropper.getCroppedCanvas().toDataURL(),
+                                                handleImgUrl(this.cropper.cropper.getCroppedCanvas().toDataURL(),
                                                              stepIndex, problemIndex, steps);
                                                 this.setState({cropping : false});
                                             } else {
