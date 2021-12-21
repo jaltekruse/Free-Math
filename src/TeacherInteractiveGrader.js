@@ -12,7 +12,12 @@ import { CloseButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
-import { Chart, Bar } from 'react-chartjs-2';
+
+// TODO - tree shaking
+// https://react-chartjs-2.netlify.app/docs/migration-to-v4/
+import 'chart.js/auto';
+import { Chart, Bar} from 'react-chartjs-2';
+
 import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
 import Select from "react-select";
 
