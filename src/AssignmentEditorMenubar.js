@@ -234,7 +234,7 @@ function saveAssignmentWithImages(studentDoc, handleFinalBlobCallback) {
                 console.log("mainDoc added to zip");
                 zip.file(INSTRUCTIONS_HIDDEN_IN_ZIP_FILE, "Visit the website freemathapp.org to open this file.");
                 console.log("website info added to zip");
-                var finalBlob = zip.generateAsync({type: 'blob'}).then(
+                zip.generateAsync({type: 'blob'}).then(
                     (finalBlob) => handleFinalBlobCallback(finalBlob)
                 );
                 // TODO FIXME - ACTUALLY WAIT FOR ALL IMAGES TO BE LOADED!!!

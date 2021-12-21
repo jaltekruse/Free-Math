@@ -883,8 +883,9 @@ function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = funct
     // TODO - this pattern doesn't work as intended
     var checkFilesLoaded = function() {
         if (filesBeingAddedToZip === 0) {
-            var finalBlob = zip.generate({type: 'blob'});
-            handleFinalBlobCallback(finalBlob);
+            zip.generateAsync({type: 'blob'}).then(
+                (finalBlob) => handleFinalBlobCallback(finalBlob)
+            );
         } else {
             // if not all of the images are loaded, check again in 50 milliseconds
             setTimeout(checkFilesLoaded, 50);
@@ -2006,11 +2007,9 @@ class TeacherInteractiveGrader extends React.Component {
                         }}
                         options={{
                             scales: {
-                                yAxes: [{
-                                    ticks: {
-                                        beginAtZero:true
-                                    }
-                                }]
+                                y: {
+                                    beginAtZero:true
+                                }
                             },
                             onClick: onClickFunc,
                             hover: {
