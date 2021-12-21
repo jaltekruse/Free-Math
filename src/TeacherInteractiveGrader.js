@@ -1475,6 +1475,8 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
     // student doc file instead of a zip containing a single file?
     openAssignment(content, filename, function(singleStudentDoc) {
         allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
+        operationsStillToFinish--;
+        if (operationsStillToFinish == 0) processAllStudentWork(allStudentWork);
     }, function() {
         try {
             // otherwise try to open as a zip full of student docs

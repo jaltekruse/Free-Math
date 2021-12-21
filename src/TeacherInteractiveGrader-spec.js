@@ -260,7 +260,8 @@ it('test separate assignments', () => {
             zip.file(filename, JSON.stringify(separatedAssignments[filename]));
         }
     }
-    var content = zip.generate();
+    // TODO - generateAsyc
+    //var content = zip.generate();
     //location.href="data:application/zip;base64," + content;
 });
 
