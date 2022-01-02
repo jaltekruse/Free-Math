@@ -113,34 +113,38 @@ window.onload = function() {
                         // file metadata reponse payload in an alert
                         //
                         // temp doc name is overwritten below after getting file metadata from drive
-                        var newDoc = openAssignment(content, "temp doc name", driveFileId);
-                        downloadFileMetadata(driveFileId,
-                            function(response) {
-                                window.ephemeralStore.dispatch(
-                                    { type : MODIFY_GLOBAL_WAITING_MSG,
-                                      GLOBAL_WAITING_MSG: false});
-                                if (!response[capabilities][canEdit]) {
-                                    // TODO - search assignments to find which one is associated with the file
-                                    // to allow making the request for user to unsubmit right here, instead of
-                                    // sending them back to the classroom interface
-                                    //
-                                    // Unfortunately this will require repeated network requests so for now I
-                                    // will skip it
-                                    alert('Cannot edit, you may need to unsubmit over in google ' +
-                                          'classroom or ask for edit permissions from the owner.');
-                                }
-                                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                    PROBLEMS : newDoc[PROBLEMS],
-                                    ASSIGNMENT_NAME : removeExtension(response[title])});
+                        openAssignment(content, "temp doc name", function(newDoc) {
+                                downloadFileMetadata(driveFileId,
+                                    function(response) {
+                                        window.ephemeralStore.dispatch(
+                                            { type : MODIFY_GLOBAL_WAITING_MSG,
+                                              GLOBAL_WAITING_MSG: false});
+                                        if (!response[capabilities][canEdit]) {
+                                            // TODO - search assignments to find which one is associated with the file
+                                            // to allow making the request for user to unsubmit right here, instead of
+                                            // sending them back to the classroom interface
+                                            //
+                                            // Unfortunately this will require repeated network requests so for now I
+                                            // will skip it
+                                            alert('Cannot edit, you may need to unsubmit over in google ' +
+                                                  'classroom or ask for edit permissions from the owner.');
+                                        }
+                                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                            PROBLEMS : newDoc[PROBLEMS],
+                                            ASSIGNMENT_NAME : removeExtension(response[title])});
 
-                                window.ephemeralStore.dispatch(
-                                    {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
-                                // turn on confirmation dialog upon navigation away
-                                window.onbeforeunload = checkAllSaved;
-                                window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                        window.ephemeralStore.dispatch(
+                                            {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
+                                        // turn on confirmation dialog upon navigation away
+                                        window.onbeforeunload = checkAllSaved;
+                                        window.location.hash = '';
+                                        document.body.scrollTop = document.documentElement.scrollTop = 0;
+                                    },
+                                    errorCallback);
                             },
-                            errorCallback);
+                            function(e) {
+                                errorCallback(); // TODO test
+                            }, driveFileId);
                     },
                     errorCallback
                 );

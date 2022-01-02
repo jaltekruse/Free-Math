@@ -431,32 +431,32 @@ export function readSingleFile(evt, driveFileId = false) {
     //Retrieve the first (and only!) File from the FileList object
     var f = evt.target.files[0];
 
+    let onError = function(e) {
+        console.log(e);
+        window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
+        alert("Error reading the file, Free Math can only read files with a .math extension that it creates.\n\n" +
+            "Your browser might be holding on to an old version of the site, try a hard refresh with " +
+            "Ctrl-Shift-R (Windows/Chromebooks) or Command-Shift-R (Mac) to see if that fixes it.\n\n" +
+            "If that doesn't fix it, and you saved this file with Free Math please send it to " +
+            "developers@freemathapp.org to allow us to debug the issue.");
+    };
+
     if (f) {
             var r = new FileReader();
             r.onload = function(e) {
-                try {
-                    var contents = e.target.result;
-                    openAssignment(contents, f.name,
-                        function(newDoc) {
-                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                PROBLEMS : newDoc[PROBLEMS],
-                                ASSIGNMENT_NAME : removeExtension(f.name)});
+                var contents = e.target.result;
+                openAssignment(contents, f.name,
+                    function(newDoc) {
+                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                            PROBLEMS : newDoc[PROBLEMS],
+                            ASSIGNMENT_NAME : removeExtension(f.name)});
 
-                            window.ephemeralStore.dispatch(
-                                {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
-                            window.ephemeralStore.dispatch(
-                                {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
-                        }, driveFileId);
-
-                } catch (e) {
-                    console.log(e);
-                    window.ga('send', 'exception', { 'exDescription' : 'error opening student file' } );
-                    alert("Error reading the file, Free Math can only read files with a .math extension that it creates.\n\n" +
-                        "Your browser might be holding on to an old version of the site, try a hard refresh with " +
-                        "Ctrl-Shift-R (Windows/Chromebooks) or Command-Shift-R (Mac) to see if that fixes it.\n\n" +
-                        "If that doesn't fix it, and you saved this file with Free Math please send it to " +
-                        "developers@freemathapp.org to allow us to debug the issue.");
-                }
+                        window.ephemeralStore.dispatch(
+                            {type : SET_GOOGLE_ID, GOOGLE_ID: driveFileId});
+                        window.ephemeralStore.dispatch(
+                            {type : SET_GOOGLE_DRIVE_STATE, GOOGLE_DRIVE_STATE : ALL_SAVED});
+                    },
+                    function(e) {onError(e)}, driveFileId);
         }
         r.readAsArrayBuffer(f);
     } else {

@@ -323,39 +323,40 @@ function saveStudentDocToDriveResolvingConflicts(
         } else {
             downloadFile(googleId, true,
                 function(response) {
-                    var conflictingDoc = openAssignment(response, "filename" /* TODO */);
-                    // this does deliberately go grab the app state again, it is called
-                    // after a 2 second timeout below, want to let edit build up for 2 seconds
-                    // and then at the end of that we want to auto-save whatever is the current state
-                    var currentLocalDoc = docContentCallback();
+                    openAssignment(response, "filename", function(conflictingDoc) {
+                        // this does deliberately go grab the app state again, it is called
+                        // after a 2 second timeout below, want to let edit build up for 2 seconds
+                        // and then at the end of that we want to auto-save whatever is the current state
+                        var currentLocalDoc = docContentCallback();
 
-                    // might not be in the right app state by the time the request to fetch the conflicting doc returns
-                    // if so, abort the save
-                    if (getPersistentState()[APP_MODE] !== currentAppMode) {
-                        onFailure();
-                        return;
-                    }
-
-                    var mergedDoc;
-                    var conflictUnresolvable = false;
-                    try {
-                        if (currentlyStudent) {
-                            mergedDoc = merge(currentLocalDoc, conflictingDoc);
-                        } else {
-                            mergedDoc = merge(conflictingDoc, currentLocalDoc);
+                        // might not be in the right app state by the time the request to fetch the conflicting doc returns
+                        // if so, abort the save
+                        if (getPersistentState()[APP_MODE] !== currentAppMode) {
+                            onFailure();
+                            return;
                         }
-                        handleMergedDoc(mergedDoc)
-                    } catch (e) {
-                        conflictUnresolvable = true;
-                        mergedDoc = currentLocalDoc;
-                    }
 
-                    saveToDrive(mergedDoc);
-                    if (conflictUnresolvable) {
-                        alert(fileMeta.lastModifyingUser.displayName +
-                            " has modified this file in Drive, whatever they changed will" +
-                            " be overwritten with the document as you are currently viewing it.");
-                    }
+                        var mergedDoc;
+                        var conflictUnresolvable = false;
+                        try {
+                            if (currentlyStudent) {
+                                mergedDoc = merge(currentLocalDoc, conflictingDoc);
+                            } else {
+                                mergedDoc = merge(conflictingDoc, currentLocalDoc);
+                            }
+                            handleMergedDoc(mergedDoc)
+                        } catch (e) {
+                            conflictUnresolvable = true;
+                            mergedDoc = currentLocalDoc;
+                        }
+
+                        saveToDrive(mergedDoc);
+                        if (conflictUnresolvable) {
+                            alert(fileMeta.lastModifyingUser.displayName +
+                                " has modified this file in Drive, whatever they changed will" +
+                                " be overwritten with the document as you are currently viewing it.");
+                        }
+                    });
                 }
             );
         }
