@@ -343,6 +343,7 @@ class WebcamCapture extends React.Component {
                   ?
                   <FreeMathModal
                     showModal={this.state.takingPicture}
+                    closeModal={() => this.setState({takingPicture : false})}
                     content={(
                   <span>
                   <br />
