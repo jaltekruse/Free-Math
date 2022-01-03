@@ -22,14 +22,11 @@ class FreeMathModal extends React.Component {
     render() {
 
         let showModal = this.props.showModal;
-        const modalStyle = {
-        };
 
         const backdropStyle = {
-            ...modalStyle,
             position: 'fixed',
             top: 0, bottom: 0, left: 0, right: 0,
-            zIndex: 1041,
+            zIndex: 1040,
             backgroundColor: '#000',
             opacity: 0.5
         };
@@ -47,7 +44,7 @@ class FreeMathModal extends React.Component {
             backgroundColor: 'white',
             boxShadow: '0 5px 15px rgba(0,0,0,.5)',
             padding: 20,
-            zIndex: 1042
+            zIndex: 1040
           };
         };
         const contentComponent = this.props.content;
@@ -57,12 +54,10 @@ class FreeMathModal extends React.Component {
                   aria-labelledby='modal-label'
                   show={showModal}
                   onHide={closeModal}
-                  style={modalStyle}
+                  style={dialogStyle()}
                   renderBackdrop={(props) => <div {...props} style={backdropStyle} onClick={closeModal}/>}
                 >
-                  <div style={dialogStyle()} >
                     {contentComponent}
-                  </div>
                 </Modal>
         );
     }

@@ -91,7 +91,8 @@ class Assignment extends React.Component {
                         }.bind(this)}
                 showModal={this.state.showModal &&
                             ( probList[currProblem][SHOW_TUTORIAL]
-                              || probList[currProblem][SHOW_IMAGE_TUTORIAL] )}
+                              || probList[currProblem][SHOW_IMAGE_TUTORIAL]
+                              || probList[currProblem][SHOW_DRAWING_TUTORIAL])}
                 content={(
                     <div>
                         <iframe title="Free Math Video"
@@ -217,7 +218,7 @@ class Assignment extends React.Component {
                     addProblem();
                 }}/>
             </div>
-            {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL]) ?
+            {(probList[currProblem][SHOW_TUTORIAL] || probList[currProblem][SHOW_IMAGE_TUTORIAL] || probList[currProblem][SHOW_DRAWING_TUTORIAL]) ?
                     (<Button text="Reopen Demo Video"
                         style={{marginRight: "15px", marginBottom: "0px", borderRadius: "15px 15px 0px 0px", backgroundColor: "#dc0031"}}
                         title="Reopen Demo Video"
