@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import TeX from './TeX.js';
+import MathQuillStatic from './MathQuillStatic.js';
 import SolutionGrader, { singleSolutionReducer } from './SolutionGrader.js';
 
 var SOLUTION_INDEX = "SOLUTION_INDEX";
@@ -108,9 +108,11 @@ class SolutionClassGrader extends React.Component {
                 {/*<input type="submit" className="show-all-common-answers" name="show all" value="show all"/>*/}
                 {/*<input type="submit" className="hide-all-common-answers" name="hide all" value="hide all"/>*/}
                 <p> {message}</p>
-                <TeX>{typeof(studentFinalAnswer) === 'string'
+                <MathQuillStatic tex={typeof(studentFinalAnswer) === 'string'
                     ? studentFinalAnswer
-                    : "\\text{corruption occured}"}</TeX>
+                    : "\\text{corruption occured}"}>
+                </MathQuillStatic>
+                <br />
                 {
                     data[STUDENT_WORK].map(function(studentSolution, studentSolutionIndex) {
                         if (studentsToView === undefined

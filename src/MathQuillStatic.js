@@ -5,8 +5,11 @@ var MathQuill = window.MathQuill;
 class MathQuillStatic extends React.Component {
     render() {
         const tex = this.props.tex;
+        console.log(this.props.style);
         return (
-            <span ref="staticMath">{tex}</span>
+            <div style={{ ...this.props.style, display:"inline-block"}} onClick={this.props.onClick}>
+                <span ref="staticMath">{tex}</span>
+            </div>
         );
     };
 

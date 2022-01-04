@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import TeX from './TeX.js';
+import MathQuillStatic from './MathQuillStatic.js';
 import Button from './Button.js';
 import { getPersistentState } from './FreeMath.js';
 import { openDrawing } from './Problem.js';
@@ -316,17 +316,19 @@ class StudentWork extends React.Component {
                                     </div>
                                 :
                                 <div className="student-step-grader">
-                                    <TeX style={stepStyle} onClick={function() {
+                                    <MathQuillStatic style={stepStyle} onClick={function() {
                                         window.store.dispatch({ type : HIGHLIGHT_STEP,
                                                         PROBLEM_NUMBER : problemNumber,
                                                         SOLUTION_CLASS_INDEX : solutionClassIndex,
                                                         SOLUTION_INDEX : studentSolutionIndex,
                                                         STEP_KEY : stepIndex});
-                                        }}>
-                                        {typeof(step[CONTENT]) === 'string'
-                                            ? step[CONTENT]
-                                            : "\\text{corruption occured}"}
-                                    </TeX>
+                                        }}
+                                        tex={
+                                            typeof(step[CONTENT]) === 'string'
+                                                ? step[CONTENT]
+                                                : "\\text{corruption occured}"
+                                        }>
+                                    </MathQuillStatic>
                                 </div>
                             }
                             </div>
