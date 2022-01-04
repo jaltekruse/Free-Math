@@ -83,10 +83,9 @@ function loadDemoGrading () {
             try {
                 console.log(this.response);
                 loadStudentDocsFromZip(this.response, 'student_submission_demo',
-                    function() {closeSpinner();},
+                    function() {closeSpinner(); window.store.dispatch({type: SET_SHOW_TUTORIAL});},
                     function() {closeSpinner()},
                     false);
-                window.store.dispatch({type: SET_SHOW_TUTORIAL});
              } catch (e) {
                  console.log(e);
                  closeSpinner();

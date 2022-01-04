@@ -2,13 +2,14 @@ import React from 'react';
 import _ from 'underscore';
 import JSZip from 'jszip';
 import { diffJson } from 'diff';
+import TeX from './TeX.js';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { scaleScore } from './SolutionGrader.js';
 import { cloneDeep, genID, getPersistentState,
          getEphemeralState, saveStudentDocToDriveResolvingConflicts } from './FreeMath.js';
 import Button from './Button.js';
-import { CloseButton } from './Button.js';
+import { CloseButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
@@ -1854,46 +1855,14 @@ class TeacherInteractiveGrader extends React.Component {
             largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
-        var onClickFunc = function(evt) {
-            let chart = this.chartRef.current.chartInstance
-            var activePoints = chart.getElementsAtEvent(evt);
-            var problemNum;
-            if (!activePoints || activePoints.length === 0) {
-                // TODO - this could be better, collision isn't quite right once the text labels
-                // are tight enough they start displaying at an angle.
-                let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
-                let yScale = chart.scales['y-axis-0'];
-                if (yScale.getValueForPixel(mousePoint.y) < 0) {
-                    let mousePoint = Chart.helpers.getRelativePosition(evt, chart.chart);
-                    let xScale = chart.scales['x-axis-0'];
-                    problemNum = xScale.ticks[xScale.getValueForPixel(mousePoint.x)];
-                } else {
-                    return;
-                }
-            } else {
-                problemNum = labels[activePoints[0]["_index"]];
-            }
-            problemNum = problemNum.replace("Problem ", "");
-            window.ga('send', 'event', 'Actions', 'edit',
-                'Change problem being graded');
-            window.ephemeralStore.dispatch({ type : SET_CURRENT_PROBLEM,
-                                    CURRENT_PROBLEM : problemNum});
-        }.bind(this);
 
-        const onHover = function(e) {
-            let chart = this.chartRef.current.chartInstance
-            var point = chart.getElementAtEvent(e);
-            let mousePoint = Chart.helpers.getRelativePosition(e, chart.chart);
-            let yScale = chart.scales['y-axis-0'];
-            // detect if hitting an element, in this case one of the bars,
-            // or if anywhere below the graph where users can click on the
-            // labels to also select problems
-            if (point.length ||
-                  yScale.getValueForPixel(mousePoint.y) < 0) {
-                e.target.style.cursor = 'pointer';
-            }
-            else e.target.style.cursor = 'default';
-        }.bind(this);
+        var currProblem = this.props.value["CURRENT_PROBLEM"];
+        // clean up defensively, this same property is used for the teacher view or student view
+        // but here it represents a string typed as a problem number, but for students it is an
+        // integer index into the list of problems
+        if (typeof currProblem !== 'string' || typeof gradingOverview[currProblem] === 'undefined') {
+            currProblem = this.props.value[GRADING_OVERVIEW][PROBLEMS][0][PROBLEM_NUMBER];
+        }
 
         // TODO - update to set this correctly in the new version
         //defaults.global.defaultFontColor = '#010101';
@@ -1999,36 +1968,60 @@ class TeacherInteractiveGrader extends React.Component {
                             this.setState({showModal: true});
                         }.bind(this)}/>
                     ) : null}
-                <h3>To see student responses to a question,
-                    click on the corresponding bars or label in the graph.</h3>
-                <Bar width="400" height="70"
-                        ref={this.chartRef}
-                        data={{
-                            labels: labels,
-                            datasets: graphData
-                        }}
-                        options={{
-                            scales: {
-                                y: {
-                                    beginAtZero:true
-                                }
-                            },
-                            onClick: onClickFunc,
-                            hover: {
-                                onHover: onHover
-                            }
-                        }}
-                />
+
+            {gradingOverview.map(function(problem, problemIndex) {
+                console.log("render a problem tab: " + problem[PROBLEM_NUMBER]);
+                console.log(problem);
+                var probNum = problem[PROBLEM_NUMBER];
+                var label;
+                if (probNum.trim() !== '') {
+                    if (gradingOverview.length < 8) {
+                        label = "Problem " + probNum;
+                    } else  if (gradingOverview.length < 12) {
+                        label = "Prob " + probNum;
+                    } else {
+                        label = "P " + probNum;
+                    }
+                } else {
+                    label = "[Need to Set a Problem Number]";
+                }
+                let topAnswer = this.props.value[PROBLEMS][probNum][UNIQUE_ANSWERS][0][ANSWER];
+                console.log(label);
+                return (
+                        <HtmlButton text={label} title={"View " + label} key={problemIndex} id={problemIndex}
+                            className={"fm-button-right fm-button-left fm-button fm-tab " + ((problemIndex === currProblem) ? "fm-tab-selected" : "")}
+                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px"}}
+                            onClick={function() {
+                                window.ephemeralStore.dispatch(
+                                    {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probNum})}}
+                            content={
+                                (<div>
+                                    <h3>{label}</h3>
+                                    Top Answer &nbsp; (
+                                    {problem["LARGEST_ANSWER_GROUP_SIZE"]} of
+                                    &nbsp;
+                                    {Math.round(problem["NUMBER_UNIQUE_ANSWERS"]
+                                                  * problem["AVG_ANSWER_GROUP_SIZE"])})
+                                        {<TeX>{typeof(topAnswer) === 'string'
+                                            ? topAnswer
+                                            : "\\text{}"}</TeX>
+                                        }
+                                </div>)}
+                        />
+                );
+            }.bind(this))}
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
-                <AllProblemGraders value={this.props.value}/>
-                <h3>To grade other problems use the bar graph at the top of the page to select them.</h3>
-                <Button text="Scroll to Top" onClick={
-                            function() {
-                                window.location.hash = '';
-                                document.body.scrollTop = document.documentElement.scrollTop = 0;}
-                }/>
+                <div style={{border: "1px solid", padding: "15px"}}>
+                    <AllProblemGraders value={this.props.value}/>
+                    <h3>To grade other problems select them at the top of the page.</h3>
+                    <Button text="Scroll to Top" onClick={
+                                function() {
+                                    window.location.hash = '';
+                                    document.body.scrollTop = document.documentElement.scrollTop = 0;}
+                    }/>
+                </div>
                 <br />
                 <br />
             </div>
