@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-//import TeX from './TeX.js';
 import MathQuillStatic from './MathQuillStatic.js';
 import Button from './Button.js';
 import { getPersistentState } from './FreeMath.js';
