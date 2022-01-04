@@ -131,6 +131,8 @@ const symbolGroups = {
             input.cmd("\\overleftrightarrow");
         }},
         /* not in katex */
+        /* MathQuillStatic compoent currenty doesn't work on buttons, closes math keyboard. For now, just
+            copying out the html from rendered mathquill as workaround*/
         {toType:"\\overarc [Enter]", tex:"\\overarc{AB}", htmlComponent:
             (<span className="mq-math-mode">
                 <span className="mq-selectable">{"\\overarc{AB}"}</span>
