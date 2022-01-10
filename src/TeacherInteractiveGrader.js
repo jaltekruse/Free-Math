@@ -16,8 +16,10 @@ import { Chart, Bar } from 'react-chartjs-2';
 import { defaults } from 'react-chartjs-2';
 import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
 import Select from "react-select";
+import replaceSpecialCharsWithLatex from './LatexCommandsFixup.js';
 
 var KAS = window.KAS;
+var katex = window.katex;
 
 var APP_MODE = 'APP_MODE';
 
@@ -1219,14 +1221,16 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
-    var ret = replaceSpecialCharsWithLatex(
+    var ret = fixupBadMathQuillOutput(
                 convertToCurrentFormat2(
                     convertToCurrentFormatFromAlpha(possiblyOldDoc)));
     ret[CURRENT_PROBLEM] = 0;
     return ret;
 }
 
-function replaceSpecialCharsWithLatex(possiblyOldDoc) {
+function fixupBadMathQuillOutput(possiblyOldDoc) {
+    console.log("!@#$@#$!@#$!$@#$");
+    console.log(katex);
     if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
         && possiblyOldDoc[PROBLEMS].length > 0) {
         // TODO - consider getting rid of this deep clone, but not much object creation
@@ -1235,95 +1239,10 @@ function replaceSpecialCharsWithLatex(possiblyOldDoc) {
         possiblyOldDoc[PROBLEMS] = possiblyOldDoc[PROBLEMS].map(function (problem) {
             problem[STEPS] = problem[STEPS].map(function (step) {
                 var orig = step[CONTENT];
+                //console.log(katex.renderToString(orig));
                 // TODO - from katex - No character metrics for '∉' in style 'Main-Regular'
-                step[CONTENT] = step[CONTENT].replace(/−/g, '-');
-                step[CONTENT] = step[CONTENT].replace(/⋅/g, '\\cdot');
-                step[CONTENT] = step[CONTENT].replace(/÷/g, '\\div');
-                // yes these are different characers... TODO actually maybe not
-                //step[CONTENT] = step[CONTENT].replace(/=/g, '=');
-                step[CONTENT] = step[CONTENT].replace(/π/g, '\\pi');
-                step[CONTENT] = step[CONTENT].replace(/∣/g, '\\vert');
-                step[CONTENT] = step[CONTENT].replace(/≥/g, '\\ge');
-                step[CONTENT] = step[CONTENT].replace(/≤/g, '\\le');
-                step[CONTENT] = step[CONTENT].replace(/≈/g, '\\approx');
-                step[CONTENT] = step[CONTENT].replace(/∝/g, '\\propto');
-                step[CONTENT] = step[CONTENT].replace(/±/g, '\\pm');
-                step[CONTENT] = step[CONTENT].replace(/⟨/g, '\\left\\langle');
-                step[CONTENT] = step[CONTENT].replace(/⟩/g, '\\right\\rangle');
-                step[CONTENT] = step[CONTENT].replace(/△/g, '\\triangle');
-                step[CONTENT] = step[CONTENT].replace(/⊙/g, '\\odot');
-                step[CONTENT] = step[CONTENT].replace(/◯/g, '\\bigcirc');
-                step[CONTENT] = step[CONTENT].replace(/°/g, '\\degree');
-                step[CONTENT] = step[CONTENT].replace(/∠/g, '\\angle');
-                step[CONTENT] = step[CONTENT].replace(/∡/g, '\\measuredangle');
-                step[CONTENT] = step[CONTENT].replace(/≡/g, '\\equiv');
-                step[CONTENT] = step[CONTENT].replace(/≅/g, '\\cong');
-                step[CONTENT] = step[CONTENT].replace(/⊥/g, '\\perp');
-                step[CONTENT] = step[CONTENT].replace(/∥/g, '\\parallel');
-                step[CONTENT] = step[CONTENT].replace(/≃/g, '\\simeq');
-                step[CONTENT] = step[CONTENT].replace(/∼/g, '\\sim');
-                step[CONTENT] = step[CONTENT].replace(/∀/g, '\\forall');
-                step[CONTENT] = step[CONTENT].replace(/∴/g, '\\therefore');
-                step[CONTENT] = step[CONTENT].replace(/∵/g, '\\because');
-                step[CONTENT] = step[CONTENT].replace(/∈/g, '\\in');
-                step[CONTENT] = step[CONTENT].replace(/∉/g, '\\notin');
-                step[CONTENT] = step[CONTENT].replace(/∄/g, '\\nexists');
-                step[CONTENT] = step[CONTENT].replace(/∃/g, '\\exists');
-                step[CONTENT] = step[CONTENT].replace(/¬/g, '\\neg');
-                step[CONTENT] = step[CONTENT].replace(/∨/g, '\\lor');
-                step[CONTENT] = step[CONTENT].replace(/∧/g, '\\land');
-                step[CONTENT] = step[CONTENT].replace(/→/g, '\\to');
-                step[CONTENT] = step[CONTENT].replace(/←/g, '\\gets');
-                step[CONTENT] = step[CONTENT].replace(/∪/g, '\\cup');
-                step[CONTENT] = step[CONTENT].replace(/∩/g, '\\cap');
-                step[CONTENT] = step[CONTENT].replace(/⊂/g, '\\subset');
-                step[CONTENT] = step[CONTENT].replace(/⊆/g, '\\subseteq');
-                step[CONTENT] = step[CONTENT].replace(/⊃/g, '\\supset');
-                step[CONTENT] = step[CONTENT].replace(/⊇/g, '\\supseteq');
-                step[CONTENT] = step[CONTENT].replace(/∫/g, '\\int');
-                step[CONTENT] = step[CONTENT].replace(/∮/g, '\\oint');
-                step[CONTENT] = step[CONTENT].replace(/∂/g, '\\partial');
-                step[CONTENT] = step[CONTENT].replace(/∑/g, '\\sum');
-                step[CONTENT] = step[CONTENT].replace(/∏/g, '\\prod');
-                step[CONTENT] = step[CONTENT].replace(/∞/g, '\\infty');
-                step[CONTENT] = step[CONTENT].replace(/′/g, "'");
-
-                step[CONTENT] = step[CONTENT].replace(/α/g,"\\alpha");
-                step[CONTENT] = step[CONTENT].replace(/β/g,"\\beta");
-                step[CONTENT] = step[CONTENT].replace(/γ/g,"\\gamma");
-                step[CONTENT] = step[CONTENT].replace(/Γ/g,"\\Gamma");
-                step[CONTENT] = step[CONTENT].replace(/δ/g,"\\delta");
-                step[CONTENT] = step[CONTENT].replace(/Δ/g,"\\Delta");
-                step[CONTENT] = step[CONTENT].replace(/ϵ/g,"\\epsilon");
-                step[CONTENT] = step[CONTENT].replace(/ϝ/g,"\\digamma");
-                step[CONTENT] = step[CONTENT].replace(/ζ/g,"\\zeta");
-                step[CONTENT] = step[CONTENT].replace(/η/g,"\\eta");
-                step[CONTENT] = step[CONTENT].replace(/θ/g,"\\theta");
-                step[CONTENT] = step[CONTENT].replace(/Θ/g,"\\Theta");
-                step[CONTENT] = step[CONTENT].replace(/ι/g,"\\iota");
-                step[CONTENT] = step[CONTENT].replace(/κ/g,"\\kappa");
-                step[CONTENT] = step[CONTENT].replace(/λ/g,"\\lambda");
-                step[CONTENT] = step[CONTENT].replace(/Λ/g,"\\Lambda");
-                step[CONTENT] = step[CONTENT].replace(/μ/g,"\\mu");
-                step[CONTENT] = step[CONTENT].replace(/ν/g,"\\nu");
-                step[CONTENT] = step[CONTENT].replace(/ξ/g,"\\xi");
-                step[CONTENT] = step[CONTENT].replace(/Ξ/g,"\\Xi");
-                step[CONTENT] = step[CONTENT].replace(/π/g,"\\pi");
-                step[CONTENT] = step[CONTENT].replace(/Π/g,"\\Pi");
-                step[CONTENT] = step[CONTENT].replace(/ρ/g,"\\rho");
-                step[CONTENT] = step[CONTENT].replace(/ϱ/g,"\\varrho");
-                step[CONTENT] = step[CONTENT].replace(/σ/g,"\\sigma");
-                step[CONTENT] = step[CONTENT].replace(/Σ/g,"\\Sigma");
-                step[CONTENT] = step[CONTENT].replace(/τ/g,"\\tau");
-                step[CONTENT] = step[CONTENT].replace(/υ/g,"\\upsilon");
-                step[CONTENT] = step[CONTENT].replace(/ϒ/g,"\\Upsilon");
-                step[CONTENT] = step[CONTENT].replace(/ϕ/g,"\\phi");
-                step[CONTENT] = step[CONTENT].replace(/Φ/g,"\\Phi");
-                step[CONTENT] = step[CONTENT].replace(/χ/g,"\\chi");
-                step[CONTENT] = step[CONTENT].replace(/ψ/g,"\\psi");
-                step[CONTENT] = step[CONTENT].replace(/Ψ/g,"\\Psi");
-                step[CONTENT] = step[CONTENT].replace(/ω/g,"\\omega");
-                step[CONTENT] = step[CONTENT].replace(/Ω/g,"\\Omega");
+                step[CONTENT] = replaceSpecialCharsWithLatex(step[CONTENT]);
+                console.log(katex.__parse(step[CONTENT]));
 
                 if (step[CONTENT] !== orig) {
                     console.log("changing special chars to latex");
