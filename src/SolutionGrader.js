@@ -281,7 +281,7 @@ class StudentWork extends React.Component {
         var studentSolutionIndex = this.props.id;
         var viewingSimilarGroup = this.props.viewingSimilarGroup;
         return (
-            <div style={{float:"left", minWidth: "400px", maxWidth:"750px"}}>
+            <div style={{float:"left", minWidth: "400px"}}>
                 {
                 data[STEPS].map(function(step, stepIndex) {
                     var stepStyle = {};

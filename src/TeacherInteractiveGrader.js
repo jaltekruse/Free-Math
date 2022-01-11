@@ -1912,7 +1912,10 @@ class TeacherInteractiveGrader extends React.Component {
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
                 <AllProblemGraders value={this.props.value}/>
-                <h3>To grade other problems use the bar graph at the top of the page to select them.</h3>
+                <h3 style={{clear:"left"}}>
+                    To grade other problems use the bar graph at the top of
+                    the page to select them.
+                </h3>
                 <Button text="Scroll to Top" onClick={
                             function() {
                                 window.location.hash = '';

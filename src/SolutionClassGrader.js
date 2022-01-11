@@ -104,10 +104,14 @@ class SolutionClassGrader extends React.Component {
         return (
             <div>
             { !anyAnswersShowing ? null :
-            (<div className="similar-student-answers" style={{float:"none",overflow:"hidden"}} >
+            (<div className="similar-student-answers" style={{float:"none"}} >
                 {/*<input type="submit" className="show-all-common-answers" name="show all" value="show all"/>*/}
                 {/*<input type="submit" className="hide-all-common-answers" name="hide all" value="hide all"/>*/}
-                <p> {message}</p>
+
+                <p style={{clear:"left"}}>
+                    <br />
+                    {message}
+                </p>
                 <MathQuillStatic tex={typeof(studentFinalAnswer) === 'string'
                     ? studentFinalAnswer
                     : "\\text{corruption occured}"}>
