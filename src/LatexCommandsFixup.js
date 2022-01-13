@@ -9,8 +9,6 @@ Object.keys(commandsLookup).map(function(key, index) {
 function replaceSpecialCharsWithLatex(str) {
     for (let cmd in commandsLookupRegexes) {
         if (commandsLookupRegexes.hasOwnProperty(cmd)) {
-            console.log(cmd);
-            console.log(commandsLookupRegexes[cmd]);
             str = str.replace(commandsLookupRegexes[cmd], cmd);
         }
     }
