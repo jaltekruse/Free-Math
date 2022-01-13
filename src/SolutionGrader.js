@@ -289,7 +289,16 @@ class StudentWork extends React.Component {
                     else if (step[HIGHLIGHT] === SUCCESS) stepStyle = {backgroundColor : GREEN}
 
                     return (
-                        <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}>
+                        <div style={{marginTop:"10px"}} key={stepIndex + ' ' + step[HIGHLIGHT]}
+                                onClick={function() {
+                                    // cannot highlight image steps, can only draw on them
+                                    if (step[FORMAT] === IMG) return;
+                                    window.store.dispatch({ type : HIGHLIGHT_STEP,
+                                        PROBLEM_NUMBER : problemNumber,
+                                        SOLUTION_CLASS_INDEX : solutionClassIndex,
+                                        SOLUTION_INDEX : studentSolutionIndex,
+                                        STEP_KEY : stepIndex});
+                            }}>
 
                             <div>
                             { step[FORMAT] === IMG
@@ -304,25 +313,12 @@ class StudentWork extends React.Component {
                                 :
                                 step[FORMAT] === TEXT
                                 ?
-                                    <div className="student-step-grader" style={{...stepStyle, margin: "5px"}}
-                                        onClick={function() {
-                                                window.store.dispatch({ type : HIGHLIGHT_STEP,
-                                                    PROBLEM_NUMBER : problemNumber,
-                                                    SOLUTION_CLASS_INDEX : solutionClassIndex,
-                                                    SOLUTION_INDEX : studentSolutionIndex,
-                                                    STEP_KEY : stepIndex});
-                                    }}>
+                                    <div className="student-step-grader" style={{...stepStyle, margin: "5px"}}>
                                         {step[CONTENT]}
                                     </div>
                                 :
                                 <div className="student-step-grader">
-                                    <MathQuillStatic style={stepStyle} onClick={function() {
-                                        window.store.dispatch({ type : HIGHLIGHT_STEP,
-                                                        PROBLEM_NUMBER : problemNumber,
-                                                        SOLUTION_CLASS_INDEX : solutionClassIndex,
-                                                        SOLUTION_INDEX : studentSolutionIndex,
-                                                        STEP_KEY : stepIndex});
-                                        }}
+                                    <MathQuillStatic style={stepStyle}
                                         tex={
                                             typeof(step[CONTENT]) === 'string'
                                                 ? step[CONTENT]
