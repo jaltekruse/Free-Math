@@ -198,11 +198,12 @@ function calculateGrades(allProblems) {
             var score;
             // empty string is considered ungraded, which defaults to "complete" and full credit
             if (singleSolution[SCORE] === "") {
-                score = possiblePoints;
+                score = possiblePoints + ' (c)';
+                runningScore += possiblePoints;
             } else {
                 score = Number(singleSolution[SCORE]);
+                runningScore += score;
             }
-            runningScore += score;
 
             var studentScores = problemScoresGrid[studentAssignmentName];
             var studentScores = (typeof studentScores !== 'undefined') ? studentScores : {};
@@ -1605,41 +1606,57 @@ class GradesView extends React.Component {
             <div style={{margin:"60px 30px 30px 30px"}}>
                 <table>
                     <thead>
-                    <tr><th style={{padding: "10px"}}>Student File</th><th style={{padding: "10px"}}>Overall Score</th>
+                    <tr><th style={{padding: "10px"}}>Student File</th>
+                        <th style={{padding: "10px"}}>Overall Score</th>
                         {
-                            props.value[GRADE_INFO][ALL_PROBLEMS].map(function(problem, index, array) {
-                                return (
-                                    <th style={{padding: "10px"}}>
-                                        <b>{problem[PROBLEM_NUMBER]}</b>
-                                        <br /><small>Pts. ({problem[POSSIBLE_POINTS]})</small></th>
-                                )
+                            props.value[GRADE_INFO][ALL_PROBLEMS].map(
+                                function(problem, index, array) {
+                                    return (
+                                        <th style={{padding: "10px"}}>
+                                            <b>{problem[PROBLEM_NUMBER]}</b>
+                                            <br />
+                                            <small>
+                                                Pts.
+                                                ({problem[POSSIBLE_POINTS]})
+                                           </small>
+                                        </th>
+                                    )
                             })
                         }
                     </tr>
                     </thead>
                     <tbody>
-                    {
-                        function() {
-                            var tableRows = [];
-                            var grades = props.value[GRADE_INFO][STUDENT_GRADES];
-                            for (var studentFileName in grades) {
-                                if (grades.hasOwnProperty(studentFileName)) {
-                                    tableRows.push(
-                                    (<tr key={studentFileName}>
-                                        <td style={{padding: "10px"}}>{studentFileName}</td>
-                                        <td style={{padding: "10px"}}>{grades[studentFileName]}</td>
-                                        {
-                                            props.value[GRADE_INFO][ALL_PROBLEMS].map(function(problem, index, array) {
-                                                var studentScores = props.value[GRADE_INFO][PROBLEM_SCORES_GRID][studentFileName];
-                                                return (
-                                                    <td style={{padding: "10px"}}>{studentScores[problem[PROBLEM_NUMBER]]}</td>
-                                                )
-                                            })
-                                        }
-                                    </tr> ));
+                    {function() {
+                        var tableRows = [];
+                        var grades = props.value[GRADE_INFO][STUDENT_GRADES];
+                        for (var studentFileName in grades) {
+                            if (!grades.hasOwnProperty(studentFileName)) continue;
+                            let singleRow =
+                            (<tr key={studentFileName}>
+                                <td style={{padding: "10px"}}>
+                                    {studentFileName}
+                                </td>
+                                <td style={{padding: "10px"}}>
+                                    {grades[studentFileName]}
+                                </td>
+                                {props.value[GRADE_INFO][ALL_PROBLEMS].map(
+                                    function(problem, index, array) {
+                                        var studentScores =
+                                            props.value[GRADE_INFO]
+                                                [PROBLEM_SCORES_GRID]
+                                                [studentFileName];
+                                        return (
+                                            <td style={{padding: "10px"}}>
+                                                {studentScores
+                                                    [problem[PROBLEM_NUMBER]]}
+                                            </td>
+                                        )
+                                    })
                                 }
-                            }
-                            return tableRows;
+                            </tr> );
+                            tableRows.push(singleRow);
+                        }
+                        return tableRows;
                         }()
                     }
                     </tbody>
