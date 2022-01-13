@@ -992,38 +992,42 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     var studentWorkFound = {};
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            const lastStep = _.last(problem[STEPS]);
-            // image as the last step is treated as blank text as the answer
-            const somethingSubmitted = problem[STEPS].find(step => step[CONTENT].replace(/\\\s/g, "").trim() !== '');
+            // find the last non-blank step
+            let lastStep;
+            for (let index = problem[STEPS].length - 1; index >= 0; index--) {
+                lastStep = problem[STEPS][index];
+                if (lastStep[CONTENT].trim() !== '') break;
+            }
             var studentAnswer;
             // TODO - encapsulate format check for math to include 'undefined', compatibility with legacy
-            if (lastStep && (lastStep[FORMAT] === MATH || lastStep[FORMAT] === TEXT
-                             || typeof lastStep[FORMAT] === 'undefined'
-                ) && lastStep[CONTENT].trim() !== '') {
-                studentAnswer = lastStep[CONTENT]
-            } else if (lastStep && problem[STEPS].length >= 2 &&
-                        (lastStep[FORMAT] === IMG ||
-                            (lastStep[CONTENT].trim() === ''
-                                && problem[STEPS][problem[STEPS].length - 2][FORMAT] === IMG))) {
+            if (lastStep &&
+                    (lastStep[FORMAT] === MATH
+                        || typeof lastStep[FORMAT] === 'undefined'
+                    )) {
+                studentAnswer = lastStep[CONTENT];
+            } else if (lastStep && lastStep[FORMAT] === TEXT) {
+                studentAnswer = lastStep[CONTENT].replace(/ /g, '\\ ');
+            } else if (lastStep && lastStep[FORMAT] === IMG) {
                 studentAnswer = 'Image';
-            } else if (! somethingSubmitted) {
-                studentAnswer = 'Blank';
             } else {
                 studentAnswer = '';
             }
 
-            // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
+            studentAnswer = studentAnswer.trim();
+
+            const somethingSubmitted = studentAnswer !== '';
+
             var automaticallyAssignedGrade = "";
             if (!_.isEmpty(answerKey)) {
                 // this problem did not appear in the answer key
                 if (!answerKey[problem[PROBLEM_NUMBER]]) {
-                    // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
                     automaticallyAssignedGrade = "";
                 } else {
                     automaticallyAssignedGrade = gradeSingleProblem(problem, answerKey);
                 }
             } else if ( ! somethingSubmitted) {
                 automaticallyAssignedGrade = 0;
+                studentAnswer = 'Blank';
             }
 
             // write into the abreviated list of problems completed, used below to fill in placeholder for
