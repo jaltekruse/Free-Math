@@ -1647,8 +1647,23 @@ class GradesView extends React.Component {
                                                 [studentFileName];
                                         return (
                                             <td style={{padding: "10px"}}>
-                                                {studentScores
-                                                    [problem[PROBLEM_NUMBER]]}
+                                                {function() {
+                                                    var scoreText = studentScores[problem[PROBLEM_NUMBER]];
+                                                    scoreText = !isNaN(scoreText) ? "" + scoreText : (scoreText || '');
+                                                    var completionPointsGiven = scoreText.indexOf("(c)") !== -1;
+                                                    scoreText = scoreText.replace("(c)","")
+                                                    var styles = {padding:"5px"};
+                                                    var title = "";
+                                                    if (completionPointsGiven) {
+                                                        styles.backgroundColor = "#bfbfbf"
+                                                        title = "No score given explicitly, " +
+                                                            "completion points assigned.";
+                                                    }
+                                                    return (<span style={styles} title={title}>
+                                                                {scoreText}
+                                                            </span>);
+                                                }()
+                                                }
                                             </td>
                                         )
                                     })
