@@ -594,6 +594,15 @@ class ImageStep extends React.Component {
             });
         }.bind(this);
 
+        const cancelEditingImage = () => {
+            if (!window.confirm("Are you sure you want to stop drawing? Your work will not be saved.")) { return; }
+            window.ephemeralStore.dispatch({
+                type : SET_IMAGE_BEING_EDITED,
+                PROBLEM_INDEX: null,
+                STEP_KEY: null
+            });
+        };
+
 
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
@@ -715,13 +724,7 @@ class ImageStep extends React.Component {
                            :
                            editingImage ?
                             <BigModal
-                                onRequestClose={function() {
-                                            window.ephemeralStore.dispatch({
-                                                type : SET_IMAGE_BEING_EDITED,
-                                                PROBLEM_INDEX: null,
-                                                STEP_KEY: null
-                                            });
-                                        }.bind(this)}
+                                onRequestClose={cancelEditingImage}
                                 isOpen={editingImage}
                                 shouldCloseOnOverlayClick={true}
                                 appElement={document.getElementById('root')}
@@ -753,13 +756,7 @@ class ImageStep extends React.Component {
                                             />
                                             <Button className="extra-long-problem-action-button fm-button"
                                                 text="Cancel"
-                                                onClick={function() {
-                                                    window.ephemeralStore.dispatch({
-                                                        type : SET_IMAGE_BEING_EDITED,
-                                                        PROBLEM_INDEX: null,
-                                                        STEP_KEY: null
-                                                    });
-                                                }.bind(this)} />
+                                                onClick={cancelEditingImage} />
                                             <ImageEditor
                                                 ref={this.editorRef}
                                                 includeUI={{

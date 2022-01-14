@@ -393,6 +393,7 @@ function openAssignment(content, filename, handleFileCallback, handleError, driv
                 } catch (e) {
                     console.log("failed to parse file: " + file);
                     console.log(e);
+                    throw e;
                 }
             });
         // now remove the extra "operation" that was the loop itself

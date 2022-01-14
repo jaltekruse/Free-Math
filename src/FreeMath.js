@@ -815,6 +815,9 @@ class FreeMath extends React.Component {
               );
       */
 
+      if (window.MathQuill) {
+        //window.MathQuill = window.MathQuill.getInterface(1);
+      }
       if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
           return (
               <div>
