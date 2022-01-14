@@ -1767,13 +1767,9 @@ class AllProblemGraders extends React.Component {
         // either set to a list fo students to filter to, or if undefined/false show all
         // can be set by an index into the automatically identified similarity groups
         // or a custom group created by a teacher
-        console.log("custom group render");
-        console.log(state[CUSTOM_GROUP]);
         const studentsToView =
             state[CUSTOM_GROUP] ? state[CUSTOM_GROUP] : similarAssignments[currentSimilarityGroupIndex];
 
-        console.log("students to view");
-        console.log(studentsToView);
         var currentProblem = state["CURRENT_PROBLEM"];
         // clean up defensively, this same property is used for the teacher view or student view
         // but here it represents a string typed as a problem number, but for students it is an
@@ -1788,16 +1784,16 @@ class AllProblemGraders extends React.Component {
                 function() {
                     var problemGraders = [];
                     var problemArray = [];
-                    for (var property in problems) {
-                        if (problems.hasOwnProperty(property)) {
+                    for (var problem in problems) {
+                        if (problems.hasOwnProperty(problem)) {
                             // when viewing similar assignments show all problems, otherwise only show
                             // one problem at a time
-                            if (property === currentProblem
+                            if (problem === currentProblem
                                     || studentsToView) {
                                 // problem number is stored as keys in the map, add to each object
                                 // so the list can be sorted by problem number
-                                problems[property][PROBLEM_NUMBER] = property;
-                                problemArray.push(problems[property]);
+                                problems[problem][PROBLEM_NUMBER] = problem;
+                                problemArray.push(problems[problem]);
                             }
                         }
                     }
@@ -1855,12 +1851,11 @@ class TeacherInteractiveGrader extends React.Component {
             largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
-
         var currProblem = this.props.value["CURRENT_PROBLEM"];
         // clean up defensively, this same property is used for the teacher view or student view
         // but here it represents a string typed as a problem number, but for students it is an
         // integer index into the list of problems
-        if (typeof currProblem !== 'string' || typeof gradingOverview[currProblem] === 'undefined') {
+        if (typeof currProblem !== 'string' || typeof this.props.value[PROBLEMS][currProblem] === 'undefined') {
             currProblem = this.props.value[GRADING_OVERVIEW][PROBLEMS][0][PROBLEM_NUMBER];
         }
 
@@ -1970,8 +1965,6 @@ class TeacherInteractiveGrader extends React.Component {
                     ) : null}
 
             {gradingOverview.map(function(problem, problemIndex) {
-                console.log("render a problem tab: " + problem[PROBLEM_NUMBER]);
-                console.log(problem);
                 var probNum = problem[PROBLEM_NUMBER];
                 var label;
                 if (probNum.trim() !== '') {
@@ -1986,10 +1979,9 @@ class TeacherInteractiveGrader extends React.Component {
                     label = "[Need to Set a Problem Number]";
                 }
                 let topAnswer = this.props.value[PROBLEMS][probNum][UNIQUE_ANSWERS][0][ANSWER];
-                console.log(label);
                 return (
                         <HtmlButton text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                            className={"fm-button-right fm-button-left fm-button fm-tab " + ((problemIndex === currProblem) ? "fm-tab-selected" : "")}
+                            className={"fm-button-right fm-button-left fm-button fm-tab " + ((probNum === currProblem) ? "fm-tab-selected" : "")}
                             style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px"}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
@@ -1998,8 +1990,8 @@ class TeacherInteractiveGrader extends React.Component {
                                 (<div>
                                     <h3>{label}</h3>
                                     Top Answer &nbsp; (
-                                    {problem["LARGEST_ANSWER_GROUP_SIZE"]} of
-                                    &nbsp;
+                                    {problem["LARGEST_ANSWER_GROUP_SIZE"]}
+                                    &nbsp;{'of'}&nbsp;
                                     {Math.round(problem["NUMBER_UNIQUE_ANSWERS"]
                                                   * problem["AVG_ANSWER_GROUP_SIZE"])})
                                         {<TeX>{typeof(topAnswer) === 'string'

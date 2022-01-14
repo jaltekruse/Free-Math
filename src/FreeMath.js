@@ -632,6 +632,7 @@ function saveToLocalStorageOrDrive(delayMillis = 15000, onSuccessCallback = func
 }
 
 function ephemeralStateReducer(state, action) {
+    console.log(action);
     if (state === undefined) {
         return {
             BUTTON_GROUP : 'BASIC',
