@@ -1826,6 +1826,7 @@ class TeacherInteractiveGrader extends React.Component {
 
     render() {
 
+        var state = this.props.value;
         var labels = [];
         var numberUniqueAnswersData = {
             label: "Unique Answers",
@@ -1851,12 +1852,12 @@ class TeacherInteractiveGrader extends React.Component {
             largestAnswerGroups["data"].push(problemSummary["LARGEST_ANSWER_GROUP_SIZE"]);
             averageAnswerGroups["data"].push(problemSummary["AVG_ANSWER_GROUP_SIZE"]);
         });
-        var currProblem = this.props.value["CURRENT_PROBLEM"];
+        var currentProblem = state["CURRENT_PROBLEM"];
         // clean up defensively, this same property is used for the teacher view or student view
         // but here it represents a string typed as a problem number, but for students it is an
         // integer index into the list of problems
-        if (typeof currProblem !== 'string' || typeof this.props.value[PROBLEMS][currProblem] === 'undefined') {
-            currProblem = this.props.value[GRADING_OVERVIEW][PROBLEMS][0][PROBLEM_NUMBER];
+        if (typeof currentProblem !== 'string' || typeof this.props.value[PROBLEMS][currentProblem] === 'undefined') {
+            currentProblem = this.props.value[GRADING_OVERVIEW][PROBLEMS][0][PROBLEM_NUMBER];
         }
 
         // TODO - update to set this correctly in the new version
@@ -1981,7 +1982,7 @@ class TeacherInteractiveGrader extends React.Component {
                 let topAnswer = this.props.value[PROBLEMS][probNum][UNIQUE_ANSWERS][0][ANSWER];
                 return (
                         <HtmlButton text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                            className={"fm-button-right fm-button-left fm-button fm-tab " + ((probNum === currProblem) ? "fm-tab-selected" : "")}
+                            className={"fm-button-right fm-button-left fm-button fm-tab " + ((probNum === currentProblem) ? "fm-tab-selected" : "")}
                             style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px"}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
