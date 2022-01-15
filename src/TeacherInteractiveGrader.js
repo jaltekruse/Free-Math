@@ -1933,7 +1933,7 @@ class TeacherInteractiveGrader extends React.Component {
                 return (
                         <HtmlButton text={label} title={"View " + label} key={problemIndex} id={problemIndex}
                             className={"fm-button-right fm-button-left fm-button fm-tab " + ((probNum === currentProblem) ? "fm-tab-selected" : "")}
-                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px"}}
+                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px", maxWidth: "500px", overflow: "hidden"}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probNum})}}
