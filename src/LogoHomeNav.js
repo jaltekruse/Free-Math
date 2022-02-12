@@ -4,9 +4,10 @@ import './App.css';
 
 class LogoHomeNav extends React.Component {
     render() {
+        var dest = this.props.dest ? this.props.dest : "launch.html";
           return (
               <div className="freemath-logo" style={{display:"inline-block", lineHeight : 1}}>
-                    <a style={{textDecoration: "none", color: "#eee"}} href="launch.html">
+                    <a style={{textDecoration: "none", color: "#eee"}} href={dest}>
                     <h3 className="freemath-logo-text" style={{display:"inline", color: "#eee"}}>
                         <div style={{padding: "3px"}}>
                         <span className="katex">
