@@ -694,6 +694,10 @@ function turnInToClassroomWithSpinner(ephemeralState) {
 }
 
 class AssignmentEditorMenubar extends React.Component {
+    state = {
+        saveDestination : undefined
+    };
+
     componentDidMount() {
         const attachClickHandlers = function() {
             // componentDidMount is called after all the child components have been mounted,
@@ -873,7 +877,7 @@ class AssignmentEditorMenubar extends React.Component {
 
 
                       {!browserIsIOS ?
-                      (<div className="navBarItem" style={{display:"inline-block"}}>
+                      (<div className="homepage-disappear-mobile inline-block-when-not-on-mobile navBarItem">
                           Filename &nbsp;&nbsp;
                           <input type="text" id="assignment-name-text" size="15"
                                  name="assignment name" value={this.props.value[ASSIGNMENT_NAME]}
@@ -887,7 +891,7 @@ class AssignmentEditorMenubar extends React.Component {
                       </div>) : null}
                       {!browserIsIOS ?
                       (<div className="navBarItem" style={{display:"inline-block"}}>
-                          <LightButton text="Save to Device" onClick={
+                          <LightButton text="Device" onClick={
                               function() {
                                   var persistentState = getPersistentState();
                                   saveAssignmentValidatingProblemNumbers(persistentState, function(finalBlob) {
@@ -901,7 +905,7 @@ class AssignmentEditorMenubar extends React.Component {
                             onClick={function() {}}
                             content={(
                                     <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "4px"}}>Save to Drive&nbsp;</div>
+                                        <div style={{float: "left", paddingTop: "4px"}}>Drive&nbsp;</div>
                                          <img style={{paddingTop: "2px"}}
                                                 src="images/google_drive_small_logo.png"
                                                 alt="google logo" />
@@ -915,7 +919,7 @@ class AssignmentEditorMenubar extends React.Component {
                             content={(
                                     <div style={{display: "inline-block"}}>
                                         <div style={{float: "left", paddingTop: "4px"}}>
-                                            Submit to Classroom&nbsp;
+                                            Classroom&nbsp;
                                         </div>
                                          <img style={{paddingTop: "2px"}}
                                                 src="images/google_classroom_small.png"
