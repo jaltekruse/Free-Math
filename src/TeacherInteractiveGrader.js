@@ -1240,6 +1240,8 @@ function fixupBadMathQuillOutput(possiblyOldDoc) {
         possiblyOldDoc = cloneDeep(possiblyOldDoc);
         possiblyOldDoc[PROBLEMS] = possiblyOldDoc[PROBLEMS].map(function (problem) {
             problem[STEPS] = problem[STEPS].map(function (step) {
+                if (step[FORMAT] !== MATH) return step;
+
                 var orig = step[CONTENT];
                 // TODO - from katex - No character metrics for '∉' in style 'Main-Regular'
                 step[CONTENT] = replaceSpecialCharsWithLatex(step[CONTENT]);
@@ -1351,6 +1353,7 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
         var singleStudentDoc = openAssignment(content, filename);
         allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
     } catch (ex) {
+        console.log(ex);
         try {
             // otherwise try to open as a zip full of student docs
             new_zip.load(content);
