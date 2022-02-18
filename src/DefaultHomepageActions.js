@@ -1013,7 +1013,7 @@ class UserActions extends React.Component {
                         <p>
                             Open a zip file from your device
                             <br />
-                            <input type="file" accept="*" onChange={openAssignments}/>
+                            <input type="file" accept="*" multiple="multiple" onChange={openAssignments}/>
                         </p>
                         {/* TODO - I don't understand why this isn't the same size
                             as the similar text in the student box...*/}

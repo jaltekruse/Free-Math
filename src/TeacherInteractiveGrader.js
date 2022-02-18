@@ -18,6 +18,7 @@ import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
 import Select from "react-select";
 
 var KAS = window.KAS;
+var katex = window.katex;
 
 var APP_MODE = 'APP_MODE';
 
@@ -1235,6 +1236,19 @@ function replaceSpecialCharsWithLatex(possiblyOldDoc) {
         possiblyOldDoc[PROBLEMS] = possiblyOldDoc[PROBLEMS].map(function (problem) {
             problem[STEPS] = problem[STEPS].map(function (step) {
                 var orig = step[CONTENT];
+
+                try {
+                    console.log("!#@$!@#$!@#$@#!$ KATEX");
+                    console.log(katex.__parse(orig));
+                    console.log(katex.renderToString(orig));
+                } catch (e) {
+                    console.log(orig);
+                    var myDiv = document.createElement("div");
+                    //Add your content to the DIV
+                    myDiv.innerHTML = "<p>" + orig + "</p>"
+                    document.body.appendChild(myDiv);
+                }
+
                 // TODO - from katex - No character metrics for '∉' in style 'Main-Regular'
                 step[CONTENT] = step[CONTENT].replace(/−/g, '-');
                 step[CONTENT] = step[CONTENT].replace(/⋅/g, '\\cdot');
@@ -1501,6 +1515,7 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
         // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
         // from before this call, but defensively re-setting ti anyway. This was previously set as part
         // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
+        /*
         window.ephemeralStore.dispatch(
             {type : SET_GOOGLE_ID, GOOGLE_ID: googleId});
 
@@ -1509,6 +1524,7 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
               DOC_ID : docId,
               NEW_STATE :
                 {...aggregatedWork, ASSIGNMENT_NAME: removeExtension(filename)}});
+                */
         onSuccess();
     } catch (e) {
         // TODO - try to open a single student doc
@@ -1524,11 +1540,19 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
 function studentSubmissionsZip(evt, onSuccess, onFailure) {
     // reset scroll location from previous view of student docs
     window.location.hash = '';
-    var f = evt.target.files[0];
+
+    console.log(evt.target.files);
+    //evt.target.files.forEach(function(f) {
+    Array.from(evt.target.files)
+    .forEach(f => {
 
     if (f) {
         var r = new FileReader();
         r.onload = function(e) {
+            var myDiv = document.createElement("div");
+            //Add your content to the DIV
+            myDiv.innerHTML = "<h3>" + f.name + "</h3>"
+            document.body.appendChild(myDiv);
             var content = e.target.result;
             loadStudentDocsFromZip(content, f.name, onSuccess, onFailure);
         }
@@ -1538,6 +1562,7 @@ function studentSubmissionsZip(evt, onSuccess, onFailure) {
         alert("Failed to load file");
         onFailure();
     }
+    });
 }
 
 class SimilarDocChecker extends React.Component {
