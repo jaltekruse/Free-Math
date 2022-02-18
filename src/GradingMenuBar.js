@@ -228,9 +228,9 @@ export class ModalWhileGradingMenuBar extends React.Component {
         return (
             <div className="menuBar">
                 <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
-                    <LogoHomeNav /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <div style={{float:"left"}}> <LogoHomeNav /> </div>
                     <div style={{float:"left", verticalAlign:"top",
-                                 marginTop:"5px", lineHeight : 1}}>
+                                 marginTop:"5px", marginLeft:"30px", lineHeight : 1}}>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <LightButton text="Back to Grading" onClick={
                             function() {window.store.dispatch({type : NAV_BACK_TO_GRADING})}

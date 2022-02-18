@@ -16,6 +16,7 @@ import { Chart, Bar } from 'react-chartjs-2';
 import { defaults } from 'react-chartjs-2';
 import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
 import Select from "react-select";
+import replaceSpecialCharsWithLatex from './LatexCommandsFixup.js';
 
 var KAS = window.KAS;
 var katex = window.katex;
@@ -198,11 +199,12 @@ function calculateGrades(allProblems) {
             var score;
             // empty string is considered ungraded, which defaults to "complete" and full credit
             if (singleSolution[SCORE] === "") {
-                score = possiblePoints;
+                score = possiblePoints + ' (c)';
+                runningScore += possiblePoints;
             } else {
                 score = Number(singleSolution[SCORE]);
+                runningScore += score;
             }
-            runningScore += score;
 
             var studentScores = problemScoresGrid[studentAssignmentName];
             var studentScores = (typeof studentScores !== 'undefined') ? studentScores : {};
@@ -992,38 +994,42 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     var studentWorkFound = {};
     allStudentWork.forEach(function(assignInfo, index, array) {
         assignInfo[ASSIGNMENT].forEach(function(problem, index, array) {
-            const lastStep = _.last(problem[STEPS]);
-            // image as the last step is treated as blank text as the answer
-            const somethingSubmitted = problem[STEPS].find(step => step[CONTENT].replace(/\\\s/g, "").trim() !== '');
+            // find the last non-blank step
+            let lastStep;
+            for (let index = problem[STEPS].length - 1; index >= 0; index--) {
+                lastStep = problem[STEPS][index];
+                if (lastStep[CONTENT].trim() !== '') break;
+            }
             var studentAnswer;
             // TODO - encapsulate format check for math to include 'undefined', compatibility with legacy
-            if (lastStep && (lastStep[FORMAT] === MATH || lastStep[FORMAT] === TEXT
-                             || typeof lastStep[FORMAT] === 'undefined'
-                ) && lastStep[CONTENT].trim() !== '') {
-                studentAnswer = lastStep[CONTENT]
-            } else if (lastStep && problem[STEPS].length >= 2 &&
-                        (lastStep[FORMAT] === IMG ||
-                            (lastStep[CONTENT].trim() === ''
-                                && problem[STEPS][problem[STEPS].length - 2][FORMAT] === IMG))) {
+            if (lastStep &&
+                    (lastStep[FORMAT] === MATH
+                        || typeof lastStep[FORMAT] === 'undefined'
+                    )) {
+                studentAnswer = lastStep[CONTENT];
+            } else if (lastStep && lastStep[FORMAT] === TEXT) {
+                studentAnswer = lastStep[CONTENT].replace(/ /g, '\\ ');
+            } else if (lastStep && lastStep[FORMAT] === IMG) {
                 studentAnswer = 'Image';
-            } else if (! somethingSubmitted) {
-                studentAnswer = 'Blank';
             } else {
                 studentAnswer = '';
             }
 
-            // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
+            studentAnswer = studentAnswer.trim();
+
+            const somethingSubmitted = studentAnswer !== '';
+
             var automaticallyAssignedGrade = "";
             if (!_.isEmpty(answerKey)) {
                 // this problem did not appear in the answer key
                 if (!answerKey[problem[PROBLEM_NUMBER]]) {
-                    // TODO - consider if empty string is the best way to indicate "not yet graded"/complete
                     automaticallyAssignedGrade = "";
                 } else {
                     automaticallyAssignedGrade = gradeSingleProblem(problem, answerKey);
                 }
             } else if ( ! somethingSubmitted) {
                 automaticallyAssignedGrade = 0;
+                studentAnswer = 'Blank';
             }
 
             // write into the abreviated list of problems completed, used below to fill in placeholder for
@@ -1220,14 +1226,14 @@ function wrapSteps(studentSteps) {
 }
 
 function convertToCurrentFormat(possiblyOldDoc) {
-    var ret = replaceSpecialCharsWithLatex(
+    var ret = fixupBadMathQuillOutput(
                 convertToCurrentFormat2(
                     convertToCurrentFormatFromAlpha(possiblyOldDoc)));
     ret[CURRENT_PROBLEM] = 0;
     return ret;
 }
 
-function replaceSpecialCharsWithLatex(possiblyOldDoc) {
+function fixupBadMathQuillOutput(possiblyOldDoc) {
     if (possiblyOldDoc.hasOwnProperty(PROBLEMS)
         && possiblyOldDoc[PROBLEMS].length > 0) {
         // TODO - consider getting rid of this deep clone, but not much object creation
@@ -1235,6 +1241,8 @@ function replaceSpecialCharsWithLatex(possiblyOldDoc) {
         possiblyOldDoc = cloneDeep(possiblyOldDoc);
         possiblyOldDoc[PROBLEMS] = possiblyOldDoc[PROBLEMS].map(function (problem) {
             problem[STEPS] = problem[STEPS].map(function (step) {
+                if (step[FORMAT] !== MATH) return step;
+
                 var orig = step[CONTENT];
 
                 try {
@@ -1250,94 +1258,7 @@ function replaceSpecialCharsWithLatex(possiblyOldDoc) {
                 }
 
                 // TODO - from katex - No character metrics for '∉' in style 'Main-Regular'
-                step[CONTENT] = step[CONTENT].replace(/−/g, '-');
-                step[CONTENT] = step[CONTENT].replace(/⋅/g, '\\cdot');
-                step[CONTENT] = step[CONTENT].replace(/÷/g, '\\div');
-                // yes these are different characers... TODO actually maybe not
-                //step[CONTENT] = step[CONTENT].replace(/=/g, '=');
-                step[CONTENT] = step[CONTENT].replace(/π/g, '\\pi');
-                step[CONTENT] = step[CONTENT].replace(/∣/g, '\\vert');
-                step[CONTENT] = step[CONTENT].replace(/≥/g, '\\ge');
-                step[CONTENT] = step[CONTENT].replace(/≤/g, '\\le');
-                step[CONTENT] = step[CONTENT].replace(/≈/g, '\\approx');
-                step[CONTENT] = step[CONTENT].replace(/∝/g, '\\propto');
-                step[CONTENT] = step[CONTENT].replace(/±/g, '\\pm');
-                step[CONTENT] = step[CONTENT].replace(/⟨/g, '\\left\\langle');
-                step[CONTENT] = step[CONTENT].replace(/⟩/g, '\\right\\rangle');
-                step[CONTENT] = step[CONTENT].replace(/△/g, '\\triangle');
-                step[CONTENT] = step[CONTENT].replace(/⊙/g, '\\odot');
-                step[CONTENT] = step[CONTENT].replace(/◯/g, '\\bigcirc');
-                step[CONTENT] = step[CONTENT].replace(/°/g, '\\degree');
-                step[CONTENT] = step[CONTENT].replace(/∠/g, '\\angle');
-                step[CONTENT] = step[CONTENT].replace(/∡/g, '\\measuredangle');
-                step[CONTENT] = step[CONTENT].replace(/≡/g, '\\equiv');
-                step[CONTENT] = step[CONTENT].replace(/≅/g, '\\cong');
-                step[CONTENT] = step[CONTENT].replace(/⊥/g, '\\perp');
-                step[CONTENT] = step[CONTENT].replace(/∥/g, '\\parallel');
-                step[CONTENT] = step[CONTENT].replace(/≃/g, '\\simeq');
-                step[CONTENT] = step[CONTENT].replace(/∼/g, '\\sim');
-                step[CONTENT] = step[CONTENT].replace(/∀/g, '\\forall');
-                step[CONTENT] = step[CONTENT].replace(/∴/g, '\\therefore');
-                step[CONTENT] = step[CONTENT].replace(/∵/g, '\\because');
-                step[CONTENT] = step[CONTENT].replace(/∈/g, '\\in');
-                step[CONTENT] = step[CONTENT].replace(/∉/g, '\\notin');
-                step[CONTENT] = step[CONTENT].replace(/∄/g, '\\nexists');
-                step[CONTENT] = step[CONTENT].replace(/∃/g, '\\exists');
-                step[CONTENT] = step[CONTENT].replace(/¬/g, '\\neg');
-                step[CONTENT] = step[CONTENT].replace(/∨/g, '\\lor');
-                step[CONTENT] = step[CONTENT].replace(/∧/g, '\\land');
-                step[CONTENT] = step[CONTENT].replace(/→/g, '\\to');
-                step[CONTENT] = step[CONTENT].replace(/←/g, '\\gets');
-                step[CONTENT] = step[CONTENT].replace(/∪/g, '\\cup');
-                step[CONTENT] = step[CONTENT].replace(/∩/g, '\\cap');
-                step[CONTENT] = step[CONTENT].replace(/⊂/g, '\\subset');
-                step[CONTENT] = step[CONTENT].replace(/⊆/g, '\\subseteq');
-                step[CONTENT] = step[CONTENT].replace(/⊃/g, '\\supset');
-                step[CONTENT] = step[CONTENT].replace(/⊇/g, '\\supseteq');
-                step[CONTENT] = step[CONTENT].replace(/∫/g, '\\int');
-                step[CONTENT] = step[CONTENT].replace(/∮/g, '\\oint');
-                step[CONTENT] = step[CONTENT].replace(/∂/g, '\\partial');
-                step[CONTENT] = step[CONTENT].replace(/∑/g, '\\sum');
-                step[CONTENT] = step[CONTENT].replace(/∏/g, '\\prod');
-                step[CONTENT] = step[CONTENT].replace(/∞/g, '\\infty');
-                step[CONTENT] = step[CONTENT].replace(/′/g, "'");
-
-                step[CONTENT] = step[CONTENT].replace(/α/g,"\\alpha");
-                step[CONTENT] = step[CONTENT].replace(/β/g,"\\beta");
-                step[CONTENT] = step[CONTENT].replace(/γ/g,"\\gamma");
-                step[CONTENT] = step[CONTENT].replace(/Γ/g,"\\Gamma");
-                step[CONTENT] = step[CONTENT].replace(/δ/g,"\\delta");
-                step[CONTENT] = step[CONTENT].replace(/Δ/g,"\\Delta");
-                step[CONTENT] = step[CONTENT].replace(/ϵ/g,"\\epsilon");
-                step[CONTENT] = step[CONTENT].replace(/ϝ/g,"\\digamma");
-                step[CONTENT] = step[CONTENT].replace(/ζ/g,"\\zeta");
-                step[CONTENT] = step[CONTENT].replace(/η/g,"\\eta");
-                step[CONTENT] = step[CONTENT].replace(/θ/g,"\\theta");
-                step[CONTENT] = step[CONTENT].replace(/Θ/g,"\\Theta");
-                step[CONTENT] = step[CONTENT].replace(/ι/g,"\\iota");
-                step[CONTENT] = step[CONTENT].replace(/κ/g,"\\kappa");
-                step[CONTENT] = step[CONTENT].replace(/λ/g,"\\lambda");
-                step[CONTENT] = step[CONTENT].replace(/Λ/g,"\\Lambda");
-                step[CONTENT] = step[CONTENT].replace(/μ/g,"\\mu");
-                step[CONTENT] = step[CONTENT].replace(/ν/g,"\\nu");
-                step[CONTENT] = step[CONTENT].replace(/ξ/g,"\\xi");
-                step[CONTENT] = step[CONTENT].replace(/Ξ/g,"\\Xi");
-                step[CONTENT] = step[CONTENT].replace(/π/g,"\\pi");
-                step[CONTENT] = step[CONTENT].replace(/Π/g,"\\Pi");
-                step[CONTENT] = step[CONTENT].replace(/ρ/g,"\\rho");
-                step[CONTENT] = step[CONTENT].replace(/ϱ/g,"\\varrho");
-                step[CONTENT] = step[CONTENT].replace(/σ/g,"\\sigma");
-                step[CONTENT] = step[CONTENT].replace(/Σ/g,"\\Sigma");
-                step[CONTENT] = step[CONTENT].replace(/τ/g,"\\tau");
-                step[CONTENT] = step[CONTENT].replace(/υ/g,"\\upsilon");
-                step[CONTENT] = step[CONTENT].replace(/ϒ/g,"\\Upsilon");
-                step[CONTENT] = step[CONTENT].replace(/ϕ/g,"\\phi");
-                step[CONTENT] = step[CONTENT].replace(/Φ/g,"\\Phi");
-                step[CONTENT] = step[CONTENT].replace(/χ/g,"\\chi");
-                step[CONTENT] = step[CONTENT].replace(/ψ/g,"\\psi");
-                step[CONTENT] = step[CONTENT].replace(/Ψ/g,"\\Psi");
-                step[CONTENT] = step[CONTENT].replace(/ω/g,"\\omega");
-                step[CONTENT] = step[CONTENT].replace(/Ω/g,"\\Omega");
+                step[CONTENT] = replaceSpecialCharsWithLatex(step[CONTENT]);
 
                 if (step[CONTENT] !== orig) {
                     console.log("changing special chars to latex");
@@ -1446,6 +1367,7 @@ function loadStudentDocsFromZip(content, filename, onSuccess, onFailure, docId, 
         var singleStudentDoc = openAssignment(content, filename);
         allStudentWork.push({STUDENT_FILE : filename, ASSIGNMENT : singleStudentDoc[PROBLEMS]});
     } catch (ex) {
+        console.log(ex);
         try {
             // otherwise try to open as a zip full of student docs
             new_zip.load(content);
@@ -1712,41 +1634,72 @@ class GradesView extends React.Component {
             <div style={{margin:"60px 30px 30px 30px"}}>
                 <table>
                     <thead>
-                    <tr><th style={{padding: "10px"}}>Student File</th><th style={{padding: "10px"}}>Overall Score</th>
+                    <tr><th style={{padding: "10px"}}>Student File</th>
+                        <th style={{padding: "10px"}}>Overall Score</th>
                         {
-                            props.value[GRADE_INFO][ALL_PROBLEMS].map(function(problem, index, array) {
-                                return (
-                                    <th style={{padding: "10px"}}>
-                                        <b>{problem[PROBLEM_NUMBER]}</b>
-                                        <br /><small>Pts. ({problem[POSSIBLE_POINTS]})</small></th>
-                                )
+                            props.value[GRADE_INFO][ALL_PROBLEMS].map(
+                                function(problem, index, array) {
+                                    return (
+                                        <th style={{padding: "10px"}}>
+                                            <b>{problem[PROBLEM_NUMBER]}</b>
+                                            <br />
+                                            <small>
+                                                Pts.
+                                                ({problem[POSSIBLE_POINTS]})
+                                           </small>
+                                        </th>
+                                    )
                             })
                         }
                     </tr>
                     </thead>
                     <tbody>
-                    {
-                        function() {
-                            var tableRows = [];
-                            var grades = props.value[GRADE_INFO][STUDENT_GRADES];
-                            for (var studentFileName in grades) {
-                                if (grades.hasOwnProperty(studentFileName)) {
-                                    tableRows.push(
-                                    (<tr key={studentFileName}>
-                                        <td style={{padding: "10px"}}>{studentFileName}</td>
-                                        <td style={{padding: "10px"}}>{grades[studentFileName]}</td>
-                                        {
-                                            props.value[GRADE_INFO][ALL_PROBLEMS].map(function(problem, index, array) {
-                                                var studentScores = props.value[GRADE_INFO][PROBLEM_SCORES_GRID][studentFileName];
-                                                return (
-                                                    <td style={{padding: "10px"}}>{studentScores[problem[PROBLEM_NUMBER]]}</td>
-                                                )
-                                            })
-                                        }
-                                    </tr> ));
+                    {function() {
+                        var tableRows = [];
+                        var grades = props.value[GRADE_INFO][STUDENT_GRADES];
+                        for (var studentFileName in grades) {
+                            if (!grades.hasOwnProperty(studentFileName)) continue;
+                            let singleRow =
+                            (<tr key={studentFileName}>
+                                <td style={{padding: "10px"}}>
+                                    {studentFileName}
+                                </td>
+                                <td style={{padding: "10px"}}>
+                                    {grades[studentFileName]}
+                                </td>
+                                {props.value[GRADE_INFO][ALL_PROBLEMS].map(
+                                    function(problem, index, array) {
+                                        var studentScores =
+                                            props.value[GRADE_INFO]
+                                                [PROBLEM_SCORES_GRID]
+                                                [studentFileName];
+                                        return (
+                                            <td style={{padding: "10px"}}>
+                                                {function() {
+                                                    var scoreText = studentScores[problem[PROBLEM_NUMBER]];
+                                                    scoreText = !isNaN(scoreText) ? "" + scoreText : (scoreText || '');
+                                                    var completionPointsGiven = scoreText.indexOf("(c)") !== -1;
+                                                    scoreText = scoreText.replace("(c)","")
+                                                    var styles = {padding:"5px"};
+                                                    var title = "";
+                                                    if (completionPointsGiven) {
+                                                        styles.backgroundColor = "#bfbfbf"
+                                                        title = "No score given explicitly, " +
+                                                            "completion points assigned.";
+                                                    }
+                                                    return (<span style={styles} title={title}>
+                                                                {scoreText}
+                                                            </span>);
+                                                }()
+                                                }
+                                            </td>
+                                        )
+                                    })
                                 }
-                            }
-                            return tableRows;
+                            </tr> );
+                            tableRows.push(singleRow);
+                        }
+                        return tableRows;
                         }()
                     }
                     </tbody>
@@ -2023,7 +1976,10 @@ class TeacherInteractiveGrader extends React.Component {
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
                 <AllProblemGraders value={this.props.value}/>
-                <h3>To grade other problems use the bar graph at the top of the page to select them.</h3>
+                <h3 style={{clear:"left"}}>
+                    To grade other problems use the bar graph at the top of
+                    the page to select them.
+                </h3>
                 <Button text="Scroll to Top" onClick={
                             function() {
                                 window.location.hash = '';

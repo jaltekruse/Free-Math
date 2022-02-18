@@ -1184,7 +1184,8 @@ class DefaultHomepageActions extends React.Component {
                 <div style={{maxWidth:1024,marginLeft:"auto",
                              marginRight:"auto", padding: "0 10px 0 10px"}}
                      className="nav">
-                    <LogoHomeNav />
+                    {/* nav back to the homepage (not in react) from this page */}
+                    <LogoHomeNav dest="/"/>
                     <div className="navBarElms" style={{float:"right"}}>
                     <a href="gettingStarted.html"
                         style={{color:"white", marginRight:"15px"}} >

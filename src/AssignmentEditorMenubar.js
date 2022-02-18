@@ -305,6 +305,7 @@ function openAssignment(content, filename, driveFileId = false) {
                 } catch (e) {
                     console.log("failed to parse file: " + file);
                     console.log(e);
+                    throw e;
                 }
             }
         }
