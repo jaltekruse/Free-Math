@@ -395,6 +395,8 @@ function splitKey(compositeKey) {
 //
 function findSimilarStudentAssignments(allStudentWork) {
 
+    return;
+
     if (allStudentWork.length > 50) {
         if (!window.confirm("You are opening a group of " + allStudentWork.length + " assignments. " +
             "With a class this large the check for overall simular documents for cheating prevention " +
@@ -1242,13 +1244,14 @@ function fixupBadMathQuillOutput(possiblyOldDoc) {
         possiblyOldDoc[PROBLEMS] = possiblyOldDoc[PROBLEMS].map(function (problem) {
             problem[STEPS] = problem[STEPS].map(function (step) {
                 if (step[FORMAT] !== MATH) return step;
-
                 var orig = step[CONTENT];
 
                 try {
-                    console.log("!#@$!@#$!@#$@#!$ KATEX");
-                    console.log(katex.__parse(orig));
-                    console.log(katex.renderToString(orig));
+                    //console.log("!#@$!@#$!@#$@#!$ KATEX");
+                    //console.log(katex.__parse(orig));
+                    //console.log(katex.renderToString(orig));
+                    katex.__parse(orig);
+                    katex.renderToString(orig);
                 } catch (e) {
                     console.log(orig);
                     var myDiv = document.createElement("div");

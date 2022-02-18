@@ -299,8 +299,8 @@ function openAssignment(content, filename, driveFileId = false) {
                         // this is just used to redirect users to the site if they open with a zip viewer
                     } else {
                         // should be an image
-                        let fileContents = new_zip.file(file).asArrayBuffer();
-                        images[file] = window.URL.createObjectURL(new Blob([fileContents]));
+                        //let fileContents = new_zip.file(file).asArrayBuffer();
+                        //images[file] = window.URL.createObjectURL(new Blob([fileContents]));
                     }
                 } catch (e) {
                     console.log("failed to parse file: " + file);
