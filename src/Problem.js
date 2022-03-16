@@ -777,7 +777,7 @@ class ImageStep extends React.Component {
                                                 selectionStyle={{
                                                   cornerSize: 15,
                                                   cornerColor: 'green',
-                                                  rotatingPointOffset: 70
+                                                  rotatingPointOffset: 70,
                                                 }}
                                                 usageStatistics={false}
                                                 defaultColor={'#000000'}
