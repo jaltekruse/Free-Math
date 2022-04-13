@@ -1,4 +1,5 @@
 import { createStore } from 'redux';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import { getCompositeState, getEphemeralState, rootReducer, ephemeralStateReducer } from './FreeMath';
 import { render, loadDemoGrading, checkAllSaved } from './DefaultHomepageActions';

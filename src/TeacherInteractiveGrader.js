@@ -23,6 +23,10 @@ import { updateFileWithBinaryContent, updateGrades } from './GoogleApi.js';
 import Select from "react-select";
 import replaceSpecialCharsWithLatex from './LatexCommandsFixup.js';
 
+import GraderTabsComponent from './InteractiveGrader/GraderTabsComponent.js';
+import AllProblemGradersComponent from './InteractiveGrader/AllProblemGradersComponent.js';
+import SimilarGroupSelectorComponent from './InteractiveGrader/SimilarGroupSelectorComponent.js';
+
 var KAS = window.KAS;
 
 var APP_MODE = 'APP_MODE';
@@ -1495,125 +1499,12 @@ class SimilarDocChecker extends React.Component {
             state[CUSTOM_GROUP] ? state[CUSTOM_GROUP] : similarAssignments[currentSimilarityGroupIndex];
         return (
             <div>
-                <SimilarGroupSelector value={this.props.value} />
+                <SimilarGroupSelectorComponent state={this.props.value} />
                 { (studentsToView)
-                    ? <AllProblemGraders value={this.props.value}/>
+                    ? <AllProblemGradersComponent state={this.props.value}/>
                     : null }
             </div>
         );
-    }
-}
-
-class SimilarGroupSelector extends React.Component {
-    render() {
-        var state = this.props.value;
-        var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
-        var allStudents = state[ALL_STUDENTS];
-        console.log(allStudents);
-        var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
-        return(
-            <div className="similar-assignment-filters">
-            { (similarAssignments && similarAssignments.length > 0) ? (
-                <div>
-                  <h3>Some students may have copied each others work</h3>
-                {/* Not really needed anymore now that similar doc check is on separate page
-                    TODO - remove this completely, including actions
-                {   (typeof(currentSimilarityGroupIndex) !== "undefined" &&
-                     currentSimilarityGroupIndex !== null) ?
-                        (<p> Currently viewing a group of similar
-                            assignments, back to grading full class
-                            <Button text="View All" onClick={
-                             function(evt) {
-                                window.store.dispatch(
-                                    { type : VIEW_SIMILAR_ASSIGNMENTS,
-                                      SIMILAR_ASSIGNMENT_GROUP_INDEX : undefined
-                                });
-                            }
-                        }/></p>)
-                    : null
-                }
-                */}
-                {
-                    function() {
-                        var similarityGroups = [];
-                        similarAssignments.forEach(
-                            function(similarityGroup, index, array) {
-                                similarityGroups.push(
-                                (
-                                    <p key={index}>
-                                    { (index === currentSimilarityGroupIndex) ?
-                                        (<b>A group of  {similarityGroup.length} students
-                                            submitted similar assignments &nbsp;</b>)
-                                       : (<span>A group of  {similarityGroup.length} students
-                                           submitted similar assignments &nbsp;</span>)
-                                    }
-                                    <Button text="View" onClick={
-                                        function(evt) {
-                                            window.store.dispatch(
-                                                { type : VIEW_SIMILAR_ASSIGNMENTS,
-                                                  SIMILAR_ASSIGNMENT_GROUP_INDEX : index
-                                            });
-                                        }
-                                    }/>
-                                    </p>
-                                )
-                            );
-                        });
-                        return similarityGroups;
-                    }()
-                }
-                </div>
-                )
-               : <div>
-                    <h3>No similar documents were found automatically</h3>
-
-                    <p>If you are worried any of your students might have shared work, you can view them together using the menu below.</p>
-                </div>
-
-            }
-            <br /><br />
-            <h3>Custom Group</h3>
-
-
-            <p>See one or more students' full assignments side by side.</p>
-            <CustomGroupMaker students={allStudents}/>
-            </div>
-        );
-    }
-}
-
-class CustomGroupMaker extends React.Component {
-    state = {
-        selected: null,
-    };
-    handleChange = selected => {
-        console.log(selected);
-        const selectedStudents =
-            !selected ? null : selected.map(function(selection) {
-                return selection['value'];
-        });
-        window.store.dispatch(
-            { type : VIEW_SIMILAR_ASSIGNMENTS,
-                CUSTOM_GROUP : selectedStudents
-        });
-    };
-
-    render() {
-        var students = this.props.students;
-        // todo - pull out common prefix if present
-        //      - like when opening a zip file with a directory
-        students = students.map(function(student, index, array) {
-            return { value: student[STUDENT_FILE], label: (student[STUDENT_NAME] ? student[STUDENT_NAME] : student[STUDENT_FILE])};
-        });
-        return (
-            <div className="App">
-                <Select
-                    isMulti={true}
-                    onChange={this.handleChange}
-                    options={students}
-                />
-            </div>
-      );
     }
 }
 
@@ -1703,62 +1594,6 @@ class GradesView extends React.Component {
                     }
                     </tbody>
                 </table>
-            </div>
-        );
-    }
-}
-
-class AllProblemGraders extends React.Component {
-    render() {
-        var state = this.props.value;
-        var problems = state[PROBLEMS];
-        var similarAssignments = state[SIMILAR_ASSIGNMENT_SETS];
-        var currentSimilarityGroupIndex = state[SIMILAR_ASSIGNMENT_GROUP_INDEX];
-        // either set to a list fo students to filter to, or if undefined/false show all
-        // can be set by an index into the automatically identified similarity groups
-        // or a custom group created by a teacher
-        const studentsToView =
-            state[CUSTOM_GROUP] ? state[CUSTOM_GROUP] : similarAssignments[currentSimilarityGroupIndex];
-
-        var currentProblem = state["CURRENT_PROBLEM"];
-        // clean up defensively, this same property is used for the teacher view or student view
-        // but here it represents a string typed as a problem number, but for students it is an
-        // integer index into the list of problems
-        if (typeof currentProblem !== 'string' || typeof problems[currentProblem] === 'undefined') {
-            currentProblem = this.props.value[GRADING_OVERVIEW][PROBLEMS][0][PROBLEM_NUMBER];
-        }
-
-        return (
-            <div>
-            {
-                function() {
-                    var problemGraders = [];
-                    var problemArray = [];
-                    for (var problem in problems) {
-                        if (problems.hasOwnProperty(problem)) {
-                            // when viewing similar assignments show all problems, otherwise only show
-                            // one problem at a time
-                            if (problem === currentProblem
-                                    || studentsToView) {
-                                // problem number is stored as keys in the map, add to each object
-                                // so the list can be sorted by problem number
-                                problems[problem][PROBLEM_NUMBER] = problem;
-                                problemArray.push(problems[problem]);
-                            }
-                        }
-                    }
-                    problemArray = problemArray.sort(
-                        function(a,b) { return a[PROBLEM_NUMBER] - b[PROBLEM_NUMBER];});
-                    problemArray.forEach(function(problem, index, array) {
-                        problemGraders.push(
-                            (<ProblemGrader problemInfo={problem}
-                                            key={problem[PROBLEM_NUMBER]}
-                                            problemNumber={problem[PROBLEM_NUMBER]}
-                                studentsToView={studentsToView}/> ));
-                    });
-                    return problemGraders;
-                }()
-            }
             </div>
         );
     }
@@ -1903,7 +1738,7 @@ class TeacherInteractiveGrader extends React.Component {
                          style={{float: "right", display:"inline-block", padding:"5px", margin: "5px"}}>
                             <span>Due to a browser limitation, you currently cannot save work in iOS. This demo can
                                   be used to try out the experience, but you will need to visit the site on your Mac,
-                                  Widows PC, Chromebook or Android device to actually use the site.</span>
+                                  Windows PC, Chromebook or Android device to save changes.</span>
                         </div>) :
                     null
                 }
@@ -1915,51 +1750,28 @@ class TeacherInteractiveGrader extends React.Component {
                         }.bind(this)}/>
                     ) : null}
 
-            {gradingOverview.map(function(problem, problemIndex) {
-                var probNum = problem[PROBLEM_NUMBER];
-                var label;
-                if (probNum.trim() !== '') {
-                    if (gradingOverview.length < 8) {
-                        label = "Problem " + probNum;
-                    } else  if (gradingOverview.length < 12) {
-                        label = "Prob " + probNum;
-                    } else {
-                        label = "P " + probNum;
-                    }
-                } else {
-                    label = "[Need to Set a Problem Number]";
-                }
-                let topAnswer = this.props.value[PROBLEMS][probNum][UNIQUE_ANSWERS][0][ANSWER];
-                return (
-                        <HtmlButton text={label} title={"View " + label} key={problemIndex} id={problemIndex}
-                            className={"fm-button-right fm-button-left fm-button fm-tab " + ((probNum === currentProblem) ? "fm-tab-selected" : "")}
-                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px"}}
-                            onClick={function() {
-                                window.ephemeralStore.dispatch(
-                                    {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probNum})}}
-                            content={
-                                (<div>
-                                    <h3>{label}</h3>
-                                    Top Answer &nbsp; (
-                                    {problem["LARGEST_ANSWER_GROUP_SIZE"]}
-                                    &nbsp;{'of'}&nbsp;
-                                    {Math.round(problem["NUMBER_UNIQUE_ANSWERS"]
-                                                  * problem["AVG_ANSWER_GROUP_SIZE"])})
-                                        {<TeX>{typeof(topAnswer) === 'string'
-                                            ? topAnswer
-                                            : "\\text{}"}</TeX>
-                                        }
-                                </div>)}
-                        />
-                );
-            }.bind(this))}
+            <GraderTabsComponent
+                gradingOverview={gradingOverview}
+                problems={this.props.value[PROBLEMS]}
+                currentProblem={currentProblem}
+            />
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
                 <div style={{border: "1px solid", padding: "15px"}}>
-                    <AllProblemGraders value={this.props.value}/>
-                    <h3 style={{clear:"left"}}>
-                        To grade other problems select them at the top of the page.
+                    <AllProblemGradersComponent value={this.props.value}/>
+
+                    <div style={{clear:"left", textAlign:"center"}}>
+                        <Button
+                            text="Previous Problem"
+                        />
+                        <Button
+                            text="Next Problem"
+                        />
+                    </div>
+
+                    <h3 style={{clear:"left", textAlign:"center", fontStyle:"italic"}}>
+                        to grade other problems, select them at the top of the page.
                     </h3>
                     <Button text="Scroll to Top" onClick={
                                 function() {
@@ -1992,4 +1804,3 @@ export { TeacherInteractiveGrader as default,
     makeBackwardsCompatible,
     saveBackToClassroom
 };
-

@@ -38,14 +38,18 @@ margin-bottom: 0;
 end of styles copied form perseus
 */
 
+html {
+    overflox-x: hidden;
+}
+
 .homepage-center {
-width: 100%;
--webkit-box-align: center;
-align-items: center;
-display: flex;
-flex-direction: column;
-text-align: center;
-margin-left: auto;
+    width: 100%;
+    -webkit-box-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    margin-left: auto;
     margin-right: auto;
 }
 
@@ -249,6 +253,14 @@ a.fm-button:hover
   border-bottom-left-radius: 0px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.fm-tabs-wrapper {
+    overflow-x: scroll;
+}
+
+.fm-tabs {
+    white-space: nowrap;
 }
 
 .fm-tab {
@@ -680,10 +692,13 @@ div.problem-container {
     float:left;
 }
 
-.nav{
+.fm-nav{
     float:none;
-    margin-right:10px;}
-.nav ul li{
+    max-width: 1024px;
+    margin:0 auto;
+    padding: 0 10px 0 10px;
+}
+.fm-nav ul li{
     list-style:none;
     float:left;
 }
