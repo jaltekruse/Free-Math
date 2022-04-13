@@ -921,7 +921,7 @@ class AssignmentEditorMenubar extends React.Component {
                     value={this.props.value}
                     selectSubmissionCallback={selectSubmissionCallback}
                     ref="submissionSelector"/>
-                <div style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div className="fm-nav">
                   <LogoHomeNav />&nbsp;&nbsp;&nbsp;&nbsp;
                   <span className="navBarElms" style={{paddingTop: "10px", lineHeight : 1}}>
 

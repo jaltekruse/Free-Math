@@ -1182,11 +1182,9 @@ class DefaultHomepageActions extends React.Component {
                     </div>
             )} />
             <div className="menuBar">
-                <div style={{maxWidth:1024,marginLeft:"auto",
-                             marginRight:"auto", padding: "0 10px 0 10px"}}
-                     className="nav">
+                <div className="fm-nav">
                     <LogoHomeNav />
-                    <div className="navBarElms" style={{float:"right"}}>
+                    <div className="navBarElms float-end" style={{float:"right"}}>
                     <a href="gettingStarted.html"
                         style={{color:"white", marginRight:"15px"}} >
                             Get Started

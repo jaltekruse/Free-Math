@@ -125,7 +125,7 @@ class GradingMenuBar extends React.Component {
         }
         return (
             <div className="menuBar">
-                <div className="nav" style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}}>
+                <div className="fm-nav" style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav />
                     <div className="navBarElms" style={{float: "right", marginTop: "0px",
                                                         verticalAlign:"top", lineHeight : 1}}>
@@ -230,7 +230,7 @@ export class ModalWhileGradingMenuBar extends React.Component {
     render() {
         return (
             <div className="menuBar">
-                <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
+                <div className="fm-nav">
                     <div style={{float:"left"}}><LogoHomeNav /></div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <div style={{float:"left", verticalAlign:"top",
                                  marginTop:"5px", lineHeight : 1}}>
