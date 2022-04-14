@@ -33,7 +33,7 @@
     "whatwg-fetch": "2.0.3"
   },
   "dependencies": {
-    "@toast-ui/react-image-editor": "github:jaltekruse/toast-ui.react-image-editor#10f7fb71dc7b131a01a550ad27fa3b1af058f729",
+    "@toast-ui/react-image-editor": "github:jaltekruse/toast-ui.react-image-editor#a25d4df5ad27abe7c2a97ffb04af55e912859ab3",
     "@ungap/url-search-params": "^0.2.2",
     "chart.js": "^2.5.0",
     "create-react-class": "^15.6.3",
