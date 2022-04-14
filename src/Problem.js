@@ -16,6 +16,10 @@ import { blankImgBase64 } from './blankImgBase64.js';
 import TextareaAutosize from 'react-textarea-autosize';
 import {useCallback} from 'react'
 import {useDropzone} from 'react-dropzone'
+import {jsPDF} from 'jspdf';
+import {html2canvas} from 'html2canvas';
+import { renderToStaticMarkup } from 'react-dom/server';
+
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -26,6 +30,8 @@ import Cropper from 'react-cropper';
 // when this is not at the end of the list and a new
 // step is added it moves to the end of the list as
 // the redo history in this case will be lost
+
+window.html2canvas = html2canvas;
 
 // index in list
 var STEP_KEY = 'STEP_KEY';
@@ -446,7 +452,7 @@ function ImgDropzone(props) {
     <div {...getRootProps()}>
         <div className="homepage-disappear-mobile"
           style={{verticalAlign: "top",
-                  padding: "10px", border: "2px dashed", marginTop: "15px", minHeight: "80px"}}>
+                  padding: "10px", border: "2px", marginTop: "15px", minHeight: "80px"}}>
           <input {...getInputProps()} />
           {
             isDragActive ?
@@ -1331,6 +1337,18 @@ class Problem extends React.Component {
                     </div>
                     <div>
                         <div className="equation-list" style={{marginTop: "10px", paddingBottom:"350px"}}>
+                            <Button type="submit" className="long-problem-action-button fm-button" text="export PDF"
+                                    title="Export pdf"
+                                    onClick={function() {
+                                        const doc = new jsPDF('p', 'px', 'a3', true);
+                                        doc.html(document.getElementsByClassName('equation-list')[0], {
+                                          callback: function(pdf) {
+                                            pdf.save('test.pdf');
+                                          }
+                                        });
+                                        //doc.save("a4.pdf"); // will save the file in the current working directory
+                                    }}
+                            />
                             <small style={{marginRight: "10px"}}>Problem Number</small>
                             <input type="text" style={{width: "95px"}}
                                    value={probNumber} className="problem-number"
