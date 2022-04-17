@@ -424,6 +424,13 @@ div.problem-container {
     width:800px;
 }
 
+.single-step .delete-step {
+    visibility: hidden
+}
+.single-step:hover .delete-step {
+    visibility: visible
+}
+
 .big-mobile-button {
     height:auto;
     float:left;

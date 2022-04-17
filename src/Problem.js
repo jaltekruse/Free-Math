@@ -972,7 +972,8 @@ class Step extends React.Component {
                     <span>Repeat until you have reached your solution on
                           the last line you edit.</span></div></div>) : null}
             <div style={{display:"block"}}>
-        <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}>
+        <div style={{"float":"left","display":"flex", flexDirection: "row", width: "98%", alignItems: "center"}}
+             className="single-step">
             <div className="step-actions">
               <div style={{
                   position: 'relative',
@@ -1163,14 +1164,17 @@ class Step extends React.Component {
                     />
                 </div>
             }
-            <CloseButton text="&#10005;" title='Delete step'
-                style={{marginLeft: "10px"}}
-                onClick={function(value) {
-                    window.store.dispatch(
-                        { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
-                          STEP_KEY : stepIndex});
-                    focusStepCallback(stepIndex);
-                }}/>
+            <div style={{display: "inline-block"}}
+                 className="delete-step">
+                <CloseButton text="&#10005;" title='Delete step'
+                    style={{marginLeft: "10px"}}
+                    onClick={function(value) {
+                        window.store.dispatch(
+                            { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
+                              STEP_KEY : stepIndex});
+                        focusStepCallback(stepIndex);
+                    }}/>
+            </div>
             </div>
             </div>
             <div style={{"clear":"both"}} />
