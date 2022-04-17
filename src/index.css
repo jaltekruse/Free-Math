@@ -431,6 +431,14 @@ div.problem-container {
     visibility: visible
 }
 
+.single-step .text-step-instructions{
+    visibility: hidden 
+}
+
+.single-step:focus-within .text-step-instructions{
+    visibility: visible
+}
+
 .big-mobile-button {
     height:auto;
     float:left;

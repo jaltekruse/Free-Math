@@ -820,7 +820,7 @@ class ImageStep extends React.Component {
                                     : null
                                 }
                                 <img src={step[CONTENT]} alt="Uploaded student work"
-                                     style={{margin : "10px", maxHeight: "700px", maxWidth:"98%", border: "solid"}}
+                                     style={{margin : "2px", maxHeight: "700px", maxWidth:"98%", border: "solid"}}
                                      onMouseDown={(e) => {
                                             // only use left click
                                             if (e.button !== 0) return;
@@ -1038,9 +1038,13 @@ class Step extends React.Component {
                 :
                 step[FORMAT] === TEXT ?
                     (
-                        <span>
+                        <span className="text-step">
                         <TextareaAutosize value={step[CONTENT]}
-                            style={{...styles, fontSize: "15px", margin: "10px 10px 0px 10px"}}
+                            style={{...styles, fontSize: "15px", margin: "2px 2px 0px 0px",
+                                    border: !step[CONTENT] || step[CONTENT].trim() === ''
+                                    ? '1px solid #555555'
+                                    : '1px solid transparent'
+                            }}
                             className="text-step-input"
                             minRows="2"
                             ref={(ref) => this.stepRef = ref }
@@ -1096,7 +1100,9 @@ class Step extends React.Component {
                                 }
                             }}
                         />
-                        <div style={{display:"block", marginLeft: "15px", color: "grey"}}>
+                        <div className="text-step-instructions"
+                             style={{display:"block", marginLeft: "15px", color: "grey"
+                        }}>
                             <small>Use Shift+Enter to add a new step after a text box.</small>
                         </div>
                         </span>
@@ -1106,7 +1112,7 @@ class Step extends React.Component {
                     ref={this.parentDivRef}
                     style={{...styles,
                             border: !step[CONTENT] || step[CONTENT].trim() === ''
-                            ? '1px solid #cccccc'
+                            ? '1px solid #555555'
                             : '1px solid transparent' }}
                     onKeyDown={function(evt) {
                             if (evt.shiftKey && evt.key === 'Enter') {
