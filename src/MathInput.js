@@ -524,7 +524,7 @@ class MathInput extends React.Component {
             <div style={{...this.props.styles, display: 'inline-block'}}>
                 <span className={className}
                       ref="mathinput"
-                      style={{minWidth:'200px', padding:'5px', margin: '10px'}}
+                      style={{minWidth:'200px', padding:'5px', margin: '2px'}}
                       aria-label={this.props.labelText}
                       onFocus={this.handleFocus}
                       onBlur={this.handleBlur} />
