@@ -1103,7 +1103,10 @@ class Step extends React.Component {
                 :
                 <div
                     ref={this.parentDivRef}
-                    style={{...styles}}
+                    style={{...styles,
+                            border: !step[CONTENT] || step[CONTENT].trim() === ''
+                            ? '1px solid #cccccc'
+                            : '1px solid transparent' }}
                     onKeyDown={function(evt) {
                             if (evt.shiftKey && evt.key === 'Enter') {
                                 window.store.dispatch(
