@@ -109,6 +109,7 @@ var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var PROBLEM_NUMBER = 'PROBLEM_NUMBER';
 var FABRIC_SRC = 'FABRIC_SRC';
 var NEW_FABRIC_SRC = 'NEW_FABRIC_SRC';
+var TEXT_STEP_WIDTH = 'TEXT_STEP_WIDTH';
 
 // CSS constants
 var SOFT_RED = '#FFDEDE';
@@ -582,8 +583,6 @@ class ImageStep extends React.Component {
             window.ga('send', 'event', 'Actions', 'save', 'Marked image feedback');
             const editorInstance = this.editorRef.current.getInstance();
             const fabricSrc = editorInstance._graphics._canvas.toJSON();
-            //console.log(fabricSrc);
-            //console.log(editorInstance);
             handleImgUrl(editorInstance.toDataURL({format: 'jpeg'}), stepIndex, problemIndex, steps,
                          fabricSrc);
             window.ephemeralStore.dispatch({
@@ -606,30 +605,25 @@ class ImageStep extends React.Component {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
 
-        console.log(windowWidth, windowHeight);
-        console.log(windowWidth, windowHeight * 1.2);
         const onVerticalScreen = windowHeight > windowWidth * .75;
         var imageEditorWidth, imageEditorHeight;
         var canvasWidth, canvasHeight;
         var imageEditorMenuPos;
         if (onVerticalScreen) {
-            console.log("phone or tablet");
             imageEditorWidth = windowWidth - 40;
             imageEditorHeight = windowHeight - 70;
             canvasWidth = windowWidth - 70;
             canvasHeight = windowHeight - 300;
-            console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
+            //console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'top';
         } else {
-            console.log("desktop");
             imageEditorWidth = windowWidth - 70;
             imageEditorHeight = windowHeight - 70;
             canvasWidth = windowWidth - 400;
             canvasHeight = windowHeight - 100;
-            console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
+            //console.log(imageEditorWidth, imageEditorHeight, canvasWidth, canvasHeight, imageEditorMenuPos);
             imageEditorMenuPos = 'left';
         }
-        console.log(whiteTheme);
 
         return (
             <div className="mathStepEditor" style={{marginTop: "20px"}}>
@@ -930,6 +924,11 @@ class Step extends React.Component {
         } else if (step[HIGHLIGHT] === ERROR) {
             styles = {backgroundColor : SOFT_RED};
         }
+
+        if (step[TEXT_STEP_WIDTH]) {
+            styles = {...styles, width: step[TEXT_STEP_WIDTH]};
+        }
+
         return (
         <div key={step[STEP_ID]} style={{width:"95%"}}>
             {showImgTutorial && stepIndex === 0 ?
@@ -1048,6 +1047,21 @@ class Step extends React.Component {
                             className="text-step-input"
                             minRows="2"
                             ref={(ref) => this.stepRef = ref }
+                            onMouseUp={
+                                function(evt) {
+                                    // does not capture the height deliberately, TextareaAutosize
+                                    // will automatically adjust the height to the number of lines
+                                    // of actual content (even blank lines) from the text
+                                    // that gets saved, so while users can resize the input box in
+                                    // both dimensions only the adjusted width will be preserved
+                                    window.store.dispatch({
+                                        type : EDIT_STEP, PROBLEM_INDEX : problemIndex,
+                                        FORMAT : step[FORMAT], STEP_KEY : stepIndex,
+                                        NEW_STEP_CONTENT : step[CONTENT],
+                                        TEXT_STEP_WIDTH: evt.target.style.width,
+                                    });
+                                }
+                            }
                             onChange={
                                 function(evt) {
                                     window.store.dispatch({
@@ -1566,12 +1580,20 @@ function problemReducer(problem, action) {
             updateLastUndoAction = false;
         }
 
+        // updating this property should always happen in isolation from other edits like changing the text
+        // don't ever update a previous action in the undo stack when we are setting a new width, make it
+        // a unique new entry in the undo list
+        if (action[TEXT_STEP_WIDTH]) {
+            updateLastUndoAction = false;
+        }
+
         let inverseAction = {
             ...action,
             INVERSE_ACTION : {
                 type : EDIT_STEP,
                 STEP_KEY: action[STEP_KEY],
                 FORMAT: currFormat,
+                TEXT_STEP_WIDTH: currStep[TEXT_STEP_WIDTH],
                 INVERSE_ACTION : {
                     ...action,
                     EDIT_TYPE : editType,
@@ -1607,6 +1629,7 @@ function problemReducer(problem, action) {
                      CONTENT : newContent,
                      FABRIC_SRC : newFabficSrc,
                      FORMAT : action[FORMAT],
+                    TEXT_STEP_WIDTH: action[TEXT_STEP_WIDTH],
                 },
                 ...problem[STEPS].slice(action[STEP_KEY] + 1)
             ]
@@ -1758,8 +1781,6 @@ function problemReducer(problem, action) {
 
 // reducer for the list of problems in an assignment
 function problemListReducer(probList, action) {
-    console.log(action);
-    //console.log(probList);
     if (probList === undefined) {
         return [ problemReducer(undefined, action) ];
     }
