@@ -416,8 +416,9 @@ div.problem-container {
     padding:20px;
 }
 
+
 .wide-tex-button {
-    width:100px
+    width:90px
 }
 
 .text-step-input {
@@ -526,6 +527,11 @@ div.problem-container {
     .mathStepEditor {
         max-width:400px
     }
+
+    .math-keyboard-button-rows{
+        width: 410px
+    }
+
     .math-input-buttons {
         background-color: rgba(245, 245, 245, 0.9);
         border-radius: 5px;
@@ -610,6 +616,11 @@ div.problem-container {
         max-width:800px;
         min-width:750px
     }
+
+    .math-keyboard-button-rows{
+        width: 510px
+    }
+
     .math-input-buttons {
         background-color: rgba(245, 245, 245, 0.9);
         border-radius: 5px;
