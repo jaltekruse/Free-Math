@@ -81,6 +81,7 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 
 // when grading google classroom docs, show student name instead of filename
 var STUDENT_NAME = 'STUDENT_NAME';
+var DRIVE_FILENAME = 'DRIVE_FILENAME';
 // needed to update the student grade while saving to classroom
 var STUDENT_SUBMISSION_ID = 'STUDENT_SUBMISSION_ID';
 
@@ -610,6 +611,7 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
     // map indexed by student assignment filename
     var assignments = {};
     var allProblems = aggregatedAndGradedWork[PROBLEMS];
+    var googleIdToFilenames = {};
 
     const handleSingleSolution =
         function(singleSolution, index, arr) {
@@ -631,6 +633,9 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
             // student assignments are opened
             studentAssignment[PROBLEMS].push(singleSolutionCloned);
             assignments[singleSolution[STUDENT_FILE]] = studentAssignment;
+            if (singleSolution[DRIVE_FILENAME]) {
+                googleIdToFilenames[singleSolution[STUDENT_FILE]] = singleSolution[DRIVE_FILENAME];
+            }
     };
 
     const handleAllWorkForSingleSolution =
@@ -645,9 +650,34 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
             uniqueAnswers.forEach(handleAllWorkForSingleSolution);
         }
     }
+    // a drive folder does not enforce unique filesnames inside of it, look for overlaps
+    // using as a hashset, map filesnames to boolean tru in all cases
+    let allGoogleFilenames = {};
+    // store filenames that overlap as they are found
+    let duplicateFilenames = {};
+    for (let googleId in googleIdToFilenames) {
+        if (googleIdToFilenames.hasOwnProperty(googleId)) {
+            if (allGoogleFilenames[googleIdToFilenames[googleId]]) {
+                duplicateFilenames += googleIdToFilenames[googleId];
+            }
+            allGoogleFilenames[googleIdToFilenames[googleId]] = true;
+        }
+    }
     for (let filename in assignments) {
         if (assignments.hasOwnProperty(filename)) {
-            assignments[filename] = makeBackwardsCompatible(
+            let finalFilename = filename;
+            // note if this is true, we are editing a google classroom assignment and
+            // the google drive file ID is sitting where the filename usually is
+            // so this is referencing into a map from google IDs to real filenames,
+            // but confusingly the variable referencing into the map is filename
+            if (googleIdToFilenames[filename]) {
+                if (duplicateFilenames[googleIdToFilenames[filename]]) {
+                    finalFilename = filename + "_" + googleIdToFilenames[filename];
+                } else {
+                    finalFilename = googleIdToFilenames[filename];
+                }
+            }
+            assignments[finalFilename] = makeBackwardsCompatible(
                 removeOriginalStudentImages(assignments[filename]));
         }
     }
@@ -1074,6 +1104,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                   ...problem,
                   STUDENT_FILE : assignInfo[STUDENT_FILE],
                   STUDENT_NAME : assignInfo[STUDENT_NAME],
+                  DRIVE_FILENAME : assignInfo[DRIVE_FILENAME],
                   STUDENT_SUBMISSION_ID : assignInfo[STUDENT_SUBMISSION_ID],
                   AUTOMATICALLY_ASSIGNED_SCORE : automaticallyAssignedGrade,
                   SCORE : automaticallyAssignedGrade,
