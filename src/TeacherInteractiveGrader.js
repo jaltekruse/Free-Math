@@ -613,8 +613,6 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork, restoreDr
     var allProblems = aggregatedAndGradedWork[PROBLEMS];
     var googleIdToFilenames = {};
 
-    console.log(aggregatedAndGradedWork);
-
     const handleSingleSolution =
         function(singleSolution, index, arr) {
             var studentAssignment = assignments[singleSolution[STUDENT_FILE]];
@@ -634,11 +632,12 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork, restoreDr
             // The app fills in a score of 0 for everything right now when
             // student assignments are opened
             studentAssignment[PROBLEMS].push(singleSolutionCloned);
-            console.log("adding student doc with filename");
-            console.log(singleSolution[STUDENT_FILE]);
             assignments[singleSolution[STUDENT_FILE]] = studentAssignment;
             if (singleSolution[DRIVE_FILENAME] && restoreDriveFilenames) {
-                googleIdToFilenames[singleSolution[STUDENT_FILE]] = singleSolution[DRIVE_FILENAME];
+                googleIdToFilenames[singleSolution[STUDENT_FILE]] = {
+                    DRIVE_FILENAME: singleSolution[DRIVE_FILENAME],
+                    STUDENT_NAME: singleSolution[STUDENT_NAME]
+                }
             }
     };
 
@@ -661,14 +660,12 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork, restoreDr
     let duplicateFilenames = {};
     for (let googleId in googleIdToFilenames) {
         if (googleIdToFilenames.hasOwnProperty(googleId)) {
-            if (allGoogleFilenames[googleIdToFilenames[googleId]]) {
-                duplicateFilenames[googleIdToFilenames[googleId]] = true;
+            if (allGoogleFilenames[googleIdToFilenames[googleId][DRIVE_FILENAME]]) {
+                duplicateFilenames[googleIdToFilenames[googleId][DRIVE_FILENAME]] = true;
             }
-            allGoogleFilenames[googleIdToFilenames[googleId]] = true;
+            allGoogleFilenames[googleIdToFilenames[googleId][DRIVE_FILENAME]] = true;
         }
     }
-    console.log(assignments);
-    console.log(duplicateFilenames);
     let cleanedAssignments = {};
     for (let filename in assignments) {
         if (assignments.hasOwnProperty(filename)) {
@@ -678,10 +675,13 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork, restoreDr
             // so this is referencing into a map from google IDs to real filenames,
             // but confusingly the variable referencing into the map is filename
             if (googleIdToFilenames[filename]) {
-                if (duplicateFilenames[googleIdToFilenames[filename]]) {
-                    finalFilename = filename + "_" + googleIdToFilenames[filename];
+                if (duplicateFilenames[googleIdToFilenames[filename][DRIVE_FILENAME]]) {
+                    finalFilename =
+                        googleIdToFilenames[filename][STUDENT_NAME]
+                        + "_" + filename
+                        + "_" + googleIdToFilenames[filename][DRIVE_FILENAME];
                 } else {
-                    finalFilename = googleIdToFilenames[filename];
+                    finalFilename = googleIdToFilenames[filename][DRIVE_FILENAME];
                 }
             }
             cleanedAssignments[finalFilename] = makeBackwardsCompatible(
