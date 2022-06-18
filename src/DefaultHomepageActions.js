@@ -43,6 +43,7 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 
 // when grading google classroom docs, show student name instead of filename
 var STUDENT_NAME = 'STUDENT_NAME';
+var DRIVE_FILENAME = 'DRIVE_FILENAME';
 // needed to update the student grade while saving to classroom
 var STUDENT_SUBMISSION_ID = 'STUDENT_SUBMISSION_ID';
 
@@ -478,11 +479,16 @@ class UserActions extends React.Component {
                                     }
                                 }
                                 console.log(submission);
+                                // TODO - students can attach other things like a link or youtube video
+                                // should warn teachers if these are done, I think this current code
+                                // will just fail
+                                // TODO - also confirm what this overall block does if there is a bug
+                                // like this, should make sure it is fault tolerant
                                 var attachment = attachments[0].driveFile;
                                 // TODO - pull in student name, don't just show filename
                                 pendingOpens++;
                                 console.log(attachment.id);
-                                downloadQueue.push({ GOOGLE_ID: attachment.id, STUDENT_NAME: students[submission.userId],
+                                downloadQueue.push({ GOOGLE_ID: attachment.id, DRIVE_FILENAME: attachment.title,  STUDENT_NAME: students[submission.userId],
                                                      STUDENT_SUBMISSION_ID: submission.id });
                             });
 
@@ -552,6 +558,8 @@ class UserActions extends React.Component {
                                         }
                                     }
                                     // Note for handling nav away from grading, this is cleared in LogoNavHome
+                                    // TODO - I think I simplified this by just making the logo a real link
+                                    // to force a full page refresh
                                     window.checkUnsumitsInterval = setInterval(checkForUnsubmits, 1000 * 120);
 
                                     var aggregatedWork = aggregateStudentWork(allStudentWork);
@@ -580,18 +588,18 @@ class UserActions extends React.Component {
                                 }
                             }.bind(this);
 
-                            const downloadFile = function(fileId, studentName, submissionId) {
+                            const downloadFile = function(fileId, driveFilename, studentName, submissionId) {
                                 downloadFileNoFailureAlert(fileId, true,
                                     function(response) {
-                                        var newDoc = openAssignment(response, "filename" /* TODO */);
+                                        var newDoc = openAssignment(response, driveFilename);
                                         allStudentWork.push(
-                                            { STUDENT_FILE : fileId, STUDENT_NAME: studentName,
+                                            { STUDENT_FILE : fileId, DRIVE_FILENAME: driveFilename, STUDENT_NAME: studentName,
                                               STUDENT_SUBMISSION_ID: submissionId,
                                               ASSIGNMENT : newDoc[PROBLEMS]});
                                         pendingOpens--;
                                         if (downloadQueue.length > 0) {
                                             let next = downloadQueue.pop();
-                                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
+                                            downloadFile(next[GOOGLE_ID], next[DRIVE_FILENAME], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
                                         } else {
                                             checkAllDownloaded();
                                         }
@@ -601,7 +609,7 @@ class UserActions extends React.Component {
                                         pendingOpens--;
                                         if (downloadQueue.length > 0) {
                                             let next = downloadQueue.pop();
-                                            downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
+                                            downloadFile(next[GOOGLE_ID], next[DRIVE_FILENAME], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
                                         } else {
                                             checkAllDownloaded();
                                         }
@@ -617,7 +625,7 @@ class UserActions extends React.Component {
                             let i;
                             for (i = 0; i < CONCURRENT_REQUESTS && downloadQueue.length > 0; i++) {
                                 let next = downloadQueue.pop();
-                                downloadFile(next[GOOGLE_ID], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
+                                downloadFile(next[GOOGLE_ID], next[DRIVE_FILENAME], next[STUDENT_NAME], next[STUDENT_SUBMISSION_ID]);
                             }
                         }.bind(this), function(){this.closeSpinner()}.bind(this));
 

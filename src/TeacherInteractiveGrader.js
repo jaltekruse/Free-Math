@@ -81,6 +81,7 @@ var NAV_BACK_TO_GRADING = 'NAV_BACK_TO_GRADING';
 
 // when grading google classroom docs, show student name instead of filename
 var STUDENT_NAME = 'STUDENT_NAME';
+var DRIVE_FILENAME = 'DRIVE_FILENAME';
 // needed to update the student grade while saving to classroom
 var STUDENT_SUBMISSION_ID = 'STUDENT_SUBMISSION_ID';
 
@@ -604,12 +605,13 @@ function calculateGradingOverview(allProblems) {
 //      "POSSIBLE_POINTS : 3,
 //      "UNIQUE_ANSWERS" : [ { ANSWER : "x=7", FILTER : "SHOW_ALL"/"SHOW_NONE", STUDENT_WORK : [ {STUDENT_FILE : "jason", AUTOMATICALLY_ASSIGNED_SCORE : 3,
 //                             STEPS : [ { CONTENT : "2x=14"},{ CONTENT : "x=7", HIGHLIGHT : SUCCESS ]} ] } } ]}
-function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
+function separateIndividualStudentAssignments(aggregatedAndGradedWork, restoreDriveFilenames = false) {
     // TODO - when reading in student files above make sure to uniquify
     // names that overlap and give a warning
     // map indexed by student assignment filename
     var assignments = {};
     var allProblems = aggregatedAndGradedWork[PROBLEMS];
+    var googleIdToFilenames = {};
 
     const handleSingleSolution =
         function(singleSolution, index, arr) {
@@ -631,6 +633,12 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
             // student assignments are opened
             studentAssignment[PROBLEMS].push(singleSolutionCloned);
             assignments[singleSolution[STUDENT_FILE]] = studentAssignment;
+            if (singleSolution[DRIVE_FILENAME] && restoreDriveFilenames) {
+                googleIdToFilenames[singleSolution[STUDENT_FILE]] = {
+                    DRIVE_FILENAME: singleSolution[DRIVE_FILENAME],
+                    STUDENT_NAME: singleSolution[STUDENT_NAME]
+                }
+            }
     };
 
     const handleAllWorkForSingleSolution =
@@ -645,13 +653,42 @@ function separateIndividualStudentAssignments(aggregatedAndGradedWork) {
             uniqueAnswers.forEach(handleAllWorkForSingleSolution);
         }
     }
+    // a drive folder does not enforce unique filesnames inside of it, look for overlaps
+    // using as a hashset, map filesnames to boolean tru in all cases
+    let allGoogleFilenames = {};
+    // store filenames that overlap as they are found
+    let duplicateFilenames = {};
+    for (let googleId in googleIdToFilenames) {
+        if (googleIdToFilenames.hasOwnProperty(googleId)) {
+            if (allGoogleFilenames[googleIdToFilenames[googleId][DRIVE_FILENAME]]) {
+                duplicateFilenames[googleIdToFilenames[googleId][DRIVE_FILENAME]] = true;
+            }
+            allGoogleFilenames[googleIdToFilenames[googleId][DRIVE_FILENAME]] = true;
+        }
+    }
+    let cleanedAssignments = {};
     for (let filename in assignments) {
         if (assignments.hasOwnProperty(filename)) {
-            assignments[filename] = makeBackwardsCompatible(
+            let finalFilename = filename;
+            // note if this is true, we are editing a google classroom assignment and
+            // the google drive file ID is sitting where the filename usually is
+            // so this is referencing into a map from google IDs to real filenames,
+            // but confusingly the variable referencing into the map is filename
+            if (googleIdToFilenames[filename]) {
+                if (duplicateFilenames[googleIdToFilenames[filename][DRIVE_FILENAME]]) {
+                    finalFilename =
+                        googleIdToFilenames[filename][STUDENT_NAME]
+                        + "_" + filename
+                        + "_" + googleIdToFilenames[filename][DRIVE_FILENAME];
+                } else {
+                    finalFilename = googleIdToFilenames[filename][DRIVE_FILENAME];
+                }
+            }
+            cleanedAssignments[finalFilename] = makeBackwardsCompatible(
                 removeOriginalStudentImages(assignments[filename]));
         }
     }
-    return assignments;
+    return cleanedAssignments;
 }
 
 // Students in google classroom can unsubmit/reclaim their documents.
@@ -856,7 +893,7 @@ function saveGradedStudentWorkToBlob(gradedWork, handleFinalBlobCallback = funct
     // temporarily disable data loss warning
     window.onbeforeunload = null;
 
-    var separatedAssignments = separateIndividualStudentAssignments(gradedWork);
+    var separatedAssignments = separateIndividualStudentAssignments(gradedWork, true);
     var zip = new JSZip();
     var filesBeingAddedToZip = 0;
     const handleBlobFunc = function(filename) {
@@ -1074,6 +1111,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
                   ...problem,
                   STUDENT_FILE : assignInfo[STUDENT_FILE],
                   STUDENT_NAME : assignInfo[STUDENT_NAME],
+                  DRIVE_FILENAME : assignInfo[DRIVE_FILENAME],
                   STUDENT_SUBMISSION_ID : assignInfo[STUDENT_SUBMISSION_ID],
                   AUTOMATICALLY_ASSIGNED_SCORE : automaticallyAssignedGrade,
                   SCORE : automaticallyAssignedGrade,
