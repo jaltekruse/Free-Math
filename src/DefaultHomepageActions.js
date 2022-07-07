@@ -13,6 +13,7 @@ import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
 import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
          listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads } from './GoogleApi.js';
+import { Editor } from '@pm-react-example/full-v2';
 
 var MathQuill = window.MathQuill;
 
@@ -107,6 +108,8 @@ function render() {
     const globalState = getCompositeState();
     ReactDOM.render(
         <div>
+            <Editor />
+        {/*
             <FreeMathModal
                 showModal={ typeof globalState[GLOBAL_WAITING_MSG] === 'string'
                             && globalState[GLOBAL_WAITING_MSG].trim() !== '' }
@@ -123,7 +126,9 @@ function render() {
             />
 
             <FreeMath value={globalState} />
-        </div>,
+        */}
+        </div>
+        ,
         document.getElementById('root')
     );
 }
