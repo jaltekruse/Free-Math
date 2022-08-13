@@ -1,0 +1,1081 @@
+<html>
+   <head>
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script src="https://apis.google.com/_/scs/abc-static/_/js/k=gapi.lb.en.S0MFEB7Jrgw.O/m=drive/exm=auth2,client,picker/rt=j/sv=1/d=1/ed=1/rs=AHpOoo_rrjPu-arphKs_q6oTtOBLYqL7zQ/cb=gapi.loaded_2?le=scs" async=""></script><script src="https://apis.google.com/_/scs/abc-static/_/js/k=gapi.lb.en.S0MFEB7Jrgw.O/m=picker/exm=auth2,client/rt=j/sv=1/d=1/ed=1/rs=AHpOoo_rrjPu-arphKs_q6oTtOBLYqL7zQ/cb=gapi.loaded_1?le=scs" async=""></script><script src="https://apis.google.com/_/scs/abc-static/_/js/k=gapi.lb.en.S0MFEB7Jrgw.O/m=auth2,client/rt=j/sv=1/d=1/ed=1/rs=AHpOoo_rrjPu-arphKs_q6oTtOBLYqL7zQ/cb=gapi.loaded_0?le=scs" async=""></script><script type="text/javascript" async="" src="https://www.google-analytics.com/analytics.js"></script><script async="" src="https://www.google-analytics.com/analytics.js"></script><script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script>
+      <script>
+         window.dataLayer = window.dataLayer || [];
+         function gtag(){dataLayer.push(arguments);}
+         gtag('js', new Date());
+         
+         gtag('config', 'UA-70441517-2');
+      </script>
+      <!-- Google Analytics -->
+      <script>
+         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+         })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+         
+         ga('create', 'UA-70441517-2', 'auto');
+      </script>
+      <!-- End Google Analytics -->
+      <!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF -->
+      <meta name="viewport" content="width=624, user-scalable=no">
+      <meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
+      <meta property="og:site_name" content="Free Math">
+      <title>Free Math - Collect, Organize and Review Digital Math Homework</title>
+      <link href="https://fonts.googleapis.com/css?family=Roboto&amp;display=swap" rel="stylesheet">
+      <!--link rel="stylesheet" type="text/css" href="../perseus.css"-->
+      <!-- testing -->
+      <script src="expect.min.js"></script>
+      <!-- UI react-->
+      <!-- saving to local disk -->
+      <!-- <script type="text/javascript" src="filesaver_js.js"></script> -->
+      <!-- reading ZIP files -->
+      <!-- <script type="text/javascript" src="jszip.min.js"></script> -->
+      <!-- Only use this for MathQuill! -->
+      <!-- <script src="https://code.jquery.com/jquery-1.7.2.min.js"
+         integrity="sha256-R7aNzoy2gFrVs+pNJ6+SokH04ppcEqJ0yFLkNGoFALQ="
+         crossorigin="anonymous"></script> -->
+      <script src="lib/jquery.js"></script>
+      <!-- <script src="redux.js"></script> -->
+      <!-- TODO CLEANUP - this is currently included at the npm level as well to make it available for unit tests -->
+      <!-- May cause problems -->
+      <script src="lib/underscore.js"></script>
+      <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script>
+      <script src="lib/kas.js"></script>
+      <script src="lib/i18n.js"></script>
+      <!-- needed for KAS, as well as general utility functions -->
+      <!-- for KAS, investivate impact of lodash vs underscore https://github.com/Khan/KAS/issues/9 -->
+      <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
+      <!-- <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script> -->
+      <script src="lib/mathjax/2.1/MathJax.js">
+         <!-- Needed for static math rendering borrowed from Kahn Perseus project -->
+         <script type="text/javascript" src="katexA11.js">
+      </script>
+      <!-- for comparing expressions KAS (Khan algebra system) -->
+      <script type="text/javascript" src="kas.min.js"></script>
+      <!-- for diffing JSON structures -->
+      <!-- <script type="text/javascript" src="diff.js"></script> -->
+      <!-- Katex -->
+      <link rel="stylesheet" href="katex.min.css">
+      <script src="katex.min.js"></script>
+      <script type="text/javascript">
+         var clientLoaded = false;
+         function handleClientLoad() {
+             console.log('handleClientLoad');
+             if (!clientLoaded &&
+                 typeof handleGoogleClientLoad !== "undefined" &&
+                 typeof gapi !== "undefined") {
+                 clientLoaded = true;
+                 console.log('actuallly execute handleClientLoad');
+                 window.handleGoogleClientLoad();
+             }
+         }
+      </script>
+      <script async="" defer="" src="https://apis.google.com/js/api.js" onload="this.onload=function(){};handleClientLoad();" onreadystatechange="if (this.readyState === 'complete') this.onload()" gapi_processed="true"></script>
+      <!-- <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>-->
+      <link rel="stylesheet" type="text/css" href="build/mathquill_2199664.css">
+      <script type="text/javascript" src="build/mathquill_2199664.min.js"></script>
+      <!-- App state management -->
+      <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script> -->
+      <link rel="stylesheet" href="lib/cropper.min.css">
+      <link rel="stylesheet" href="lib/tui-image-editor.min.css">
+      <link rel="stylesheet" href="lib/tui-color-picker.min.css">
+      <style>
+         /* hack to hide buttons I don't want on the toast UI image editor */
+         .tui-image-editor-controls-buttons {
+         visibility: hidden;
+         }
+         .tui-image-editor-controls-logo {
+         visibility: hidden;
+         }
+         .tui-image-editor-header {
+         display: none;
+         }
+         .tui-image-editor-header-buttons {
+         visibility: hidden;
+         }
+         .tui-image-editor-header-logo {
+         visibility: hidden;
+         }
+         .tui-image-editor {
+         border-color: black;
+         border-style: solid;
+         }
+         /* And remove the extra space for the bar that had these buttons */
+         .tui-image-editor-container .tui-image-editor-main {
+         position: absolute;
+         text-align: center;
+         top: 0px;
+         bottom: 0;
+         right: 0;
+         left: 0;
+         }
+         /* Remove box around mathquills */
+         .mq-editable-field, .mq-math-mode .mq-editable-field {
+         border: none;
+         }
+      </style>
+      <style type="text/css">/*
+         Copied from persus project
+         */
+         .math-input-buttons.absolute {
+         left: -2px;
+         position: absolute;
+         top: 100px;
+         z-index: 101;
+         }
+         .tex-button {
+         display: block;
+         float: left;
+         width: 42px;
+         height: 42px;
+         margin: 2px;
+         border: 1px solid #1c758a;
+         background-color: white;
+         border-radius: 5px;
+         }
+         .tex-button:hover {
+         cursor: pointer;
+         background-color: #f0f0f0;
+         }
+         .tex-button:focus {
+         border: 2px solid #1c758a;
+         outline: none;
+         }
+         .tex-button-row {
+         margin: 5px 0;
+         }
+         .tex-button-row:first-child {
+         margin-top: 0;
+         }
+         .tex-button-row:last-child {
+         margin-bottom: 0;
+         }
+         /*
+         end of styles copied form perseus
+         */
+         .homepage-center {
+         width: 100%;
+         -ms-flex-align: center;
+         align-items: center;
+         display: -ms-flexbox;
+         display: flex;
+         -ms-flex-direction: column;
+         flex-direction: column;
+         text-align: center;
+         margin-left: auto;
+         margin-right: auto;
+         }
+         /* Hide the confusing "no file chosen" text on chrome*/
+         input[type='file'] {
+         color: transparent;
+         width: 200px;
+         overflow-x: hidden;
+         }
+         input[type='text'] {
+         padding: 5px
+         }
+         textarea {
+         padding: 5px
+         }
+         h1 {
+         font-size: 3.6em;
+         }
+         h2 {
+         font-size: 2.5em;
+         margin: 0;
+         color: #0d9600;
+         }
+         h3 {
+         font-size: 1.6em;
+         margin: 0;
+         }
+         h1 small {
+         font-size: 60%;
+         }
+         .homepage-headline {
+         padding: 0px 2vw 60px 2vw;
+         /* this is necesary to prevent the padding from adding to thw width */
+         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */    /* Firefox, other Gecko */
+         box-sizing: border-box;         /* Opera/IE 8+ */
+         }
+         .fm-button-light {
+         border: 2px solid transparent;
+         display: inline-block;
+         margin: 2px;
+         padding: 0px 8px 0px 8px;
+         background-color: white;
+         font-size: 12px;
+         font-weight: 600;
+         color: #212121;
+         border-radius: 15px;
+         }
+         .fm-button-light:hover {
+         cursor: pointer;
+         background-color: #f2f2f2;
+         }
+         .fm-button-light:focus {
+         border: 2px solid #ffa535;
+         outline: none;
+         }
+         .fm-button-light:disabled {
+         background-color: #eaeaea;
+         }
+         .fm-button-grey {
+         border: 2px solid transparent;
+         padding: 4px 8px;
+         margin: 4px;
+         background-color: gray;
+         color: #f1f1f1;
+         border-radius: 15px;
+         font-size: 12px;
+         font-weight: 600;
+         }
+         .fm-button-grey:disabled {
+         background-color: #eaeaea;
+         color: #212121;
+         }
+         a.fm-button-grey:hover
+         {
+         cursor: pointer;
+         background-color: #3b3b3b;
+         color: #f1f1f1;
+         }
+         .fm-button-grey:hover:enabled
+         {
+         cursor: pointer;
+         background-color: #3b3b3b;
+         }
+         .fm-button-grey:focus {
+         border: 2px solid #ffa535;
+         outline:0;
+         }
+         .fm-button-grey:active {
+         -webkit-transform: scale(0.99);
+         -ms-transform: scale(0.99);
+         transform: scale(0.99);
+         }
+         .fm-button-with-icon {
+         height: 58px;
+         width: 52px
+         }
+         .fm-button-icon {
+         margin-top: 3px;
+         height: 30px
+         }
+         .fm-button {
+         border: 2px solid transparent;
+         padding: 4px 6px;
+         margin: 4px;
+         background-color: #0d57bf;
+         color: #f1f1f1;
+         border-radius: 15px;
+         font-size: 12px;
+         font-weight: 600;
+         }
+         .fm-button:disabled {
+         background-color: #eaeaea;
+         color: #212121;
+         }
+         .fm-button-green:hover:enabled
+         {
+         cursor: pointer;
+         background-color: #052d66;
+         }
+         a.fm-button:hover
+         {
+         cursor: pointer;
+         background-color: #052d66;
+         color: #f1f1f1;
+         }
+         .fm-button:hover:enabled
+         {
+         cursor: pointer;
+         background-color: #052d66;
+         }
+         .fm-button:focus {
+         border: 2px solid #ffa535;
+         outline:0;
+         }
+         .fm-button:active {
+         -webkit-transform: scale(0.99);
+         -ms-transform: scale(0.99);
+         transform: scale(0.99);
+         }
+         .fm-button-green {
+         background-color: #008000
+         }
+         .fm-button-green:hover:enabled
+         {
+         cursor: pointer;
+         background-color: #005000
+         }
+         .fm-button-left {
+         border: 2px solid transparent;
+         padding: 4px 4px 4px 8px;
+         margin-left: 1px;
+         margin-right: 0px;
+         color: #111111;
+         border-top-left-radius: 15px;
+         border-bottom-left-radius: 15px;
+         border-top-right-radius: 0px;
+         border-bottom-right-radius: 0px;
+         font-size: 12px;
+         font-weight: 600;
+         }
+         .fm-button-left:focus {
+         border-left: 2px solid #ffa535;
+         border-top: 2px solid #ffa535;
+         border-top: 2px solid #ffa535;
+         outline:0;
+         }
+         .fm-button-right {
+         border: 2px solid transparent;
+         padding: 4px 8px 4px 4px;
+         margin-right: 1px;
+         margin-left: 0px;
+         color: #111111;
+         border-top-right-radius: 15px;
+         border-bottom-right-radius: 15px;
+         border-top-left-radius: 0px;
+         border-bottom-left-radius: 0px;
+         font-size: 12px;
+         font-weight: 600;
+         }
+         .fm-tab {
+         background-color: #e1e1e1
+         }
+         .fm-tab:hover:enabled {
+         background-color: #919191
+         }
+         .fm-tab-selected {
+         background-color: #b1b1b1
+         }
+         .fm-button-selected {
+         background-color: #052d66
+         }
+         .fm-button-selected:hover {
+         background-color: #011024
+         }
+         .fm-close-button {
+         border: 2px solid transparent;
+         float: right;
+         display: inline-block;
+         height: 20px;
+         margin: 2px;
+         padding: 3px 6px 20px 6px;
+         background-color: white;
+         border: 1px solid #d1d1d1;
+         color: #414141;
+         border-radius: 3px;
+         }
+         .fm-close-button:hover {
+         cursor: pointer;
+         background-color: #e0e0e0;
+         }
+         .fm-close-button:focus {
+         border: 2px solid #ffa535;
+         outline: none;
+         }
+         .navBarElms{
+         margin-top: 4px;
+         padding: 7px 5px 5px 5px;
+         }
+         div.answer-partially-correct {
+         padding: 10px;
+         border-radius: 2px;
+         border:1px solid #a4a4a4;
+         background-color:#FFFDBF;
+         }
+         div.answer-correct {
+         border-radius: 2px;
+         border:1px solid #a4a4a4;
+         background-color:#D0FFC9;
+         }
+         div.show-correct-div {
+         border:1px solid black;
+         background-color:#D0FFC9;
+         border-radius: 2px;
+         display:inline-block;
+         margin: 0px 5px 5px 0px;
+         padding: 5px 5px 5px 5px;
+         }
+         div.show-incorrect-div {
+         border:1px solid black;
+         background-color:#FFDEDE;
+         border-radius: 2px;
+         display:inline-block;
+         margin: 0px 5px 5px 0px;
+         padding: 5px 5px 5px 5px;
+         }
+         div.show-partially-correct-div {
+         border:1px solid black;
+         background-color:#FFFDBF;
+         border-radius: 2px;
+         display:inline-block;
+         margin: 0px 5px 5px 0px;
+         padding: 5px 5px 5px 5px;
+         }
+         div.show-complete-div {
+         border:1px solid black;
+         background-color:#DEDEDE;
+         border-radius: 2px;
+         display:inline-block;
+         margin: 0px 5px 5px 0px;
+         padding: 5px 5px 5px 5px;
+         }
+         div.similar-assignment-filters {
+         border-radius: 2px;
+         border:1px solid #a4a4a4;
+         margin: 15px 15px 15px 15px;
+         padding: 15px 15px 15px 15px;
+         background-color:#FFFDBF;
+         }
+         div.assignment-filters {
+         margin: 5px 5px 5px 5px;
+         padding: 5px 5px 5px 5px;
+         }
+         div.similar-student-answers {
+         /*
+         margin: 15px 15px 15px 15px;
+         padding: 15px 15px 15px 15px;
+         background-color:white;
+         border:1px solid #cfcfcf;
+         border-radius: 3px;
+         box-shadow: 0 10px 6px -6px #777;
+         */
+         }
+         div.student-work {
+         border-radius: 3px;
+         border:1px solid #a4a4a4;
+         -webkit-box-shadow: 0 5px 3px -3px #cfcfcf;
+         box-shadow: 0 5px 3px -3px #cfcfcf;
+         margin: 10px 5px 10px 5px;
+         padding: 15px 15px 15px 15px;
+         }
+         div.problem-container {
+         border-radius: 3px;
+         border:1px solid #bfbfbf;
+         background-color:white;
+         margin: 0px 0px 15px 0px;
+         padding: 15px 15px 30px 15px;
+         -webkit-box-shadow: 0 5px 3px -3px #cfcfcf;
+         box-shadow: 0 5px 3px -3px #cfcfcf;
+         }
+         .extra-long-problem-action-button {
+         width: 180px
+         }
+         .long-problem-action-button {
+         width: 140px
+         }
+         .short-problem-action-button {
+         width: 62px
+         }
+         .equation-list {
+         margin-left:30px;
+         float:left;
+         min-width:40%;
+         max-width:77%
+         }
+         .homepage-actions-container {
+         width:44%;
+         height: auto;
+         float: left;
+         border-radius:3px;
+         margin:5px 5px 5px 5px;
+         padding:20px;
+         }
+         .wide-tex-button {
+         width:100px
+         }
+         .text-step-input {
+         width:800px;
+         }
+         .single-step .delete-step {
+         visibility: hidden
+         }
+         .single-step:hover .delete-step {
+         visibility: visible
+         }
+         .single-step .text-step-instructions{
+         visibility: hidden 
+         }
+         .single-step:focus-within .text-step-instructions{
+         visibility: visible
+         }
+         .big-mobile-button {
+         height:auto;
+         float:left;
+         border-radius:60px;
+         margin:5px 5px 10px 5px;
+         padding:10px;
+         text-align:center
+         }
+         @media (max-width: 1250px) {
+         .menubar-spacer {
+         height: 60px;
+         display: block
+         }
+         .menubar-spacer-small {
+         height: 60px;
+         display: block
+         }
+         }
+         @media (max-width: 640px) {
+         div.problem-editor-buttons {
+         width: 100%;
+         }
+         h3 {
+         margin: 0;
+         }
+         .homepage-headline {
+         font-size: 40px;
+         padding-bottom: 0px;
+         }
+         .big-mobile-button {
+         font-size: 25px;
+         width: 320px;
+         }
+         .freemath-logo{
+         margin-top: 8px
+         }
+         .navBarElms {
+         font-size:20px
+         }
+         /* for display on moblie when items flow to next line, given them
+         * some margin */
+         .navBarItem {
+         margin-top: 5px
+         }
+         .webcam-capture {
+         width:450px;
+         }
+         .text-step-input {
+         width:450px;
+         }
+         .homepage-actions-container {
+         width:85%;
+         }
+         .save-state-message {
+         -o-text-overflow: ellipsis;
+         text-overflow: ellipsis;
+         overflow: hidden;
+         display: inline-block;
+         white-space: nowrap;
+         margin-top: 5px;
+         margin-left: 15px;
+         margin-right: 15px;
+         width: 400px
+         }
+         .google-assignment-name {
+         line-height:2;
+         max-width: 400px
+         }
+         .equation-list {
+         margin-left:10px;
+         max-width:95%
+         }
+         iframe.tutorial-video {
+         width: 450px;
+         height:300px;
+         display:block
+         }
+         .mathStepEditor {
+         max-width:400px
+         }
+         .math-input-buttons {
+         background-color: rgba(245, 245, 245, 0.9);
+         border-radius: 5px;
+         border: 1px solid #ddd;
+         -webkit-box-sizing: border-box;
+         box-sizing: border-box;
+         margin-top: 5px;
+         padding: 10px;
+         width: 601px;
+         }
+         .matrix-end-caps-and-buttons {
+         max-width: 150px
+         }
+         .math-input-buttons.absolute {
+         left: -60px;
+         right: -200px;
+         position: absolute;
+         top: -3px;
+         z-index: 101;
+         }
+         .homepage-disappear-mobile {
+         display:none
+         }
+         .homepage-center-mobile {
+         width: 100%;
+         -ms-flex-align: center;
+         align-items: center;
+         text-align: center;
+         display: -ms-flexbox;
+         display: flex;
+         -ms-flex-direction: column;
+         flex-direction: column;
+         margin-left: auto;
+         margin-right: auto;
+         padding: 0vw 2vw 10vw 2vw;
+         /* this is necesary to prevent the padding from adding to the width */
+         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */    /* Firefox, other Gecko */
+         box-sizing: border-box;         /* Opera/IE 8+ */
+         }
+         .homepage-wrapper {
+         -ms-flex-align: center;
+         align-items: center;
+         text-align: center;
+         padding: 70px 0px 0px 0px;
+         display: inline-block;
+         margin: 0px 30px 0px 30px
+         }
+         .menubar-spacer {
+         height: 50px;
+         display: block
+         }
+         .menubar-spacer-small {
+         height: 50px;
+         display: block
+         }
+         div.homepage-user-actions {
+         -ms-flex-align: center;
+         align-items: center;
+         }
+         }
+         @media (min-width: 641px) {
+         .inline-block-when-not-on-mobile {
+         display: inline-block
+         }
+         div.problem-editor-buttons {
+         width: 155px;
+         }
+         .big-mobile-button {
+         font-size: 20px;
+         width: 270px
+         }
+         iframe.tutorial-video {
+         width: 800px;
+         height:600px;
+         display:block
+         }
+         .webcam-capture {
+         width:700px;
+         }
+         .mathStepEditor {
+         max-width:800px;
+         min-width:750px
+         }
+         .math-input-buttons {
+         background-color: rgba(245, 245, 245, 0.9);
+         border-radius: 5px;
+         border: 1px solid #ddd;
+         -webkit-box-sizing: border-box;
+         box-sizing: border-box;
+         margin-top: 5px;
+         padding: 10px;
+         width: 701px;
+         }
+         .freemath-logo{
+         margin-top: 5px
+         }
+         .freemath-logo-text {
+         font-size: 22px;
+         margin: 0;
+         }
+         .save-state-message {
+         -o-text-overflow: ellipsis;
+         text-overflow: ellipsis;
+         overflow: hidden;
+         display: inline-block;
+         white-space: nowrap;
+         margin-top: 5px;
+         margin-left: 15px;
+         margin-right: 15px;
+         width: 217px
+         }
+         .google-assignment-name {
+         max-width: 200px
+         }
+         .homepage-only-on-mobile {
+         display:none
+         }
+         .homepage-headline {
+         font-size: 60px;
+         }
+         .homepage-text {
+         display: block;
+         width: 35vw;
+         padding: 8vw 0px 0px 6vw
+         }
+         .homepage-right {
+         float: right;
+         display: block;
+         padding-right:6vw
+         }
+         .homepage-video {
+         width: 47vw;
+         -webkit-box-shadow: rgb(176, 177, 178) 0px 10px 50px;
+         box-shadow: rgb(176, 177, 178) 0px 10px 50px;
+         padding-right:0px
+         }
+         .homepage-left {
+         float: left;
+         }
+         .homepage-wrapper {
+         padding: 150px 0px 0px 0px;
+         display: inline-block;
+         width: 100%
+         }
+         div.homepage-user-actions {
+         max-width: 900px;
+         -ms-flex-align: center;
+         align-items: center;
+         display: -ms-flexbox;
+         display: flex;
+         -ms-flex-direction: column;
+         flex-direction: column;
+         margin-left: auto;
+         margin-right: auto
+         }
+         }
+         .menuBar{
+         padding: 5px 5px 5px 5px;
+         width:100%;
+         display:block;
+         position:fixed;
+         background-color: #212121;
+         color : #efefef;
+         top:0;
+         left:0;
+         z-index: 100;
+         }
+         .logo{
+         float:left;
+         }
+         .nav{
+         float:none;
+         margin-right:10px;}
+         .nav ul li{
+         list-style:none;
+         float:left;
+         }
+         html {
+         height: 100%;
+         }
+         body {
+         min-height: 100%;
+         font-family: 'Roboto',sans-serif;
+         color: #222;
+         /* background-color: #e7effd; */
+         /* background-color: #92d1ff; */
+         margin: 0;
+         padding: 0;
+         line-height: 1.5
+         }
+         button {
+         font-family: 'Arial',sans-serif;
+         line-height: 1.5
+         }
+         a {
+         font-family: 'Arial',sans-serif;
+         line-height: 1.5
+         }
+         #body {
+         padding: 1em;
+         }
+         p {
+         font-size: 18px;
+         }
+         code {
+         font: 90% monospace;
+         background: #DDD;
+         border-radius: .3em;
+         -moz-border-radius: .3em;
+         -webkit-border-radius: .3em;
+         padding: 0 .3em;
+         }
+         code:hover {
+         color: #DDD;
+         background: #222;
+         }
+         a {
+         color: mediumblue;
+         text-decoration: none;
+         }
+         a:hover {
+         color: black;
+         color: orange;
+         }
+         a:active {
+         color: #400;
+         }
+         a.lightLink {
+         color: white;
+         text-decoration: none;
+         }
+         a.lightLink:hover {
+         color: black;
+         color: orange;
+         }
+         a.lightLink:active {
+         color: #400;
+         }
+         ul {
+         padding-left: 1em;
+         }
+         /* OpenNotebook-Web styles */
+         div.problem-summary-container {
+         margin: 5px 5px 5px 5px;
+         padding: 5px 5px 5px 5px;
+         }
+         div.answer-incorrect {
+         border-radius: 2px;
+         border:1px solid #a4a4a4;
+         background-color:#FFDEDE;
+         }
+         div.answer-complete {
+         border-radius: 2px;
+         border:1px solid #a4a4a4;
+         background-color:#f9f9f9;
+         }
+         .error-highlight{
+         background-color:#FF99CC;
+         }
+         .success-highlight{
+         background-color:#99FFBB;
+         }
+         .student-step-grader{
+         padding: 2px;
+         }
+         .student-step-grader:hover{
+         border-style: solid;
+         border-width: 2px;
+         padding: 0px;
+         }
+         span.solution-step {
+         margin: 5px 10px 10px 10px;
+         min-width: 50%;
+         }
+         #assignment-container {
+         min-width: 400px;
+         margin: 5px 5px 5px 5px;
+         padding: 5px 5px 5px 5px;
+         }
+      </style>
+      <style type="text/css">.App {
+         text-align: center;
+         }
+         .App-logo {
+         -webkit-animation: App-logo-spin infinite 20s linear;
+         animation: App-logo-spin infinite 20s linear;
+         height: 80px;
+         }
+         .App-header {
+         background-color: #222;
+         height: 150px;
+         padding: 20px;
+         color: white;
+         }
+         .App-intro {
+         font-size: large;
+         }
+         @-webkit-keyframes App-logo-spin {
+         from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+         to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+         }
+         @keyframes App-logo-spin {
+         from { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+         to { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+         }
+      </style>
+      <style>.picker-dialog-frame{width:100%;height:100%;border:0;overflow:hidden}.picker-dialog-bg{position:absolute;top:0;left:0;background-color:#fff;z-index:1000}.picker-dialog{position:absolute;top:0;left:0;background-color:#fff;border:1px solid #acacac;width:auto;padding:0;z-index:1001;overflow:auto;box-shadow:0 4px 16px rgba(0,0,0,.2)}.picker-dialog-content{font-size:0;padding:0}.picker-dialog-buttons,.picker-dialog-title{display:none}</style>
+   </head>
+   <body style="margin-top: 40px; background-color: rgb(249, 249, 249); zoom: 1;">
+      <div id="root">
+         <div>
+            <span></span>
+            <div>
+               <div class="menuBar">
+                  <span></span>
+                  <div class="nav" style="max-width: 1200px; margin-left: auto; margin-right: auto;">
+                     <div class="freemath-logo" style="display: inline-block; line-height: 1;">
+                        <a href="launch.html" style="text-decoration: none; color: rgb(238, 238, 238);">
+                           <h3 class="freemath-logo-text" style="display: inline; color: rgb(238, 238, 238);">
+                              <div style="padding: 3px;"><span class="katex"><span class="mord homepage-disappear-mobile">Free&nbsp;Math</span><span class="mord homepage-only-on-mobile">FM</span></span></div>
+                           </h3>
+                        </a>
+                     </div>
+                     &nbsp;&nbsp;&nbsp;&nbsp;
+                     <span class="navBarElms" style="padding-top: 10px; line-height: 1;">
+                        <div class="homepage-disappear-mobile inline-block-when-not-on-mobile">
+                           <div class="save-state-message" title="Remember to save often" style="display: inline-block; visibility: hidden; color: inherit;"><span>Remember to save often</span></div>
+                        </div>
+                        <div class="navBarItem" style="display: inline-block;">Filename &nbsp;&nbsp;<input type="text" id="assignment-name-text" size="15" name="assignment name" value="Untitled Assignment">&nbsp;&nbsp;</div>
+                        <div class="navBarItem" style="display: inline-block;">
+                           <button class="fm-button-light" style="user-select: none;">
+                              <div style="display: inline-block;">
+                                 <div style="float: left; padding-top: 4px;">Save to Device</div>
+                                 <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                              </div>
+                           </button>
+                           &nbsp;&nbsp;&nbsp;
+                           <button class="fm-button-light html-button" title="Save to Google Drive" style="user-select: none;">
+                              <div style="display: inline-block;">
+                                 <div style="float: left; padding-top: 4px;">Save to Drive&nbsp;</div>
+                                 <img src="images/google_drive_small_logo.png" alt="google logo" style="padding-top: 2px;">
+                              </div>
+                           </button>
+                           &nbsp;&nbsp;&nbsp;
+                           <button class="fm-button-light html-button" title="Submit assignment to Google Classroom" style="user-select: none;">
+                              <div style="display: inline-block;">
+                                 <div style="float: left; padding-top: 4px;">Submit to Classroom&nbsp;</div>
+                                 <img src="images/google_classroom_small.png" alt="Google logo" height="16px" style="padding-top: 2px;">
+                              </div>
+                           </button>
+                           &nbsp;&nbsp;&nbsp;
+                           <a href="launch.html?mode=studentDemo" target="_blank">
+                              <div class="fm-button-light" style="display: inline-block; padding-top: 4px;">Tutorial</div>
+                           </a>
+                        </div>
+                     </span>
+                  </div>
+               </div>
+               <div style="background-color: rgb(249, 249, 249);">
+                  <span></span>
+                  <div style="min-height: 100vh; padding: 30px 15px 100px;">
+                     <div class="menubar-spacer-small"> </div>
+                     <div style="margin-left: 20px; display: flex; flex-wrap: wrap;">
+                        <div style="display: block; width: 100%;"></div>
+                        <div style="float: left; -webkit-box-align: center; align-items: center; display: flex; flex-direction: column; text-align: center; margin-right: 0px;">
+                           <div>
+                              <button class="fm-button-left fm-button fm-tab fm-tab-selected" title="View [Need to Set a Problem Number]" style="user-select: none; margin-bottom: 0px; border-radius: 15px 0px 0px;">
+                                 <div style="display: inline-block;">[Need to Set a Problem Number]</div>
+                              </button>
+                              <button class="fm-button-right fm-button fm-tab fm-tab-selected html-button" title="Delete problem" style="user-select: none; margin-bottom: 0px; border-radius: 0px 15px 0px 0px;"><img src="images/close_dark.png" alt="x"></button>
+                           </div>
+                        </div>
+                        <div style="float: left; -webkit-box-align: center; align-items: center; display: flex; flex-direction: column; text-align: center; margin-right: 15px;">
+                           <button class="fm-button-green fm-button" style="user-select: none; margin-right: 15px; margin-bottom: 0px; border-radius: 15px 15px 0px 0px;">
+                              <div style="display: inline-block;">Add Problem</div>
+                           </button>
+                        </div>
+                     </div>
+                     <div>
+                        <div class="problem-container" style="display: inline-block; width: 95%; float: none;">
+                           <div class="problem-editor-buttons" style="display: inline-block; margin-right: 10px; float: left;">
+                              <div style="display: inline-block;">
+                                 <button class="fm-button html-button" title="Next Step (Enter)" style="user-select: none;">
+                                    <div class="fm-button-with-icon"><img src="images/noun_new_1887016_white.svg" class="fm-button-icon" alt="Next Step" style="height: 27px;"><br><small style="font-size: 9px;">Copy Step</small></div>
+                                 </button>
+                                 <button class="fm-button html-button" title="New Blank Step (Shift+Enter)" style="user-select: none;">
+                                    <div class="fm-button-with-icon"><img src="images/noun_new_1887016_white_empty.svg" class="fm-button-icon" alt="New Blank Step" style="height: 27px;"><br><small style="font-size: 9px;">New Step</small></div>
+                                 </button>
+                              </div>
+                              <div style="display: inline-block;">
+                                 <button class="fm-button html-button" title="Undo Ctrl-z" style="user-select: none;">
+                                    <div class="fm-button-with-icon"><img src="images/noun_Undo_3920132_white.svg" class="fm-button-icon" alt="undo" style="height: 27px;"><br>Undo</div>
+                                 </button>
+                                 <button class="fm-button html-button" title="Redo Ctrl-y" style="user-select: none;">
+                                    <div class="fm-button-with-icon"><img src="images/noun_Redo_3920132_white.svg" class="fm-button-icon" alt="redo" style="height: 27px;"><br>Redo</div>
+                                 </button>
+                              </div>
+                              <div style="display: inline-block;">
+                                 <button class="fm-button html-button" title="New Drawing" style="user-select: none;">
+                                    <div class="fm-button-with-icon"><img src="images/noun_Draw_3104195_white.svg" class="fm-button-icon" alt="new drawing"><br>Draw</div>
+                                 </button>
+                                 <button class="fm-button html-button" title="New Grid Drawing" style="user-select: none;">
+                                    <div class="fm-button-with-icon"><img src="images/noun_grid_4065750_white.svg" class="fm-button-icon" alt="new grid drawing"><br>Grid</div>
+                                 </button>
+                              </div>
+                              <div style="display: inline-block;">
+                                 <span>
+                                    <div style="display: inline-block;">
+                                       <div class="homepage-disappear-mobile">
+                                          <button class="fm-button html-button" title="Snap an image from a webcam or device camera" style="user-select: none;">
+                                             <div class="fm-button-with-icon"><img src="images/noun_Camera_757299_white_clipped.svg" class="fm-button-icon" alt="Snap or upload an Image"><br>Snap</div>
+                                          </button>
+                                          <button class="fm-button html-button" title="Paste Image" style="user-select: none;">
+                                             <div class="fm-button-with-icon"><img src="images/noun_Picture_800093_and_clipboard_332274_closer.svg" class="fm-button-icon" alt="paste an image"><br>Paste</div>
+                                          </button>
+                                       </div>
+                                       <div role="button" tabindex="0">
+                                          <div class="homepage-disappear-mobile" style="vertical-align: top; padding: 10px; border: 2px dashed; margin-top: 15px; min-height: 80px;"><input multiple="" type="file" autocomplete="off" tabindex="-1" style="display: none;"><span><small>Drop some image files here, or click to select files</small></span></div>
+                                          <div class="homepage-only-on-mobile">
+                                             <button class="fm-button html-button" title="Snap or upload an image" style="user-select: none;">
+                                                <div class="fm-button-with-icon"><img src="images/noun_Camera_757299_white_clipped.svg" class="fm-button-icon" alt="Add Image"><br>Image</div>
+                                             </button>
+                                          </div>
+                                       </div>
+                                    </div>
+                                 </span>
+                              </div>
+                           </div>
+                           <div>
+                              <div class="equation-list" style="margin-top: 10px; padding-bottom: 350px;">
+                                 <small style="margin-right: 10px;">Problem Number</small><input type="text" class="problem-number" value="" style="width: 95px;"> <br><br>
+                                 <div style="width: 95%;">
+                                    <div style="display: block;">
+                                       <div class="single-step" style="float: left; display: flex; flex-direction: row; width: 98%; align-items: center;">
+                                          <div class="step-actions">
+                                             <div style="position: relative; display: inline-block;">
+                                                <button class="fm-button-light">
+                                                   <div style="display: inline-block;">
+                                                      <div style="float: left; font-size: 16px; padding-top: 4px;">⋮</div>
+                                                   </div>
+                                                </button>
+                                                <div style="background-color: rgb(241, 241, 241); position: absolute; box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 16px 0px; min-width: 400px; z-index: 5; display: none;">
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Add Step Above</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change Between Expression Mode and Text (Ctrl e)</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change to Image Step</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          &nbsp;
+                                          <div style="border: 1px solid rgb(85, 85, 85);">
+                                             <div style="display: inline-block;">
+                                                <div style="display: inline-block;"><span class="perseus-math-input mq-editable-field mq-math-mode mathStepEditor" style="min-width: 200px; padding: 5px; margin: 2px;"><span class="mq-textarea"><textarea autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" x-palm-disable-ste-all="true"></textarea></span><span class="mq-root-block mq-empty" mathquill-block-id="1"></span></span></div>
+                                                <div style="position: relative;"></div>
+                                             </div>
+                                          </div>
+                                          <div class="delete-step" style="display: inline-block;"><button class="fm-close-button" title="Delete step" style="user-select: none; margin-left: 10px;"><img src="images/close_dark.png" alt="x"></button></div>
+                                       </div>
+                                    </div>
+                                    <div style="clear: both;"></div>
+                                 </div>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div style="width: 100%; margin: 100px 0px 0px; padding: 50px 0px 70px; background-color: rgb(10, 0, 30); color: rgb(238, 238, 238);">
+                     <div style="padding: 0px 100px;">
+                        <p><a class="lightLink" target="_blank" href="privacyPolicy.html">Privacy Policy</a>&nbsp;&nbsp;&nbsp;<a class="lightLink" target="_blank" href="acknowledgements.html">Creative Commons Media and Open Source Code Used in this Site</a></p>
+                        <small>Free Math is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. Free Math is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with Free Math.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</small>
+                     </div>
+                  </div>
+               </div>
+               <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank" class="fm-button" style="display: block; position: fixed; bottom: 0px; right: 0px; z-index: 100; box-shadow: rgb(126, 127, 128) 0px 10px 50px; margin: 0px 30px 30px 0px; width: 85px;">Site Feedback</a>
+            </div>
+         </div>
+      </div>
+      <iframe id="apiproxyffbc21cdbd8e461470ba677d3cb1f933bec3eec70.1245047045" name="apiproxyffbc21cdbd8e461470ba677d3cb1f933bec3eec70.1245047045" src="https://content.googleapis.com/static/proxy.html?usegapi=1&amp;jsh=m%3B%2F_%2Fscs%2Fabc-static%2F_%2Fjs%2Fk%3Dgapi.lb.en.S0MFEB7Jrgw.O%2Fd%3D1%2Frs%3DAHpOoo_rrjPu-arphKs_q6oTtOBLYqL7zQ%2Fm%3D__features__#parent=http%3A%2F%2Flocalhost%3A3000&amp;rpctoken=488932968" tabindex="-1" aria-hidden="true" style="width: 1px; height: 1px; position: absolute; top: -100px; display: none;"></iframe><iframe id="ssIFrame_google" sandbox="allow-scripts allow-same-origin" aria-hidden="true" frame-border="0" src="https://accounts.google.com/o/oauth2/iframe#origin=http%3A%2F%2Flocalhost%3A3000&amp;rpcToken=294817165.5621115&amp;clearCache=1" style="position: absolute; width: 1px; height: 1px; inset: -9999px; display: none;"></iframe>
+   </body>
+</html>
