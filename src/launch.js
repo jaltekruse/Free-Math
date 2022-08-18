@@ -13,6 +13,7 @@ import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAler
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var APP_MODE = 'APP_MODE';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+var START_STUDENT_LIVE_SESSION = 'START_STUDENT_LIVE_SESSION';
 
 var IMAGE_BEING_EDITED = 'IMAGE_BEING_EDITED';
 
@@ -84,6 +85,9 @@ window.onload = function() {
         window.ga('send', 'event', 'Demos', 'open', 'Student Demo');
         window.store.dispatch({type : "NEW_ASSIGNMENT"});
         window.store.dispatch({type : ADD_DEMO_PROBLEM});
+    }
+    else if (urlParams.get("mode") === "live") {
+        window.store.dispatch({type : START_STUDENT_LIVE_SESSION});
     }
     else if (urlParams.get("mode") === "teacherDemo") {
         // turn on confirmation dialog upon navigation away

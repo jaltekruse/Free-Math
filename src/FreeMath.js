@@ -1,10 +1,10 @@
 import React from 'react';
-import GradingMenuBar, { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
-import Assignment from './Assignment.js';
+import GradingMenuBar, { ModalWhileGradingMenuBar, ModalBasicMenuBar } from './GradingMenuBar.js';
 import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
 import { openAssignment, CANNOT_EDIT_SUBMITTED_ERR_MSG} from './AssignmentEditorMenubar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
-import { assignmentReducer } from './Assignment.js';
+import LiveAssignment, { liveAssignmentReducer } from './LiveAssignment.js';
+import Assignment, { assignmentReducer } from './Assignment.js';
 import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGradingOverview,
                                    saveBackToClassroom, gradingReducer,
                                    GradesView, SimilarDocChecker
@@ -16,6 +16,8 @@ import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './
 var APP_MODE = 'APP_MODE';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
+var STUDENT_LIVE_SESSION = 'STUDENT_LIVE_SESSION';
+var START_STUDENT_LIVE_SESSION = 'START_STUDENT_LIVE_SESSION';
 var MODE_CHOOSER = 'MODE_CHOOSER';
 
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
@@ -739,6 +741,10 @@ function rootReducer(state, action) {
             "DOC_ID" : genID(),
             APP_MODE : EDIT_ASSIGNMENT
         };
+    } else if (action.type === START_STUDENT_LIVE_SESSION) {
+        return {
+            APP_MODE : STUDENT_LIVE_SESSION
+        };
     } else if (action.type === "SET_GLOBAL_STATE") {
         return {...action.newState,
         };
@@ -776,6 +782,11 @@ function rootReducer(state, action) {
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
         };
+    } else if (state[APP_MODE] === STUDENT_LIVE_SESSION) {
+        return {
+            ...assignmentReducer(state, action),
+            APP_MODE : STUDENT_LIVE_SESSION
+        }
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
         return {
             ...assignmentReducer(state, action),
@@ -834,6 +845,14 @@ class FreeMath extends React.Component {
               <div>
                   <AssignmentEditorMenubar value={this.props.value}/>
                   <Assignment value={this.props.value}/>
+                  <SiteFeedbackButton />
+              </div>
+          );
+      } else if (this.props.value[APP_MODE] === STUDENT_LIVE_SESSION) {
+          return (
+              <div>
+                  <ModalBasicMenuBar />
+                  <LiveAssignment value={this.props.value}/>
                   <SiteFeedbackButton />
               </div>
           );

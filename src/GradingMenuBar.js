@@ -242,4 +242,17 @@ export class ModalWhileGradingMenuBar extends React.Component {
     }
 }
 
+
+export class ModalBasicMenuBar extends React.Component {
+    render() {
+        return (
+            <div className="menuBar">
+                <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
+                    <div style={{float:"left"}}> <LogoHomeNav /> </div>
+                </div>
+            </div>
+        );
+    }
+}
+
 export default GradingMenuBar;
