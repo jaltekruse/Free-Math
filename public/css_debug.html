@@ -913,7 +913,7 @@
                         <div class="homepage-disappear-mobile inline-block-when-not-on-mobile">
                            <div class="save-state-message" title="Remember to save often" style="display: inline-block; visibility: hidden; color: inherit;"><span>Remember to save often</span></div>
                         </div>
-                        <div class="navBarItem" style="display: inline-block;">Filename &nbsp;&nbsp;<input type="text" id="assignment-name-text" size="15" name="assignment name" value="Untitled Assignment">&nbsp;&nbsp;</div>
+                        <div class="navBarItem" style="display: inline-block;">Filename &nbsp;&nbsp;<input type="text" id="assignment-name-text" size="15" name="assignment name" value=" Untitled Assignment">&nbsp;&nbsp;</div>
                         <div class="navBarItem" style="display: inline-block;">
                            <button class="fm-button-light" style="user-select: none;">
                               <div style="display: inline-block;">
@@ -1049,12 +1049,198 @@
                                              </div>
                                           </div>
                                           &nbsp;
-                                          <div style="border: 1px solid rgb(85, 85, 85);">
+                                          <div class="mathStepEditor" style="margin-top: 20px;">
+                                             <span>
+                                                <button class="fm-button-green fm-button html-button" title="Draw on Image" style="user-select: none;"><img src="images/noun_Draw_3104195_white.svg" alt="new drawing" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Crop" style="user-select: none;"><img src="images/noun_cropping_4070068_white.svg" alt="Crop" style="margin-top: 3px; height: 30px;"></button>
+                                                <span>
+                                                   <button class="fm-button html-button" title="Rotate image left" style="user-select: none;"><img src="images/noun_rotate left_3894741_white.svg" alt="rotate image left" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Rotate image right" style="user-select: none;"><img src="images/noun_rotate right_3894741_white.svg" alt="rotate image right" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Delete Image" style="user-select: none;"><img src="images/noun-bin-2956146.svg" alt="delete image" style="margin-top: 3px; height: 30px;"></button><br><img src="blob:http://localhost:3000/f2cc5fd7-b644-4118-8b89-2cf1710aa4ed" alt="Uploaded student work" style="margin: 2px; max-height: 700px; max-width: 98%; border: solid;">
+                                                   <div style="max-width: 95%;">If your final answer is a number, word or expression, type it in the final box below.</div>
+                                                </span>
+                                                <br>
+                                             </span>
+                                          </div>
+                                          <div class="delete-step" style="display: inline-block;"><button class="fm-close-button" title="Delete step" style="user-select: none; margin-left: 10px;"><img src="images/close_dark.png" alt="x"></button></div>
+                                       </div>
+                                    </div>
+                                    <div style="clear: both;"></div>
+                                 </div>
+                                 <div style="width: 95%;">
+                                    <div style="display: block;">
+                                       <div class="single-step" style="float: left; display: flex; flex-direction: row; width: 98%; align-items: center;">
+                                          <div class="step-actions">
+                                             <div style="position: relative; display: inline-block;">
+                                                <button class="fm-button-light">
+                                                   <div style="display: inline-block;">
+                                                      <div style="float: left; font-size: 16px; padding-top: 4px;">⋮</div>
+                                                   </div>
+                                                </button>
+                                                <div style="background-color: rgb(241, 241, 241); position: absolute; box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 16px 0px; min-width: 400px; z-index: 5; display: none;">
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Add Step Above</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change Between Expression Mode and Text (Ctrl e)</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change to Image Step</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          &nbsp;
+                                          <div class="mathStepEditor" style="margin-top: 20px;">
+                                             <span>
+                                                <button class="fm-button-green fm-button html-button" title="Draw on Image" style="user-select: none;"><img src="images/noun_Draw_3104195_white.svg" alt="new drawing" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Crop" style="user-select: none;"><img src="images/noun_cropping_4070068_white.svg" alt="Crop" style="margin-top: 3px; height: 30px;"></button>
+                                                <span>
+                                                   <button class="fm-button html-button" title="Rotate image left" style="user-select: none;"><img src="images/noun_rotate left_3894741_white.svg" alt="rotate image left" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Rotate image right" style="user-select: none;"><img src="images/noun_rotate right_3894741_white.svg" alt="rotate image right" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Delete Image" style="user-select: none;"><img src="images/noun-bin-2956146.svg" alt="delete image" style="margin-top: 3px; height: 30px;"></button><br><img src="blob:http://localhost:3000/a9cfb545-85a4-4ac6-8967-4c5714b15d6d" alt="Uploaded student work" style="margin: 2px; max-height: 700px; max-width: 98%; border: solid;">
+                                                   <div style="max-width: 95%;">If your final answer is a number, word or expression, type it in the final box below.</div>
+                                                </span>
+                                                <br>
+                                             </span>
+                                          </div>
+                                          <div class="delete-step" style="display: inline-block;"><button class="fm-close-button" title="Delete step" style="user-select: none; margin-left: 10px;"><img src="images/close_dark.png" alt="x"></button></div>
+                                       </div>
+                                    </div>
+                                    <div style="clear: both;"></div>
+                                 </div>
+                                 <div style="width: 95%;">
+                                    <div style="display: block;">
+                                       <div class="single-step" style="float: left; display: flex; flex-direction: row; width: 98%; align-items: center;">
+                                          <div class="step-actions">
+                                             <div style="position: relative; display: inline-block;">
+                                                <button class="fm-button-light">
+                                                   <div style="display: inline-block;">
+                                                      <div style="float: left; font-size: 16px; padding-top: 4px;">⋮</div>
+                                                   </div>
+                                                </button>
+                                                <div style="background-color: rgb(241, 241, 241); position: absolute; box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 16px 0px; min-width: 400px; z-index: 5; display: none;">
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Add Step Above</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change Between Expression Mode and Text (Ctrl e)</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change to Image Step</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          &nbsp;
+                                          <div class="mathStepEditor" style="margin-top: 20px;">
+                                             <span>
+                                                <button class="fm-button-green fm-button html-button" title="Draw on Image" style="user-select: none;"><img src="images/noun_Draw_3104195_white.svg" alt="new drawing" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Crop" style="user-select: none;"><img src="images/noun_cropping_4070068_white.svg" alt="Crop" style="margin-top: 3px; height: 30px;"></button>
+                                                <span>
+                                                   <button class="fm-button html-button" title="Rotate image left" style="user-select: none;"><img src="images/noun_rotate left_3894741_white.svg" alt="rotate image left" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Rotate image right" style="user-select: none;"><img src="images/noun_rotate right_3894741_white.svg" alt="rotate image right" style="margin-top: 3px; height: 30px;"></button><button class="fm-button html-button" title="Delete Image" style="user-select: none;"><img src="images/noun-bin-2956146.svg" alt="delete image" style="margin-top: 3px; height: 30px;"></button><br><img src="blob:http://localhost:3000/1ecdf3f6-80b0-457d-ba30-dd1aca337903" alt="Uploaded student work" style="margin: 2px; max-height: 700px; max-width: 98%; border: solid;">
+                                                   <div style="max-width: 95%;">If your final answer is a number, word or expression, type it in the final box below.</div>
+                                                </span>
+                                                <br>
+                                             </span>
+                                          </div>
+                                          <div class="delete-step" style="display: inline-block;"><button class="fm-close-button" title="Delete step" style="user-select: none; margin-left: 10px;"><img src="images/close_dark.png" alt="x"></button></div>
+                                       </div>
+                                    </div>
+                                    <div style="clear: both;"></div>
+                                 </div>
+                                 <div style="width: 95%;">
+                                    <div style="display: block;">
+                                       <div class="single-step" style="float: left; display: flex; flex-direction: row; width: 98%; align-items: center;">
+                                          <div class="step-actions">
+                                             <div style="position: relative; display: inline-block;">
+                                                <button class="fm-button-light">
+                                                   <div style="display: inline-block;">
+                                                      <div style="float: left; font-size: 16px; padding-top: 4px;">⋮</div>
+                                                   </div>
+                                                </button>
+                                                <div style="background-color: rgb(241, 241, 241); position: absolute; box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 16px 0px; min-width: 400px; z-index: 5; display: none;">
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Add Step Above</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change Between Expression Mode and Text (Ctrl e)</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change to Image Step</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          &nbsp;
+                                          <div style="border: 1px solid transparent;">
                                              <div style="display: inline-block;">
-                                                <div style="display: inline-block;"><span class="perseus-math-input mq-editable-field mq-math-mode mathStepEditor" style="min-width: 200px; padding: 5px; margin: 2px;"><span class="mq-textarea"><textarea autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" x-palm-disable-ste-all="true"></textarea></span><span class="mq-root-block mq-empty" mathquill-block-id="1"></span></span></div>
+                                                <div style="display: inline-block;"><span class="perseus-math-input mq-editable-field mq-math-mode mathStepEditor" style="min-width: 200px; padding: 5px; margin: 2px;"><span class="mq-textarea"><textarea autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" x-palm-disable-ste-all="true"></textarea></span><span class="mq-root-block" mathquill-block-id="1"><var mathquill-command-id="3">k</var><var mathquill-command-id="5">l</var><var mathquill-command-id="7">j</var><var mathquill-command-id="9">l</var><var mathquill-command-id="11">d</var><var mathquill-command-id="13">k</var><var mathquill-command-id="15">j</var><var mathquill-command-id="17">l</var><var mathquill-command-id="19">k</var><var mathquill-command-id="21">d</var><var class="mq-f" mathquill-command-id="23">f</var><var mathquill-command-id="25">j</var><var mathquill-command-id="27">l</var><var mathquill-command-id="29">k</var><var mathquill-command-id="31">s</var><var mathquill-command-id="33">j</var><var mathquill-command-id="35">d</var><span mathquill-command-id="37">&nbsp;</span><var class="mq-f" mathquill-command-id="39">f</var><var mathquill-command-id="41">l</var><var mathquill-command-id="43">k</var><var mathquill-command-id="45">j</var><var mathquill-command-id="47">k</var><var mathquill-command-id="49">l</var><var mathquill-command-id="51">s</var><var mathquill-command-id="53">d</var><var mathquill-command-id="55">j</var><span mathquill-command-id="57">&nbsp;</span><var class="mq-f" mathquill-command-id="59">f</var><var mathquill-command-id="61">l</var><var mathquill-command-id="63">k</var><var mathquill-command-id="65">j</var><var mathquill-command-id="67">s</var><var mathquill-command-id="69">d</var><var mathquill-command-id="71">l</var><var mathquill-command-id="73">k</var><span mathquill-command-id="75">&nbsp;</span><var class="mq-f" mathquill-command-id="77">f</var><var mathquill-command-id="79">j</var><var mathquill-command-id="81">k</var><var mathquill-command-id="83">l</var><var mathquill-command-id="85">s</var><var mathquill-command-id="87">j</var><var mathquill-command-id="89">d</var><var class="mq-f" mathquill-command-id="91">f</var><var mathquill-command-id="93">l</var><var mathquill-command-id="95">k</var><var mathquill-command-id="97">j</var><span mathquill-command-id="99">&nbsp;</span><var mathquill-command-id="101">l</var><var mathquill-command-id="103">s</var><var mathquill-command-id="105">k</var><var mathquill-command-id="107">d</var><var mathquill-command-id="109">j</var><var class="mq-f" mathquill-command-id="111">f</var><var mathquill-command-id="113">l</var><var mathquill-command-id="115">k</var><var mathquill-command-id="117">j</var><var mathquill-command-id="119">s</var><var mathquill-command-id="121">l</var><var mathquill-command-id="123">k</var><var mathquill-command-id="125">d</var><var mathquill-command-id="127">j</var><var class="mq-f" mathquill-command-id="129">f</var><var mathquill-command-id="131">l</var><var mathquill-command-id="133">k</var><var mathquill-command-id="135">k</var><var mathquill-command-id="137">l</var><var mathquill-command-id="139">j</var><var mathquill-command-id="141">s</var><var mathquill-command-id="143">d</var><var mathquill-command-id="145">l</var><var mathquill-command-id="147">k</var><span mathquill-command-id="149">&nbsp;</span><var class="mq-f" mathquill-command-id="151">f</var><var mathquill-command-id="153">j</var><var mathquill-command-id="155">l</var><span mathquill-command-id="157">&nbsp;</span><var mathquill-command-id="159">k</var><var mathquill-command-id="161">s</var><var mathquill-command-id="163">j</var><var mathquill-command-id="165">d</var><var mathquill-command-id="167">l</var><var mathquill-command-id="169">k</var><var class="mq-f" mathquill-command-id="171">f</var><var mathquill-command-id="173">j</var><span mathquill-command-id="175">&nbsp;</span><var mathquill-command-id="177">l</var><var mathquill-command-id="179">k</var><var mathquill-command-id="181">j</var><var mathquill-command-id="183">s</var><var mathquill-command-id="185">d</var><var class="mq-f" mathquill-command-id="187">f</var><span mathquill-command-id="189">&nbsp;</span><var mathquill-command-id="191">k</var><var mathquill-command-id="193">l</var><var mathquill-command-id="195">l</var><var mathquill-command-id="197">j</var><var mathquill-command-id="199">l</var><var mathquill-command-id="201">k</var><var mathquill-command-id="203">s</var><var mathquill-command-id="205">d</var><var mathquill-command-id="207">j</var><var class="mq-f" mathquill-command-id="209">f</var><var mathquill-command-id="211">l</var><var mathquill-command-id="213">k</var><span mathquill-command-id="215">&nbsp;</span><var mathquill-command-id="217">j</var><var mathquill-command-id="219">s</var><var mathquill-command-id="221">l</var><var mathquill-command-id="223">k</var><var mathquill-command-id="225">d</var><var class="mq-f" mathquill-command-id="227">f</var><var mathquill-command-id="229">k</var><var mathquill-command-id="231">l</var><var mathquill-command-id="233">j</var><span mathquill-command-id="235">&nbsp;</span><var mathquill-command-id="237">l</var><var mathquill-command-id="239">k</var><var mathquill-command-id="241">j</var><var mathquill-command-id="243">s</var><var mathquill-command-id="245">d</var><var mathquill-command-id="247">l</var><var class="mq-f" mathquill-command-id="249">f</var><var mathquill-command-id="251">k</var><var mathquill-command-id="253">j</var><var mathquill-command-id="255">j</var><span mathquill-command-id="257">&nbsp;</span><var mathquill-command-id="259">l</var><var mathquill-command-id="261">k</var><var mathquill-command-id="263">s</var><var mathquill-command-id="265">j</var><var mathquill-command-id="267">d</var><var mathquill-command-id="269">l</var><var class="mq-f" mathquill-command-id="271">f</var><var mathquill-command-id="273">k</var><var mathquill-command-id="275">j</var><var mathquill-command-id="277">l</var><var mathquill-command-id="279">k</var><var mathquill-command-id="281">j</var><var mathquill-command-id="283">j</var><var mathquill-command-id="285">s</var><var mathquill-command-id="287">d</var><var mathquill-command-id="289">d</var><var class="mq-f" mathquill-command-id="291">f</var><var mathquill-command-id="293">j</var><span mathquill-command-id="295">&nbsp;</span><var mathquill-command-id="297">l</var><var mathquill-command-id="299">j</var><var mathquill-command-id="301">s</var><var mathquill-command-id="303">l</var><var mathquill-command-id="305">d</var><var mathquill-command-id="307">k</var><var mathquill-command-id="309">l</var><var mathquill-command-id="311">k</var><var mathquill-command-id="313">j</var><span mathquill-command-id="315">&nbsp;</span><var mathquill-command-id="317">s</var><var mathquill-command-id="319">d</var><var class="mq-f" mathquill-command-id="321">f</var><var mathquill-command-id="323">j</var><span mathquill-command-id="325">&nbsp;</span><var mathquill-command-id="327">l</var><var mathquill-command-id="329">j</var><var mathquill-command-id="331">s</var><var mathquill-command-id="333">l</var><var mathquill-command-id="335">d</var><var mathquill-command-id="337">k</var><var class="mq-f" mathquill-command-id="339">f</var></span></span></div>
                                                 <div style="position: relative;"></div>
                                              </div>
                                           </div>
+                                          <div class="delete-step" style="display: inline-block;"><button class="fm-close-button" title="Delete step" style="user-select: none; margin-left: 10px;"><img src="images/close_dark.png" alt="x"></button></div>
+                                       </div>
+                                    </div>
+                                    <div style="clear: both;"></div>
+                                 </div>
+                                 <div style="width: 95%;">
+                                    <div style="display: block;">
+                                       <div class="single-step" style="float: left; display: flex; flex-direction: row; width: 98%; align-items: center;">
+                                          <div class="step-actions">
+                                             <div style="position: relative; display: inline-block;">
+                                                <button class="fm-button-light">
+                                                   <div style="display: inline-block;">
+                                                      <div style="float: left; font-size: 16px; padding-top: 4px;">⋮</div>
+                                                   </div>
+                                                </button>
+                                                <div style="background-color: rgb(241, 241, 241); position: absolute; box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 16px 0px; min-width: 400px; z-index: 5; display: none;">
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Add Step Above</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change Between Expression Mode and Text (Ctrl e)</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                   <button class="fm-button-light" style="user-select: none; display: block; width: 100%; border-radius: 0px;">
+                                                      <div style="display: inline-block;">
+                                                         <div style="float: left; padding-top: 4px;">Change to Image Step</div>
+                                                         <img src="images/small_vertical_image.png" alt="empty spacer" style="padding-top: 2px;">
+                                                      </div>
+                                                   </button>
+                                                </div>
+                                             </div>
+                                          </div>
+                                          &nbsp;
+                                          <span class="text-step">
+                                             <textarea class="text-step-input" style="font-size: 15px; margin: 2px 2px 0px 0px; border: 1px solid transparent; height: 35px !important;">kljldkjlkdfjlksjd flkjklsdj flkjsdlk fjklsjdflkj lskdjflkjslkdjflkkljsdlk fjl ksjdlkfj lkjsdf klljlksdjflk jslkdfklj lkjsdlfkjj lksjdlfkjlkjjsddfj ljsldklkj sdfj ljsldkf</textarea>
+                                             <div class="text-step-instructions" style="display: block; margin-left: 15px; color: grey;"><small>Use Shift+Enter to add a new step after a text box.</small></div>
+                                          </span>
                                           <div class="delete-step" style="display: inline-block;"><button class="fm-close-button" title="Delete step" style="user-select: none; margin-left: 10px;"><img src="images/close_dark.png" alt="x"></button></div>
                                        </div>
                                     </div>
@@ -1076,6 +1262,7 @@
             </div>
          </div>
       </div>
-      <iframe id="apiproxyffbc21cdbd8e461470ba677d3cb1f933bec3eec70.1245047045" name="apiproxyffbc21cdbd8e461470ba677d3cb1f933bec3eec70.1245047045" src="https://content.googleapis.com/static/proxy.html?usegapi=1&amp;jsh=m%3B%2F_%2Fscs%2Fabc-static%2F_%2Fjs%2Fk%3Dgapi.lb.en.S0MFEB7Jrgw.O%2Fd%3D1%2Frs%3DAHpOoo_rrjPu-arphKs_q6oTtOBLYqL7zQ%2Fm%3D__features__#parent=http%3A%2F%2Flocalhost%3A3000&amp;rpctoken=488932968" tabindex="-1" aria-hidden="true" style="width: 1px; height: 1px; position: absolute; top: -100px; display: none;"></iframe><iframe id="ssIFrame_google" sandbox="allow-scripts allow-same-origin" aria-hidden="true" frame-border="0" src="https://accounts.google.com/o/oauth2/iframe#origin=http%3A%2F%2Flocalhost%3A3000&amp;rpcToken=294817165.5621115&amp;clearCache=1" style="position: absolute; width: 1px; height: 1px; inset: -9999px; display: none;"></iframe>
+      <iframe id="apiproxyffbc21cdbd8e461470ba677d3cb1f933bec3eec70.1047034115" name="apiproxyffbc21cdbd8e461470ba677d3cb1f933bec3eec70.1047034115" src="https://content.googleapis.com/static/proxy.html?usegapi=1&amp;jsh=m%3B%2F_%2Fscs%2Fabc-static%2F_%2Fjs%2Fk%3Dgapi.lb.en.S0MFEB7Jrgw.O%2Fd%3D1%2Frs%3DAHpOoo_rrjPu-arphKs_q6oTtOBLYqL7zQ%2Fm%3D__features__#parent=http%3A%2F%2Flocalhost%3A3000&amp;rpctoken=701081121" tabindex="-1" aria-hidden="true" style="width: 1px; height: 1px; position: absolute; top: -100px; display: none;"></iframe><iframe id="ssIFrame_google" sandbox="allow-scripts allow-same-origin" aria-hidden="true" frame-border="0" src="https://accounts.google.com/o/oauth2/iframe#origin=http%3A%2F%2Flocalhost%3A3000&amp;rpcToken=520253474.3393552&amp;clearCache=1" style="position: absolute; width: 1px; height: 1px; inset: -9999px; display: none;"></iframe>
+      <textarea tabindex="-1" aria-hidden="true" style="min-height: 0px !important; max-height: none !important; height: 0px !important; visibility: hidden !important; overflow: hidden !important; position: absolute !important; z-index: -1000 !important; top: 0px !important; right: 0px !important; border-width: 0.994318px; box-sizing: content-box; font-family: monospace; font-size: 15px; font-style: normal; font-weight: 400; letter-spacing: normal; line-height: normal; padding: 5px; tab-size: 8; text-indent: 0px; text-rendering: auto; text-transform: none; width: 800px; word-break: normal;"></textarea>
    </body>
 </html>
