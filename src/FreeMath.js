@@ -791,6 +791,19 @@ function rootReducer(state, action) {
         return state;
     }
 }
+class SiteFeedbackButton extends React.Component {
+    render() {
+          return (<a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
+                  className="fm-button"
+                  style={{display:"block", position:"fixed", bottom:"0",
+                          right:"0", zIndex: "100",
+                          boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
+                          margin: "0 30px 30px 0", width: "85px"}}>
+                Site Feedback
+            </a>);
+    }
+}
+
 
 class FreeMath extends React.Component {
     render() {
@@ -821,57 +834,29 @@ class FreeMath extends React.Component {
               <div>
                   <AssignmentEditorMenubar value={this.props.value}/>
                   <Assignment value={this.props.value}/>
-                  <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
-                          className="fm-button"
-                          style={{display:"block", position:"fixed", bottom:"0",
-                                  right:"0", zIndex: "100",
-                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
-                                  margin: "0 30px 30px 0", width: "85px"}}>
-                        Site Feedback
-                    </a>
+                  <SiteFeedbackButton />
               </div>
           );
       } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
           return (
               <div>
                   <GradingMenuBar value={this.props.value} />
-                  <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
-                          className="fm-button"
-                          style={{display:"block", position:"fixed", bottom:"0",
-                                  right:"0", zIndex: "100",
-                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
-                                  margin: "0 30px 30px 0", width: "85px"}}>
-                        Site Feedback
-                    </a>
+                  <SiteFeedbackButton />
                   <TeacherInteractiveGrader value={this.props.value}/>
               </div>
           );
       } else if (this.props.value[APP_MODE] === MODE_CHOOSER) {
           return (
               <div>
-                  <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
-                          className="fm-button"
-                          style={{display:"block", position:"fixed", bottom:"0",
-                                  right:"0", zIndex: "100",
-                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
-                                  margin: "0 30px 30px 0", width: "85px"}}>
-                        Site Feedback
-                    </a>
-              <DefaultHomepageActions value={this.props.value}/>
+                  <SiteFeedbackButton />
+                  <DefaultHomepageActions value={this.props.value}/>
               </div>
           );
       } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
           return (
               <div style={{...wrapperDivStyle, width : "80%" }}>
                   <ModalWhileGradingMenuBar />
-                  <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
-                          className="fm-button"
-                          style={{display:"block", position:"fixed", bottom:"0",
-                                  right:"0", zIndex: "100",
-                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
-                                  margin: "0 30px 30px 0", width: "85px"}}>
-                        Site Feedback
-                    </a>
+                  <SiteFeedbackButton />
                   <GradesView value={this.props.value} />
               </div>
           );
@@ -879,14 +864,7 @@ class FreeMath extends React.Component {
           return (
               <div style={{...wrapperDivStyle, width : "95%" }}>
                   <ModalWhileGradingMenuBar />
-                  <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
-                          className="fm-button"
-                          style={{display:"block", position:"fixed", bottom:"0",
-                                  right:"0", zIndex: "100",
-                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
-                                  margin: "0 30px 30px 0", width: "85px"}}>
-                        Site Feedback
-                    </a>
+                  <SiteFeedbackButton />
                   <div style={{margin:"60px 0px 30px 0px"}}>
                   <SimilarDocChecker value={this.props.value} />
                   </div>
