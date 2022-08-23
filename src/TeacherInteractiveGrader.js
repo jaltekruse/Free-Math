@@ -1914,7 +1914,8 @@ class TeacherInteractiveGrader extends React.Component {
                             this.setState({showModal: true});
                         }.bind(this)}/>
                     ) : null}
-
+            <div style={{overflowX: 'scroll', overflowY: 'hidden', whiteSpace: 'nowrap', width:'1000px'}}>
+            <div style={{width:"1000px"}}>
             {gradingOverview.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
                 var label = "Problem " + probNum;
@@ -1942,6 +1943,8 @@ class TeacherInteractiveGrader extends React.Component {
                         />
                 );
             }.bind(this))}
+            </div>
+            </div>
                 {/* TODO - finish option to grade anonymously <TeacherGraderFilters value={this.props.value}/> */}
                 <span id="grade_problem" />
                 <div style={{paddingTop: "100px", marginTop: "-100px"}} />
