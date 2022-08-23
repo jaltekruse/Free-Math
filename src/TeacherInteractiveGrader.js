@@ -2,14 +2,13 @@ import React from 'react';
 import _ from 'underscore';
 import JSZip from 'jszip';
 import { diffJson } from 'diff';
-import TeX from './TeX.js';
+import MathQuillStatic from './MathQuillStatic.js';
 import './App.css';
 import ProblemGrader, { problemGraderReducer } from './ProblemGrader.js';
 import { scaleScore } from './SolutionGrader.js';
 import { cloneDeep, genID, getPersistentState,
          getEphemeralState, saveStudentDocToDriveResolvingConflicts } from './FreeMath.js';
-import Button from './Button.js';
-import { CloseButton, HtmlButton } from './Button.js';
+import Button, { CloseButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { saveAssignment, removeExtension, openAssignment } from './AssignmentEditorMenubar.js';
 import { saveAs } from 'file-saver';
@@ -1953,35 +1952,92 @@ class GradingTabs extends React.Component {
         var currentProblem = this.props.currentProblem;
         var problems = this.props.problems;
 
+        const windowWidth = window.innerWidth;
+
+        const tabsToShow = 8;
+        const tabWidth = (windowWidth - 200) / tabsToShow;
+        const tabWidthCss = '' + tabWidth + 'px';
+
         return (
             <div>
+            <div style={{display: 'flex'}}>
+            {gradingOverview.length > tabsToShow ?
+                <HtmlButton title={"View Other Tabs"} key={'move_left'} id={'move_left'}
+                    disabled={this.state.currentFirstTab === 0}
+                    className={"fm-button-right fm-button-left fm-button fm-tab"}
+                    style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px",
+                            width: '40px', height: '120px', overflow: "hidden", float: 'left'}}
+                    onClick={function() {
+                        this.setState({currentFirstTab: Math.max(0, this.state.currentFirstTab - 6)});
+                    }.bind(this)}
+                    content={
+                        (<div>
+                            <h3>left</h3>
+                         </div>
+                        )}
+                />
+                : null }
             {gradingOverview.map(function(problem, problemIndex) {
+                if (problemIndex < this.state.currentFirstTab || problemIndex + 1 > this.state.currentFirstTab + tabsToShow) {
+                    return null;
+                }
                 var probNum = problem[PROBLEM_NUMBER];
-                var label = "Problem " + probNum;
+                var label;
+                if (probNum.trim() !== '') {
+                    if (tabWidth > 120) {
+                        label = "Problem " + probNum;
+                    } else  if (tabWidth > 100) {
+                        label = "Prob " + probNum;
+                    } else {
+                        label = "P " + probNum;
+                    }
+                } else {
+                    label = "[Not Set]";
+                }
                 let topAnswer = problems[probNum][UNIQUE_ANSWERS][0][ANSWER];
                 return (
                         <HtmlButton text={label} title={"View " + label} key={problemIndex} id={problemIndex}
                             className={"fm-button-right fm-button-left fm-button fm-tab " + ((probNum === currentProblem) ? "fm-tab-selected" : "")}
-                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px", maxWidth: "300px", overflow: "hidden"}}
+                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px",
+                                    width: tabWidthCss, height: '120px', overflow: "hidden", float: 'left'}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probNum})}}
                             content={
                                 (<div>
                                     <h3>{label}</h3>
+
                                     Top Answer &nbsp; (
                                     {problem["LARGEST_ANSWER_GROUP_SIZE"]}
                                     &nbsp;{'of'}&nbsp;
                                     {Math.round(problem["NUMBER_UNIQUE_ANSWERS"]
                                                   * problem["AVG_ANSWER_GROUP_SIZE"])})
-                                        {<TeX>{typeof(topAnswer) === 'string'
+                                    <br />
+                                        {<MathQuillStatic tex={typeof(topAnswer) === 'string'
                                             ? topAnswer
-                                            : "\\text{}"}</TeX>
+                                            : "\\text{}"} />
                                         }
                                 </div>)}
                         />
                 );
-            })}
+            }.bind(this))}
+            {gradingOverview.length > tabsToShow ?
+                <HtmlButton title={"View Other Tabs"} key={'move_left'} id={'move_left'}
+                    disabled={this.state.currentFirstTab === gradingOverview.length - 8}
+                    className={"fm-button-right fm-button-left fm-button fm-tab"}
+                    style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px",
+                            width: '40px', height: '120px', overflow: "hidden", float: 'left'}}
+                    onClick={function() {
+                        this.setState({currentFirstTab: Math.min(gradingOverview.length - 8, this.state.currentFirstTab + 6)});
+                    }.bind(this)}
+                    content={
+                        (<div>
+                            <h3>right</h3>
+                         </div>
+                        )}
+                />
+                : null }
+            </div>
             </div>
             );
     }
