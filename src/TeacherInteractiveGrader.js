@@ -1972,7 +1972,9 @@ class GradingTabs extends React.Component {
                     }.bind(this)}
                     content={
                         (<div>
-                            <h3>left</h3>
+                            <img src="images/left_arrow.svg"
+                                 className="fm-button-icon"
+                                 alt="View Other Tabs"/>
                          </div>
                         )}
                 />
@@ -2032,7 +2034,9 @@ class GradingTabs extends React.Component {
                     }.bind(this)}
                     content={
                         (<div>
-                            <h3>right</h3>
+                            <img src="images/right_arrow.svg"
+                                 className="fm-button-icon"
+                                 alt="View Other Tabs"/>
                          </div>
                         )}
                 />
