@@ -1917,23 +1917,12 @@ class TeacherInteractiveGrader extends React.Component {
 
             {gradingOverview.map(function(problem, problemIndex) {
                 var probNum = problem[PROBLEM_NUMBER];
-                var label;
-                if (probNum.trim() !== '') {
-                    if (gradingOverview.length < 8) {
-                        label = "Problem " + probNum;
-                    } else  if (gradingOverview.length < 12) {
-                        label = "Prob " + probNum;
-                    } else {
-                        label = "P " + probNum;
-                    }
-                } else {
-                    label = "[Need to Set a Problem Number]";
-                }
+                var label = "Problem " + probNum;
                 let topAnswer = this.props.value[PROBLEMS][probNum][UNIQUE_ANSWERS][0][ANSWER];
                 return (
                         <HtmlButton text={label} title={"View " + label} key={problemIndex} id={problemIndex}
                             className={"fm-button-right fm-button-left fm-button fm-tab " + ((probNum === currentProblem) ? "fm-tab-selected" : "")}
-                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px", maxWidth: "500px", overflow: "hidden"}}
+                            style={{marginBottom: "0px", borderRadius: "15px 15px 0px 0px", maxWidth: "300px", overflow: "hidden"}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: probNum})}}
