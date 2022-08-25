@@ -83,7 +83,7 @@ class ProblemGrader extends React.Component {
         var oldPossiblePoints = problemInfo[POSSIBLE_POINTS];
         return (
             <div className="problem-summary-container" style={{float:"none"}}>
-                <h3>Problem {problemNumber}</h3>
+                <h3 style={{display:"block", clear: "left"}}>Problem {problemNumber}</h3>
                 {/*<p>Total incorrect answers {totalIncorrect}</p>*/}
                 {/* studentsToView is set when a list of similar assignments is being viewed.
                     In this case disable the score editing and grading interface to declutter the view
@@ -137,6 +137,10 @@ class ProblemGrader extends React.Component {
                         );
                     })
                 }
+                <div style={{display:"block", clear: "left"}}>
+                    <br />
+                    <br />
+                </div>
         </div>);
     }
 }
