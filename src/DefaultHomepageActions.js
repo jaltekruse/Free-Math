@@ -950,7 +950,7 @@ class UserActions extends React.Component {
                                 </p>
                                     { recoveredStudentDocs.map(function(autoSaveFullName, index) {
                                                 // strip off milliseconds and seconds, and the type of doc label when displaying to user
-                                                var filenameAndDate = autoSaveFullName.replace("auto save students","")
+                                                var filenameAndDate = autoSaveFullName.replace("auto save students ","")
                                                         .replace(/:\d\d\..*/, "")
                                                 var nameAndDate = splitNameAndDate(filenameAndDate);
                                                 var filename = nameAndDate[1];
