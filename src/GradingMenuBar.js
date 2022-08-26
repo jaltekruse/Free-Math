@@ -124,9 +124,9 @@ class GradingMenuBar extends React.Component {
             <div className="menuBar">
                 <div className="nav" style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}}>
                     <LogoHomeNav />
-                    <div className="navBarElms" style={{float: "right", marginTop: "0px",
-                                                        verticalAlign:"top", lineHeight : 1}}>
+                    <span className="navBarElms" style={{paddingTop: "10px", lineHeight : 1}}>
 
+                      <div className="homepage-disappear-mobile inline-block-when-not-on-mobile">
                        <div style={{ visibility: (saveStateMsg === '' ? 'hidden' : 'visible'),
                                color: (saveState === ERROR_DOC_TOO_BIG ? "#FFAEAE" : "inherit")
                             }}
@@ -137,6 +137,7 @@ class GradingMenuBar extends React.Component {
                                 <span>{saveStateMsg === '' ? 'Remember to save often' : saveStateMsg}</span>
                             }
                         </div>
+                      </div>
                         {googleId
                             ?
                                 <span className="google-assignment-name"
@@ -150,7 +151,7 @@ class GradingMenuBar extends React.Component {
 
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
-                        (<div className="navBarItem" style={{display:"inline-block"}}>
+                        (<div className="navBarItem" style={{marginLeft: "20px", display:"inline-block"}}>
                             {googleId
                             ?
                                 <div className="navBarItem" style={{display:"inline-block"}}>
@@ -174,7 +175,7 @@ class GradingMenuBar extends React.Component {
                                         )} />&nbsp;&nbsp;&nbsp;
                                 </div>
                             :
-                                <div className="navBarItem" style={{display:"inline-block"}}>
+                                <div className="navBarItem" style={{marginLeft: "20px", display:"inline-block"}}>
                                 Assignment &nbsp;
                                 <input type="text" id="assignment-name-text" size="20"
                                         name="assignment name"
@@ -216,7 +217,7 @@ class GradingMenuBar extends React.Component {
                             }
                         }/>&nbsp;&nbsp;
                         </div>) : null }
-                    </div>
+                    </span>
                 </div>
             </div>
         );
