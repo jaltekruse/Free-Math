@@ -130,7 +130,7 @@ class SolutionClassGrader extends React.Component {
                                     key={studentSolutionIndex}
                                     id={studentSolutionIndex}
                                     solutionClassIndex={solutionClassIndex}
-                                    viewingSimilarGroup={(true && studentsToView)}/>
+                                    viewingSimilarGroup={(!!studentsToView)}/>
                                 );
                         } else {
                             return null;

@@ -2008,6 +2008,7 @@ class TeacherInteractiveGrader extends React.Component {
 export { TeacherInteractiveGrader as default,
     GradesView,
     SimilarDocChecker,
+    AllProblemGraders,
     loadStudentDocsFromZip,
     studentSubmissionsZip,
     saveGradedStudentWork,

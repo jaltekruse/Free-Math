@@ -10,6 +10,8 @@ import FreeMathModal from './Modal.js';
 // editing assignmnt mode actions
 const UNTITLED_ASSINGMENT = 'Untitled Assignment';
 
+const EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+
 var PROBLEMS = 'PROBLEMS';
 // student assignment actions
 var ADD_PROBLEM = 'ADD_PROBLEM';
@@ -30,6 +32,10 @@ var SCORE = "SCORE";
 
 var IMAGE_BEING_EDITED = 'IMAGE_BEING_EDITED';
 
+const SET_TO_STUDENT_PRINTER_VIEW = 'SET_TO_STUDENT_PRINTER_VIEW';
+const STUDENT_PRINTER_VIEW = 'STUDENT_PRINTER_VIEW';
+const NAV_BACK_TO_EDIT_ASSIGNMENT = 'NAV_BACK_TO_EDIT_ASSIGNMENT';
+
 // reducer for an overall assignment
 function assignmentReducer(state, action) {
     if (state === undefined) {
@@ -37,6 +43,16 @@ function assignmentReducer(state, action) {
             ASSIGNMENT_NAME : UNTITLED_ASSINGMENT,
             CURRENT_PROBLEM: 0,
             PROBLEMS : problemListReducer(undefined, action)
+        };
+    } else if (action.type === SET_TO_STUDENT_PRINTER_VIEW ) {
+        return {
+            ...state,
+            APP_MODE : STUDENT_PRINTER_VIEW
+        };
+    } else if (action.type === NAV_BACK_TO_EDIT_ASSIGNMENT) {
+        return {
+            ...state,
+            APP_MODE : EDIT_ASSIGNMENT
         };
     } else if (action.type === REMOVE_PROBLEM) {
         return { ...state,

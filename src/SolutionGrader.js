@@ -313,11 +313,11 @@ class StudentWork extends React.Component {
                                 :
                                 step[FORMAT] === TEXT
                                 ?
-                                    <div className="student-step-grader" style={{...stepStyle, margin: "5px"}}>
+                                    <div className={viewingSimilarGroup ? "" : "student-step-grader"} style={{...stepStyle, margin: "5px"}}>
                                         {step[CONTENT]}
                                     </div>
                                 :
-                                <div className="student-step-grader">
+                                <div className={viewingSimilarGroup ? "" : "student-step-grader"}>
                                     <MathQuillStatic style={stepStyle}
                                         tex={
                                             typeof(step[CONTENT]) === 'string'
@@ -527,4 +527,4 @@ class SolutionGrader extends React.Component {
     }
 }
 
-export { SolutionGrader as default, scaleScore, singleSolutionReducer};
+export { SolutionGrader as default, StudentWork, scaleScore, singleSolutionReducer};

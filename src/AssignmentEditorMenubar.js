@@ -39,6 +39,8 @@ var SET_ASSIGNMENT_CONTENT = 'SET_ASSIGNMENT_CONTENT';
 var UNDO_STACK = 'UNDO_STACK';
 var REDO_STACK = 'REDO_STACK';
 
+const SET_TO_STUDENT_PRINTER_VIEW = 'SET_TO_STUDENT_PRINTER_VIEW';
+
 var SET_GOOGLE_CLASS_LIST = 'SET_GOOGLE_CLASS_LIST';
 var GOOGLE_CLASS_LIST = 'GOOGLE_CLASS_LIST';
 var GOOGLE_SELECTED_CLASS = 'GOOGLE_SELECTED_CLASS';
@@ -854,7 +856,7 @@ class AssignmentEditorMenubar extends React.Component {
                     value={this.props.value}
                     selectSubmissionCallback={selectSubmissionCallback}
                     ref="submissionSelector"/>
-                <div style={{maxWidth:1200,marginLeft:"auto", marginRight:"auto"}} className="nav">
+                <div style={{maxWidth:1300,marginLeft:"auto", marginRight:"auto"}} className="nav">
                   <LogoHomeNav />&nbsp;&nbsp;&nbsp;&nbsp;
                   <span className="navBarElms" style={{paddingTop: "10px", lineHeight : 1}}>
 
@@ -886,6 +888,7 @@ class AssignmentEditorMenubar extends React.Component {
                           />&nbsp;&nbsp;
                       </div>) : null}
                       {!browserIsIOS ?
+
                       (<div className="navBarItem" style={{display:"inline-block"}}>
                           <LightButton text="Save to Device" onClick={
                               function() {
@@ -893,7 +896,7 @@ class AssignmentEditorMenubar extends React.Component {
                                   saveAssignmentValidatingProblemNumbers(persistentState, function(finalBlob) {
                                         saveAs(finalBlob, persistentState[ASSIGNMENT_NAME] + '.math');
                                   });
-                              }} /> &nbsp;&nbsp;&nbsp;
+                              }} /> &nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
                             ref="saveToDrive"
@@ -906,7 +909,7 @@ class AssignmentEditorMenubar extends React.Component {
                                                 src="images/google_drive_small_logo.png"
                                                 alt="google logo" />
                                     </div>
-                            )} />&nbsp;&nbsp;&nbsp;
+                            )} />&nbsp;&nbsp;
                         <HtmlButton
                             className="fm-button-light"
                             title="Submit assignment to Google Classroom"
@@ -922,7 +925,17 @@ class AssignmentEditorMenubar extends React.Component {
                                                 alt="Google logo"
                                                 height="16px"/>
                                     </div>
-                            )} />&nbsp;&nbsp;&nbsp;
+                            )} />&nbsp;&nbsp;
+                          <LightButton text="Printer View" onClick={
+                                    () => {
+                                        document.title = this.props.value[ASSIGNMENT_NAME];
+                                        window.store.dispatch({type : SET_TO_STUDENT_PRINTER_VIEW})
+                                        setTimeout(
+                                            () => window.print(),
+                                            1000);
+                                    }}
+
+                          /> &nbsp;&nbsp;
                          <a href="launch.html?mode=studentDemo" target="_blank">
                              <div className="fm-button-light" style={{display: "inline-block", paddingTop: "4px"}}>
                                 Tutorial

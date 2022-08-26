@@ -1,5 +1,5 @@
 import React from 'react';
-import GradingMenuBar, { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
+import GradingMenuBar, { ModalMenuBar, ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
 import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
 import { openAssignment, CANNOT_EDIT_SUBMITTED_ERR_MSG} from './AssignmentEditorMenubar.js';
@@ -11,12 +11,16 @@ import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGrading
                                  } from './TeacherInteractiveGrader.js';
 import { updateFileWithBinaryContent, reclaimFromClassroom, downloadFile, downloadFileMetadata } from './GoogleApi.js';
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
+import PrinterFriendlyAssignmentView from './PrinterFriendlyAssignmentView.js';
 
 // Application modes
 var APP_MODE = 'APP_MODE';
-var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
+const EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
 var GRADE_ASSIGNMENTS = 'GRADE_ASSIGNMENTS';
 var MODE_CHOOSER = 'MODE_CHOOSER';
+const SET_TO_STUDENT_PRINTER_VIEW = 'SET_TO_STUDENT_PRINTER_VIEW';
+const STUDENT_PRINTER_VIEW = 'STUDENT_PRINTER_VIEW';
+const NAV_BACK_TO_EDIT_ASSIGNMENT = 'NAV_BACK_TO_EDIT_ASSIGNMENT';
 
 var POSSIBLE_POINTS = "POSSIBLE_POINTS";
 var SCORE = "SCORE";
@@ -776,10 +780,10 @@ function rootReducer(state, action) {
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
         };
-    } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
+    } else if (state[APP_MODE] === EDIT_ASSIGNMENT
+        || state[APP_MODE] === STUDENT_PRINTER_VIEW) {
         return {
-            ...assignmentReducer(state, action),
-            APP_MODE : EDIT_ASSIGNMENT
+            ...assignmentReducer(state, action)
         }
     } else if (state[APP_MODE] === GRADE_ASSIGNMENTS
         || state[APP_MODE] === SIMILAR_DOC_CHECK
@@ -838,6 +842,15 @@ class FreeMath extends React.Component {
                   <SiteFeedbackButton />
               </div>
           );
+      } else if (this.props.value[APP_MODE] === STUDENT_PRINTER_VIEW) {
+          return (
+              <div>
+                  <ModalMenuBar text={"Back to Editing Assignment"} exitAction={
+                        () => window.store.dispatch({type : NAV_BACK_TO_EDIT_ASSIGNMENT })}
+                  />
+                  <PrinterFriendlyAssignmentView assignment={this.props.value}/>
+              </div>
+          );
       } else if (this.props.value[APP_MODE] === GRADE_ASSIGNMENTS) {
           return (
               <div>
@@ -855,18 +868,22 @@ class FreeMath extends React.Component {
           );
       } else if (this.props.value[APP_MODE] === VIEW_GRADES) {
           return (
-              <div style={{...wrapperDivStyle, width : "80%" }}>
+              <div>
                   <ModalWhileGradingMenuBar />
-                  <GradesView value={this.props.value} />
+                  <div style={{...wrapperDivStyle, width : "80%" }}>
+                    <GradesView value={this.props.value} />
+                  </div>
                   <SiteFeedbackButton />
               </div>
           );
       } else if (this.props.value[APP_MODE] === SIMILAR_DOC_CHECK) {
           return (
-              <div style={{...wrapperDivStyle, width : "95%" }}>
+              <div>
                   <ModalWhileGradingMenuBar />
-                  <div style={{margin:"60px 0px 30px 0px"}}>
-                    <SimilarDocChecker value={this.props.value} />
+                  <div style={{...wrapperDivStyle, width : "95%" }}>
+                      <div style={{margin:"60px 0px 30px 0px"}}>
+                        <SimilarDocChecker value={this.props.value} />
+                      </div>
                   </div>
                   <SiteFeedbackButton />
               </div>

@@ -448,13 +448,27 @@ div.problem-container {
     text-align:center
 }
 
+.menubar-spacer {
+    height: 50px;
+    width: 100%;
+    display: block
+}
+.menubar-spacer-small {
+    height: 50px;
+    width: 100%;
+    display: block
+}
+
+
 @media (max-width: 1250px) {
     .menubar-spacer {
-        height: 60px;
+        height: 100px;
+        width: 100%;
         display: block
     }
     .menubar-spacer-small {
-        height: 60px;
+        height: 100px;
+        width: 100%;
         display: block
     }
 }
@@ -574,11 +588,13 @@ div.problem-container {
     }
 
     .menubar-spacer {
-        height: 50px;
+        height: 90px;
+        width: 100%;
         display: block
     }
     .menubar-spacer-small {
-        height: 50px;
+        height: 90px;
+        width: 100%;
         display: block
     }
 
@@ -689,7 +705,7 @@ div.problem-container {
     top:0;
     left:0;
     z-index: 100;
-    }
+}
 
 .logo{
     float:left;

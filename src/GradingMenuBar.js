@@ -226,15 +226,28 @@ class GradingMenuBar extends React.Component {
 export class ModalWhileGradingMenuBar extends React.Component {
     render() {
         return (
-            <div className="menuBar">
+            <ModalMenuBar text={"Back to Grading"} exitAction={
+                    () => window.store.dispatch({type : NAV_BACK_TO_GRADING})
+            } />)
+    }
+}
+
+export class ModalMenuBar extends React.Component {
+    render() {
+        const exitAction = this.props.exitAction;
+        const text = this.props.text;
+        return (
+            <div style={{
+                padding: "5px 0px 5px 0px", width: "100%", display:"inline-block",
+                backgroundColor: "#212121", color : "#efefef"}}
+            >
                 <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
                     <div style={{float:"left"}}> <LogoHomeNav /> </div>
                     <div style={{float:"left", verticalAlign:"top",
                                  marginTop:"5px", marginLeft:"30px", lineHeight : 1}}>
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                        <LightButton text="Back to Grading" onClick={
-                            function() {window.store.dispatch({type : NAV_BACK_TO_GRADING})}
-                        }/>
+                        <LightButton text={text} onClick={() => exitAction()}
+                        />
                     </div>
                 </div>
             </div>
