@@ -880,6 +880,7 @@ class UserActions extends React.Component {
                 )}
             />
             <div style={{display:"inline-block", width:"100%"}}>
+            <div className="menubar-spacer-small"> </div>
             <div className="homepage-center-mobile">
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
