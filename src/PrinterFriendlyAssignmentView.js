@@ -13,7 +13,7 @@ export default class PrinterFriendlyAssignmentView extends React.Component {
 
         return (
             <div style={{minHeight: "100vh", padding:"30px 15px 100px 15px"}}>
-            <span style={{fontSize: "0.5px", color:"#f1f1f1", lineHeight: "0.1"}}>
+            <span style={{fontSize: "0.01px", color:"#f1f1f1", lineHeight: "0.1"}}>
             {JSON.stringify(assignment)}
             </span>
             { assignment[PROBLEMS].map(
