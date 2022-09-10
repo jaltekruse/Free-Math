@@ -17,6 +17,7 @@ import { listGoogleClassroomAssignments,
          turnInToClassroom,
          doOnceGoogleAuthLoads } from './GoogleApi.js';
 import JSZip from 'jszip';
+import pdfjs from 'pdfjs-dist';
 
 var STEPS = 'STEPS';
 var CONTENT = "CONTENT";

@@ -10,11 +10,12 @@ export default class PrinterFriendlyAssignmentView extends React.Component {
 
     render() {
         const assignment = this.props.assignment;
+        const marker = "$$$$FREEMATH_DATA";
 
         return (
             <div style={{minHeight: "100vh", padding:"30px 15px 100px 15px"}}>
             <span style={{fontSize: "0.01px", color:"#f1f1f1", lineHeight: "0.1"}}>
-            {JSON.stringify(assignment)}
+            {marker}{JSON.stringify(assignment)}{marker}
             </span>
             { assignment[PROBLEMS].map(
                 (problem => {
