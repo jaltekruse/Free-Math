@@ -12,6 +12,11 @@ export default class PrinterFriendlyAssignmentView extends React.Component {
 
         return (
             <div style={{minHeight: "100vh", padding:"30px 15px 100px 15px"}}>
+            <div className="answer-partially-correct"
+              style={{display:"inline-block", padding:"5px", margin: "5px"}}>
+                <span>Only submit a PDF to your instructor if requested, the regular save feature for Free Math that produces a .math file should be preferred in most cases.</span>
+            </div>
+            <div>
             { assignment[PROBLEMS].map(
                 (problem => {
                     return (
@@ -26,6 +31,7 @@ export default class PrinterFriendlyAssignmentView extends React.Component {
                     )
                 })
             )}
+            </div>
             </div>
         );
     }
