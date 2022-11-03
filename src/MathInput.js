@@ -22,133 +22,6 @@ var BASIC = 'BASIC';
 var SET_THEORY = 'SET_THEORY';
 var GREEK = 'GREEK';
 
-
-// These are functions because we want to generate a new component for each use
-// on the page rather than reusing an instance (which will cause an error).
-// Also, it's useful for things which might look different depending on the
-// props.
-
-var basic = [
-    () => [<span key="plus" style={slightlyBig}>+</span>, "+"],
-    () => [<span key="minus" style={prettyBig}>-</span>, "-"],
-
-    // TODO(joel) - display as \cdot when appropriate
-    props => {
-        if (props.convertDotToTimes) {
-            return [
-                <TeX key="times" style={prettyBig}>\times</TeX>,
-                "\\times"
-            ];
-        } else {
-            return [<TeX key="times" style={prettyBig}>\cdot</TeX>, "\\cdot"];
-        }
-    },
-    () => [
-        <TeX key="frac" style={prettyBig}>{"\\frac{□}{□}"}</TeX>,
-
-        // If there's something in the input that can become part of a
-        // fraction, typing "/" puts it in the numerator. If not, typing
-        // "/" does nothing. In that case, enter a \frac.
-        input => {
-            var contents = input.latex();
-            input.typedText("/");
-            if (input.latex() === contents) {
-                input.cmd("\\frac");
-            }
-        }
-    ]
-];
-
-var buttonSets = {
-    basic,
-
-    "basic+div": basic.concat([
-        () => [<TeX key="div">\div</TeX>, "\\div"]
-    ]),
-
-    trig: [
-        //() => [<TeX key="sin">\sin</TeX>, "\\sin"],
-        //() => [<TeX key="cos">\cos</TeX>, "\\cos"],
-        //() => [<TeX key="tan">\tan</TeX>, "\\tan"],
-        //() => [<TeX key="theta" style={symbStyle}>\theta</TeX>, "\\theta"],
-        //() => [<TeX key="pi" style={symbStyle}>\phi</TeX>, "\\phi"]
-    ],
-
-    prealgebra: [
-        () => [<TeX key="sqrt">{"\\sqrt{x}"}</TeX>, "\\sqrt"],
-        // TODO(joel) - how does desmos do this?
-        /*
-        () => [
-            <TeX key="nthroot">{"\\sqrt[3]{x}"}</TeX>,
-            input => {
-                input.typedText("nthroot3");
-                input.keystroke("Right");
-            }],
-        */
-        /*() => [
-            <TeX key="pow" style={slightlyBig}>□^a</TeX>,
-            input => {
-                var contents = input.latex();
-                input.typedText("^");
-
-                // If the input hasn't changed (for example, if we're
-                // attempting to add an exponent on an empty input or an empty
-                // denominator), insert our own "a^b"
-                if (input.latex() === contents) {
-                    input.typedText("a^b");
-                }
-            }
-        ],
-        () => [<TeX key="pi" style={slightlyBig}>\pi</TeX>, "\\pi"], */
-    ],
-
-    logarithms: [
-        () => [<TeX key="log">\log</TeX>, "\\log"],
-        () => [<TeX key="ln">\ln</TeX>, "\\ln"],
-        () => [
-            <TeX key="log_b">\log_b</TeX>,
-            input => {
-                input.typedText("log_");
-                input.keystroke("Right");
-                input.typedText("(");
-                input.keystroke("Left");
-                input.keystroke("Left");
-            }],
-    ],
-
-    "basic relations": [
-        () => [<TeX key="eq">{"="}</TeX>, "="],
-        () => [<TeX key="lt">\lt</TeX>, "\\lt"],
-        () => [<TeX key="gt">\gt</TeX>, "\\gt"],
-    ],
-
-    "advanced relations": [
-        () => [<TeX key="neq">\neq</TeX>, "\\neq"],
-        () => [<TeX key="leq">\leq</TeX>, "\\leq"],
-        () => [<TeX key="geq">\geq</TeX>, "\\geq"],
-    ],
-    "calculus": [
-        () => [<TeX key="sum">{"\\sum"}</TeX>, "\\sum"],
-        () => [<TeX key="integral">{"\\int"}</TeX>, "\\int"],
-        /* TODO - had trouble getting these buttons to produce expressions with mutliple parts, it just inserted the latex text into the box */
-        /*() => [<TeX key="dy/dx">{"\\frac{dy}{dx}"}</TeX>, "\\frac {dy}"], */
-        /* () => [<TeX key="prime">'</TeX>, "'"], */
-        () => [<TeX key="pi" style={symbStyle}>\pi</TeX>, "\\pi"],
-        () => [<TeX key="theta" style={symbStyle}>\theta</TeX>, "\\theta"],
-        () => [<TeX key="plusminux" style={symbStyle}>\pm</TeX>, "\\pm"],
-        /* () => [<TeX key="abs" style={symbStyle}>\left|x\right|</TeX>, "\\left|x\\right|"], */
-        () => [<TeX key="inf" style={symbStyle}>\infty</TeX>, "\\infty"],
-        () => [<TeX key="rightarrow" style={symbStyle}>\rightarrow</TeX>, "\\rightarrow"],
-        () => [<TeX key="neq" style={symbStyle}>\neq</TeX>, "\\neq"],
-        () => [<TeX key="degree" style={symbStyle}>\degree</TeX>, "\\degree"],
-        () => [<TeX key="angle" style={symbStyle}>\angle</TeX>, "\\angle"],
-    ],
-};
-
-var buttonSetsType = PropTypes.arrayOf(
-        PropTypes.oneOf(_.keys(buttonSets))
-    );
-
 class MatrixSizePicker extends React.Component {
     static propTypes = {
         onInsert: PropTypes.func.isRequired,
@@ -234,7 +107,8 @@ class MatrixSizePicker extends React.Component {
                 }
                 </div>
                 </div>
-                <div className="matrix-end-caps-and-buttons" style={{marginLeft: '10px', marginRight: '10px', float:'left'}}>
+                <div className="matrix-end-caps-and-buttons"
+                        style={{width: "150px", marginLeft: '10px', marginRight: '10px', float:'left'}}>
                     End Caps
                     <br />
 
@@ -300,26 +174,13 @@ class MatrixSizePicker extends React.Component {
 
 class TexButtons extends React.Component {
     static propTypes = {
-        sets: buttonSetsType.isRequired,
         onInsert: PropTypes.func.isRequired,
         buttonGroup: PropTypes.string.isRequired
     };
 
-    static buttonSets = buttonSets;
-    static buttonSetsType = buttonSetsType;
 
     render() {
         //MathQuill = MathQuill.getInterface(1);
-        // Always show buttonSets in the same order. Note: Technically it's ok
-        // for _.keys() to return the keys in an arbitrary order, but in
-        // practice, they will be ordered as listed above.
-        /*
-        var sortedButtonSets = _.sortBy(this.props.sets,
-            (setName) => _.keys(buttonSets).indexOf(setName));
-
-        var buttons = _.map(sortedButtonSets, setName => buttonSets[setName]);
-        */
-
 
         var buttonRows = _.map(symbolGroups[this.props.buttonGroup], symbol => {
             // create a (component, thing we should send to mathquill) pair
@@ -347,6 +208,99 @@ class TexButtons extends React.Component {
                     }
             </button>;
         });
+
+        var singleCharButton = (character) => {
+            return (<button onClick={() => { this.props.onInsert(character)}}
+                                       className="tex-button"
+                                       key={character}
+                                       tabIndex={-1}
+                                       type="button">
+                            <TeX>{character + ''}</TeX>
+                    </button>);
+        };
+
+        var textButton = () => {
+            return (
+                    <button title={"\\text [Enter]"} className="tex-button"
+                        style={{display: "inline-block", float: "none", width: "50px"}}
+                              onClick={() => {
+                            this.props.onInsert(input => {
+                                input.cmd("\\text");
+                            });
+                        }}>
+                        <TeX>{"\\text{Text}"}</TeX>
+                    </button>
+            );
+        }
+
+        var backspaceButton = () => {
+            return (
+                    <button className="tex-button wide-tex-button" style={{display: "inline-block", float: "none"}}
+                              onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Backspace");
+                            });
+                        }}>
+                        <TeX>{"\\text{Backspace}"}</TeX>
+                    </button>
+            );
+
+        };
+
+        var arrowKeys = () => {
+            return (
+                <table style={{borderCollapse:"collapse"}}>
+                <tbody>
+                <tr>
+                <td></td>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Up");
+                            });
+                        }}>
+                        <TeX>{"\\uparrow"}</TeX>
+                    </button>
+                </td>
+                <td></td>
+                </tr>
+                <tr>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Left");
+                            });
+                        }}>
+                        <TeX>{"\\leftarrow"}</TeX>
+                    </button>
+                </td>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                              onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Down");
+                            });
+                        }}>
+                        <TeX>{"\\downarrow"}</TeX>
+                    </button>
+                </td>
+                <td>
+                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
+                            onClick={() => {
+                            this.props.onInsert(input => {
+                                input.keystroke("Right");
+                            });
+                        }}>
+                        <TeX>{"\\rightarrow"}</TeX>
+                    </button>
+                </td>
+                </tr>
+                </tbody>
+                </table>
+            );
+        }
 
         return <div className={`${this.props.className} preview-measure`}>
             {/* TODO - come back to this, wanted to take up less space on mobile
@@ -409,109 +363,40 @@ class TexButtons extends React.Component {
             </div>
 
             <div>
-            <div style={{display: "inline-block", verticalAlign:"top"}}>
+            <div className="homepage-disappear-mobile" style={{display: "inline-block", verticalAlign:"top"}}>
                 <div>
-                    {_.map([1,2,3,4,5,6,7,8,9,0,'.'], number => {
+                    {_.map([1,2,3,4,5,6,7,8,9,0,'.','-'], number => {
                         // create a (component, thing we should send to mathquill) pair
-                        return <button onClick={() => { this.props.onInsert(number)}}
-                                       className="tex-button"
-                                       key={number}
-                                       tabIndex={-1}
-                                       type="button">
-                            <TeX>{number + ''}</TeX>
-                        </button>;
+                        return singleCharButton(number);
                     })}
                 </div>
-                <div>
-                    {_.map(['a','b','c','x','y','z'], letter => {
-                        // create a (component, thing we should send to mathquill) pair
-                        return <button onClick={() => { this.props.onInsert(letter)}}
-                                       className="tex-button"
-                                       key={letter}
-                                       tabIndex={-1}
-                                       type="button">
-                            <TeX>{letter + ''}</TeX>
-                        </button>;
-                    })}
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <button title={"\\text [Enter]"} className="tex-button wide-tex-button"
-                        style={{display: "inline-block", float: "none"}}
-                              onClick={() => {
-                            this.props.onInsert(input => {
-                                input.cmd("\\text");
-                            });
-                        }}>
-                        <TeX>{"\\text{Text}"}</TeX>
-                    </button>
-                    <button className="tex-button wide-tex-button" style={{display: "inline-block", float: "none"}}
-                              onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Backspace");
-                            });
-                        }}>
-                        <TeX>{"\\text{Backspace}"}</TeX>
-                    </button>
-                </div>
-            </div>
-            <div style={{display: "inline-block"}}>
-                <table style={{borderCollapse:"collapse"}}>
-                <tbody>
-                <tr>
-                <td></td>
-                <td>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                            onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Up");
-                            });
-                        }}>
-                        <TeX>{"\\uparrow"}</TeX>
-                    </button>
-                </td>
-                <td></td>
-                </tr>
-                <tr>
-                <td>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                            onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Left");
-                            });
-                        }}>
-                        <TeX>{"\\leftarrow"}</TeX>
-                    </button>
-                </td>
-                <td>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                              onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Down");
-                            });
-                        }}>
-                        <TeX>{"\\downarrow"}</TeX>
-                    </button>
-                </td>
-                <td>
-                    <button className="tex-button" style={{display: "inline-block", float: "none"}}
-                            onClick={() => {
-                            this.props.onInsert(input => {
-                                input.keystroke("Right");
-                            });
-                        }}>
-                        <TeX>{"\\rightarrow"}</TeX>
-                    </button>
-                </td>
-                </tr>
-                </tbody>
-                </table>
             </div>
             </div>
-            <div style={{marginTop: '10px'}}>
+            <div>
+            <div className="math-buttons-current-panel">
                 {this.props.buttonGroup === MATRIX ?
                         <MatrixSizePicker onInsert={this.props.onInsert} buttonRows={buttonRows}/>
                         : <span>{buttonRows} </span>
                 }
 
+            </div>
+            <div style={{float: 'left', marginTop: '10px'}}>
+                {textButton()}
+                {backspaceButton()}
+                <div style={{display: 'block'}}>
+                    {_.map(['a','b','c'], letter => {
+                        // create a (component, thing we should send to mathquill) pair
+                        return singleCharButton(letter);
+                    })}
+                </div>
+                <div style={{display: 'inline-block'}}>
+                    {_.map(['x','y','z'], letter => {
+                        // create a (component, thing we should send to mathquill) pair
+                        return singleCharButton(letter);
+                    })}
+                </div>
+                {arrowKeys()}
+            </div>
             </div>
         </div>;
     }
@@ -558,7 +443,6 @@ class MathInput extends React.Component {
         var buttons = null;
         if (this._shouldShowButtons()) {
             buttons = <TexButtons
-                sets={this.props.buttonSets}
                 className="math-input-buttons absolute"
                 convertDotToTimes={this.props.convertDotToTimes}
                 onInsert={this.insert}

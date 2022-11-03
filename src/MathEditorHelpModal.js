@@ -12,6 +12,7 @@ const symbolGroups = {
         }},
         {toType:"=", tex:"="},
         {toType:"\\neq [Enter]", tex:"\\neq"},
+        {toType:"\\approx [Enter]", tex:"\\approx"},
         {toType:"pi", tex:"\\pi"},
         {toType:"e", tex:"e"},
         {toType:"sqrt", tex:"\\sqrt{x}", editorCommands: input => {
@@ -34,17 +35,16 @@ const symbolGroups = {
                 input.typedText("|");
         }},
         /* () => [<TeX key="abs" style={symbStyle}>\left|x\right|</TeX>, "\\left|x\\right|"], */
-        {toType:">", tex:">"},
-        {toType:">=", tex:"\\ge"},
-        {toType:"<", tex:"<"},
-        {toType:"<=", tex:"\\le"},
-        {toType:"\\approx [Enter]", tex:"\\approx"},
         {toType:"_ (underscore)", tex:"A_b", description: "subscript", editorCommands: input => {
                 input.typedText("_");
         }},
         {toType:"^ (caret), i.e. shift+6", tex:"a^b", description:"power", editorCommands: input => {
                 input.typedText("^");
         }},
+        {toType:">", tex:">"},
+        {toType:">=", tex:"\\ge"},
+        {toType:"<", tex:"<"},
+        {toType:"<=", tex:"\\le"},
         {toType:"\\pm [Enter]", tex:"\\pm"},
         {toType:"\\circ [Enter]", description: "function composition", tex:"\\circ"},
         {toType:"(", tex:"(", editorCommands: input => {

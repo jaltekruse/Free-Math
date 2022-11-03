@@ -35,8 +35,15 @@ margin-top: 0;
 margin-bottom: 0;
 }
 /*
-end of styles copied form perseus
+end of styles copied from perseus
 */
+
+
+.math-buttons-current-panel {
+    margin-top: 10px;
+    width: 475px;
+    float: left;
+}
 
 .homepage-center {
 width: 100%;
@@ -417,7 +424,7 @@ div.problem-container {
 }
 
 .wide-tex-button {
-    width:100px
+    width:90px
 }
 
 .text-step-input {
@@ -550,7 +557,11 @@ div.problem-container {
         width: 601px;
     }
     .matrix-end-caps-and-buttons {
-        max-width: 150px
+        max-width: 100px
+    }
+
+    .math-buttons-current-panel {
+        width: 400px;
     }
     .math-input-buttons.absolute {
       left: -60px;
