@@ -1,5 +1,24 @@
 <?php
-require("util.php");
+/* TODO put back in util.php after fixing server config */
+
+// connect to DB
+try {
+    $db = new mysqli('mysql', 'root', 'password', 'free_math');
+        if ($db->connect_error) {
+            echo 'error connecting to database: ' . $db->connect_error;
+        }   
+} catch (Exception $ex) {
+        echo "error: other error " . $ex->getMessage();
+}
+
+
+// util functions
+function esc($db, $key){
+    return mysqli_real_escape_string($db, $key);
+}
+
+/* TODO put the above back in util.php after fixing server config */
+
 // TODO - check login
 session_start();
 

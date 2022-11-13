@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 
 ?>
-<h2>Righ-On Math</h2>
+<h2>Free Math Live</h2>
 <?php
 if (isset($_SESSION['username'])) {
 ?>
