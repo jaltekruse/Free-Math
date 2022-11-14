@@ -1025,7 +1025,7 @@ class UserActions extends React.Component {
                             () => {
 
                                 // TODO pull username out of local storage
-                                restCall(URL + "create_quiz.php", 'post', JSON.stringify({username: this.state.username}), JSON_MIME,
+                                restCall(URL + "rest.php", 'post', JSON.stringify({verb: 'create_quiz', username: this.state.username}), JSON_MIME,
                                     (result) => {
                                         alert(result);
                                     }, (err) => {
