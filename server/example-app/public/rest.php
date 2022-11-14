@@ -82,7 +82,9 @@ if ($data->verb == 'create_quiz') {
         esc($db, $data->question_title) . "','"  .
         esc($db, $data->question_content)  . "','"  .
         esc($db, $quiz_id)  . "','"  .
-        esc($db, '0')  . "')");
+        esc($db, '0')  . "') on duplicate key " .
+        "update question_content = '" . esc($db, $data->question_content) . "'"
+    );
     if (! $result) {
         echo $db->error;
     } else {
@@ -104,6 +106,8 @@ if ($data->verb == 'create_quiz') {
     }
 } else if ($data->verb == 'get_quiz_content') {
     $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
+    // TODO - probably want this to behave differently for students vs teachers
+    $user_id = username_to_id($data->username, $db);
 
     session_start();
     $result = $db->query("select question_title, question_content, quiz_id, active from questions where " .
