@@ -1300,20 +1300,21 @@ class UserActions extends React.Component {
                                                                             openAssignment(base64ToArrayBuffer(
                                                                                 questionAloneInDoc['question_content']),
                                                                                 '', (recovered) => {
+                                                                                    var student_id = questionAloneInDoc['user_id'];
                                                                                     if (! questionAloneInDoc['user_id']) {
                                                                                         // skip entires with no user for now, these are the questions themselves
-                                                                                        return;
+                                                                                        student_id = 'original_problem';
                                                                                     }
-                                                                                    console.log(questionAloneInDoc['user_id']);
-                                                                                    console.log(allStudentDocs[questionAloneInDoc['user_id']]);
+                                                                                    console.log(student_id);
+                                                                                    console.log(allStudentDocs[student_id]);
                                                                                     var overallDoc;
-                                                                                    if (! allStudentDocs[questionAloneInDoc['user_id']]) {
+                                                                                    if (! allStudentDocs[student_id]) {
                                                                                         overallDoc = assignmentReducer();
                                                                                         // clear out the defualt blank first problem
                                                                                         overallDoc[PROBLEMS] = [];
-                                                                                        allStudentDocs[questionAloneInDoc['user_id']] = overallDoc;
+                                                                                        allStudentDocs[student_id] = overallDoc;
                                                                                     } else {
-                                                                                        overallDoc = allStudentDocs[questionAloneInDoc['user_id']];
+                                                                                        overallDoc = allStudentDocs[student_id];
                                                                                     }
                                                                                     overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
                                                                                     readInSoFar++;
