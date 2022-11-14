@@ -102,5 +102,20 @@ if ($data->verb == 'create_quiz') {
     } else {
         echo json_encode($result->fetch_assoc());
     }
+} else if ($data->verb == 'get_quiz_content') {
+    $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
+
+    session_start();
+    $result = $db->query("select question_title, question_content, quiz_id, active from questions where " .
+        "quiz_id='" . esc($db, $quiz_id)  . "'");
+    if (! $result) {
+        echo $db->error;
+    } else {
+        $res_array = [];
+        while( $row = $result->fetch_assoc()) {
+            $res_array[] = $row;
+        }
+        echo json_encode($res_array);
+    }
 }
 ?>

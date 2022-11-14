@@ -884,24 +884,33 @@ class FreeMath extends React.Component {
                                 // getPersistentState()[ASSIGNMENT_NAME], getPersistentState(), onSuccess, onFailure);
                                 const appState = getPersistentState();
                                 // TODO loop over all problems
-                                const firstProblem = appState[PROBLEMS][0];
-                                const newDocFirstProb = assignmentReducer();
-                                newDocFirstProb[PROBLEMS][0] = firstProblem;
-                                saveAssignment(newDocFirstProb, (finalBlob) => {
-                                    blobToBase64(finalBlob, (base64Data) => {
-                                        var username = window.localStorage.getItem('username');
-                                        restCall(URL + "rest.php", 'post',
-                                            JSON.stringify({verb: 'create_question',
-                                                username: username, quiz_join_code: this.props.value[JOIN_CODE],
-                                                question_title: firstProblem[PROBLEM_NUMBER],
-                                                question_content: base64Data}),
-                                            JSON_MIME,
-                                            (result) => {
-                                                alert("Successfully created new question " + result.responseText);
-                                            }, (err) => {
-                                                console.log(err);
-                                            }
-                                        );
+
+                                const totalProbs = appState[PROBLEMS].length;
+                                var alreadySaved = 0;
+
+                                appState[PROBLEMS].forEach((problem, index) => {
+
+                                    const newDocForProb = assignmentReducer();
+                                    newDocForProb[PROBLEMS][0] = problem;
+                                    saveAssignment(newDocForProb, (finalBlob) => {
+                                        blobToBase64(finalBlob, (base64Data) => {
+                                            var username = window.localStorage.getItem('username');
+                                            restCall(URL + "rest.php", 'post',
+                                                JSON.stringify({verb: 'create_question',
+                                                    username: username, quiz_join_code: this.props.value[JOIN_CODE],
+                                                    question_title: problem[PROBLEM_NUMBER],
+                                                    question_content: base64Data}),
+                                                JSON_MIME,
+                                                (result) => {
+                                                    alreadySaved++;
+                                                    if (alreadySaved === totalProbs) {
+                                                        alert("Successfully saved " + totalProbs + " new questions, last saved: " + result.responseText);
+                                                    }
+                                                }, (err) => {
+                                                    console.log(err);
+                                                }
+                                            );
+                                        });
                                     });
                                 });
                             }}/>

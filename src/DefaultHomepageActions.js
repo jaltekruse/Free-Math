@@ -4,6 +4,7 @@ import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
+import { assignmentReducer } from './Assignment.js';
 import FreeMath, { getPersistentState, getEphemeralState, getCompositeState, getAutoSaveIndex, base64ToArrayBuffer} from './FreeMath.js';
 import Button, { CloseButton, LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
@@ -1138,24 +1139,34 @@ class UserActions extends React.Component {
                                                             // to say if any draft is saved or if it is just a number so far
 
                                                             restCall(URL + "rest.php", 'post',
-                                                                JSON.stringify({verb: 'get_question_content',
+                                                                JSON.stringify({verb: 'get_quiz_content',
                                                                     username: username, quiz_join_code: quiz.join_code,
-                                                                    question_title: "1", // TODO - fix to grab all problems
                                                                 }),
                                                                 JSON_MIME,
                                                                 (result) => {
                                                                     //console.log(result.responseText);
                                                                     var parsedJson = JSON.parse(result.responseText);
-                                                                    if (parsedJson && parsedJson['question_content']) {
-                                                                        openAssignment(base64ToArrayBuffer(
-                                                                            parsedJson['question_content']),
-                                                                            '', function(recovered) {
-                                                                                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                                                                    ASSIGNMENT_NAME : '',
-                                                                                    DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
-                                                                                window.store.dispatch({type: SET_EDIT_QUIZ,
-                                                                                    JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
-                                                                            });
+                                                                    if (parsedJson && parsedJson.length > 0) {
+                                                                        var overallDoc = assignmentReducer();
+                                                                        // clear out the defualt blank first problem
+                                                                        overallDoc[PROBLEMS] = [];
+                                                                        const probCount = parsedJson.length;
+                                                                        var readInSoFar = 0;
+                                                                        parsedJson.forEach((questionAloneInDoc) => {
+                                                                            openAssignment(base64ToArrayBuffer(
+                                                                                questionAloneInDoc['question_content']),
+                                                                                '', function(recovered) {
+                                                                                    overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
+                                                                                    readInSoFar++;
+                                                                                    if (readInSoFar === probCount) {
+                                                                                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                                                                            ASSIGNMENT_NAME : '',
+                                                                                            DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
+                                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
+                                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
+                                                                                    }
+                                                                                });
+                                                                        });
                                                                     } else {
                                                                         window.store.dispatch({type : "NEW_ASSIGNMENT"});
                                                                         window.store.dispatch({type: SET_EDIT_QUIZ,
