@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 12.7 11.875"
+   version="1.1"
+   x="0px"
+   y="0px"
+   id="svg4632"
+   sodipodi:docname="noun_Undo_3920132_white.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   width="12.7"
+   height="11.875">
+  <metadata
+     id="metadata4638">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs4636" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1649"
+     inkscape:window-height="911"
+     id="namedview4634"
+     showgrid="false"
+     inkscape:pagecheckerboard="true"
+     inkscape:zoom="5.2559748"
+     inkscape:cx="-25.632446"
+     inkscape:cy="41.036188"
+     inkscape:window-x="149"
+     inkscape:window-y="108"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg4632" />
+  <g
+     transform="matrix(-1,0,0,1,12.684276,-284.7012)"
+     id="g4626">
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       d="m 9.071957,291.5208 v -1.80868 a 0.06905283,0.06905283 0 0 0 -0.068707,-0.069 H 4.6737322 a 1.9805166,1.9805166 0 0 0 0,3.96102 h 4.3295174 v 2.16787 H 4.6737318 a 4.1483817,4.1483817 0 0 1 0,-8.29676 h 4.3295178 a 0.06905283,0.06905283 0 0 0 0.068707,-0.069 v -1.80867 a 0.06905283,0.06905283 0 0 1 0.1183882,-0.0488 l 2.9613952,2.96166 a 0.06905283,0.06905283 0 0 1 0,0.0977 L 9.1903448,291.5698 A 0.06905283,0.06905283 0 0 1 9.0719566,291.521 Z"
+       id="path4624"
+       inkscape:connector-curvature="0" />
+  </g>
+  <text
+     x="-1.712337"
+     y="18.18247"
+     font-size="5px"
+     font-weight="bold"
+     id="text4628"
+     style="font-weight:bold;font-size:5px;font-family:'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif;fill:#000000">Created by Phạm Thanh Lộc</text>
+  <text
+     x="-1.712337"
+     y="23.18247"
+     font-size="5px"
+     font-weight="bold"
+     id="text4630"
+     style="font-weight:bold;font-size:5px;font-family:'Helvetica Neue', Helvetica, Arial-Unicode, Arial, Sans-serif;fill:#000000">from the Noun Project</text>
+</svg>
