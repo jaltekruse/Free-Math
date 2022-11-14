@@ -90,5 +90,17 @@ if ($data->verb == 'create_quiz') {
         $ret['question_id'] = $db->insert_id;
         echo json_encode($ret);
     }
+} else if ($data->verb == 'get_question_content') {
+    $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
+
+    session_start();
+    $result = $db->query("select question_title, question_content, quiz_id, active from questions where " .
+        "question_title='" . esc($db, $data->question_title) . "' AND "  .
+        "quiz_id='" . esc($db, $quiz_id)  . "'");
+    if (! $result) {
+        echo $db->error;
+    } else {
+        echo json_encode($result->fetch_assoc());
+    }
 }
 ?>

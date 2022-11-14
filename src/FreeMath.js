@@ -119,6 +119,17 @@ function genID() {
     return Math.floor(Math.random() * 200000000);
 }
 
+
+function base64ToArrayBuffer(base64) {
+    var binary_string = window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
 function base64ToBlob(b64Data, contentType='', sliceSize=512) {
   const byteCharacters = atob(b64Data);
   const byteArrays = [];
@@ -761,10 +772,10 @@ function rootReducer(state, action) {
         };
     } else if (action.type === SET_EDIT_QUIZ) {
         return {
-                 ...assignmentReducer(),
-                 APP_MODE : TEACHER_QUIZ_EDITOR,
-                 JOIN_CODE : action[JOIN_CODE],
-                 SESSION_NAME : action[SESSION_NAME]
+            ...state,
+             APP_MODE : TEACHER_QUIZ_EDITOR,
+             JOIN_CODE : action[JOIN_CODE],
+             SESSION_NAME : action[SESSION_NAME]
         }
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
@@ -980,5 +991,5 @@ class FreeMath extends React.Component {
 }
 
 export {FreeMath as default, autoSave, rootReducer, ephemeralStateReducer, cloneDeep, genID,
-    base64ToBlob, getAutoSaveIndex, merge, saveStudentDocToDriveResolvingConflicts,
+    base64ToBlob, base64ToArrayBuffer, getAutoSaveIndex, merge, saveStudentDocToDriveResolvingConflicts,
     getPersistentState, getEphemeralState, getCompositeState, saveToLocalStorageOrDrive};

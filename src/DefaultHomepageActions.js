@@ -4,7 +4,7 @@ import moment from 'moment';
 import './App.css';
 import TeX from './TeX.js';
 import LogoHomeNav from './LogoHomeNav.js';
-import FreeMath, { getPersistentState, getEphemeralState, getCompositeState, getAutoSaveIndex } from './FreeMath.js';
+import FreeMath, { getPersistentState, getEphemeralState, getCompositeState, getAutoSaveIndex, base64ToArrayBuffer} from './FreeMath.js';
 import Button, { CloseButton, LightButton, HtmlButton } from './Button.js';
 import FreeMathModal from './Modal.js';
 import { removeExtension, readSingleFile, openAssignment, GoogleClassroomSubmissionSelector } from './AssignmentEditorMenubar.js';
@@ -641,15 +641,6 @@ class UserActions extends React.Component {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = checkAllSaved;
             window.location.hash = '';
-            function base64ToArrayBuffer(base64) {
-                var binary_string = window.atob(base64);
-                var len = binary_string.length;
-                var bytes = new Uint8Array(len);
-                for (var i = 0; i < len; i++) {
-                    bytes[i] = binary_string.charCodeAt(i);
-                }
-                return bytes.buffer;
-            }
 
             var recovered;
             const loadLegacyFormat = function() {
@@ -1142,8 +1133,38 @@ class UserActions extends React.Component {
                                                     style={{display:"block"}}
                                                     onClick={
                                                         () => {
-                                                            window.store.dispatch({type: SET_EDIT_QUIZ,
-                                                                JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
+                                                            // make a request to see if there is a saved draft of this quiz
+                                                            // TODO - later optimization, can send at least a boolean in the list of sessions
+                                                            // to say if any draft is saved or if it is just a number so far
+
+                                                            restCall(URL + "rest.php", 'post',
+                                                                JSON.stringify({verb: 'get_question_content',
+                                                                    username: username, quiz_join_code: quiz.join_code,
+                                                                    question_title: "1", // TODO - fix to grab all problems
+                                                                }),
+                                                                JSON_MIME,
+                                                                (result) => {
+                                                                    //console.log(result.responseText);
+                                                                    var parsedJson = JSON.parse(result.responseText);
+                                                                    if (parsedJson && parsedJson['question_content']) {
+                                                                        openAssignment(base64ToArrayBuffer(
+                                                                            parsedJson['question_content']),
+                                                                            '', function(recovered) {
+                                                                                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                                                                    ASSIGNMENT_NAME : '',
+                                                                                    DOC_ID: recovered['DOC_ID'], PROBLEMS : recovered[PROBLEMS]});
+                                                                                window.store.dispatch({type: SET_EDIT_QUIZ,
+                                                                                    JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
+                                                                            });
+                                                                    } else {
+                                                                        window.store.dispatch({type : "NEW_ASSIGNMENT"});
+                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
+                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
+                                                                    }
+                                                                }, (err) => {
+                                                                    console.log(err);
+                                                                }
+                                                            );
                                                         }
                                                     }
                                                 />);
