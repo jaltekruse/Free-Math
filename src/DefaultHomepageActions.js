@@ -785,6 +785,29 @@ class UserActions extends React.Component {
             );
         };
 
+        var openQuizContent = (allProblems, join_code, quiz_name) => {
+            var overallDoc = assignmentReducer();
+            // clear out the defualt blank first problem
+            overallDoc[PROBLEMS] = [];
+            const probCount = allProblems.length;
+            var readInSoFar = 0;
+            allProblems.forEach((questionAloneInDoc) => {
+                openAssignment(base64ToArrayBuffer(
+                    questionAloneInDoc['question_content']),
+                    '', function(recovered) {
+                        overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
+                        readInSoFar++;
+                        if (readInSoFar === probCount) {
+                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                ASSIGNMENT_NAME : '',
+                                DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
+                            window.store.dispatch({type: SET_EDIT_QUIZ,
+                                JOIN_CODE: join_code, SESSION_NAME : quiz_name })
+                        }
+                    });
+            });
+        };
+
         var divStyle = {
             border:"1px solid #cfcfcf",
             boxShadow: "0 5px 3px -3px #cfcfcf"
@@ -814,7 +837,6 @@ class UserActions extends React.Component {
                     <div style={{alignItems: "center"}}>
                     <div><b>Teacher Login</b></div>
                     <br />
-                        <form>
                             Username &nbsp;&nbsp;
                             <input type="text" style={{width:"150px"}}
                                value={this.state.username}
@@ -829,18 +851,18 @@ class UserActions extends React.Component {
                                onChange={(evt) => {
                                         this.setState({password: evt.target.value});
                                }}
-                               onSubmit={() => {
+                               onSubmit={(e) => {
+                                    e.oreventDefault();
                                     window.localStorage.setItem("username", this.state.username);
                                     //window.localStorage.removeItem(docName);
                                     //base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
                                }}/><br />
-                            <Button type="submit" text="Login"
+                            <Button text="Login"
                                 onClick={ () => {
                                     // login
                                     window.localStorage.setItem("username", this.state.username);
                                     this.setState({ 'LOGIN_OVERLAY' : false });
                                 }} />
-                        </form>
                     </div>
                 )}
             />
@@ -926,12 +948,61 @@ class UserActions extends React.Component {
                     </div>
                 )}
             />
+            <FreeMathModal
+                showModal={this.state['JOIN_QUIZ_OVERLAY']}
+                content={(
+                    <div style={{alignItems: "center"}}>
+                    <div><b>Join a Live Session</b></div>
+                    <br />
+                            Join Code &nbsp;&nbsp;
+                            <input type="text" style={{width:"150px"}}
+                               value={this.state.join_code}
+                               onChange={function(evt) {
+                                        this.setState({join_code: evt.target.value});
+                               }.bind(this)}/>
+                            Your Name &nbsp;&nbsp;
+                            <input type="text" style={{width:"150px"}}
+                               value={this.state.name}
+                               onChange={function(evt) {
+                                        this.setState({name: evt.target.value});
+                               }.bind(this)}/>
+                            <br />
+                            <br />
+                        <Button text="Join"
+                            onClick={ () => {
+                                // login
+                                restCall(URL + "rest.php", 'post',
+                                    JSON.stringify({verb: 'get_quiz_content',
+                                        username: this.state.name, quiz_join_code: this.state.join_code,
+                                    }),
+                                    JSON_MIME,
+                                    (result) => {
+                                        console.log(result.responseText);
+                                        var parsedJson = JSON.parse(result.responseText);
+                                        if (parsedJson && parsedJson.length > 0) {
+                                            openQuizContent(parsedJson, this.state.join_code, "");
+                                        } else {
+                                            alert("Not a valid join code");
+                                        }
+                                    }, (err) => {
+                                        console.log(err);
+                                    }
+                                );
+                            }} />
+                    </div>
+                )}
+            />
             <div style={{display:"inline-block", width:"100%"}}>
             <div className="homepage-center-mobile">
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
+                        <Button text="Join Live Session" onClick={
+                            () => {
+                                this.setState({ 'JOIN_QUIZ_OVERLAY' : true });
+                            }}
+                        /><br />
                         New Assignment &nbsp;&nbsp;&nbsp;
-                        <Button type="submit" text="Create" onClick={
+                        <Button text="Create" onClick={
                             function() {
                                 // turn on confirmation dialog upon navigation away
                                 window.onbeforeunload = checkAllSaved;
@@ -1036,7 +1107,6 @@ class UserActions extends React.Component {
                     <div style={{alignItems: "center"}}>
                     <div><b>Teacher Login</b></div>
                     <br />
-                        <form>
                             Session Name (i.e class/activity)
                             <br />
                             <input type="text" style={{width:"150px"}}
@@ -1046,7 +1116,7 @@ class UserActions extends React.Component {
                                }.bind(this)}/>
                             <br />
                             <br />
-                            <Button type="submit" text="Create"
+                            <Button text="Create"
                                 onClick={ () => {
                                     // login
                                     restCall(URL + "rest.php", 'post',
@@ -1062,7 +1132,6 @@ class UserActions extends React.Component {
                                         }
                                     );
                                 }} />
-                        </form>
                     </div>
                 )}
             />
@@ -1147,26 +1216,7 @@ class UserActions extends React.Component {
                                                                     //console.log(result.responseText);
                                                                     var parsedJson = JSON.parse(result.responseText);
                                                                     if (parsedJson && parsedJson.length > 0) {
-                                                                        var overallDoc = assignmentReducer();
-                                                                        // clear out the defualt blank first problem
-                                                                        overallDoc[PROBLEMS] = [];
-                                                                        const probCount = parsedJson.length;
-                                                                        var readInSoFar = 0;
-                                                                        parsedJson.forEach((questionAloneInDoc) => {
-                                                                            openAssignment(base64ToArrayBuffer(
-                                                                                questionAloneInDoc['question_content']),
-                                                                                '', function(recovered) {
-                                                                                    overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
-                                                                                    readInSoFar++;
-                                                                                    if (readInSoFar === probCount) {
-                                                                                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                                                                            ASSIGNMENT_NAME : '',
-                                                                                            DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
-                                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
-                                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
-                                                                                    }
-                                                                                });
-                                                                        });
+                                                                        openQuizContent(parsedJson, quiz.join_code, quiz.quiz_name);
                                                                     } else {
                                                                         window.store.dispatch({type : "NEW_ASSIGNMENT"});
                                                                         window.store.dispatch({type: SET_EDIT_QUIZ,

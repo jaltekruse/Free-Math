@@ -52,7 +52,6 @@ $data = json_decode($json);
 
 if ($data->verb == 'create_quiz') {
     $user_id = username_to_id($data->username, $db);
-    session_start();
     $join_code = substr(dechex(random_int(10000000, 20000000)), 0, 8);
     $result = $db->query("insert into quizzes(teacher_user_id, join_code, quiz_name, active) values ('" .
         esc($db, $user_id) . "','"  .
@@ -77,7 +76,6 @@ if ($data->verb == 'create_quiz') {
 } else if ($data->verb == 'create_question') {
     $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
 
-    session_start();
     $result = $db->query("insert into questions(question_title, question_content, quiz_id, active) values ('" .
         esc($db, $data->question_title) . "','"  .
         esc($db, $data->question_content)  . "','"  .
@@ -95,7 +93,6 @@ if ($data->verb == 'create_quiz') {
 } else if ($data->verb == 'get_question_content') {
     $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
 
-    session_start();
     $result = $db->query("select question_title, question_content, quiz_id, active from questions where " .
         "question_title='" . esc($db, $data->question_title) . "' AND "  .
         "quiz_id='" . esc($db, $quiz_id)  . "'");
@@ -107,9 +104,9 @@ if ($data->verb == 'create_quiz') {
 } else if ($data->verb == 'get_quiz_content') {
     $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
     // TODO - probably want this to behave differently for students vs teachers
+    // yup, also should respect the 'active' flag
     $user_id = username_to_id($data->username, $db);
 
-    session_start();
     $result = $db->query("select question_title, question_content, quiz_id, active from questions where " .
         "quiz_id='" . esc($db, $quiz_id)  . "'");
     if (! $result) {
