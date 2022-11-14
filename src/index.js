@@ -8,7 +8,13 @@ import { addImageToEnd, handleImg } from './Problem.js';
 import { unregister } from './registerServiceWorker';
 import URLSearchParams from '@ungap/url-search-params'
 import { handleGoogleClientLoad, downloadFileMetadata, downloadFileNoFailureAlert,
-         doOnceGoogleUserLoggedIn } from './GoogleApi.js';
+         doOnceGoogleUserLoggedIn, restCall } from './GoogleApi.js';
+
+const URL = "http://localhost/";
+var JSON_MIME = 'application/json';
+
+var SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
+var TEACHER_QUIZZES = 'TEACHER_QUIZZES';
 
 var ADD_DEMO_PROBLEM = 'ADD_DEMO_PROBLEM';
 var APP_MODE = 'APP_MODE';
@@ -76,6 +82,21 @@ window.onload = function() {
     window.store.subscribe(render);
     window.store.subscribe(autoSave);
     var urlParams = new URLSearchParams(window.location.search);
+
+    var reload_quizzes = () => {
+        var username = window.localStorage.getItem('username');
+        if (username) {
+            restCall(URL + "rest.php", 'post', JSON.stringify({verb: 'list_quizzes', username: username}), JSON_MIME,
+                (result) => {
+                    window.ephemeralStore.dispatch({ type: SET_LIST_TEACHER_QUIZZES, TEACHER_QUIZZES : JSON.parse(result.responseText)});
+                }, (err) => {
+                    console.log(err);
+                }
+            );
+        }
+    };
+
+    reload_quizzes();
     if (urlParams.get("mode") === "studentDemo") {
         window.location.hash = '';
         document.body.scrollTop = document.documentElement.scrollTop = 0;

@@ -402,11 +402,11 @@ function googleRequest(url, verb, payload, mime, callback, errorCallback = funct
 
 export function restCall(url, verb, payload, mime, callback, errorCallback = function(){}) {
 
-    var accessToken = getToken();
+    //var accessToken = getToken();
     var xhr = new XMLHttpRequest();
     xhr.open(verb, url);
     xhr.overrideMimeType(mime);
-    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    //xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
     xhr.onload = function() {
         console.log(this);
         if (this.readyState === 4) {

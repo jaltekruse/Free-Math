@@ -14,6 +14,8 @@ import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
          listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads, restCall } from './GoogleApi.js';
 
+var SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
+var TEACHER_QUIZZES = 'TEACHER_QUIZZES';
 const URL = "http://localhost/";
 var JSON_MIME = 'application/json';
 
@@ -774,6 +776,19 @@ class UserActions extends React.Component {
             recoveredTeacherDocs = sortCaseInsensitive(recoveredTeacherDocs);
         }
 
+        var teacher_quizzes = this.props.value[TEACHER_QUIZZES] ? this.props.value[TEACHER_QUIZZES] : [];
+
+        var reload_quizzes = () => {
+            var username = window.localStorage.getItem('username');
+            restCall(URL + "rest.php", 'post', JSON.stringify({verb: 'list_quizzes', username: this.state.username}), JSON_MIME,
+                (result) => {
+                    window.ephemeralStore.dispatch({ type: SET_LIST_TEACHER_QUIZZES, TEACHER_QUIZZES : JSON.parse(result.responseText)});
+                }, (err) => {
+                    console.log(err);
+                }
+            );
+        };
+
         var divStyle = {
             border:"1px solid #cfcfcf",
             boxShadow: "0 5px 3px -3px #cfcfcf"
@@ -806,7 +821,7 @@ class UserActions extends React.Component {
                         <form>
                             Username &nbsp;&nbsp;
                             <input type="text" style={{width:"150px"}}
-                               value={this.state.assignmentName}
+                               value={this.state.username}
                                onChange={function(evt) {
                                         this.setState({username: evt.target.value});
                                }.bind(this)}/>
@@ -814,7 +829,7 @@ class UserActions extends React.Component {
                             <br />
                             Password &nbsp;&nbsp;
                             <input type="password"  style={{fontFamily: "sans-serif", fontSize: "20px", width:"158px" }}
-                               value={this.state.assignmentName}
+                               value={this.state.password}
                                onChange={(evt) => {
                                         this.setState({password: evt.target.value});
                                }}
@@ -1019,19 +1034,47 @@ class UserActions extends React.Component {
                                 browser, save to your device as soon as
                                 possible</p>) : null}
                 </div>
+            <FreeMathModal
+                showModal={this.state['CREATE_QUIZ_OVERLAY']}
+                content={(
+                    <div style={{alignItems: "center"}}>
+                    <div><b>Teacher Login</b></div>
+                    <br />
+                        <form>
+                            Session Name (i.e class/activity)
+                            <br />
+                            <input type="text" style={{width:"150px"}}
+                               value={this.state.quiz_name}
+                               onChange={function(evt) {
+                                        this.setState({quiz_name: evt.target.value});
+                               }.bind(this)}/>
+                            <br />
+                            <br />
+                            <Button type="submit" text="Create"
+                                onClick={ () => {
+                                    // login
+                                    restCall(URL + "rest.php", 'post',
+                                        JSON.stringify({verb: 'create_quiz',
+                                            username: this.state.username, quiz_name: this.state.quiz_name}),
+                                        JSON_MIME,
+                                        (result) => {
+                                            reload_quizzes();
+                                            alert("Successfully created new live session.");
+                                            this.setState({ 'CREATE_QUIZ_OVERLAY' : false });
+                                        }, (err) => {
+                                            console.log(err);
+                                        }
+                                    );
+                                }} />
+                        </form>
+                    </div>
+                )}
+            />
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
                         <Button type="submit" text="Create New Live Session" onClick={
                             () => {
-
-                                // TODO pull username out of local storage
-                                restCall(URL + "rest.php", 'post', JSON.stringify({verb: 'create_quiz', username: this.state.username}), JSON_MIME,
-                                    (result) => {
-                                        alert(result);
-                                    }, (err) => {
-                                        console.log(err);
-                                    }
-                                );
+                                this.setState({ 'CREATE_QUIZ_OVERLAY' : true });
                             }}
                         /><br />
                         <Button type="submit" text="Teacher Login" onClick={
@@ -1086,6 +1129,15 @@ class UserActions extends React.Component {
                                 LMS Integration Info
                             </a>
                         <br />
+                        {teacher_quizzes.length > 0 ?
+                            (<span><h4>Live Sessions </h4>&nbsp;
+                                    { teacher_quizzes.map(function(quiz, index) {
+                                            return (<p>{quiz.quiz_name + " - " + quiz.join_code}</p>);
+                                      })
+                                    }
+                                </span>
+                            ) : null
+                        }
                         { (recoveredTeacherDocs.length > 0) ?
                             (<span><h4>Recovered Grading Sessions &nbsp;
                                 <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />

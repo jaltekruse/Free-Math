@@ -42,9 +42,10 @@ if ($data->verb == 'create_quiz') {
 
     session_start();
     $join_code = substr(dechex(random_int(10000000, 20000000)), 0, 8);
-    $result = $db->query("insert into quizzes(teacher_user_id, join_code, active) values ('" .
+    $result = $db->query("insert into quizzes(teacher_user_id, join_code, quiz_name, active) values ('" .
         esc($db, $user_id) . "','"  .
         esc($db, $join_code)  . "','"  .
+        esc($db, $data->quiz_name)  . "','"  .
         esc($db, '0')  . "')");
     if (! $result) {
         echo $db->error;
@@ -53,7 +54,12 @@ if ($data->verb == 'create_quiz') {
         $ret['join_code'] = $join_code;
         echo json_encode($ret);
     }
-} else if ($data->verb == 'create_quiz') {
-
+} else if ($data->verb == 'list_quizzes') {
+    $result = $db->query("select join_code, quiz_name from quizzes"); // where username='" . esc($db, $data->username) . "'");
+    $res_array = [];
+    while( $row = $result->fetch_assoc()) {
+        $res_array[] = $row;
+    }
+    echo json_encode($res_array);
 }
 ?>

@@ -12,6 +12,9 @@ import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGrading
 import { updateFileWithBinaryContent, reclaimFromClassroom, downloadFile, downloadFileMetadata } from './GoogleApi.js';
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
+var SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
+var TEACHER_QUIZZES = 'TEACHER_QUIZZES';
+
 // Application modes
 var APP_MODE = 'APP_MODE';
 var EDIT_ASSIGNMENT = 'EDIT_ASSIGNMENT';
@@ -638,6 +641,10 @@ function ephemeralStateReducer(state, action) {
             BUTTON_GROUP : 'BASIC',
             PENDING_SAVES : 0
         };
+    } else if (action.type === SET_LIST_TEACHER_QUIZZES) {
+        return { ...state,
+                 TEACHER_QUIZZES: action[TEACHER_QUIZZES]
+        }
     } else if (action.type === SET_GOOGLE_ID) {
         return { ...state,
                  GOOGLE_ID: action[GOOGLE_ID],
