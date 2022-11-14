@@ -12,7 +12,10 @@ import { aggregateStudentWork, studentSubmissionsZip, loadStudentDocsFromZip,
          calculateGrades, removeStudentsFromGradingView } from './TeacherInteractiveGrader.js';
 import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
-         listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads } from './GoogleApi.js';
+         listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads, restCall } from './GoogleApi.js';
+
+const URL = "http://localhost/";
+var JSON_MIME = 'application/json';
 
 var MathQuill = window.MathQuill;
 
@@ -360,6 +363,10 @@ class UserActions extends React.Component {
 
     createAssignment = () => {
         this.setState({ 'CREATING_GOOGLE_CLASSROOM_ASSINGMENT' : true });
+    };
+
+    teacherLogin = () => {
+        this.setState({ 'LOGIN_OVERLAY' : true });
     };
 
     render() {
@@ -791,6 +798,42 @@ class UserActions extends React.Component {
                 }}
                 ref="submissionSelectorTeacher"/>
             <FreeMathModal
+                showModal={this.state['LOGIN_OVERLAY']}
+                content={(
+                    <div style={{alignItems: "center"}}>
+                    <div><b>Teacher Login</b></div>
+                    <br />
+                        <form>
+                            Username &nbsp;&nbsp;
+                            <input type="text" style={{width:"150px"}}
+                               value={this.state.assignmentName}
+                               onChange={function(evt) {
+                                        this.setState({username: evt.target.value});
+                               }.bind(this)}/>
+                            <br />
+                            <br />
+                            Password &nbsp;&nbsp;
+                            <input type="password"  style={{fontFamily: "sans-serif", fontSize: "20px", width:"158px" }}
+                               value={this.state.assignmentName}
+                               onChange={(evt) => {
+                                        this.setState({password: evt.target.value});
+                               }}
+                               onSubmit={() => {
+                                    window.localStorage.setItem("username", this.state.username);
+                                    //window.localStorage.removeItem(docName);
+                                    //base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
+                               }}/><br />
+                            <Button type="submit" text="Login"
+                                onClick={ () => {
+                                    // login
+                                    window.localStorage.setItem("username", this.state.username);
+                                    this.setState({ 'LOGIN_OVERLAY' : false });
+                                }} />
+                        </form>
+                    </div>
+                )}
+            />
+            <FreeMathModal
                 showModal={this.state['CREATING_GOOGLE_CLASSROOM_ASSINGMENT']}
                 content={(
                     <div style={{alignItems: "center"}}>
@@ -978,6 +1021,24 @@ class UserActions extends React.Component {
                 </div>
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
+                        <Button type="submit" text="Create New Live Session" onClick={
+                            () => {
+
+                                // TODO pull username out of local storage
+                                restCall(URL + "create_quiz.php", 'post', JSON.stringify({username: this.state.username}), JSON_MIME,
+                                    (result) => {
+                                        alert(result);
+                                    }, (err) => {
+                                        console.log(err);
+                                    }
+                                );
+                            }}
+                        /><br />
+                        <Button type="submit" text="Teacher Login" onClick={
+                            () => {
+                                this.teacherLogin();
+                            }}
+                        /><br />
                     <HtmlButton
                         className="fm-button"
                         title="Create new Google Classroom assignment"

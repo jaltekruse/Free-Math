@@ -400,6 +400,45 @@ function googleRequest(url, verb, payload, mime, callback, errorCallback = funct
     googleRequestRetryOnceOn401(true, url, verb, payload, mime, callback, errorCallback);
 }
 
+export function restCall(url, verb, payload, mime, callback, errorCallback = function(){}) {
+
+    var accessToken = getToken();
+    var xhr = new XMLHttpRequest();
+    xhr.open(verb, url);
+    xhr.overrideMimeType(mime);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+    xhr.onload = function() {
+        console.log(this);
+        if (this.readyState === 4) {
+            if (this.status == 200) {
+                try {
+                    callback(this);
+                } catch (e) {
+                    errorCallback(this);
+                    console.log(e);
+                }
+            } else {
+                console.log(this);
+                console.log(this.responseText);
+                errorCallback(this);
+            }
+        } else {
+            // ignore other events for request still in progress
+        }
+    };
+    xhr.onerror = function(xhr) {
+      console.log(this);
+      console.log(xhr);
+      console.log("-------------onerror called------------");
+      errorCallback(this);
+    };
+    if (payload) {
+        xhr.send(payload);
+    } else {
+        xhr.send();
+    }
+}
+
 // firstAttempt is a boolean, on initial call it is true, if retrying after a 401 this is used recursively but then false
 // is passed to prevent a retry look
 function googleRequestRetryOnceOn401(firstAttempt, url, verb, payload, mime, callback, errorCallback = function(){}) {

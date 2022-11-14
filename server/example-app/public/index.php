@@ -1,259 +1,187 @@
-<?php
 
-/* TODO put back in util.php after fixing server config */
+<!DOCTYPE html>
+<!--
+    This file is part of Free Math
 
-// connect to DB
-try {
-    $db = new mysqli('mysql', 'root', 'password', 'free_math');
-        if ($db->connect_error) {
-            echo 'error connecting to database: ' . $db->connect_error;
-        }   
-} catch (Exception $ex) {
-        echo "error: other error " . $ex->getMessage();
-}
+    Free Math is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
+    Free Math is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-// util functions
-function esc($db, $key){
-    return mysqli_real_escape_string($db, $key);
-}
+    You should have received a copy of the GNU General Public License
+    along with Free Math.  If not, see <http://www.gnu.org/licenses/>.
 
-/* TODO put the above back in util.php after fixing server config */
+    -->
+<!--
+This project includes code from the Persus project from Khan Academy. These
+portions of the code are licensed under the MIT license.
 
-// returns user_id
-function authenticate_or_create($db, $username){
-    $password_check = "SELECT * FROM users WHERE username = '" . esc($db, $username) . "'";
-    $result = $db->query($password_check);
-    if ($result->num_rows > 0) {
-        return $result->fetch_assoc()['user_id'];
-    } else {
-        $result = $db->query("insert into users (username) values ('" . esc($db, $username)  . "')");
-        if (! $result) {
-            echo $db->error;
+The MIT License (MIT)
+
+Copyright (c) 2014 Khan Academy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+-->
+<!--
+This project includes code from the MathQuill project. These
+portions of the code are licensed under the Mozilla Public License, v. 2.0.
+http://mozilla.org/MPL/2.0/
+
+-->
+<html>
+<head>
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70441517-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70441517-2');
+</script>
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-70441517-2', 'auto');
+</script>
+<!-- End Google Analytics -->
+
+<!-- http://paletton.com/#uid=13u0u0kllllaFw0g0qFqFg0w0aF -->
+
+<meta name="viewport" content="width=624, user-scalable=no">
+<meta name="description" content="Free and Open Source software for managing math homework. Students digitally record step-by-step math work. Teachers simultaneously review all assignments with complete solutions grouped by similar final answer. Grade faster and more thoroughly every day!">
+<meta property="og:site_name" content="Free Math">
+<title>Free Math - Collect, Organize and Review Digital Math Homework</title>
+<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+<!--link rel="stylesheet" type="text/css" href="../perseus.css"-->
+<!-- testing -->
+<script src="http://localhost:3001/expect.min.js"></script>
+<!-- UI react-->
+
+<!-- saving to local disk -->
+<!-- <script type="text/javascript" src="filesaver_js.js"></script> -->
+<!-- reading ZIP files -->
+<!-- <script type="text/javascript" src="jszip.min.js"></script> -->
+
+<!-- Only use this for MathQuill! -->
+<!-- <script src="https://code.jquery.com/jquery-1.7.2.min.js"
+  integrity="sha256-R7aNzoy2gFrVs+pNJ6+SokH04ppcEqJ0yFLkNGoFALQ="
+  crossorigin="anonymous"></script> -->
+
+<script src="http://localhost:3001/lib/jquery.js"></script>
+<!-- <script src="redux.js"></script> -->
+<!-- TODO CLEANUP - this is currently included at the npm level as well to make it available for unit tests -->
+<!-- May cause problems -->
+<script src="http://localhost:3001/lib/underscore.js"></script>
+<script src="http://localhost:3001/lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script>
+<script src="http://localhost:3001/lib/kas.js"></script>
+<script src="http://localhost:3001/lib/i18n.js"></script>
+
+<!-- needed for KAS, as well as general utility functions -->
+<!-- for KAS, investivate impact of lodash vs underscore https://github.com/Khan/KAS/issues/9 -->
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
+
+<!-- <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script> -->
+<script src="http://localhost:3001/lib/mathjax/2.1/MathJax.js" />
+
+<!-- Needed for static math rendering borrowed from Kahn Perseus project -->
+<script type="text/javascript" src="http://localhost:3001/katexA11.js"></script>
+<!-- for comparing expressions KAS (Khan algebra system) -->
+<script type="text/javascript" src="http://localhost:3001/kas.min.js"></script>
+<!-- for diffing JSON structures -->
+<!-- <script type="text/javascript" src="diff.js"></script> -->
+<!-- Katex -->
+<link rel="stylesheet" href="http://localhost:3001/katex.min.css">
+<script src="http://localhost:3001/katex.min.js"></script>
+
+<script type="text/javascript">
+
+    var clientLoaded = false;
+    function handleClientLoad() {
+        console.log('handleClientLoad');
+        if (!clientLoaded &&
+            typeof handleGoogleClientLoad !== "undefined" &&
+            typeof gapi !== "undefined") {
+            clientLoaded = true;
+            console.log('actuallly execute handleClientLoad');
+            window.handleGoogleClientLoad();
         }
-        return $db->insert_id;
     }
+</script>
+<script async defer src="https://apis.google.com/js/api.js"
+  onload="this.onload=function(){};handleClientLoad();"
+  onreadystatechange="if (this.readyState === 'complete') this.onload()">
+</script>
+<!-- <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>-->
+<link rel="stylesheet" type="text/css" href="http://localhost:3001/build/mathquill_2199664.css">
+<script type="text/javascript" src="http://localhost:3001/build/mathquill_2199664.min.js"></script>
+<!-- App state management -->
+<!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script> -->
+
+<link rel="stylesheet" href="http://localhost:3001/lib/cropper.min.css">
+<link rel="stylesheet" href="http://localhost:3001/lib/tui-image-editor.min.css">
+<link rel="stylesheet" href="http://localhost:3001/lib/tui-color-picker.min.css">
+<style>
+/* hack to hide buttons I don't want on the toast UI image editor */
+.tui-image-editor-controls-buttons {
+    visibility: hidden;
 }
-
-session_start();
-if ($_SERVER['REQUEST_METHOD'] == 'POST'){
-    // differentiate login/logout
-    if (isset($_POST['username'])) {
-        $username = $_POST['username'];
-        $user_id = authenticate_or_create($db, $username);
-        $authenticated = true;
-        session_start();
-        $_SESSION['username'] = $username;
-        $_SESSION['user_id'] = $user_id;
-        $_SESSION['quiz_name'] = 'default quiz';
-    }
+.tui-image-editor-controls-logo {
+    visibility: hidden;
 }
-
-?>
-<h2>Free Math Live</h2>
-<?php
-if (isset($_SESSION['username'])) {
-?>
-    <p> logged in as <?php echo $_SESSION['username']  . ' ('  . $_SESSION['user_id'] . ')'?> </p>
-<?php
+.tui-image-editor-header {
+    display: none;
 }
-if (! isset($_SESSION['username'])) {
-?>
-    <form action="" method = "POST">
-    Username&nbsp;<input type="text" name="username"/><br />
-    <input type="submit" value="login"/>
-    </form>
-<?php
-} else if (isset($_SESSION['username']) && $_SESSION['username'] == 'testing_teacher') {
-
-    $get_active_question = "SELECT * from questions join quizzes using(quiz_id) where active = '1' " .
-        "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "'";
-    $result = $db->query($get_active_question);
-    if (! $result) {
-        echo $db->error;
-    }
-    // is there an active question?
-    if ($result->num_rows > 0) {
-        $question = $result->fetch_assoc();
-        // give teachers for to move to next question
-        ?>
-        Quiz already started <br />
-        Current question titled: <?php echo $question['question_title'] ?> </br>
-        <form action="/next_question.php" method="POST">
-        Quiz Name &nbsp;<input type="text" value="default quiz" name="quiz_name" readonly="readonly"/>
-        <input type="hidden" value="<?php echo $question['question_id']?>" name="question_id"/>
-        <input type="submit" value="move to next question"/>
-        </form>
-
-          
-        <?php 
-        $first_question_sql = "SELECT * FROM responses join users using(user_id) join questions on questions.question_id = responses.questions_question_id join quizzes using(quiz_id) left join reviews on reviews.responses_response_id = responses.response_id where quiz_name = '" . esc($db, $_SESSION['quiz_name']) . "' order by question_id, user_id";
-        // echo $first_question_sql;
-        $result = $db->query($first_question_sql);
-        if (! $result) {
-            echo $db->error;
-        }
-        $current_problem = NULL;
-        $current_student = NULL;
-        echo "Num reviews: " . $result->num_rows;
-        for ($i = 0; $i < $result->num_rows; $i++) {
-            $response = $result->fetch_assoc();
-            if ($response['question_id'] != $current_problem) {
-                    $current_problem = $response['question_id'];
-                ?>
-                <h3><?php echo $response['question_title']?></h3>
-                <?php echo $response['question_content']?> <br /></br>
-            <?php
-            }
-            if ($response['user_id'] != $current_student) {
-                $current_student = $response['user_id'];
-            ?>
-                <b>Response from <?php echo $response['username']?></b></br></br>
-                <?php echo $response['content']?><br /></br> 
-                <b>Reviews</b></br> </br> 
-            <?php
-            }
-            if (!is_null($response['reviewer_user_id'])) {
-            ?> 
-                <p><?php echo $response['review_content']?></p>
-                <br />
-                <?php
-            }
-        }
-    } else {
-        // give teachers form to start the quiz
-?>
-        Signed in as a teacher
-        <form action="/start_quiz.php" method="POST">
-        Quiz Name &nbsp;<input type="text" value="default quiz" name="quiz_name" readonly="readonly"/>
-        <input type="submit" value="start quiz"/>
-        </form>
-    <?php
-    }
-} else if (isset($_SESSION['quiz_name'])) {
-    // get current activity, question or review page
-         
-    $get_active_question = "SELECT * from questions join quizzes using(quiz_id) where active = '1' " .
-        "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "'";
-    $result = $db->query($get_active_question);
-    if (! $result) {
-        echo $db->error;
-    }
-    $question = $result->fetch_assoc();
-    // is there an active question?
-    if ($result->num_rows > 0) {
-        // get all reviews already done by this user
-        $get_completed_reviews = "SELECT * from questions join quizzes using(quiz_id) join responses on questions.question_id = responses.questions_question_id  " .
-            "join reviews on reviews.responses_response_id = responses.response_id " .
-            "where active = '1' " .
-            "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "' and reviewer_user_id = '" . $_SESSION['user_id'] . "'";
-        //echo $get_active_question;
-        $result = $db->query($get_completed_reviews);
-        if (! $result) {
-            echo $db->error;
-        }
-
-        $peers_graded = array();
-        for ($i = 0; $i < $result->num_rows; $i++) {
-            $completed_review = $result->fetch_assoc();
-            $peers_graded[$completed_review['user_id']] = TRUE;
-        }
-
-        /*
-        echo '<br /> Peers already reviewed by';
-        echo '<br />';
-        print_r($peers_graded);
-        echo '<br />';
-        echo '<br />';
-         */
-        
-        $get_active_question = "SELECT * from questions join quizzes using(quiz_id) join responses on questions.question_id = responses.questions_question_id  where active = '1' " .
-            "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "' and user_id = '" . $_SESSION['user_id'] . "'";
-        //echo $get_active_question;
-        $result = $db->query($get_active_question);
-        if (! $result) {
-            echo $db->error;
-        }
-
-        // did this user answer the current question already
-        if ($result->num_rows != 0) {
-            // get a response that isn't theirs, or one they already reviewed
-            // give up on proper single sql for now, do it in a loop
-            // TODO - come back and figure this out
-            /*
-            $get_active_question = "SELECT * from questions join quizzes using(quiz_id) join responses on questions.question_id = responses.questions_question_id left join reviews on reviews.responses_response_id = responses.response_id where active = '1' " .
-                "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "' and user_id != '" . $_SESSION['user_id'] . "' " .
-                "and (0 = (select count(*) from questions join quizzes using(quiz_id) join responses on questions.question_id = responses.questions_question_id join reviews on reviews.responses_response_id = responses.response_id where active = '1' " .
-                "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "' and reviewer_user_id =  '" . $_SESSION['user_id'] . "') or review_id not in (select user_id from questions join quizzes using(quiz_id) join responses on questions.question_id = responses.questions_question_id left join reviews on reviews.responses_response_id = responses.response_id where active = '1' " .
-                "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "' and reviewer_user_id = '" . esc($db, $_SESSION['user_id']) . "'))";
-             */
-
-            $get_active_question = "SELECT * from questions join quizzes using(quiz_id) join responses on questions.question_id = responses.questions_question_id left join reviews on reviews.responses_response_id = responses.response_id where active = '1' " .
-                "and quiz_name = '" . esc($db, $_SESSION['quiz_name']). "' and user_id != '" . $_SESSION['user_id'] . "' ";
-            //echo $get_active_question;
-            $result = $db->query($get_active_question);
-            if (! $result) {
-                echo $db->error;
-            }
-            $resonse_to_review = FALSE;
-            // loop through to find peer response ungraded by this student yet if it exists
-            for ($i = 0; $i < $result->num_rows; $i++) {
-                $candidate = $result->fetch_assoc();
-
-                /*
-                echo '<br />';
-                print_r($candidate);
-                echo '<br />';
-                echo '<br />';
-                 */
-                if (! isset($peers_graded[$candidate['user_id']])) {
-                    $response_to_review = $candidate;
-                    break;
-                }
-            }
-            // echo 'see a peers work for review';
-            if ($response_to_review) {
-                //print_r($response_to_review); 
-                ?>
-                <h3><?php echo $response_to_review ['question_title']?></h3>
-                <p><?php echo $response_to_review ['question_content']?></p>
-                Response </br>
-                <p><?php echo $response_to_review ['content']?></p>
-                <form action="/submit_review.php" method = "POST">
-                Review Comments </br>
-                <textarea name="content"></textarea><br />
-                <input type="hidden" name="response_id" value="<?php echo $response_to_review['response_id']?>"/>
-                <input type="submit"/>
-                </form>
-                <?php
-            } else {
-                echo ' No new peer work to review yet, refresh the page to check back in a little bit';
-            }
-        } else {
-        ?>
-            <h3><?php echo $question['question_title']?></h3>
-            <p><?php echo $question['question_content']?></p>
-            
-            <form action="/submit_response.php" method = "POST">
-            Answer </br>
-            <textarea name="content"></textarea><br />
-            <input type="hidden" name="question_id" value="<?php echo $question['question_id']?>"/>
-            <input type="submit"/>
-            </form>
-        <?php
-        }
-    } else {
-    ?>
-        Signed in as <?php echo $_SESSION['username'] ?>, waiting for quiz to start.
-    <?php
-    }
-} else {
-?>
-    Signed in as <?php echo $_SESSION['username'] ?>, waiting for quiz to start.
-<?php
+.tui-image-editor-header-buttons {
+    visibility: hidden;
 }
-?>
-<br />
-<form action="/logout.php" method = "POST">
-<input type="submit" value="logout"/>
-</form>
+.tui-image-editor-header-logo {
+    visibility: hidden;
+}
+.tui-image-editor {
+    border-color: black;
+    border-style: solid;
+}
+/* And remove the extra space for the bar that had these buttons */
+.tui-image-editor-container .tui-image-editor-main {
+    position: absolute;
+    text-align: center;
+    top: 0px;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+</style>
+<script defer src="http://localhost:3001/static/js/bundle.js"></script></head>
+<body style="margin-top:40px;background-color:#f9f9f9">
+<div id="root">
+
+</div>
+</body>
+</html>
