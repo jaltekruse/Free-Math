@@ -960,6 +960,8 @@ class UserActions extends React.Component {
                                onChange={function(evt) {
                                         this.setState({join_code: evt.target.value});
                                }.bind(this)}/>
+                            <br />
+                            <br />
                             Your Name &nbsp;&nbsp;
                             <input type="text" style={{width:"150px"}}
                                value={this.state.name}
