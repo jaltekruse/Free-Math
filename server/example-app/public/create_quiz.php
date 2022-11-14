@@ -27,22 +27,30 @@ $json = file_get_contents('php://input');
 // Converts it into a PHP object
 $data = json_decode($json);
 
+
+
 /* TODO put the above back in util.php after fixing server config */
-$result = $db->query("select user_id from users where username='" . esc($db, $data['username']) . "'");
+$result = $db->query("select user_id from users where username='" . esc($db, $data->username) . "'");
 $user_id = $result->fetch_assoc()['user_id'];
 
+if (! $user_id) {
+    $result = $db->query("insert into users (username) values ('" . esc($db, $data->username) . "')");
+
+    $result = $db->query("select user_id from users where username='" . esc($db, $data->username) . "'");
+    $user_id = $result->fetch_assoc()['user_id'];
+}
+
 session_start();
-$join_code = substr(dechex(random_int(10000000)), 0, 8);
+$join_code = substr(dechex(random_int(10000000, 20000000)), 0, 8);
 $result = $db->query("insert into quizzes(teacher_user_id, join_code, active) values ('" .
-    esc($db, $user_id . "','"  .
+    esc($db, $user_id) . "','"  .
     esc($db, $join_code)  . "','"  .
-    esc($db, 'false')  . "')");
+    esc($db, '0')  . "')");
 if (! $result) {
     echo $db->error;
 } else {
-    header('Location: /index.php');
+    $ret = [];
+    $ret['join_code'] = $join_code;
+    echo json_encode($ret);
 }
-$ret = [];
-$ret['join_code'] = $join_code;
-echo json_encode($ret);
 ?>
