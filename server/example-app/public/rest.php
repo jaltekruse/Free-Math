@@ -155,5 +155,27 @@ if ($data->verb == 'create_quiz') {
         }
         echo json_encode($res_array);
     }
+} else if ($data->verb == 'get_all_responses') {
+    $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
+    // TODO - probably want this to behave differently for students vs teachers
+    // yup, also should respect the 'active' flag
+    $user_id = username_to_id($data->username, $db);
+
+    $sql = "select question_title, case when (content is not null) then content else question_content end as question_content, quiz_id, user_id, active from questions " . 
+        "left join responses on questions_question_id = question_id " .
+        "where " .
+        "quiz_id='" . esc($db, $quiz_id)  . "' order by question_id asc";
+    //echo $sql;
+
+    $result = $db->query($sql);
+    if (! $result) {
+        echo $db->error;
+    } else {
+        $res_array = [];
+        while( $row = $result->fetch_assoc()) {
+            $res_array[] = $row;
+        }
+        echo json_encode($res_array);
+    }
 }
 ?>

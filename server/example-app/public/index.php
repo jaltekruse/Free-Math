@@ -81,7 +81,7 @@ ga('create', 'UA-70441517-2', 'auto');
 <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 <!--link rel="stylesheet" type="text/css" href="../perseus.css"-->
 <!-- testing -->
-<script src="http://localhost:3001/expect.min.js"></script>
+<script src="http://localhost:3000/expect.min.js"></script>
 <!-- UI react-->
 
 <!-- saving to local disk -->
@@ -94,31 +94,31 @@ ga('create', 'UA-70441517-2', 'auto');
   integrity="sha256-R7aNzoy2gFrVs+pNJ6+SokH04ppcEqJ0yFLkNGoFALQ="
   crossorigin="anonymous"></script> -->
 
-<script src="http://localhost:3001/lib/jquery.js"></script>
+<script src="http://localhost:3000/lib/jquery.js"></script>
 <!-- <script src="redux.js"></script> -->
 <!-- TODO CLEANUP - this is currently included at the npm level as well to make it available for unit tests -->
 <!-- May cause problems -->
-<script src="http://localhost:3001/lib/underscore.js"></script>
-<script src="http://localhost:3001/lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script>
-<script src="http://localhost:3001/lib/kas.js"></script>
-<script src="http://localhost:3001/lib/i18n.js"></script>
+<script src="http://localhost:3000/lib/underscore.js"></script>
+<script src="http://localhost:3000/lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script>
+<script src="http://localhost:3000/lib/kas.js"></script>
+<script src="http://localhost:3000/lib/i18n.js"></script>
 
 <!-- needed for KAS, as well as general utility functions -->
 <!-- for KAS, investivate impact of lodash vs underscore https://github.com/Khan/KAS/issues/9 -->
 <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> -->
 
 <!-- <script src="lib/mathjax/2.1/MathJax.js?config=KAthJax-730d56e87e9c926b91584f6030314815&amp;delayStartupUntil=configured"></script> -->
-<script src="http://localhost:3001/lib/mathjax/2.1/MathJax.js" />
+<script src="http://localhost:3000/lib/mathjax/2.1/MathJax.js" />
 
 <!-- Needed for static math rendering borrowed from Kahn Perseus project -->
-<script type="text/javascript" src="http://localhost:3001/katexA11.js"></script>
+<script type="text/javascript" src="http://localhost:3000/katexA11.js"></script>
 <!-- for comparing expressions KAS (Khan algebra system) -->
-<script type="text/javascript" src="http://localhost:3001/kas.min.js"></script>
+<script type="text/javascript" src="http://localhost:3000/kas.min.js"></script>
 <!-- for diffing JSON structures -->
 <!-- <script type="text/javascript" src="diff.js"></script> -->
 <!-- Katex -->
-<link rel="stylesheet" href="http://localhost:3001/katex.min.css">
-<script src="http://localhost:3001/katex.min.js"></script>
+<link rel="stylesheet" href="http://localhost:3000/katex.min.css">
+<script src="http://localhost:3000/katex.min.js"></script>
 
 <script type="text/javascript">
 
@@ -139,14 +139,14 @@ ga('create', 'UA-70441517-2', 'auto');
   onreadystatechange="if (this.readyState === 'complete') this.onload()">
 </script>
 <!-- <script type="text/javascript" src="https://apis.google.com/js/api.js?onload=loadPicker"></script>-->
-<link rel="stylesheet" type="text/css" href="http://localhost:3001/build/mathquill_2199664.css">
-<script type="text/javascript" src="http://localhost:3001/build/mathquill_2199664.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://localhost:3000/build/mathquill_2199664.css">
+<script type="text/javascript" src="http://localhost:3000/build/mathquill_2199664.min.js"></script>
 <!-- App state management -->
 <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script> -->
 
-<link rel="stylesheet" href="http://localhost:3001/lib/cropper.min.css">
-<link rel="stylesheet" href="http://localhost:3001/lib/tui-image-editor.min.css">
-<link rel="stylesheet" href="http://localhost:3001/lib/tui-color-picker.min.css">
+<link rel="stylesheet" href="http://localhost:3000/lib/cropper.min.css">
+<link rel="stylesheet" href="http://localhost:3000/lib/tui-image-editor.min.css">
+<link rel="stylesheet" href="http://localhost:3000/lib/tui-color-picker.min.css">
 <style>
 /* hack to hide buttons I don't want on the toast UI image editor */
 .tui-image-editor-controls-buttons {
@@ -178,7 +178,7 @@ ga('create', 'UA-70441517-2', 'auto');
     left: 0;
 }
 </style>
-<script defer src="http://localhost:3001/static/js/bundle.js"></script></head>
+<script defer src="http://localhost:3000/static/js/bundle.js"></script></head>
 <body style="margin-top:40px;background-color:#f9f9f9">
 <div id="root">
 

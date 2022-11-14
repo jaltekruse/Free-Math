@@ -15,6 +15,7 @@ import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
          listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads, restCall } from './GoogleApi.js';
 
+var SET_ASSIGNMENTS_TO_GRADE = 'SET_ASSIGNMENTS_TO_GRADE';
 const SET_STUDENT_QUIZ = 'SET_STUDENT_QUIZ';
 const SET_EDIT_QUIZ = 'SET_EDIT_QUIZ';
 const JOIN_CODE = 'JOIN_CODE';
@@ -996,12 +997,6 @@ class UserActions extends React.Component {
                                                         overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
                                                         readInSoFar++;
                                                         if (readInSoFar === probCount) {
-                                                            /*
-                                                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                                                ASSIGNMENT_NAME : '',
-                                                                DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
-                                                                */
-                                                            console.log("dispatching someting  !#$!#$!@#$!@#$ bbbbbb");
                                                             window.store.dispatch({type: SET_STUDENT_QUIZ,
                                                                 PROBLEMS : overallDoc[PROBLEMS],
                                                                 ASSIGNMENT_NAME : '', DOC_ID: recovered['DOC_ID'],
@@ -1226,9 +1221,10 @@ class UserActions extends React.Component {
                             (<span><h4>Live Sessions </h4>
                                     { teacher_quizzes.map(function(quiz, index) {
                                             return (
-                                                <Button text={quiz.quiz_name + " - " + quiz.join_code}
+                                                <div>
+                                                {quiz.quiz_name + " - " + quiz.join_code} &nbsp;&nbsp;
+                                                <Button text="Edit"
                                                     key={quiz.join_code}
-                                                    style={{display:"block"}}
                                                     onClick={
                                                         () => {
                                                             // make a request to see if there is a saved draft of this quiz
@@ -1277,7 +1273,96 @@ class UserActions extends React.Component {
                                                             );
                                                         }
                                                     }
-                                                />);
+                                                />
+                                                <Button text="Grade"
+                                                    key={quiz.join_code}
+                                                    onClick={
+                                                        () => {
+                                                            // make a request to see if there is a saved draft of this quiz
+                                                            // TODO - later optimization, can send at least a boolean in the list of sessions
+                                                            // to say if any draft is saved or if it is just a number so far
+
+                                                            restCall(URL + "rest.php", 'post',
+                                                                JSON.stringify({verb: 'get_all_responses',
+                                                                    username: username, quiz_join_code: quiz.join_code,
+                                                                }),
+                                                                JSON_MIME,
+                                                                (result) => {
+                                                                    //console.log(result.responseText);
+                                                                    var parsedJson = JSON.parse(result.responseText);
+                                                                    if (parsedJson && parsedJson.length > 0) {
+                                                                        var allProblems = parsedJson;
+                                                                        // TODO - consolidate with teacher quiz editing maybe
+                                                                        var allStudentDocs = {};
+                                                                        const probCount = allProblems.length;
+                                                                        var readInSoFar = 0;
+                                                                        allProblems.forEach((questionAloneInDoc) => {
+                                                                            openAssignment(base64ToArrayBuffer(
+                                                                                questionAloneInDoc['question_content']),
+                                                                                '', (recovered) => {
+                                                                                    if (! questionAloneInDoc['user_id']) {
+                                                                                        // skip entires with no user for now, these are the questions themselves
+                                                                                        return;
+                                                                                    }
+                                                                                    console.log(questionAloneInDoc['user_id']);
+                                                                                    console.log(allStudentDocs[questionAloneInDoc['user_id']]);
+                                                                                    var overallDoc;
+                                                                                    if (! allStudentDocs[questionAloneInDoc['user_id']]) {
+                                                                                        overallDoc = assignmentReducer();
+                                                                                        // clear out the defualt blank first problem
+                                                                                        overallDoc[PROBLEMS] = [];
+                                                                                        allStudentDocs[questionAloneInDoc['user_id']] = overallDoc;
+                                                                                    } else {
+                                                                                        overallDoc = allStudentDocs[questionAloneInDoc['user_id']];
+                                                                                    }
+                                                                                    overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
+                                                                                    readInSoFar++;
+                                                                                    if (readInSoFar === probCount) {
+                                                                                        var listOfDocs = [];
+                                                                                        for (var student in allStudentDocs){
+                                                                                            if (allStudentDocs.hasOwnProperty(student)) {
+                                                                                                listOfDocs.push({STUDENT_FILE: student, ASSIGNMENT: allStudentDocs[student][PROBLEMS]});
+                                                                                            }
+                                                                                        }
+
+                                                                                        var aggregatedWork = aggregateStudentWork(listOfDocs);
+                                                                                        console.log("opened docs");
+                                                                                        //console.log(aggregatedWork);
+
+                                                                                        // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
+                                                                                        // from before this call, but defensively re-setting ti anyway. This was previously set as part
+                                                                                        // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
+                                                                                        //window.ephemeralStore.dispatch(
+                                                                                        //    {type : SET_GOOGLE_ID, GOOGLE_ID: googleId});
+
+                                                                                        window.store.dispatch(
+                                                                                            { type : SET_ASSIGNMENTS_TO_GRADE,
+                                                                                              NEW_STATE :
+                                                                                                {...aggregatedWork, ASSIGNMENT_NAME: quiz.quiz_name + " - " + quiz.join_code}});
+                                                                                        /*
+                                                                                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                                                                            ASSIGNMENT_NAME : '',
+                                                                                            DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
+                                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
+                                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name})
+                                                                                            */
+                                                                                    }
+                                                                                });
+                                                                        });
+                                                                    } else {
+                                                                        window.store.dispatch({type : "NEW_ASSIGNMENT"});
+                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
+                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
+                                                                    }
+                                                                }, (err) => {
+                                                                    console.log(err);
+                                                                }
+                                                            );
+                                                        }
+                                                    }
+                                                />
+                                                </div>
+                                            );
                                       })
                                     }
                                 </span>
