@@ -15,9 +15,11 @@ import { updateFileWithBinaryContent, reclaimFromClassroom, downloadFile, downlo
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
 const SET_EDIT_QUIZ = 'SET_EDIT_QUIZ';
+const SET_STUDENT_QUIZ = 'SET_STUDENT_QUIZ';
 const JOIN_CODE = 'JOIN_CODE';
 const SESSION_NAME = 'SESSION_NAME';
 const TEACHER_QUIZ_EDITOR = 'TEACHER_QUIZ_EDITOR';
+const STUDENT_QUIZ_EDITOR = 'STUDENT_QUIZ_EDITOR';
 const SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
 const TEACHER_QUIZZES = 'TEACHER_QUIZZES';
 const URL = "http://localhost/";
@@ -777,6 +779,18 @@ function rootReducer(state, action) {
              JOIN_CODE : action[JOIN_CODE],
              SESSION_NAME : action[SESSION_NAME]
         }
+
+    } else if (action.type === SET_STUDENT_QUIZ) {
+        return {
+            ...state,
+             APP_MODE : STUDENT_QUIZ_EDITOR,
+             JOIN_CODE : action[JOIN_CODE],
+             SESSION_NAME : action[SESSION_NAME],
+             PROBLEMS : action.PROBLEMS,
+             ASSIGNMENT_NAME : action[ASSIGNMENT_NAME],
+             CURRENT_PROBLEM : 0,
+             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID()
+        }
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
@@ -813,6 +827,7 @@ function rootReducer(state, action) {
         };
     } else if (state[APP_MODE] === EDIT_ASSIGNMENT
         || state[APP_MODE] === TEACHER_QUIZ_EDITOR
+        || state[APP_MODE] === STUDENT_QUIZ_EDITOR
     ) {
         return {
             APP_MODE : state[APP_MODE],
@@ -857,6 +872,67 @@ class FreeMath extends React.Component {
           return (
               <div>
                   <AssignmentEditorMenubar value={this.props.value}/>
+                  <Assignment value={this.props.value}/>
+                  <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
+                          className="fm-button"
+                          style={{display:"block", position:"fixed", bottom:"0",
+                                  right:"0", zIndex: "100",
+                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
+                                  margin: "0 30px 30px 0", width: "85px"}}>
+                        Site Feedback
+                    </a>
+              </div>
+          );
+      } else if (this.props.value[APP_MODE] === STUDENT_QUIZ_EDITOR) {
+          return (
+              <div>
+                <div className="menuBar">
+                    <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
+                        <div style={{float:"left"}}><LogoHomeNav /></div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <div style={{float:"left", verticalAlign:"top",
+                                     marginTop:"5px", lineHeight : 1}}>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {this.props.value[SESSION_NAME] + " - " + this.props.value[JOIN_CODE]}
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <LightButton text="Submit All" onClick={ () => {
+                                const appState = getPersistentState();
+
+                                const totalProbs = appState[PROBLEMS].length;
+                                var alreadySaved = 0;
+
+                                appState[PROBLEMS].forEach((problem, index) => {
+
+                                    const newDocForProb = assignmentReducer();
+                                    newDocForProb[PROBLEMS][0] = problem;
+                                    saveAssignment(newDocForProb, (finalBlob) => {
+                                        blobToBase64(finalBlob, (base64Data) => {
+                                            var username = window.localStorage.getItem('username');
+                                            restCall(URL + "rest.php", 'post',
+                                                JSON.stringify({verb: 'create_response',
+                                                    username: username, quiz_join_code: this.props.value[JOIN_CODE],
+                                                    question_title: problem[PROBLEM_NUMBER],
+                                                    question_content: base64Data}),
+                                                JSON_MIME,
+                                                (result) => {
+                                                    alreadySaved++;
+                                                    if (alreadySaved === totalProbs) {
+                                                        alert("Successfully saved " + totalProbs + " new questions, last saved: " + result.responseText);
+                                                    }
+                                                }, (err) => {
+                                                    console.log(err);
+                                                }
+                                            );
+                                        });
+                                    });
+                                });
+                            }}/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <LightButton text="Ask For Help" onClick={ () => {
+                                // TODO
+                            }}/>
+                        </div>
+                    </div>
+                </div>
                   <Assignment value={this.props.value}/>
                   <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
                           className="fm-button"

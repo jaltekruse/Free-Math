@@ -43,6 +43,17 @@ function join_code_to_quiz_id($join_code, $db) {
     return $quiz_id;
 }
 
+function get_question_id($quiz_id, $question_title, $db) {
+    $sql = "select question_id from questions where quiz_id='" . esc($db, $quiz_id) . "' " .
+        "and question_title='" . esc($db, $question_title) . "'";
+
+    //echo $sql;
+    $result = $db->query($sql);
+    $question_id = $result->fetch_assoc()['question_id'];
+
+    return $question_id;
+}
+
 // Takes raw data from the request
 $json = file_get_contents('php://input');
 
@@ -83,6 +94,26 @@ if ($data->verb == 'create_quiz') {
         esc($db, '0')  . "') on duplicate key " .
         "update question_content = '" . esc($db, $data->question_content) . "'"
     );
+    if (! $result) {
+        echo $db->error;
+    } else {
+        $ret = [];
+        $ret['question_id'] = $db->insert_id;
+        echo json_encode($ret);
+    }
+} else if ($data->verb == 'create_response') {
+    $quiz_id = join_code_to_quiz_id($data->quiz_join_code, $db);
+    $user_id = username_to_id($data->username, $db);
+    $question_id = get_question_id($quiz_id, $data->question_title, $db);
+    $question_content = esc($db, $data->question_content);
+
+    $sql = "insert into responses(content, user_id, questions_question_id) values ('" .
+        $question_content . "','"  .
+        esc($db, $user_id)  . "','"  .
+        esc($db, $question_id) . "') on duplicate key " .
+        "update content = '" . $question_content . "'";
+    //echo $sql;
+    $result = $db->query($sql);
     if (! $result) {
         echo $db->error;
     } else {

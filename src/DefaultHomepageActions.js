@@ -15,6 +15,7 @@ import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
          listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads, restCall } from './GoogleApi.js';
 
+const SET_STUDENT_QUIZ = 'SET_STUDENT_QUIZ';
 const SET_EDIT_QUIZ = 'SET_EDIT_QUIZ';
 const JOIN_CODE = 'JOIN_CODE';
 const SESSION_NAME = 'SESSION_NAME';
@@ -801,8 +802,6 @@ class UserActions extends React.Component {
                             window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
                                 ASSIGNMENT_NAME : '',
                                 DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
-                            window.store.dispatch({type: SET_EDIT_QUIZ,
-                                JOIN_CODE: join_code, SESSION_NAME : quiz_name })
                         }
                     });
             });
@@ -973,6 +972,7 @@ class UserActions extends React.Component {
                         <Button text="Join"
                             onClick={ () => {
                                 // login
+                                window.localStorage.setItem("username", this.state.name);
                                 restCall(URL + "rest.php", 'post',
                                     JSON.stringify({verb: 'get_quiz_content',
                                         username: this.state.name, quiz_join_code: this.state.join_code,
@@ -982,7 +982,33 @@ class UserActions extends React.Component {
                                         console.log(result.responseText);
                                         var parsedJson = JSON.parse(result.responseText);
                                         if (parsedJson && parsedJson.length > 0) {
-                                            openQuizContent(parsedJson, this.state.join_code, "");
+                                            var allProblems = parsedJson;
+                                            // TODO - consolidate with teacher quiz editing maybe
+                                            var overallDoc = assignmentReducer();
+                                            // clear out the defualt blank first problem
+                                            overallDoc[PROBLEMS] = [];
+                                            const probCount = allProblems.length;
+                                            var readInSoFar = 0;
+                                            allProblems.forEach((questionAloneInDoc) => {
+                                                openAssignment(base64ToArrayBuffer(
+                                                    questionAloneInDoc['question_content']),
+                                                    '', (recovered) => {
+                                                        overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
+                                                        readInSoFar++;
+                                                        if (readInSoFar === probCount) {
+                                                            /*
+                                                            window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                                                ASSIGNMENT_NAME : '',
+                                                                DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
+                                                                */
+                                                            console.log("dispatching someting  !#$!#$!@#$!@#$ bbbbbb");
+                                                            window.store.dispatch({type: SET_STUDENT_QUIZ,
+                                                                PROBLEMS : overallDoc[PROBLEMS],
+                                                                ASSIGNMENT_NAME : '', DOC_ID: recovered['DOC_ID'],
+                                                                JOIN_CODE: this.state.join_code, SESSION_NAME : "" })
+                                                        }
+                                                    });
+                                            });
                                         } else {
                                             alert("Not a valid join code");
                                         }
@@ -1218,7 +1244,28 @@ class UserActions extends React.Component {
                                                                     //console.log(result.responseText);
                                                                     var parsedJson = JSON.parse(result.responseText);
                                                                     if (parsedJson && parsedJson.length > 0) {
-                                                                        openQuizContent(parsedJson, quiz.join_code, quiz.quiz_name);
+                                                                        var allProblems = parsedJson;
+                                                                        // TODO - consolidate with teacher quiz editing maybe
+                                                                        var overallDoc = assignmentReducer();
+                                                                        // clear out the defualt blank first problem
+                                                                        overallDoc[PROBLEMS] = [];
+                                                                        const probCount = allProblems.length;
+                                                                        var readInSoFar = 0;
+                                                                        allProblems.forEach((questionAloneInDoc) => {
+                                                                            openAssignment(base64ToArrayBuffer(
+                                                                                questionAloneInDoc['question_content']),
+                                                                                '', (recovered) => {
+                                                                                    overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
+                                                                                    readInSoFar++;
+                                                                                    if (readInSoFar === probCount) {
+                                                                                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                                                                            ASSIGNMENT_NAME : '',
+                                                                                            DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
+                                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
+                                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name})
+                                                                                    }
+                                                                                });
+                                                                        });
                                                                     } else {
                                                                         window.store.dispatch({type : "NEW_ASSIGNMENT"});
                                                                         window.store.dispatch({type: SET_EDIT_QUIZ,
