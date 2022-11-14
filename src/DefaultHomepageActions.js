@@ -14,8 +14,11 @@ import { downloadFileNoFailureAlert, openDriveFile, listGoogleClassroomCourses,
          listGoogleClassroomSubmissions, listClassroomStudents, createGoogeClassroomAssignment,
          listGoogleClassroomSubmissionsNoFailureAlert, doOnceGoogleAuthLoads, restCall } from './GoogleApi.js';
 
-var SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
-var TEACHER_QUIZZES = 'TEACHER_QUIZZES';
+const SET_EDIT_QUIZ = 'SET_EDIT_QUIZ';
+const JOIN_CODE = 'JOIN_CODE';
+const SESSION_NAME = 'SESSION_NAME';
+const SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
+const TEACHER_QUIZZES = 'TEACHER_QUIZZES';
 const URL = "http://localhost/";
 var JSON_MIME = 'application/json';
 
@@ -778,6 +781,7 @@ class UserActions extends React.Component {
 
         var teacher_quizzes = this.props.value[TEACHER_QUIZZES] ? this.props.value[TEACHER_QUIZZES] : [];
 
+        var username = window.localStorage.getItem('username');
         var reload_quizzes = () => {
             var username = window.localStorage.getItem('username');
             restCall(URL + "rest.php", 'post', JSON.stringify({verb: 'list_quizzes', username: this.state.username}), JSON_MIME,
@@ -1130,9 +1134,19 @@ class UserActions extends React.Component {
                             </a>
                         <br />
                         {teacher_quizzes.length > 0 ?
-                            (<span><h4>Live Sessions </h4>&nbsp;
+                            (<span><h4>Live Sessions </h4>
                                     { teacher_quizzes.map(function(quiz, index) {
-                                            return (<p>{quiz.quiz_name + " - " + quiz.join_code}</p>);
+                                            return (
+                                                <Button text={quiz.quiz_name + " - " + quiz.join_code}
+                                                    key={quiz.join_code}
+                                                    style={{display:"block"}}
+                                                    onClick={
+                                                        () => {
+                                                            window.store.dispatch({type: SET_EDIT_QUIZ,
+                                                                JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
+                                                        }
+                                                    }
+                                                />);
                                       })
                                     }
                                 </span>

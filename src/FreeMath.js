@@ -1,6 +1,8 @@
 import React from 'react';
 import GradingMenuBar, { ModalWhileGradingMenuBar } from './GradingMenuBar.js';
 import Assignment from './Assignment.js';
+import LogoHomeNav from './LogoHomeNav.js';
+import { LightButton } from './Button.js';
 import AssignmentEditorMenubar, { saveAssignment } from './AssignmentEditorMenubar.js';
 import { openAssignment, CANNOT_EDIT_SUBMITTED_ERR_MSG} from './AssignmentEditorMenubar.js';
 import DefaultHomepageActions from './DefaultHomepageActions.js';
@@ -9,11 +11,17 @@ import TeacherInteractiveGrader, { saveGradedStudentWorkToBlob, calculateGrading
                                    saveBackToClassroom, gradingReducer,
                                    GradesView, SimilarDocChecker
                                  } from './TeacherInteractiveGrader.js';
-import { updateFileWithBinaryContent, reclaimFromClassroom, downloadFile, downloadFileMetadata } from './GoogleApi.js';
+import { updateFileWithBinaryContent, reclaimFromClassroom, downloadFile, downloadFileMetadata, restCall} from './GoogleApi.js';
 import { getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate } from './DefaultHomepageActions.js';
 
-var SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
-var TEACHER_QUIZZES = 'TEACHER_QUIZZES';
+const SET_EDIT_QUIZ = 'SET_EDIT_QUIZ';
+const JOIN_CODE = 'JOIN_CODE';
+const SESSION_NAME = 'SESSION_NAME';
+const TEACHER_QUIZ_EDITOR = 'TEACHER_QUIZ_EDITOR';
+const SET_LIST_TEACHER_QUIZZES = 'SET_LIST_TEACHER_QUIZZES';
+const TEACHER_QUIZZES = 'TEACHER_QUIZZES';
+const URL = "http://localhost/";
+var JSON_MIME = 'application/json';
 
 // Application modes
 var APP_MODE = 'APP_MODE';
@@ -751,6 +759,13 @@ function rootReducer(state, action) {
     } else if (action.type === "SET_GLOBAL_STATE") {
         return {...action.newState,
         };
+    } else if (action.type === SET_EDIT_QUIZ) {
+        return {
+                 ...assignmentReducer(),
+                 APP_MODE : TEACHER_QUIZ_EDITOR,
+                 JOIN_CODE : action[JOIN_CODE],
+                 SESSION_NAME : action[SESSION_NAME]
+        }
     } else if (action.type === SET_ASSIGNMENT_NAME) {
         return { ...state,
                  ASSIGNMENT_NAME : action[ASSIGNMENT_NAME]
@@ -785,10 +800,12 @@ function rootReducer(state, action) {
             CURRENT_PROBLEM : 0,
             "DOC_ID" : action["DOC_ID"] ? action["DOC_ID"] : genID() ,
         };
-    } else if (state[APP_MODE] === EDIT_ASSIGNMENT) {
+    } else if (state[APP_MODE] === EDIT_ASSIGNMENT
+        || state[APP_MODE] === TEACHER_QUIZ_EDITOR
+    ) {
         return {
-            ...assignmentReducer(state, action),
-            APP_MODE : EDIT_ASSIGNMENT
+            APP_MODE : state[APP_MODE],
+            ...assignmentReducer(state, action)
         }
     } else if (state[APP_MODE] === GRADE_ASSIGNMENTS
         || state[APP_MODE] === SIMILAR_DOC_CHECK
@@ -829,6 +846,61 @@ class FreeMath extends React.Component {
           return (
               <div>
                   <AssignmentEditorMenubar value={this.props.value}/>
+                  <Assignment value={this.props.value}/>
+                  <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
+                          className="fm-button"
+                          style={{display:"block", position:"fixed", bottom:"0",
+                                  right:"0", zIndex: "100",
+                                  boxShadow: "rgb(126, 127, 128) 0px 10px 50px",
+                                  margin: "0 30px 30px 0", width: "85px"}}>
+                        Site Feedback
+                    </a>
+              </div>
+          );
+      } else if (this.props.value[APP_MODE] === TEACHER_QUIZ_EDITOR) {
+          return (
+              <div>
+                <div className="menuBar">
+                    <div className="nav" style={{width:1024,marginLeft:"auto", marginRight:"auto"}}>
+                        <div style={{float:"left"}}><LogoHomeNav /></div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <div style={{float:"left", verticalAlign:"top",
+                                     marginTop:"5px", lineHeight : 1}}>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            {this.props.value[SESSION_NAME] + " - " + this.props.value[JOIN_CODE]}
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <LightButton text="Save Draft" onClick={ () => {
+                                // TODO
+                                // getPersistentState()[ASSIGNMENT_NAME], getPersistentState(), onSuccess, onFailure);
+                                const appState = getPersistentState();
+                                // TODO loop over all problems
+                                const firstProblem = appState[PROBLEMS][0];
+                                const newDocFirstProb = assignmentReducer();
+                                newDocFirstProb[PROBLEMS][0] = firstProblem;
+                                saveAssignment(newDocFirstProb, (finalBlob) => {
+                                    blobToBase64(finalBlob, (base64Data) => {
+                                        var username = window.localStorage.getItem('username');
+                                        restCall(URL + "rest.php", 'post',
+                                            JSON.stringify({verb: 'create_question',
+                                                username: username, quiz_join_code: this.props.value[JOIN_CODE],
+                                                question_title: firstProblem[PROBLEM_NUMBER],
+                                                question_content: base64Data}),
+                                            JSON_MIME,
+                                            (result) => {
+                                                alert("Successfully created new question " + result.responseText);
+                                            }, (err) => {
+                                                console.log(err);
+                                            }
+                                        );
+                                    });
+                                });
+                            }}/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <LightButton text="Start Live Session" onClick={ () => {
+                                // TODO
+                            }}/>
+                        </div>
+                    </div>
+                </div>
                   <Assignment value={this.props.value}/>
                   <a href="https://forms.gle/aBFxzaSDwZh6WLic7" target="_blank"
                           className="fm-button"
