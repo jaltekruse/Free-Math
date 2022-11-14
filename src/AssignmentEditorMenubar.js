@@ -316,7 +316,7 @@ function openAssignment(content, filename, handleFileCallback, handleError, driv
     .then(function(new_zip) {
         var filePromise;
 
-        console.log(new_zip)
+        console.log("new zip", new_zip)
         // you now have every files contained in the loaded zip
         new_zip.forEach(function (file, zipEntry) {
                 // extra directory added when zipping files on mac
@@ -338,6 +338,7 @@ function openAssignment(content, filename, handleFileCallback, handleError, driv
                             filePromise = zipEntry
                                 .async("string")
                                 .then(function (data) {
+                                    console.log("parsing doc: " + filename);
                                     newDoc = JSON.parse(data);
                                     newDoc = convertToCurrentFormat(newDoc);
                                     operationsStillToFinish--;

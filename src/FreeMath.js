@@ -868,6 +868,9 @@ class FreeMath extends React.Component {
       if (window.MathQuill) {
         //window.MathQuill = window.MathQuill.getInterface(1);
       }
+
+
+      var username = window.localStorage.getItem('username');
       if (this.props.value[APP_MODE] === EDIT_ASSIGNMENT) {
           return (
               <div>
@@ -892,7 +895,7 @@ class FreeMath extends React.Component {
                         <div style={{float:"left", verticalAlign:"top",
                                      marginTop:"5px", lineHeight : 1}}>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                            {this.props.value[SESSION_NAME] + " - " + this.props.value[JOIN_CODE]}
+                            {username + " - " + this.props.value[JOIN_CODE]}
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <LightButton text="Submit All" onClick={ () => {
                                 const appState = getPersistentState();
@@ -904,6 +907,8 @@ class FreeMath extends React.Component {
 
                                     const newDocForProb = assignmentReducer();
                                     newDocForProb[PROBLEMS][0] = problem;
+                                    console.log("saving problem");
+                                    console.log(problem);
                                     saveAssignment(newDocForProb, (finalBlob) => {
                                         blobToBase64(finalBlob, (base64Data) => {
                                             var username = window.localStorage.getItem('username');

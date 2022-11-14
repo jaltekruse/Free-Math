@@ -208,8 +208,8 @@ function loadStudentWorkFromServer(username, join_code, quiz_name) {
                     openAssignment(base64ToArrayBuffer(
                         questionAloneInDoc['question_content']),
                         '', (recovered) => {
-                            var student_id = questionAloneInDoc['user_id'];
-                            if (! questionAloneInDoc['user_id']) {
+                            var student_id = questionAloneInDoc['username'];
+                            if (! student_id) {
                                 // skip entires with no user for now, these are the questions themselves
                                 student_id = 'original_problem';
                             }
