@@ -598,8 +598,11 @@ function calculateGradingOverview(allProblems) {
             gradeOverview["PROBLEMS"].push(currentProblemOverview);
         }
     }
+    // TODO -maybe re-enable, but I probably want to order of the problems to be stable
+    /*
     gradeOverview[PROBLEMS] = gradeOverview[PROBLEMS].sort(
         function(a,b) { return a["LARGEST_ANSWER_GROUP_SIZE"] - b["LARGEST_ANSWER_GROUP_SIZE"];});
+        */
     return gradeOverview;
 }
 
@@ -1116,7 +1119,7 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
     let mostCommonPossiblePoints;
     var countPossiblePointsValues =
         function(uniqueAnswer, index, arr) {
-            // sort with largest groups first
+            // sort from least work shown to most work shown
             uniqueAnswer[STUDENT_WORK].sort(function(a,b) { return a[STEPS].length - b[STEPS].length; });
             // calculate appearances of different value for possible points
             uniqueAnswer[STUDENT_WORK].forEach(function(singleStudentSolution, index, arr) {
@@ -1203,7 +1206,8 @@ function aggregateStudentWork(allStudentWork, answerKey = {}, expressionComparat
         return { STUDENT_FILE: assignInfo[STUDENT_FILE], STUDENT_NAME: assignInfo[STUDENT_NAME]};
     });
 
-    var similarAssignments = findSimilarStudentAssignments(allStudentWork);
+    // TODO - re-enable
+    var similarAssignments = {}; //findSimilarStudentAssignments(allStudentWork);
     return { CURRENT_FILTERS : { SIMILAR_ASSIGNMENT_GROUP_INDEX : null, ANONYMOUS : true },
     SIMILAR_ASSIGNMENT_SETS : similarAssignments, ALL_STUDENTS: allStudents, CUSTOM_GROUP : null, PROBLEMS : aggregatedWork }
 }

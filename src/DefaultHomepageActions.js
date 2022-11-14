@@ -189,6 +189,88 @@ function startsWith(str, maybePrefix) {
     return str.lastIndexOf(maybePrefix, 0) === 0
 }
 
+function loadStudentWorkFromServer(username, join_code, quiz_name) {
+    restCall(URL + "rest.php", 'post',
+        JSON.stringify({verb: 'get_all_responses',
+            username: username, quiz_join_code: join_code,
+        }),
+        JSON_MIME,
+        (result) => {
+            //console.log(result.responseText);
+            var parsedJson = JSON.parse(result.responseText);
+            if (parsedJson && parsedJson.length > 0) {
+                var allProblems = parsedJson;
+                // TODO - consolidate with teacher quiz editing maybe
+                var allStudentDocs = {};
+                const probCount = allProblems.length;
+                var readInSoFar = 0;
+                allProblems.forEach((questionAloneInDoc) => {
+                    openAssignment(base64ToArrayBuffer(
+                        questionAloneInDoc['question_content']),
+                        '', (recovered) => {
+                            var student_id = questionAloneInDoc['user_id'];
+                            if (! questionAloneInDoc['user_id']) {
+                                // skip entires with no user for now, these are the questions themselves
+                                student_id = 'original_problem';
+                            }
+                            console.log(student_id);
+                            console.log(allStudentDocs[student_id]);
+                            var overallDoc;
+                            if (! allStudentDocs[student_id]) {
+                                overallDoc = assignmentReducer();
+                                // clear out the defualt blank first problem
+                                overallDoc[PROBLEMS] = [];
+                                allStudentDocs[student_id] = overallDoc;
+                            } else {
+                                overallDoc = allStudentDocs[student_id];
+                            }
+                            overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
+                            readInSoFar++;
+                            if (readInSoFar === probCount) {
+                                var listOfDocs = [];
+                                for (var student in allStudentDocs){
+                                    if (allStudentDocs.hasOwnProperty(student)) {
+                                        listOfDocs.push({STUDENT_FILE: student, ASSIGNMENT: allStudentDocs[student][PROBLEMS]});
+                                    }
+                                }
+
+                                var aggregatedWork = aggregateStudentWork(listOfDocs);
+                                console.log("opened docs");
+                                //console.log(aggregatedWork);
+
+                                // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
+                                // from before this call, but defensively re-setting ti anyway. This was previously set as part
+                                // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
+                                //window.ephemeralStore.dispatch(
+                                //    {type : SET_GOOGLE_ID, GOOGLE_ID: googleId});
+
+                                window.store.dispatch(
+                                    { type : SET_ASSIGNMENTS_TO_GRADE,
+                                      NEW_STATE :
+                                        {...aggregatedWork, ASSIGNMENT_NAME: quiz_name + " - " + join_code,
+                                            JOIN_CODE: join_code
+                                        }});
+                                /*
+                                window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
+                                    ASSIGNMENT_NAME : '',
+                                    DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
+                                window.store.dispatch({type: SET_EDIT_QUIZ,
+                                    JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name})
+                                    */
+                            }
+                        });
+                });
+            } else {
+                window.store.dispatch({type : "NEW_ASSIGNMENT"});
+                window.store.dispatch({type: SET_EDIT_QUIZ,
+                    JOIN_CODE: join_code, SESSION_NAME : quiz_name })
+            }
+        }, (err) => {
+            console.log(err);
+        }
+    );
+}
+
 class UserActions extends React.Component {
     state = {
              showActionsMobile: false,
@@ -1282,83 +1364,8 @@ class UserActions extends React.Component {
                                                             // TODO - later optimization, can send at least a boolean in the list of sessions
                                                             // to say if any draft is saved or if it is just a number so far
 
-                                                            restCall(URL + "rest.php", 'post',
-                                                                JSON.stringify({verb: 'get_all_responses',
-                                                                    username: username, quiz_join_code: quiz.join_code,
-                                                                }),
-                                                                JSON_MIME,
-                                                                (result) => {
-                                                                    //console.log(result.responseText);
-                                                                    var parsedJson = JSON.parse(result.responseText);
-                                                                    if (parsedJson && parsedJson.length > 0) {
-                                                                        var allProblems = parsedJson;
-                                                                        // TODO - consolidate with teacher quiz editing maybe
-                                                                        var allStudentDocs = {};
-                                                                        const probCount = allProblems.length;
-                                                                        var readInSoFar = 0;
-                                                                        allProblems.forEach((questionAloneInDoc) => {
-                                                                            openAssignment(base64ToArrayBuffer(
-                                                                                questionAloneInDoc['question_content']),
-                                                                                '', (recovered) => {
-                                                                                    var student_id = questionAloneInDoc['user_id'];
-                                                                                    if (! questionAloneInDoc['user_id']) {
-                                                                                        // skip entires with no user for now, these are the questions themselves
-                                                                                        student_id = 'original_problem';
-                                                                                    }
-                                                                                    console.log(student_id);
-                                                                                    console.log(allStudentDocs[student_id]);
-                                                                                    var overallDoc;
-                                                                                    if (! allStudentDocs[student_id]) {
-                                                                                        overallDoc = assignmentReducer();
-                                                                                        // clear out the defualt blank first problem
-                                                                                        overallDoc[PROBLEMS] = [];
-                                                                                        allStudentDocs[student_id] = overallDoc;
-                                                                                    } else {
-                                                                                        overallDoc = allStudentDocs[student_id];
-                                                                                    }
-                                                                                    overallDoc[PROBLEMS].push(recovered[PROBLEMS][0]);
-                                                                                    readInSoFar++;
-                                                                                    if (readInSoFar === probCount) {
-                                                                                        var listOfDocs = [];
-                                                                                        for (var student in allStudentDocs){
-                                                                                            if (allStudentDocs.hasOwnProperty(student)) {
-                                                                                                listOfDocs.push({STUDENT_FILE: student, ASSIGNMENT: allStudentDocs[student][PROBLEMS]});
-                                                                                            }
-                                                                                        }
-
-                                                                                        var aggregatedWork = aggregateStudentWork(listOfDocs);
-                                                                                        console.log("opened docs");
-                                                                                        //console.log(aggregatedWork);
-
-                                                                                        // TODO - This probably isn't be needed anymore. The ephemeral state should still be in place
-                                                                                        // from before this call, but defensively re-setting ti anyway. This was previously set as part
-                                                                                        // of SET_ASSIGNMENTS_TO_GRADE, before the google id was moved the ephemeral state
-                                                                                        //window.ephemeralStore.dispatch(
-                                                                                        //    {type : SET_GOOGLE_ID, GOOGLE_ID: googleId});
-
-                                                                                        window.store.dispatch(
-                                                                                            { type : SET_ASSIGNMENTS_TO_GRADE,
-                                                                                              NEW_STATE :
-                                                                                                {...aggregatedWork, ASSIGNMENT_NAME: quiz.quiz_name + " - " + quiz.join_code}});
-                                                                                        /*
-                                                                                        window.store.dispatch({type : SET_ASSIGNMENT_CONTENT,
-                                                                                            ASSIGNMENT_NAME : '',
-                                                                                            DOC_ID: recovered['DOC_ID'], PROBLEMS : overallDoc[PROBLEMS]});
-                                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
-                                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name})
-                                                                                            */
-                                                                                    }
-                                                                                });
-                                                                        });
-                                                                    } else {
-                                                                        window.store.dispatch({type : "NEW_ASSIGNMENT"});
-                                                                        window.store.dispatch({type: SET_EDIT_QUIZ,
-                                                                            JOIN_CODE: quiz.join_code, SESSION_NAME : quiz.quiz_name })
-                                                                    }
-                                                                }, (err) => {
-                                                                    console.log(err);
-                                                                }
-                                                            );
+                                                            var username = window.localStorage.getItem('username');
+                                                            loadStudentWorkFromServer(username, quiz.join_code, quiz.quiz_name);
                                                         }
                                                     }
                                                 />
@@ -1640,4 +1647,5 @@ class DefaultHomepageActions extends React.Component {
 }
 
 
-export { DefaultHomepageActions as default, render, checkAllSaved, getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate, loadDemoGrading };
+export { DefaultHomepageActions as default, render, checkAllSaved, getStudentRecoveredDocs, getTeacherRecoveredDocs, sortByDate, loadDemoGrading,
+    loadStudentWorkFromServer };

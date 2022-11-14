@@ -7,6 +7,7 @@ import { LightButton, HtmlButton } from './Button.js';
 import { getPersistentState, getEphemeralState, saveToLocalStorageOrDrive } from './FreeMath.js';
 import { updateFileWithBinaryContent, createFileWithBinaryContent,
          doOnceGoogleAuthLoads } from './GoogleApi.js';
+import { loadStudentWorkFromServer } from './DefaultHomepageActions.js';
 
 var SET_TO_VIEW_GRADES = 'SET_TO_VIEW_GRADES';
 var SET_TO_SIMILAR_DOC_CHECK = 'SET_TO_SIMILAR_DOC_CHECK';
@@ -151,6 +152,14 @@ class GradingMenuBar extends React.Component {
                                 </span>
                             : null}
 
+                        <LightButton text="Reload All" onClick={
+                            function() {
+                                //window.ga('send', 'event', 'Actions', 'edit', 'Save Graded Docs');
+                                var username = window.localStorage.getItem('username');
+                                var appState = getPersistentState();
+                                loadStudentWorkFromServer(username, appState['JOIN_CODE'], '');
+                            }
+                        }/>&nbsp;&nbsp;&nbsp;
                         {/* Don't show option to save on iOS*/}
                         {!browserIsIOS ?
                         (<div className="navBarItem" style={{display:"inline-block"}}>
