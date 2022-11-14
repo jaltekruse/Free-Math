@@ -138,8 +138,14 @@ if ($data->verb == 'create_quiz') {
     // yup, also should respect the 'active' flag
     $user_id = username_to_id($data->username, $db);
 
-    $result = $db->query("select question_title, question_content, quiz_id, active from questions where " .
-        "quiz_id='" . esc($db, $quiz_id)  . "'");
+    $sql = "select question_title, case when (content is not null) then content else question_content end as question_content, quiz_id, active from questions " . 
+        "left join responses on questions_question_id = question_id " .
+        "and user_id='" . esc($db, $user_id)  . "' " .
+        "where " .
+        "quiz_id='" . esc($db, $quiz_id)  . "' ";
+    //echo $sql;
+
+    $result = $db->query($sql);
     if (! $result) {
         echo $db->error;
     } else {
