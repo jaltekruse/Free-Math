@@ -238,7 +238,9 @@ export class ModalMenuBar extends React.Component {
         const exitAction = this.props.exitAction;
         const text = this.props.text;
         return (
-            <div style={{
+            <div
+              className="noprint"
+              style={{
                 padding: "5px 0px 5px 0px", width: "100%", display:"inline-block",
                 backgroundColor: "#212121", color : "#efefef"}}
             >

@@ -835,3 +835,13 @@ span.solution-step {
     margin: 5px 5px 5px 5px;
     padding: 5px 5px 5px 5px;
 }
+
+@media print {
+  .noprint {
+    display: none !important;
+  }
+  .whiteprint {
+    background-color: white;
+    color: black;
+  }
+}
