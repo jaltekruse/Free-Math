@@ -873,12 +873,10 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     let uploadQueue = [];
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
-            for (let k =0; k <20;k++) {
             window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
             totalToSave++;
             console.log("queued save");
             uploadQueue.push({ filename, numRetries: 3});
-            }
         }
     }
 
