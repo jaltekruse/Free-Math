@@ -808,10 +808,11 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
     var errorsSaving = 0;
     var unsubmittedStudents = [];
 
-    const saveStudentAssignment = function(filename, onIndividualFileSuccess, onIndividualFailure) {
+    const saveStudentAssignment = function(filenameAndRetries, onIndividualFileSuccess, onIndividualFailure) {
 
         let tempSeparatedAssignments = separateIndividualStudentAssignments(
             getPersistentState());
+        let filename = filenameAndRetries.filename;
         let doc = tempSeparatedAssignments[filename];
         saveAssignment(doc, function(finalBlob) {
             updateFileWithBinaryContent(
@@ -829,46 +830,63 @@ function saveBackToClassroom(gradedWork, onSuccess, onFailure) {
         console.log("successful save");
         window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
         if (uploadQueue.length > 0) {
-            let nextFilename = uploadQueue.pop();
-            saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
+            let nextFilenameAndRetries = uploadQueue.pop();
+            saveStudentAssignment(nextFilenameAndRetries, onIndividualFileSuccess, onFailureWrapped(nextFilenameAndRetries));
         } else {
             checkFilesLoaded();
         }
     }
-    const onIndividualFailure = function(filename) {
-        console.log("failed saving one student doc");
-        errorsSaving++;
-        // TODO - limit number of retries?
-        window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+    const onIndividualFailure = function(filenameAndRetries) {
+        if (filenameAndRetries.numRetries > 0) {
+            // NOTE: not incrementing errorSaving intentionally, this controls if we surface a failure to the user
+            // which we don't want to do unless retries are unsuccessful
+            filenameAndRetries.numRetries--;
+            // issue retry with delay using exponential backoff
+            // cap the exponential backoff at 20 seconds of delay
+            // also add some randomness so retries don't happen in waves as a bunch of timeouts resolve simultaneously
+            let backoffTimeout = Math.min(Math.pow(1.5, errorsSaving + 1), 20) * 1000 + Math.random() * 1000;
+            console.log("backoff timeout", backoffTimeout);
+            setTimeout(() => {
+                    saveStudentAssignment(filenameAndRetries, onIndividualFileSuccess, onFailureWrapped(filenameAndRetries));
+                },
+                backoffTimeout
+            );
+        } else {
+            console.log("failed saving one student doc, even after 3 retries");
+            errorsSaving++;
+            window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: -1});
+        }
 
         if (uploadQueue.length > 0) {
-            let nextFilename = uploadQueue.pop();
-            saveStudentAssignment(nextFilename, onIndividualFileSuccess, onFailureWrapped(nextFilename));
+            let nextFilenameAndRetries = uploadQueue.pop();
+            saveStudentAssignment(nextFilenameAndRetries, onIndividualFileSuccess, onFailureWrapped(nextFilenameAndRetries));
         } else {
             checkFilesLoaded();
         }
     }
-    const onFailureWrapped = function(filename) {
+    const onFailureWrapped = function(filenameAndRetries) {
         return function() {
-            return onIndividualFailure(filename);
+            return onIndividualFailure(filenameAndRetries);
         }
     };
 
     let uploadQueue = [];
     for (let filename in separatedAssignments) {
         if (separatedAssignments.hasOwnProperty(filename)) {
+            for (let k =0; k <20;k++) {
             window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_SAVING_COUNT, DELTA: 1});
             totalToSave++;
             console.log("queued save");
-            uploadQueue.push(filename);
+            uploadQueue.push({ filename, numRetries: 3});
+            }
         }
     }
 
-    let CONCURRENT_REQUESTS = 5;
+    let CONCURRENT_REQUESTS = 3;
     let i;
     for (i = 0; i < CONCURRENT_REQUESTS && uploadQueue.length > 0; i++) {
-        let filename = uploadQueue.pop();
-        saveStudentAssignment(filename, onIndividualFileSuccess, onFailureWrapped(filename));
+        let filenameAndRetries = uploadQueue.pop();
+        saveStudentAssignment(filenameAndRetries, onIndividualFileSuccess, onFailureWrapped(filenameAndRetries));
     }
 
     window.ephemeralStore.dispatch({ type: MODIFY_CLASSROOM_TOTAL_TO_SAVE,

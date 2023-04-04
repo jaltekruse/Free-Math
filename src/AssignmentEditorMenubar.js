@@ -541,7 +541,7 @@ class GoogleClassroomSubmissionSelector extends React.Component {
         var showModal = this.props.showModal ?
                             this.props.showModal :
                             function() {
-                                return rootState[GOOGLE_CLASS_LIST];
+                                return !!rootState[GOOGLE_CLASS_LIST];
                             };
 
         const courseList = function() {

@@ -415,10 +415,16 @@ function googleRequestRetryOnceOn401(firstAttempt, url, verb, payload, mime, cal
         if (this.readyState === 4) {
             if (this.status == 200) {
                 try {
+                    //if (url.includes("upload/drive/v2") && Math.random() < 0.7) {
+                    //    throw "simulated network failure";
+                    //}
                     callback(this);
                 } catch (e) {
-                    errorCallback(this);
-                    console.log(e);
+                    try {
+                        errorCallback(this);
+                    } finally {
+                        console.log(e);
+                    }
                 }
             } else if (this.status == 401 && firstAttempt){
                 var authPromise = gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse();
@@ -432,6 +438,9 @@ function googleRequestRetryOnceOn401(firstAttempt, url, verb, payload, mime, cal
             }
         } else {
             // ignore other events for request still in progress
+            console.log("xhr load for something other than readystate 4, request still in progress");
+            console.log(this);
+            console.log(this.responseText);
         }
     };
     xhr.onerror = function(xhr) {
