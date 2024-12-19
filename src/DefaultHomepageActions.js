@@ -884,6 +884,11 @@ class UserActions extends React.Component {
             <div className="homepage-center-mobile">
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Students</h3>
+                        Students new to Free Math see the&nbsp;<a href="launch.html?mode=studentDemo">
+                            tutorial assignment.
+                        </a>
+                        <br />
+                        <br />
                         New Assignment &nbsp;&nbsp;&nbsp;
                         <Button type="submit" text="Create" onClick={
                             function() {
@@ -905,7 +910,7 @@ class UserActions extends React.Component {
                             onClick={/* contrlled by google auth in componentDidMount*/function(){}}
                             content={(
                                     <div style={{display: "inline-block"}}>
-                                        <div style={{float: "left", paddingTop: "2px"}}>Open from Drive &nbsp;</div>
+                                        <div style={{float: "left", paddingTop: "2px"}}>Open from Google Drive &nbsp;</div>
                                          <img src="images/google_drive_small_logo.png"
                                             alt="google logo" />
                                     </div>
@@ -928,9 +933,9 @@ class UserActions extends React.Component {
                                 returned to you after grading.
                         <br />
                         { (recoveredStudentDocs.length > 0) ?
-                            (<span><h4>Recovered Assignments &nbsp;
+                            (<span><br /><h3>Recovered Assignments &nbsp;
                                 <Button text="Clear All" onClick={deleteAllStudentAutoSavesCallback} />
-                                </h4>
+                                </h3>
                                 <p>Sort by
                                 <Button text="Date"
                                         className={(this.state.studentRecoveredSorting === "DATE" ?
@@ -986,6 +991,37 @@ class UserActions extends React.Component {
                 </div>
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
+                    <b>Assign problems to students, from a textbook or digital resource and either...</b>
+                    <ul>
+                        <li>Have your students create their own documents</li>
+                        <li>Or create a template assignment document</li>
+                        <li><a href="gettingStarted.html" target="_blank" rel="noopener noreferrer">Read more on the getting started page.</a></li>
+                    </ul>
+                    <b>Grading Student Assignments</b>
+                        <br />
+                        <br />
+                        Open a zip file from your device
+                        <br />
+                        <input type="file" accept="*" onChange={openAssignments}/>
+                        <br />
+                        <br />
+                    {/* TODO - I don't understand why this isn't the same size
+                        as the similar text in the student box...*/}
+                        Select a zip file full of student assignments. Zip files are generated
+                        when downloading assignment files from your LMS in bulk.
+                        &nbsp;
+                        <a href="gettingStarted.html">
+                            LMS Integration Info
+                        </a>
+                    <br />
+                    <br />
+                    <br />
+                    <h3>Google Classroom</h3>
+                    Learn about the <a href="googleClassroom.html" target="_blank" rel="noopener noreferrer">Google Classroom integration.</a>
+                    <br />
+                    <br />
+                    <b>Create Assignment</b>
+                    <br />
                     <HtmlButton
                         className="fm-button"
                         title="Create new Google Classroom assignment"
@@ -1002,7 +1038,8 @@ class UserActions extends React.Component {
                         )} />
                     <br />
                     <br />
-                    Grade Assignments <br />
+                    <b>Grading Student Assignments</b>
+                    <br />
                     <HtmlButton
                         className="fm-button"
                         title="Grade a Google Classroom Assignment"
@@ -1019,24 +1056,10 @@ class UserActions extends React.Component {
                                             height="16px"/>
                                 </div>
                         )} /> <br />
-                        <p>
-                            Open a zip file from your device
-                            <br />
-                            <input type="file" accept="*" onChange={openAssignments}/>
-                        </p>
-                        {/* TODO - I don't understand why this isn't the same size
-                            as the similar text in the student box...*/}
-                            Select a zip file full of student assignments. Zip files are generated
-                            when downloading assignment files from your LMS in bulk.
-                            <br />
-                            <a href="gettingStarted.html">
-                                LMS Integration Info
-                            </a>
-                        <br />
                         { (recoveredTeacherDocs.length > 0) ?
-                            (<span><h4>Recovered Grading Sessions &nbsp;
+                            (<span><br /><h3>Recovered Grading Sessions &nbsp;
                                 <Button text="Clear All" onClick={deleteAllTeacherAutoSavesCallback} />
-                                </h4>
+                                </h3>
                                 <p>Sort by
                                 <Button text="Date"
                                         className={(this.state.teacherRecoveredSorting === "DATE" ?
