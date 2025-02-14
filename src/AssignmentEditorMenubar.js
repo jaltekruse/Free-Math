@@ -70,7 +70,7 @@ var CANNOT_EDIT_SUBMITTED_ERR_MSG = "You cannot edit assignments that are submit
 var MODIFY_GLOBAL_WAITING_MSG = 'MODIFY_GLOBAL_WAITING_MSG';
 var GLOBAL_WAITING_MSG = 'GLOBAL_WAITING_MSG';
 
-var INSTRUCTIONS_HIDDEN_IN_ZIP_FILE = "You need to open .math files using freemathapp.org";
+var INSTRUCTIONS_HIDDEN_IN_ZIP_FILE = "00 - You need to open .math files using freemathapp.org";
 
 function isProblemNumberMissing(allProblems) {
     var atLeastOneProblemNumberNotSet = false;

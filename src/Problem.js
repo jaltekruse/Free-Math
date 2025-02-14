@@ -812,12 +812,11 @@ class ImageStep extends React.Component {
                                         <img src="images/noun-bin-2956146.svg"
                                              style={{marginTop:"3px", height:"30px"}} alt="delete image"/>
                                     )}
-                                    disabled={step[FABRIC_SRC]}
-                                        onClick={function() {
+                                    onClick={function() {
                                             window.store.dispatch(
                                                 { type : DELETE_STEP, PROBLEM_INDEX : problemIndex,
                                                   STEP_KEY : stepIndex});
-                                        }}
+                                    }}
                                 />
                                 <br />
                                 {step[FABRIC_SRC] ?

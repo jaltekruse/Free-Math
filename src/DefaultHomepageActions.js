@@ -991,7 +991,7 @@ class UserActions extends React.Component {
                 </div>
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
-                    <b>Assign problems to students, from a textbook or digital resource and either...</b>
+                    <b>Assign problems to students, from a textbook or digital resource and either&hellip;</b>
                     <ul>
                         <li>Have your students create their own documents</li>
                         <li>Or create a template assignment document</li>
