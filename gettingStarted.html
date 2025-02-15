@@ -112,41 +112,17 @@ ga('create', 'UA-70441517-2', 'auto');
      </a>
         <div style="margin-left:auto; margin-right: auto; max-width: 1024px; padding:30px 3vw 100px 3vw">
             <h2>Getting Started</h2>
-            <br />
-            <h3>Using the New Google Classroom Integration</h3>
-            <br />
-                <div class="homepage-center"
-                     style="width:10j%; height: 0;
-                             position:relative; padding:0px 0px 56.25% 0px">
-                <iframe title="Free Math Video"
-                        src="https://www.youtube.com/embed/cR9R3tXbiug?ecver=2"
-                        width="80%" height="auto" allowFullScreen frameBorder="0"
-                        gesture="media"
-                        style="width:100%; height: 100%; position: absolute"></iframe></div>
-
-            <br />
-            <br />
-            <div class="homepage-center">
-                <div class="homepage-center-mobile" style="padding:0px  0px 30px 0px">
-                    <a class="fm-button big-mobile-button" id="student-tutorial" href="launch.html?mode=studentDemo">
-                        <span style="color: #eeeeee">
-                            Student Tutorial</span>
-                    </a>
-                    <a class="fm-button big-mobile-button" id="teacher-tutorial" href="launch.html?mode=teacherDemo">
-                        <span style="color:#eeeeee">Demo Teacher Grading</span>
-                    </a>
-                    <a class="fm-button big-mobile-button" href="launch.html">
-                        <span>Launch Free Math</span>
-                    </a>
-                </div>
-            </div>
             <h3>General Instructions for Any LMS</h3>
             <p>Free Math is easy to set up, all you need is a standard LMS that can collect files.</p>
+            <div class="answer-partially-correct"
+                 style="display:inline-block; padding:5px; margin: 5px">
+                <span>Note for Google Classroom users, please see the video below for specific info on our direct Google Classroom integration.</span>
+            </div>
             <ol>
-                <li>Assign problems to your students.</li>
+                <li>Create an assignment in your LMS, make sure it is configured to allow students to submit files as assignment submissions.</li>
                     <ul>
-                        <li>You can simply give them a list of problems from your textbook or a
-                            worksheet. Students can start with a blank Free Math document, copying
+                        <li>Students can be given a list of problems from your textbook or a
+                            worksheet like a PDF or Word document. Students can start with a blank Free Math document, copying
                             down and working through problems just as if they were completing work in
                             paper notebooks.</li>
                         <li>
@@ -185,6 +161,22 @@ ga('create', 'UA-70441517-2', 'auto');
             </ol>
 
             <br />
+            <div class="homepage-center">
+                <div class="homepage-center-mobile" style="padding:0px  0px 30px 0px">
+                    <a class="fm-button big-mobile-button" id="student-tutorial" href="launch.html?mode=studentDemo">
+                        <span style="color: #eeeeee">
+                            Student Tutorial</span>
+                    </a>
+                    <a class="fm-button big-mobile-button" id="teacher-tutorial" href="launch.html?mode=teacherDemo">
+                        <span style="color:#eeeeee">Demo Teacher Grading</span>
+                    </a>
+                    <a class="fm-button big-mobile-button" href="launch.html">
+                        <span>Launch Free Math</span>
+                    </a>
+                </div>
+            </div>
+
+            <br />
             <h3>Teacher Introduction Video</h3>
             <br />
                 <div class="homepage-center"
@@ -208,6 +200,20 @@ ga('create', 'UA-70441517-2', 'auto');
                         width="80%" height="auto" allowFullScreen frameBorder="0"
                         gesture="media"
                         style="width:100%; height: 100%; position: absolute"></iframe></div>
+
+            <br />
+            <h3>Using the New Google Classroom Integration</h3>
+            <br />
+                <div class="homepage-center"
+                     style="width:10j%; height: 0;
+                             position:relative; padding:0px 0px 56.25% 0px">
+                <iframe title="Free Math Video"
+                        src="https://www.youtube.com/embed/cR9R3tXbiug?ecver=2"
+                        width="80%" height="auto" allowFullScreen frameBorder="0"
+                        gesture="media"
+                        style="width:100%; height: 100%; position: absolute"></iframe></div>
+
+            <br />
                 <h2 id="lmsIntegration">
                     <br />
                     Instructions for Specific LMS Tools
@@ -227,10 +233,10 @@ ga('create', 'UA-70441517-2', 'auto');
                         Keep this in mind as you follow these instructions.
                     </p>
                     Moodle (
-                        <a href="https://www.umass.edu/it/support/moodle/downloadallstudentsubmissionsamoodleassignment"
+                        <a href="https://telsupport.brookes.ac.uk/articles/how-do-i-bulk-upload-feedback-files-to-a-moodle-assignment/"
                            onclick="(function(){ga('send', 'event', 'Tutorial', 'moodle', 'moodle download');})();"
                            target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
-                        <a href="https://www.umass.edu/it/support/moodle/grade-assignments-moodle#Upload%20Multiple%20Feedback%20Files%20Using%20a%20.Zip%20File"
+                        <a href="https://docs.moodle.org/405/en/Assignment_settings#:~:text=Uploading%20multiple%20feedback%20files"
                            onclick="(function(){ga('send', 'event', 'Tutorial', 'moodle', 'moodle upload');})();"
                            target="_blank" rel="noopener noreferrer">Upload</a>
                     )
@@ -248,20 +254,15 @@ ga('create', 'UA-70441517-2', 'auto');
                            target="_blank" rel="noopener noreferrer">Upload</a>
                     )
                     <br />
-                    <a href="https://telhelp.shu.ac.uk/batch-upload-feedback-file-attachments-grade-centre-assignments-submitted-online"
+                    <a href="https://help.blackboard.com/Learn/Instructor/Original/Assignments/Download_Assignments"
                        onclick="(function(){ga('send', 'event', 'Tutorial', 'blackboard', 'blackboard');})();"
                        target="_blank" rel="noopener noreferrer">Blackboard</a>
                     <br />
-                    D2L (
-                       <a href="https://distancelearning.elgin.edu/d2ltutorials/d2l_10_3_faculty_guides/en/downloading-dropbox-folder-submission-files.html"
-                            onclick="(function(){ga('send', 'event', 'Tutorial', 'd2l', 'd2l download');})();"
-                            target="_blank" rel="noopener noreferrer">Download</a>&nbsp;&nbsp;
-                        <a href="https://distancelearning.elgin.edu/d2ltutorials/d2l_10_3_faculty_guides/en/uploading-attaching-feedback-from-downloaded-submission-files.html"
-                            onclick="(function(){ga('send', 'event', 'Tutorial', 'd2l', 'd2l upload');})();"
-                            target="_blank" rel="noopener noreferrer">Upload</a>
-                    )
+                    <a href="https://resources.depaul.edu/teaching-commons/teaching-guides/technology/desire2learn/tools/dropbox/Pages/evaluating-all.aspx"
+                       onclick="(function(){ga('send', 'event', 'Tutorial', 'blackboard', 'blackboard');})();"
+                       target="_blank" rel="noopener noreferrer">D2L</a>
                     <br />
-                    <a href="https://support.schoology.com/hc/en-us/articles/201001503-How-do-teachers-use-Assignment-Submissions-"
+                    <a href="https://uc.powerschool-docs.com/en/schoology/latest/course-materials-assignments-instructors#id-(20240213-en)Coursematerials:Assignments(instructors)-Submittedassignments"
                        onclick="(function(){ga('send', 'event', 'Tutorial', 'schoology', 'schoology');})();"
                        target="_blank" rel="noopener noreferrer">Schoology</a>
                     <br/>
