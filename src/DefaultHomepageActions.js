@@ -985,9 +985,9 @@ class UserActions extends React.Component {
                                             }) }
                                     </span>) : null }
                         { (recoveredStudentDocs.length > 0) ?
-                            (<p>Recovered assignments stored temporarily in your
+                            (<span>Recovered assignments stored temporarily in your
                                 browser, save to your device as soon as
-                                possible</p>) : null}
+                                possible</span>) : null}
                 </div>
                 <div className="homepage-actions-container" style={{...divStyle, textAlign: "left"}}>
                     <h3>Teachers</h3>
@@ -1109,9 +1109,9 @@ class UserActions extends React.Component {
                                             }) }
                                     </span>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
-                            (<p>Recovered grading sessions stored temporarily in
+                            (<span>Recovered grading sessions stored temporarily in
                                 your browser, save to your device as soon as
-                                possible</p>) : null }
+                                possible</span>) : null }
                 </div>
             </div>
             </div>
