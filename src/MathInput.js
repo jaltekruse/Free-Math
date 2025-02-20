@@ -36,15 +36,12 @@ class MatrixSizePicker extends React.Component {
     }
 
     // https://blog.logrocket.com/controlling-tooltips-pop-up-menus-using-compound-components-in-react-ccedc15c7526/
-    componentDidUpdate() {
-      setTimeout(() => {
-        if(this.state.showMenu){
-          window.addEventListener('click', this.closeMenu);
-        }
-        else{
-          window.removeEventListener('click', this.closeMenu);
-        }
-      }, 0);
+    componentDidMount() {
+        window.addEventListener('click', this.closeMenu);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('click', this.closeMenu);
     }
 
     render() {
@@ -113,12 +110,14 @@ class MatrixSizePicker extends React.Component {
                     <br />
 
                      <button
-                        className='fm-button-light'
-                        onClick={
-                          function() {
-                              this.setState({showMenu: !this.state.showMenu});
-                          }.bind(this)}
-                        >
+                         className='fm-button-light'
+                         onClick={(e) => {
+                             e.nativeEvent.stopPropagation();
+                             this.setState((prev) => ({
+                                 showMenu: !prev.showMenu,
+                             }));
+                         }}
+                     >
                             <div style={{display:"inline-block"}}>
                                 <div style={{float: "left", fontSize: '16px', paddingTop: "4px"}}>
                                     {
