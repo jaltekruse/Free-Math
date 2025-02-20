@@ -182,10 +182,12 @@ function startsWith(str, maybePrefix) {
 
 class UserActions extends React.Component {
     state = {
-             showActionsMobile: false,
-             teacherRecoveredSorting: "DATE",
-             studentRecoveredSorting: "DATE"
-         };
+        showActionsMobile: false,
+        teacherRecoveredSorting: "DATE",
+        studentRecoveredSorting: "DATE",
+        recoveredStudentDocs: getStudentRecoveredDocs(),
+        recoveredTeacherDocs: getTeacherRecoveredDocs(),
+    };
 
     componentDidMount() {
 
@@ -637,6 +639,16 @@ class UserActions extends React.Component {
             // turn on confirmation dialog upon navigation away
             window.onbeforeunload = checkAllSaved;
             window.location.hash = '';
+
+            function retrieveFromLocalStorage(fullName) {
+                const item = window.localStorage.getItem(fullName);
+                if (item === null) {
+                    throw new Error("Error reading recovery document");
+                }
+
+                return item;
+            }
+
             function base64ToArrayBuffer(base64) {
                 var binary_string = window.atob(base64);
                 var len = binary_string.length;
@@ -648,23 +660,24 @@ class UserActions extends React.Component {
             }
 
             var recovered;
-            const loadLegacyFormat = function() {
+            function loadLegacyFormat() {
                 try {
                     document.body.scrollTop = document.documentElement.scrollTop = 0;
-                    recovered = JSON.parse(window.localStorage.getItem(autoSaveFullName));
+                    recovered = JSON.parse(retrieveFromLocalStorage(autoSaveFullName));
                     window.store.dispatch({"type" : "SET_GLOBAL_STATE", "newState" : recovered });
-                } catch (e2) {
-                    alert("Error reading recovery document");
-                    return;
+                } catch (e) {
+                    alert(e);
+                    throw e;
                 }
             }
             document.body.scrollTop = document.documentElement.scrollTop = 0;
             if (appMode === EDIT_ASSIGNMENT) {
                 window.ga('send', 'event', 'Actions', 'open', 'Recovered Assignment');
                 try {
-                    recovered = openAssignment(base64ToArrayBuffer(
-                        window.localStorage.getItem(autoSaveFullName)),
-                        filename);
+                    recovered = openAssignment(
+                        base64ToArrayBuffer(retrieveFromLocalStorage(autoSaveFullName)),
+                        filename,
+                    );
                 } catch (e) {
                     loadLegacyFormat();
                     return;
@@ -693,7 +706,7 @@ class UserActions extends React.Component {
 
                 try {
                     loadStudentDocsFromZip(
-                        base64ToArrayBuffer(window.localStorage.getItem(autoSaveFullName)),
+                        base64ToArrayBuffer(retrieveFromLocalStorage(autoSaveFullName)),
                         filename, function() {/* success */}, function() {
                             // loading failed, try the old format
                             loadLegacyFormat();
@@ -759,8 +772,8 @@ class UserActions extends React.Component {
         // tree and then kept in sync with what is actually stored through
         // actions use subscribers
         //https://stackoverflow.com/questions/35305661/where-to-write-to-localstorage-in-a-redux-app
-        var recoveredStudentDocs = getStudentRecoveredDocs();
-        var recoveredTeacherDocs = getTeacherRecoveredDocs();
+        var recoveredStudentDocs = this.state.recoveredStudentDocs;
+        var recoveredTeacherDocs = this.state.recoveredTeacherDocs;
 
         // sort by date, TODO - also allow switch to sort by name
         if (this.state.studentRecoveredSorting === "DATE") {
@@ -972,8 +985,15 @@ class UserActions extends React.Component {
                                                         <br />
                                                         <Button text="Open"
                                                                 onClick={function() {
-                                                                    recoverAutoSaveCallback(autoSaveFullName, filename, EDIT_ASSIGNMENT)}
-                                                                } />
+                                                                    try {
+                                                                      recoverAutoSaveCallback(autoSaveFullName, filename, EDIT_ASSIGNMENT);
+                                                                    } catch (e) {
+                                                                      this.setState({
+                                                                        ...this.state,
+                                                                        recoveredStudentDocs: getStudentRecoveredDocs(),
+                                                                      });
+                                                                    }
+                                                                }.bind(this)} />
                                                         <Button text="Delete"
                                                                 onClick={function() {
                                                                     deleteAutoSaveCallback(autoSaveFullName)}
@@ -982,7 +1002,7 @@ class UserActions extends React.Component {
                                                         <br />
                                                         </div>
                                                 );
-                                            }) }
+                                            }.bind(this)) }
                                     </span>) : null }
                         { (recoveredStudentDocs.length > 0) ?
                             (<span>Recovered assignments stored temporarily in your
@@ -1096,8 +1116,15 @@ class UserActions extends React.Component {
                                                         <br />
                                                         <Button text="Open"
                                                                 onClick={function() {
-                                                                    recoverAutoSaveCallback(autoSaveFullName, filename, GRADE_ASSIGNMENTS)}
-                                                                } />
+                                                                    try {
+                                                                        recoverAutoSaveCallback(autoSaveFullName, filename, GRADE_ASSIGNMENTS);
+                                                                    } catch (e) {
+                                                                        this.setState({
+                                                                          ...this.state,
+                                                                          recoveredTeacherDocs: getTeacherRecoveredDocs(),
+                                                                        });
+                                                                    }
+                                                                }.bind(this)} />
                                                         <Button text="Delete"
                                                                 onClick={function() {
                                                                     deleteAutoSaveCallback(autoSaveFullName)}
@@ -1106,7 +1133,7 @@ class UserActions extends React.Component {
                                                         <br />
                                                         </div>
                                                 );
-                                            }) }
+                                            }.bind(this)) }
                                     </span>) : null }
                     { (recoveredTeacherDocs.length > 0) ?
                             (<span>Recovered grading sessions stored temporarily in
