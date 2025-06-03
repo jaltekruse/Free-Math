@@ -138,10 +138,11 @@ class ProblemKebabMenu extends React.Component {
                     style={{
                         marginBottom: "0px",
                         borderRadius: "0px",
-                        padding: "8px 6px",
-                        fontSize: "16px",
-                        border: "1px solid #ccc",
-                        backgroundColor: isSelected ? "#fff" : "#f9f9f9"
+                        padding: "4px 6px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#111111",
+                        border: "2px solid transparent"
                     }}
                     onClick={this.toggleMenu}
                 >
