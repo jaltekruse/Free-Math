@@ -137,6 +137,8 @@ class ProblemKebabMenu extends React.Component {
                     className={"fm-button fm-tab " + (isSelected ? "fm-tab-selected" : "")}
                     style={{
                         marginBottom: "0px",
+                        marginLeft: "0px",
+                        marginRight: "0px",
                         borderRadius: "0px",
                         padding: "4px 6px",
                         fontSize: "12px",
@@ -346,7 +348,7 @@ class Assignment extends React.Component {
                     <div>
                         <Button text={label} title={"View " + label} key={problemIndex} id={problemIndex}
                             className={"fm-button-left fm-button fm-tab " + ((problemIndex === currProblem) ? "fm-tab-selected" : "")}
-                            style={{marginBottom: "0px", borderRadius: "15px 0px 0px 0px"}}
+                            style={{marginBottom: "0px", marginRight: "0px", borderRadius: "15px 0px 0px 0px"}}
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: problemIndex})}}
@@ -360,7 +362,7 @@ class Assignment extends React.Component {
                         <HtmlButton text="&#10005;"
                             title="Delete problem" key={problemIndex + " close"}
                             className={"fm-button-right fm-button fm-tab " + ((problemIndex === currProblem) ? "fm-tab-selected" : "")}
-                            style={{marginBottom: "0px", borderRadius: "0px 15px 0px 0px"}}
+                            style={{marginBottom: "0px", marginLeft: "0px", borderRadius: "0px 15px 0px 0px"}}
                             onClick={
                                 function() {
                                     if (this.props.value[PROBLEMS].length === 1) {
