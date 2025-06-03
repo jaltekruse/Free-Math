@@ -23,6 +23,9 @@ var PROBLEM_INDEX  = 'PROBLEM_INDEX';
 var SET_CURRENT_PROBLEM = 'SET_CURRENT_PROBLEM';
 var CURRENT_PROBLEM = 'CURRENT_PROBLEM';
 var REMOVE_PROBLEM = 'REMOVE_PROBLEM';
+var CLONE_PROBLEM = 'CLONE_PROBLEM';
+var SHIFT_PROBLEM_LEFT = 'SHIFT_PROBLEM_LEFT';
+var SHIFT_PROBLEM_RIGHT = 'SHIFT_PROBLEM_RIGHT';
 
 var SHOW_TUTORIAL = "SHOW_TUTORIAL";
 var SHOW_IMAGE_TUTORIAL = "SHOW_IMAGE_TUTORIAL";
@@ -62,11 +65,169 @@ function assignmentReducer(state, action) {
         return { ...state,
                  PROBLEMS : problemListReducer(state[PROBLEMS], action)
         };
+    } else if (action.type === CLONE_PROBLEM || action.type === SHIFT_PROBLEM_LEFT || action.type === SHIFT_PROBLEM_RIGHT) {
+        return { ...state,
+                 PROBLEMS : problemListReducer(state[PROBLEMS], action)
+        };
 
     } else {
         return { ...state,
                  PROBLEMS : problemListReducer(state[PROBLEMS], action)
         };
+    }
+}
+
+// ProblemKebabMenu component for problem operations
+class ProblemKebabMenu extends React.Component {
+    state = { showMenu: false };
+
+    toggleMenu = () => {
+        this.setState({ showMenu: !this.state.showMenu });
+    }
+
+    closeMenu = () => {
+        this.setState({ showMenu: false });
+    }
+
+    handleDuplicate = () => {
+        window.store.dispatch({ 
+            type: CLONE_PROBLEM, 
+            PROBLEM_INDEX: this.props.problemIndex 
+        });
+        this.closeMenu();
+    }
+
+    handleShiftLeft = () => {
+        if (this.props.problemIndex > 0) {
+            window.store.dispatch({ 
+                type: SHIFT_PROBLEM_LEFT, 
+                PROBLEM_INDEX: this.props.problemIndex 
+            });
+            window.ephemeralStore.dispatch({
+                type: SET_CURRENT_PROBLEM, 
+                CURRENT_PROBLEM: this.props.problemIndex - 1
+            });
+        }
+        this.closeMenu();
+    }
+
+    handleShiftRight = () => {
+        if (this.props.problemIndex < this.props.probList.length - 1) {
+            window.store.dispatch({ 
+                type: SHIFT_PROBLEM_RIGHT, 
+                PROBLEM_INDEX: this.props.problemIndex 
+            });
+            window.ephemeralStore.dispatch({
+                type: SET_CURRENT_PROBLEM, 
+                CURRENT_PROBLEM: this.props.problemIndex + 1
+            });
+        }
+        this.closeMenu();
+    }
+
+    render() {
+        const { problemIndex, probList, isSelected } = this.props;
+        const canShiftLeft = problemIndex > 0;
+        const canShiftRight = problemIndex < probList.length - 1;
+
+        return (
+            <div style={{ position: 'relative', display: 'inline-block' }}>
+                <button
+                    title="Problem options"
+                    className={"fm-button fm-tab " + (isSelected ? "fm-tab-selected" : "")}
+                    style={{
+                        marginBottom: "0px",
+                        borderRadius: "0px",
+                        padding: "8px 6px",
+                        fontSize: "16px",
+                        border: "1px solid #ccc",
+                        backgroundColor: isSelected ? "#fff" : "#f9f9f9"
+                    }}
+                    onClick={this.toggleMenu}
+                >
+                    ⋮
+                </button>
+                {this.state.showMenu && (
+                    <div style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: '0',
+                        backgroundColor: '#fff',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                        zIndex: 1000,
+                        minWidth: '150px'
+                    }}>
+                        <button
+                            style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '8px 12px',
+                                border: 'none',
+                                backgroundColor: 'transparent',
+                                textAlign: 'left',
+                                cursor: 'pointer'
+                            }}
+                            onClick={this.handleDuplicate}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                        >
+                            Duplicate Problem
+                        </button>
+                        <button
+                            style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '8px 12px',
+                                border: 'none',
+                                backgroundColor: 'transparent',
+                                textAlign: 'left',
+                                cursor: canShiftLeft ? 'pointer' : 'not-allowed',
+                                opacity: canShiftLeft ? 1 : 0.5
+                            }}
+                            onClick={canShiftLeft ? this.handleShiftLeft : undefined}
+                            onMouseEnter={(e) => canShiftLeft && (e.target.style.backgroundColor = '#f0f0f0')}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                            disabled={!canShiftLeft}
+                        >
+                            ← Shift Left
+                        </button>
+                        <button
+                            style={{
+                                display: 'block',
+                                width: '100%',
+                                padding: '8px 12px',
+                                border: 'none',
+                                backgroundColor: 'transparent',
+                                textAlign: 'left',
+                                cursor: canShiftRight ? 'pointer' : 'not-allowed',
+                                opacity: canShiftRight ? 1 : 0.5
+                            }}
+                            onClick={canShiftRight ? this.handleShiftRight : undefined}
+                            onMouseEnter={(e) => canShiftRight && (e.target.style.backgroundColor = '#f0f0f0')}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                            disabled={!canShiftRight}
+                        >
+                            Shift Right →
+                        </button>
+                    </div>
+                )}
+                {this.state.showMenu && (
+                    <div
+                        style={{
+                            position: 'fixed',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            zIndex: 999
+                        }}
+                        onClick={this.closeMenu}
+                    />
+                )}
+            </div>
+        );
     }
 }
 
@@ -188,6 +349,12 @@ class Assignment extends React.Component {
                             onClick={function() {
                                 window.ephemeralStore.dispatch(
                                     {type: SET_CURRENT_PROBLEM, CURRENT_PROBLEM: problemIndex})}}
+                        />
+                        <ProblemKebabMenu 
+                            problemIndex={problemIndex}
+                            currProblem={currProblem}
+                            probList={probList}
+                            isSelected={problemIndex === currProblem}
                         />
                         <HtmlButton text="&#10005;"
                             title="Delete problem" key={problemIndex + " close"}

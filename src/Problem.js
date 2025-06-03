@@ -1843,6 +1843,20 @@ function problemListReducer(probList, action) {
             newProb,
             ...probList.slice(action[PROBLEM_INDEX] + 1)
         ];
+    } else if (action.type === 'SHIFT_PROBLEM_LEFT') {
+        if (action[PROBLEM_INDEX] === 0) return probList;
+        const newList = [...probList];
+        const temp = newList[action[PROBLEM_INDEX]];
+        newList[action[PROBLEM_INDEX]] = newList[action[PROBLEM_INDEX] - 1];
+        newList[action[PROBLEM_INDEX] - 1] = temp;
+        return newList;
+    } else if (action.type === 'SHIFT_PROBLEM_RIGHT') {
+        if (action[PROBLEM_INDEX] === probList.length - 1) return probList;
+        const newList = [...probList];
+        const temp = newList[action[PROBLEM_INDEX]];
+        newList[action[PROBLEM_INDEX]] = newList[action[PROBLEM_INDEX] + 1];
+        newList[action[PROBLEM_INDEX] + 1] = temp;
+        return newList;
     } else if (action.type === SET_PROBLEM_NUMBER ||
                action.type === EDIT_STEP ||
                action.type === UNDO ||
