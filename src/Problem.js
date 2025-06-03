@@ -16,6 +16,7 @@ import { blankImgBase64 } from './blankImgBase64.js';
 import TextareaAutosize from 'react-textarea-autosize';
 import {useCallback} from 'react'
 import {useDropzone} from 'react-dropzone'
+import aiFeedbackService from './AIFeedbackService.js';
 
 import Cropper from 'react-cropper';
 // If you choose not to use import, you need to assign Cropper to default
@@ -1220,6 +1221,153 @@ class Problem extends React.Component {
       this.setState({value: event.target.value});
     };
 
+    requestAIFeedback = async () => {
+        const { value } = this.props;
+        const steps = value[STEPS];
+        const problemNumber = value[PROBLEM_NUMBER];
+        
+        // Convert steps to LaTeX format
+        const latexSteps = steps
+            .filter(step => step[CONTENT] && step[CONTENT].trim() !== '')
+            .map((step, index) => {
+                if (step[FORMAT] === TEXT) {
+                    return `Step ${index + 1}: ${step[CONTENT]}`;
+                } else if (step[FORMAT] === IMG) {
+                    return `Step ${index + 1}: [Image/Drawing]`;
+                } else {
+                    // Math format - already in LaTeX
+                    return `Step ${index + 1}: $${step[CONTENT]}$`;
+                }
+            })
+            .join('\n');
+
+        if (!latexSteps.trim()) {
+            alert('Please add some work before requesting AI feedback.');
+            return;
+        }
+
+        // Check if AI service is configured
+        const { key } = aiFeedbackService.getStoredCredentials();
+        if (!key) {
+            this.showAISetupModal(latexSteps, problemNumber);
+            return;
+        }
+
+        try {
+            this.setState({ 
+                showAIModal: true, 
+                aiModalContent: '<div style="padding: 20px;"><h3>Getting AI Feedback...</h3><p>Please wait while we analyze your work.</p></div>',
+                isLoadingAI: true 
+            });
+
+            const feedback = await aiFeedbackService.getFeedback(latexSteps, problemNumber);
+            
+            const modalContent = `
+                <div style="padding: 20px; max-height: 500px; overflow-y: auto;">
+                    <h3>AI Feedback on Your Work</h3>
+                    <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 10px 0;">
+                        <h4>Your Work:</h4>
+                        <pre style="white-space: pre-wrap; font-family: monospace; font-size: 12px;">${latexSteps}</pre>
+                    </div>
+                    <div style="background-color: #e8f4fd; padding: 15px; border-radius: 5px; border-left: 4px solid #2196F3;">
+                        <h4>AI Feedback:</h4>
+                        <div style="white-space: pre-wrap; line-height: 1.5;">${feedback}</div>
+                    </div>
+                    <p style="margin-top: 15px; font-size: 12px; color: #666;">
+                        <em>Note: AI feedback is for guidance only. Always verify important mathematical concepts with your teacher.</em>
+                    </p>
+                </div>
+            `;
+            
+            this.setState({ aiModalContent: modalContent, isLoadingAI: false });
+            
+        } catch (error) {
+            console.error('Error getting AI feedback:', error);
+            const errorContent = `
+                <div style="padding: 20px;">
+                    <h3>Error Getting AI Feedback</h3>
+                    <p style="color: #d32f2f;">Failed to get AI feedback: ${error.message}</p>
+                    <p>You can still copy your work and paste it into ChatGPT, Claude, or another AI assistant:</p>
+                    <textarea readonly style="width: 100%; height: 150px; font-family: monospace; font-size: 12px;">${latexSteps}</textarea>
+                    <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value)" style="margin-top: 10px; padding: 10px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Copy to Clipboard</button>
+                </div>
+            `;
+            this.setState({ aiModalContent: errorContent, isLoadingAI: false });
+        }
+    };
+
+    showAISetupModal = (latexSteps, problemNumber) => {
+        const setupContent = `
+            <div style="padding: 20px;">
+                <h3>Setup AI Feedback</h3>
+                <p>To get AI feedback, you need to configure an API key from OpenAI or Anthropic:</p>
+                
+                <div style="margin: 15px 0;">
+                    <label style="display: block; margin-bottom: 5px;"><strong>AI Provider:</strong></label>
+                    <select id="aiProvider" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+                        <option value="openai">OpenAI (ChatGPT)</option>
+                        <option value="anthropic">Anthropic (Claude)</option>
+                    </select>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <label style="display: block; margin-bottom: 5px;"><strong>API Key:</strong></label>
+                    <input type="password" id="aiApiKey" placeholder="Enter your API key" style="width: 100%; padding: 8px; margin-bottom: 10px;" />
+                    <small style="color: #666;">
+                        Get an API key from: 
+                        <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI</a> or 
+                        <a href="https://console.anthropic.com/" target="_blank">Anthropic</a>
+                    </small>
+                </div>
+                
+                <div style="margin: 15px 0;">
+                    <button onclick="this.saveAIConfig('${latexSteps.replace(/'/g, "\\'")}', '${problemNumber}')" 
+                            style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                        Save & Get Feedback
+                    </button>
+                    <button onclick="this.fallbackToCopy('${latexSteps.replace(/'/g, "\\'")}', '${problemNumber}')" 
+                            style="padding: 10px 20px; background: #FF9800; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Just Copy Text
+                    </button>
+                </div>
+                
+                <p style="font-size: 12px; color: #666; margin-top: 15px;">
+                    <strong>Privacy Note:</strong> Your API key is stored locally in your browser and is not shared with FreeMath servers. 
+                    Your math work is sent directly to the AI provider you choose.
+                </p>
+            </div>
+        `;
+        
+        this.setState({ showAIModal: true, aiModalContent: setupContent });
+        
+        // Add methods to window for button callbacks
+        window.saveAIConfig = (steps, probNum) => {
+            const provider = document.getElementById('aiProvider').value;
+            const apiKey = document.getElementById('aiApiKey').value.trim();
+            
+            if (!apiKey) {
+                alert('Please enter an API key');
+                return;
+            }
+            
+            aiFeedbackService.setApiKey(apiKey, provider);
+            this.setState({ showAIModal: false });
+            setTimeout(() => this.requestAIFeedback(), 100);
+        };
+        
+        window.fallbackToCopy = async (steps, probNum) => {
+            const prompt = `I am a high school math student. I used a tool to write out some step-by-step work that can export it as LaTeX. Can you take a look at my work and give me feedback?\n\nProblem ${probNum}:\n${steps}\n\nPlease provide constructive feedback on my mathematical reasoning, identify any errors, and suggest improvements.`;
+            
+            try {
+                await navigator.clipboard.writeText(prompt);
+                alert('Work copied to clipboard! Paste it into ChatGPT, Claude, or another AI assistant.');
+            } catch (error) {
+                alert('Could not copy to clipboard. Please manually copy your work.');
+            }
+            this.setState({ showAIModal: false });
+        };
+    };
+
     render() {
         const value = this.props.value;
         const probNumber = this.props.value[PROBLEM_NUMBER];
@@ -1234,7 +1382,20 @@ class Problem extends React.Component {
         if (!this.stepRefs) {
             this.stepRefs = [];
         }
+        
+        if (!this.state) {
+            this.state = { showAIModal: false, aiModalContent: '' };
+        }
+        
         return (
+            <div>
+            {this.state.showAIModal && (
+                <FreeMathModal
+                    closeModal={() => this.setState({ showAIModal: false })}
+                    showModal={this.state.showAIModal}
+                    content={<div dangerouslySetInnerHTML={{__html: this.state.aiModalContent}} />}
+                />
+            )}
             <div>
             <div className="problem-container" style={{display:"inline-block", width:"95%", float:'none'}}>
                 <div className="problem-editor-buttons"
@@ -1367,6 +1528,20 @@ class Problem extends React.Component {
                                     window.store.dispatch({ type : CLONE_PROBLEM, PROBLEM_INDEX : problemIndex}) }}
                         />*/}
                         {<ImageUploader problemIndex={problemIndex} value={this.props.value}/>}
+                        <div style={{display:'inline-block'}}>
+                        <HtmlButton title='Get AI Feedback'
+                            content={(
+                                <div className="fm-button-with-icon">
+                                    <img src="images/noun_new_1887016_white.svg"
+                                         className="fm-button-icon"
+                                         style={{height:"27px"}}
+                                         alt="AI Feedback"/>
+                                    <br />
+                                    <small style={{fontSize:"9px"}}>AI Help</small>
+                                </div>
+                            )}
+                            onClick={() => this.requestAIFeedback()}/>
+                        </div>
                     </div>
                     <div>
                         <div className="equation-list" style={{marginTop: "10px", paddingBottom:"350px"}}>
