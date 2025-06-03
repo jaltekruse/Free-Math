@@ -859,8 +859,7 @@ class Step extends React.Component {
     parentDivRef = React.createRef();
     state = {
         showMenu: false,
-        holdingBackspace: false
-    }
+        holdingBackspace: false    }
 
     closeMenu = () => {
         this.setState({showMenu: false});
@@ -1225,7 +1224,7 @@ class Problem extends React.Component {
         const { value } = this.props;
         const steps = value[STEPS];
         const problemNumber = value[PROBLEM_NUMBER];
-        
+
         // Convert steps to LaTeX format
         const latexSteps = steps
             .filter(step => step[CONTENT] && step[CONTENT].trim() !== '')
@@ -1261,7 +1260,7 @@ class Problem extends React.Component {
             });
 
             const feedback = await aiFeedbackService.getFeedback(latexSteps, problemNumber);
-            
+
             const modalContent = `
                 <div style="padding: 20px; max-height: 500px; overflow-y: auto;">
                     <h3>AI Feedback on Your Work</h3>
@@ -1278,9 +1277,9 @@ class Problem extends React.Component {
                     </p>
                 </div>
             `;
-            
+
             this.setState({ aiModalContent: modalContent, isLoadingAI: false });
-            
+
         } catch (error) {
             console.error('Error getting AI feedback:', error);
             const errorContent = `
@@ -1301,7 +1300,7 @@ class Problem extends React.Component {
             <div style="padding: 20px;">
                 <h3>Setup AI Feedback</h3>
                 <p>To get AI feedback, you need to configure an API key from OpenAI or Anthropic:</p>
-                
+
                 <div style="margin: 15px 0;">
                     <label style="display: block; margin-bottom: 5px;"><strong>AI Provider:</strong></label>
                     <select id="aiProvider" style="width: 100%; padding: 8px; margin-bottom: 10px;">
@@ -1309,7 +1308,7 @@ class Problem extends React.Component {
                         <option value="anthropic">Anthropic (Claude)</option>
                     </select>
                 </div>
-                
+
                 <div style="margin: 15px 0;">
                     <label style="display: block; margin-bottom: 5px;"><strong>API Key:</strong></label>
                     <input type="password" id="aiApiKey" placeholder="Enter your API key" style="width: 100%; padding: 8px; margin-bottom: 10px;" />
@@ -1319,7 +1318,7 @@ class Problem extends React.Component {
                         <a href="https://console.anthropic.com/" target="_blank">Anthropic</a>
                     </small>
                 </div>
-                
+
                 <div style="margin: 15px 0;">
                     <button onclick="this.saveAIConfig('${latexSteps.replace(/'/g, "\\'")}', '${problemNumber}')" 
                             style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
@@ -1330,34 +1329,34 @@ class Problem extends React.Component {
                         Just Copy Text
                     </button>
                 </div>
-                
+
                 <p style="font-size: 12px; color: #666; margin-top: 15px;">
                     <strong>Privacy Note:</strong> Your API key is stored locally in your browser and is not shared with FreeMath servers. 
                     Your math work is sent directly to the AI provider you choose.
                 </p>
             </div>
         `;
-        
+
         this.setState({ showAIModal: true, aiModalContent: setupContent });
-        
+
         // Add methods to window for button callbacks
         window.saveAIConfig = (steps, probNum) => {
             const provider = document.getElementById('aiProvider').value;
             const apiKey = document.getElementById('aiApiKey').value.trim();
-            
+
             if (!apiKey) {
                 alert('Please enter an API key');
                 return;
             }
-            
+
             aiFeedbackService.setApiKey(apiKey, provider);
             this.setState({ showAIModal: false });
             setTimeout(() => this.requestAIFeedback(), 100);
         };
-        
+
         window.fallbackToCopy = async (steps, probNum) => {
             const prompt = `I am a high school math student. I used a tool to write out some step-by-step work that can export it as LaTeX. Can you take a look at my work and give me feedback?\n\nProblem ${probNum}:\n${steps}\n\nPlease provide constructive feedback on my mathematical reasoning, identify any errors, and suggest improvements.`;
-            
+
             try {
                 await navigator.clipboard.writeText(prompt);
                 alert('Work copied to clipboard! Paste it into ChatGPT, Claude, or another AI assistant.');
@@ -1382,11 +1381,11 @@ class Problem extends React.Component {
         if (!this.stepRefs) {
             this.stepRefs = [];
         }
-        
+
         if (!this.state) {
             this.state = { showAIModal: false, aiModalContent: '' };
         }
-        
+
         return (
             <div>
             {this.state.showAIModal && (
@@ -1603,7 +1602,8 @@ class Problem extends React.Component {
                     </div>
                 </div>
                 ) : null}
-            {showDrawingTutorial ?
+            {```python
+showDrawingTutorial ?
                 (<div>
                     <div className="answer-partially-correct"
                       style={{display:"inline-block", padding:"5px", margin: "5px"}}>
