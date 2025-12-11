@@ -9,7 +9,7 @@ export function handleGoogleClientLoad() {
   gapi = window.gapi;
   gapi.load('client:auth2', initClient);
   gapi.load('picker', initGoogleForPicker);
-  gapi.load('drive');
+  //gapi.load('drive');
 }
 
 function initGoogleForPicker() {
